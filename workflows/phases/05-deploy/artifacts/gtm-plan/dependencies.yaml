@@ -1,0 +1,45 @@
+# GTM Plan Dependencies
+artifact: gtm-plan
+prefix: GTM
+
+inputs:
+  required:
+    - artifact: product-spec
+      phase: "02-define"
+      prefix: PS
+      relationship: "defines features being launched"
+    - artifact: implementation-plan
+      phase: "04-build"
+      prefix: IP
+      relationship: "confirms release scope and timing"
+  optional:
+    - artifact: user-research
+      phase: "01-discover"
+      relationship: "informs target segment messaging"
+    - artifact: competitive-analysis
+      phase: "01-discover"
+      relationship: "shapes competitive positioning"
+
+outputs:
+  produces:
+    - artifact: launch-checklist
+      phase: "05-deploy"
+      prefix: LC
+      relationship: "drives launch readiness activities"
+    - artifact: release-notes
+      phase: "05-deploy"
+      prefix: RN
+      relationship: "provides messaging for user communication"
+    - artifact: iteration-report
+      phase: "06-iterate"
+      prefix: IR
+      relationship: "launch metrics feed iteration planning"
+
+completion:
+  automated_checks:
+    - type: required_sections_present
+    - type: dates_validated
+  manual_checks:
+    - "Messaging validated with target customers"
+    - "Channel budget approved"
+    - "Cross-functional sign-off complete"

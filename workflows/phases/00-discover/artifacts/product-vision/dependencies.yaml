@@ -1,0 +1,79 @@
+# Dependencies for Product Vision
+
+artifact:
+  name: Product Vision
+  id: product-vision
+  type: document
+  phase: discover
+
+description: |
+  North star document defining mission, direction, target market,
+  and success criteria. First artifact in Discover phase.
+
+dependencies:
+  requires:
+    - input: Idea or opportunity
+      type: external
+      required: true
+    - input: Sponsor commitment
+      type: external
+      required: true
+
+  enables:
+    - output: Business Case
+      type: artifact
+      path: business-case
+    - output: Competitive Analysis
+      type: artifact
+      path: competitive-analysis
+    - output: Opportunity Canvas
+      type: artifact
+      path: opportunity-canvas
+    - output: PRD
+      type: artifact
+      phase: frame
+
+output:
+  location: docs/helix/00-discover/product-vision.md
+  format: markdown
+
+validation:
+  required_sections:
+    - mission_statement
+    - vision
+    - target_market
+    - value_propositions
+    - success_definition
+
+  quality_checks:
+    - check: mission_concise
+      description: Mission statement under 50 words
+      severity: warning
+
+    - check: market_specific
+      description: Target market names specific segment
+      severity: blocking
+
+    - check: metrics_measurable
+      description: Success metrics have numeric targets
+      severity: blocking
+
+workflow:
+  creation_order: 1
+  review_cycles: 1-2
+  approval_required: true
+  approvers:
+    - Sponsor
+    - Product Lead
+
+relationships:
+  informs:
+    - business-case
+    - competitive-analysis
+    - opportunity-canvas
+    - prd
+
+tags:
+  - strategy
+  - vision
+  - alignment

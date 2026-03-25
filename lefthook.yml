@@ -1,0 +1,5 @@
+pre-commit:
+  commands:
+    validate-plugin:
+      run: claude plugin validate .
+      glob: "{.claude-plugin/**/*,commands/**/*,skills/**/*,agents/**/*}"

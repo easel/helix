@@ -1,0 +1,37 @@
+# PRD (Product Requirements Document) Dependencies
+artifact: prd
+prefix: PRD
+
+inputs:
+  required: []  # PRD is the entry point for Frame phase
+  optional:
+    - artifact: product-vision
+      phase: "00-discover"
+      relationship: "informs scope and direction"
+    - artifact: business-case
+      phase: "00-discover"
+      relationship: "justifies investment"
+
+outputs:
+  produces:
+    - artifact: feature-specification
+      relationship: "breaks down into features"
+    - artifact: user-stories
+      relationship: "derives actionable stories"
+    - artifact: principles
+      relationship: "establishes design principles"
+
+completion:
+  automated_checks:
+    - type: file_exists
+    - type: no_markers
+      pattern: "\\[NEEDS CLARIFICATION\\]"
+    - type: section_exists
+      sections:
+        - "Problem Statement"
+        - "Success Metrics"
+        - "Requirements"
+  manual_checks:
+    - "Problem statement clearly defined"
+    - "Success metrics are quantifiable"
+    - "Stakeholder approval obtained"

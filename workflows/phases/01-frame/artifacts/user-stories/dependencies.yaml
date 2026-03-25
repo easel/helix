@@ -1,0 +1,38 @@
+# User Stories Dependencies
+artifact: user-stories
+prefix: US
+
+inputs:
+  required:
+    - artifact: prd
+      relationship: "derives from requirements"
+    - artifact: feature-specification
+      relationship: "breaks down features"
+  optional:
+    - artifact: stakeholder-map
+      relationship: "identifies user personas"
+
+outputs:
+  produces:
+    - artifact: technical-design
+      phase: "02-design"
+      prefix: TD
+      same_number: true
+      relationship: "each story gets a technical design"
+    - artifact: test-plan
+      phase: "03-test"
+      prefix: TP
+      same_number: true
+      relationship: "each story gets a test plan"
+
+completion:
+  automated_checks:
+    - type: file_exists
+    - type: no_markers
+      pattern: "\\[NEEDS CLARIFICATION\\]"
+    - type: section_exists
+      sections:
+        - "Acceptance Criteria"
+  manual_checks:
+    - "Each story has clear acceptance criteria"
+    - "Stories are independently deliverable"

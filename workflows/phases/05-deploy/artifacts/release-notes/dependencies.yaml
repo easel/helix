@@ -1,0 +1,39 @@
+# Release Notes Dependencies
+artifact: release-notes
+prefix: RN
+
+inputs:
+  required:
+    - artifact: implementation-plan
+      phase: "04-build"
+      prefix: IP
+      relationship: "documents implemented features"
+    - artifact: gtm-plan
+      phase: "05-deploy"
+      prefix: GTM
+      relationship: "provides messaging framework"
+  optional:
+    - artifact: launch-checklist
+      phase: "05-deploy"
+      prefix: LC
+      relationship: "confirms documentation readiness"
+    - artifact: test-plan
+      phase: "04-build"
+      relationship: "identifies resolved bugs"
+
+outputs:
+  produces:
+    - artifact: iteration-report
+      phase: "06-iterate"
+      prefix: IR
+      relationship: "release feedback feeds iteration"
+
+completion:
+  automated_checks:
+    - type: version_format_valid
+    - type: links_verified
+  manual_checks:
+    - "All features documented accurately"
+    - "Breaking changes clearly communicated"
+    - "Migration guide tested"
+    - "Support team reviewed"

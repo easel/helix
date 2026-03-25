@@ -1,0 +1,28 @@
+# Feature Specification Dependencies
+artifact: feature-specification
+prefix: FEAT
+
+inputs:
+  required:
+    - artifact: prd
+      relationship: "derives features from requirements"
+  optional:
+    - artifact: research-plan
+      relationship: "informs feature priorities"
+
+outputs:
+  produces:
+    - artifact: user-stories
+      relationship: "breaks down into stories"
+    - artifact: solution-design
+      phase: "02-design"
+      relationship: "guides solution design"
+
+completion:
+  automated_checks:
+    - type: file_exists
+    - type: no_markers
+      pattern: "\\[NEEDS CLARIFICATION\\]"
+  manual_checks:
+    - "All P0 requirements have detailed specifications"
+    - "Acceptance criteria defined"

@@ -1,0 +1,34 @@
+# Deployment Checklist Dependencies
+artifact: deployment-checklist
+prefix: DP
+
+inputs:
+  required:
+    - artifact: implementation-plan
+      phase: "04-build"
+      prefix: IP
+      same_number: true
+      relationship: "deploys completed implementation"
+  optional:
+    - artifact: launch-checklist
+      relationship: "coordinates with launch activities"
+
+outputs:
+  produces:
+    - artifact: iteration-report
+      phase: "06-iterate"
+      prefix: IR
+      same_number: true
+      relationship: "deployment metrics feed iteration"
+    - artifact: metrics-dashboard
+      phase: "06-iterate"
+      relationship: "production metrics collected"
+
+completion:
+  automated_checks:
+    - type: tests_passing
+    - type: deployment_verified
+    - type: monitoring_active
+  manual_checks:
+    - "Go/no-go decision by stakeholders"
+    - "Rollback plan verified"

@@ -1,0 +1,983 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+resolve_script_dir() {
+  local source="${BASH_SOURCE[0]}"
+  while [[ -L "$source" ]]; do
+    local dir
+    dir="$(cd -P "$(dirname "$source")" && pwd)"
+    source="$(readlink "$source")"
+    [[ "$source" != /* ]] && source="$dir/$source"
+  done
+  cd -P "$(dirname "$source")" && pwd
+}
+
+script_dir="$(resolve_script_dir)"
+library_root="$(cd "$script_dir/.." && pwd)"
+helix_docs_root="${HELIX_LIBRARY_ROOT:-$library_root/workflows/helix}"
+target_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+
+agent="${HELIX_AGENT:-codex}"
+review_every=0
+max_cycles=0
+auto_align=1
+auto_unblock=1
+dry_run=0
+quiet=0
+beads_sandbox=0
+
+# Session log — all stderr is tee'd to this file for post-hoc inspection
+helix_log_dir="${target_root}/.helix-logs"
+mkdir -p "$helix_log_dir"
+helix_log="${helix_log_dir}/helix-$(date +%Y%m%d-%H%M%S).log"
+exec 3>&2
+exec 2> >(tee -a "$helix_log" >&3)
+
+if [[ "${BEADS_DOLT_SERVER_MODE:-1}" == "0" ]]; then
+  beads_sandbox=1
+fi
+
+usage() {
+  cat <<EOF
+Usage:
+  helix run [--agent codex|claude] [--review-every N] [--max-cycles N] [--no-auto-align] [--dry-run]
+  helix implement [--agent codex|claude] [selector]
+  helix check [--agent codex|claude] [scope]
+  helix align [--agent codex|claude] [scope]
+  helix backfill [--agent codex|claude] [scope]
+  helix plan [--agent codex|claude] [--rounds N] [scope]
+  helix polish [--agent codex|claude] [--rounds N] [scope]
+  helix next
+  helix review [--agent codex|claude] [scope]
+  helix experiment [--agent codex|claude] [--close] [bead-id|goal]
+  helix spawn [--agent codex|claude] [--count N] [--stagger S]
+  helix help
+
+Commands:
+  run         Loop over ready HELIX work, then check whether to continue
+  implement   Run one bounded implementation pass
+  check       Run the bounded HELIX queue-health check
+  align       Run reconcile-alignment for a scope (default: repo)
+  backfill    Run documentation backfill for a scope (default: repo)
+  plan        Create a comprehensive design document through iterative refinement
+  polish      Refine beads before implementation (dedup, coverage, criteria)
+  next        Show recommended next bead (uses bv if available)
+  review      Fresh-eyes review of recent work
+  experiment  Run one experiment iteration for metric-driven optimization
+  spawn       Launch multi-agent swarm (requires ntm)
+
+Options:
+  --agent           Agent to use: codex or claude (default: ${agent})
+  --claude          Shorthand for --agent claude
+  --codex           Shorthand for --agent codex
+  --review-every    Run alignment every N completed implementation cycles
+  --max-cycles      Stop after N completed implementation cycles
+  --no-auto-align   Do not auto-run alignment when check returns ALIGN
+  --no-auto-unblock Do not attempt implementation when check returns WAIT
+  --dry-run         Print the agent command instead of executing it
+  --quiet, -q       Suppress progress output (command echo, prompt sizes)
+
+Environment:
+  HELIX_AGENT         Default agent (codex or claude)
+  BEADS_DOLT_SERVER_MODE
+                      Set to 0 to force Beads sandbox/direct mode in the wrapper and spawned agent sessions
+  HELIX_AGENT_TIMEOUT Agent timeout in seconds (default: 900)
+  HELIX_LIBRARY_ROOT  Override the library root that contains workflows/helix/
+
+Logs:
+  Session logs are written to .helix-logs/helix-YYYYMMDD-HHMMSS.log
+  in the project root. All stderr output is captured for post-hoc inspection.
+
+Notes:
+  Codex runs as `codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor`.
+EOF
+}
+
+need_cmd() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    echo "missing required command: $1" >&2
+    exit 1
+  fi
+}
+
+run_with_beads_env() {
+  if (( beads_sandbox )); then
+    BEADS_DOLT_SERVER_MODE=0 "$@"
+  else
+    "$@"
+  fi
+}
+
+bd_cmd() {
+  if (( beads_sandbox )); then
+    run_with_beads_env bd --sandbox "$@"
+  else
+    bd "$@"
+  fi
+}
+
+beads_prompt_note() {
+  if (( beads_sandbox )); then
+    cat <<'EOF'
+This session must use Beads direct mode. Keep `BEADS_DOLT_SERVER_MODE=0` in effect for Beads commands; if that is lost, use `bd --sandbox ...` explicitly. Do not rely on localhost Dolt server access.
+EOF
+  fi
+}
+
+require_live_beads() {
+  need_cmd bd
+
+  if [[ ! -d "$target_root/.beads" ]]; then
+    printf 'helix: Beads is not initialized in %s\n' "$target_root" >&2
+    printf 'helix: run `cd %s && bd init` manually, then retry\n' "$target_root" >&2
+    printf 'helix: refusing to auto-initialize or inspect backup/exported tracker data\n' >&2
+    exit 1
+  fi
+
+  local status_error
+  if ! status_error="$(cd "$target_root" && bd_cmd status --json 2>&1 >/dev/null)"; then
+    printf 'helix: failed to access live Beads tracker in %s\n' "$target_root" >&2
+    printf 'helix: bd status --json failed: %s\n' "$status_error" >&2
+    printf 'helix: refusing to auto-initialize or inspect backup/exported tracker data\n' >&2
+    exit 1
+  fi
+}
+
+run_agent_prompt() {
+  local prompt="$1"
+  local prompt_bytes
+  prompt_bytes="$(printf '%s' "$prompt" | wc -c)"
+  local agent_timeout="${HELIX_AGENT_TIMEOUT:-900}"
+
+  case "$agent" in
+    codex)
+      need_cmd codex
+      if (( dry_run )); then
+        if (( beads_sandbox )); then
+          printf 'env BEADS_DOLT_SERVER_MODE=0 codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor -C %q --ephemeral %q\n' "$target_root" "$prompt"
+        else
+          printf 'codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor -C %q --ephemeral %q\n' "$target_root" "$prompt"
+        fi
+      else
+        if (( ! quiet )); then
+          printf 'helix: [%s] codex exec --progress-cursor -C %s --ephemeral <prompt %s bytes>\n' "$(date +%H:%M:%S)" "$target_root" "$prompt_bytes" >&2
+        fi
+        run_with_beads_env codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor -C "$target_root" --ephemeral "$prompt"
+      fi
+      ;;
+    claude)
+      need_cmd claude
+      if (( dry_run )); then
+        if (( beads_sandbox )); then
+          printf 'cd %q && env BEADS_DOLT_SERVER_MODE=0 claude -p --permission-mode bypassPermissions --dangerously-skip-permissions --no-session-persistence %q\n' "$target_root" "$prompt"
+        else
+          printf 'cd %q && claude -p --permission-mode bypassPermissions --dangerously-skip-permissions --no-session-persistence %q\n' "$target_root" "$prompt"
+        fi
+      else
+        if (( ! quiet )); then
+          printf 'helix: [%s] claude -p (timeout %ss)\n' "$(date +%H:%M:%S)" "$agent_timeout" >&2
+          printf '%s\n' "$prompt" | sed 's/^/helix: │ /' >&2
+          printf 'helix: └─ %s bytes\n' "$prompt_bytes" >&2
+        fi
+
+        local claude_pid
+        if (( ! quiet )) && command -v jq >/dev/null 2>&1; then
+          # Stream JSON mode: show live tool-call progress on stderr,
+          # emit final text result on stdout.
+          (cd "$target_root" && printf '%s' "$prompt" | run_with_beads_env claude -p \
+            --permission-mode bypassPermissions \
+            --dangerously-skip-permissions \
+            --no-session-persistence \
+            --output-format stream-json \
+            --verbose \
+          | while IFS= read -r line; do
+              # Show tool calls with key details
+              tool_info="$(printf '%s' "$line" | jq -r '
+                select(.type == "assistant")
+                | .message.content[]?
+                | select(.type == "tool_use")
+                | .name as $n
+                | .input as $i
+                | if $n == "Read" then "\($n)(\($i.file_path // "" | split("/") | last))"
+                  elif $n == "Write" then "\($n)(\($i.file_path // "" | split("/") | last))"
+                  elif $n == "Edit" then "\($n)(\($i.file_path // "" | split("/") | last))"
+                  elif $n == "Glob" then "\($n)(\($i.pattern // ""))"
+                  elif $n == "Grep" then "\($n)(\($i.pattern // ""))"
+                  elif $n == "Bash" then "\($n)(\($i.command // "" | .[0:80]))"
+                  elif $n == "Agent" then "\($n)(\($i.description // ""))"
+                  elif $n == "Skill" then "\($n)(\($i.skill // ""))"
+                  else $n
+                  end
+              ' 2>/dev/null || true)"
+              if [[ -n "$tool_info" ]]; then
+                printf 'helix: [%s] → %s\n' "$(date +%H:%M:%S)" "$tool_info" >&2
+              fi
+              # Show thinking/text progress
+              think="$(printf '%s' "$line" | jq -r '
+                select(.type == "assistant")
+                | .message.content[]?
+                | select(.type == "thinking")
+                | .thinking // empty
+                | .[0:500]
+              ' 2>/dev/null || true)"
+              if [[ -n "$think" ]]; then
+                printf 'helix: [%s] 💭 %s\n' "$(date +%H:%M:%S)" "$think" >&2
+              fi
+              # Show tool result summaries (first line, truncated)
+              tool_result="$(printf '%s' "$line" | jq -r '
+                select(.type == "user")
+                | .message.content[]?
+                | select(.type == "tool_result")
+                | .content // ""
+                | if type == "array" then .[0].text // "" else . end
+                | split("\n")[0]
+                | .[0:120]
+              ' 2>/dev/null || true)"
+              if [[ -n "$tool_result" ]]; then
+                local is_err
+                is_err="$(printf '%s' "$line" | jq -r '
+                  select(.type == "user")
+                  | .message.content[]?
+                  | select(.type == "tool_result")
+                  | if .is_error then "!" else " " end
+                ' 2>/dev/null || true)"
+                printf 'helix: [%s]  %s %s\n' "$(date +%H:%M:%S)" "${is_err:-" "}" "$tool_result" >&2
+              fi
+              # Emit final result text to stdout
+              result="$(printf '%s' "$line" | jq -r '
+                select(.type == "result") | .result // empty
+              ' 2>/dev/null || true)"
+              if [[ -n "$result" ]]; then
+                printf '%s\n' "$result"
+              fi
+            done) &
+        else
+          # Quiet / no jq: plain text mode
+          (cd "$target_root" && printf '%s' "$prompt" | run_with_beads_env claude -p \
+            --permission-mode bypassPermissions \
+            --dangerously-skip-permissions \
+            --no-session-persistence \
+            --verbose) &
+        fi
+        claude_pid=$!
+
+        # Watchdog: timeout
+        local elapsed=0
+        while kill -0 "$claude_pid" 2>/dev/null; do
+          sleep 10
+          elapsed=$((elapsed + 10))
+          if (( elapsed >= agent_timeout )); then
+            printf 'helix: [%s] agent timeout after %ss — killing\n' "$(date +%H:%M:%S)" "$elapsed" >&2
+            kill "$claude_pid" 2>/dev/null
+            wait "$claude_pid" 2>/dev/null
+            return 1
+          fi
+        done
+        wait "$claude_pid"
+      fi
+      ;;
+    *)
+      echo "unsupported agent: $agent" >&2
+      exit 1
+      ;;
+  esac
+}
+
+inline_action() {
+  local action_file="$1"
+  printf 'Read and follow the action at %s.\n' "$action_file"
+}
+
+has_bv() {
+  command -v bv >/dev/null 2>&1
+}
+
+has_ntm() {
+  command -v ntm >/dev/null 2>&1
+}
+
+implementation_prompt() {
+  local selector="${1:-}"
+  local sandbox_note
+  sandbox_note="$(beads_prompt_note)"
+  local bv_context=""
+  if has_bv; then
+    bv_context="$(cd "$target_root" && bv --robot-next 2>/dev/null || true)"
+  fi
+  cat <<EOF
+Execute the following HELIX implementation action.
+$(inline_action "${helix_docs_root}/actions/implementation.md")
+Use supporting references at ${helix_docs_root}/BEADS.md, ${helix_docs_root}/README.md, and ${helix_docs_root}/phases/04-build/enforcer.md as needed.
+Execute in the current repository rooted at ${target_root}.
+${sandbox_note}
+${selector:+Implementation target: ${selector}.}
+${bv_context:+Graph-aware routing context (from bv):
+${bv_context}
+Use this to inform candidate ranking in Phase 2.}
+CRITICAL: If tests fail after your changes, fix them. 99% of test failures are caused by your changes, not by pre-existing breakage. Do not blame external causes, do not skip tests, do not commit with failing tests. Fix the code or fix the test. Retry up to 3 times before giving up. Never commit broken work.
+Follow the action exactly. Do the work — do not just describe what you would do.
+Session log: ${helix_log}
+EOF
+}
+
+check_prompt() {
+  local scope="${1:-repo}"
+  local sandbox_note
+  sandbox_note="$(beads_prompt_note)"
+  cat <<EOF
+Execute the following HELIX check action.
+$(inline_action "${helix_docs_root}/actions/check.md")
+Use supporting references at ${helix_docs_root}/BEADS.md and ${helix_docs_root}/README.md as needed.
+Execute in the current repository rooted at ${target_root}.
+${sandbox_note}
+Review scope: ${scope}.
+CRITICAL: Your output MUST contain the line "NEXT_ACTION: CODE" where CODE is one of IMPLEMENT, ALIGN, BACKFILL, WAIT, GUIDANCE, or STOP. This line must appear on its own, not inside a code block or backticks. Without this line the automation cannot continue. Output this line FIRST, before any other analysis.
+Follow the action exactly. Do the work — do not just describe what you would do.
+EOF
+}
+
+alignment_prompt() {
+  local scope="${1:-repo}"
+  local sandbox_note
+  sandbox_note="$(beads_prompt_note)"
+  cat <<EOF
+Execute the following HELIX alignment action.
+$(inline_action "${helix_docs_root}/actions/reconcile-alignment.md")
+Use supporting references at ${helix_docs_root}/BEADS.md, ${helix_docs_root}/README.md, and ${helix_docs_root}/templates/alignment-review.md as needed.
+Execute in the current repository rooted at ${target_root}.
+${sandbox_note}
+Review scope: ${scope}.
+Follow the action exactly. Do the work — do not just describe what you would do.
+EOF
+}
+
+backfill_prompt() {
+  local scope="${1:-repo}"
+  local sandbox_note
+  sandbox_note="$(beads_prompt_note)"
+  cat <<EOF
+Execute the following HELIX backfill action.
+$(inline_action "${helix_docs_root}/actions/backfill-helix-docs.md")
+Use supporting references at ${helix_docs_root}/BEADS.md, ${helix_docs_root}/README.md, and ${helix_docs_root}/templates/backfill-report.md as needed.
+Execute in the current repository rooted at ${target_root}.
+${sandbox_note}
+This is a writable live session: run real bd commands, update docs/helix/, and do not claim that you need another session unless a concrete command actually fails.
+Backfill scope: ${scope}.
+Return the required BACKFILL_STATUS, BACKFILL_REPORT, and RESEARCH_EPIC trailer lines exactly.
+Follow the action exactly. Do the work — do not just describe what you would do.
+EOF
+}
+
+plan_prompt() {
+  local scope="${1:-}"
+  local rounds="${2:-5}"
+  local sandbox_note
+  sandbox_note="$(beads_prompt_note)"
+  cat <<EOF
+Execute the following HELIX plan action.
+$(inline_action "${helix_docs_root}/actions/plan.md")
+Use supporting references at ${helix_docs_root}/README.md and phase docs under ${helix_docs_root}/phases/ as needed.
+Execute in the current repository rooted at ${target_root}.
+${sandbox_note}
+Plan scope: ${scope:-repo}.
+Refinement rounds: ${rounds}.
+Follow the action exactly. Do the work — do not just describe what you would do.
+EOF
+}
+
+polish_prompt() {
+  local scope="${1:-}"
+  local rounds="${2:-6}"
+  local sandbox_note
+  sandbox_note="$(beads_prompt_note)"
+  cat <<EOF
+Execute the following HELIX polish action.
+$(inline_action "${helix_docs_root}/actions/polish.md")
+Use supporting references at ${helix_docs_root}/BEADS.md and ${helix_docs_root}/README.md as needed.
+Execute in the current repository rooted at ${target_root}.
+${sandbox_note}
+Polish scope: ${scope:-all open beads}.
+Maximum refinement rounds: ${rounds}.
+Follow the action exactly. Do the work — do not just describe what you would do.
+EOF
+}
+
+review_prompt() {
+  local scope="${1:-last-commit}"
+  local sandbox_note
+  sandbox_note="$(beads_prompt_note)"
+  cat <<EOF
+Execute the following HELIX fresh-eyes review action.
+$(inline_action "${helix_docs_root}/actions/fresh-eyes-review.md")
+Execute in the current repository rooted at ${target_root}.
+${sandbox_note}
+Review scope: ${scope}.
+Follow the action exactly. Do the work — do not just describe what you would do.
+EOF
+}
+
+experiment_prompt() {
+  local target="${1:-}"
+  local close="${2:-0}"
+  local sandbox_note
+  sandbox_note="$(beads_prompt_note)"
+  cat <<EOF
+Execute the following HELIX experiment action.
+$(inline_action "${helix_docs_root}/actions/experiment.md")
+Use supporting references at ${helix_docs_root}/BEADS.md, ${helix_docs_root}/README.md, and ${helix_docs_root}/ratchets.md as needed.
+Execute in the current repository rooted at ${target_root}.
+${sandbox_note}
+Experiment target: ${target:-auto-select from ready phase:iterate beads}.
+${close:+CLOSE SESSION: Execute Phase 3 (Session Close) — squash-merge the experiment branch, update ratchet floors, and close the bead. Do not run another iteration.}
+Follow the action exactly. Do the work — do not just describe what you would do.
+EOF
+}
+
+require_clean_worktree() {
+  if ! (cd "$target_root" && git diff --quiet && git diff --cached --quiet); then
+    echo "helix: worktree has uncommitted changes" >&2
+    echo "helix: please commit your changes before starting an experiment" >&2
+    echo "helix: experiment needs a clean worktree to safely branch and revert" >&2
+    return 1
+  fi
+}
+
+run_experiment() {
+  local target="${1:-}"
+  local close="${2:-0}"
+  if (( ! dry_run )); then
+    require_live_beads
+    require_clean_worktree
+  fi
+  run_agent_prompt "$(experiment_prompt "$target" "$close")"
+}
+
+helix_ready_count() {
+  need_cmd jq
+
+  bd_cmd ready --json | jq 'length'
+}
+
+extract_next_action() {
+  local stripped
+  # Strip markdown bold/backtick formatting but preserve underscores
+  stripped="$(printf '%s\n' "$1" | sed 's/[*`]//g')"
+  local result
+  result="$(printf '%s\n' "$stripped" | grep -oE 'NEXT_ACTION: *(IMPLEMENT|ALIGN|BACKFILL|WAIT|GUIDANCE|STOP)' | head -n1 | sed 's/^NEXT_ACTION: *//')"
+  printf '%s' "$result"
+}
+
+extract_backfill_status() {
+  printf '%s\n' "$1" | grep -oE 'BACKFILL_STATUS: *(COMPLETE|GUIDANCE_NEEDED|BLOCKED)' | head -n1 | sed 's/^BACKFILL_STATUS: *//'
+}
+
+extract_backfill_report() {
+  printf '%s\n' "$1" | grep -oE 'BACKFILL_REPORT: *[^ ]+' | head -n1 | sed 's/^BACKFILL_REPORT: *//'
+}
+
+extract_research_epic() {
+  printf '%s\n' "$1" | grep -oE 'RESEARCH_EPIC: *[^ ]+' | head -n1 | sed 's/^RESEARCH_EPIC: *//'
+}
+
+parse_common_flags() {
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --agent)
+        agent="$2"
+        shift 2
+        ;;
+      --claude)
+        agent="claude"
+        shift
+        ;;
+      --codex)
+        agent="codex"
+        shift
+        ;;
+      --dry-run)
+        dry_run=1
+        shift
+        ;;
+      --quiet|-q)
+        quiet=1
+        shift
+        ;;
+      --help|-h)
+        usage
+        exit 0
+        ;;
+      *)
+        break
+        ;;
+    esac
+  done
+
+  REMAINING_ARGS=("$@")
+}
+
+run_implementation() {
+  local selector="${1:-}"
+  if (( ! dry_run )); then
+    require_live_beads
+  fi
+  run_agent_prompt "$(implementation_prompt "$selector")"
+}
+
+run_check() {
+  local scope="${1:-repo}"
+  if (( ! dry_run )); then
+    require_live_beads
+  fi
+  run_agent_prompt "$(check_prompt "$scope")"
+}
+
+run_alignment() {
+  local scope="${1:-repo}"
+  if (( ! dry_run )); then
+    require_live_beads
+  fi
+  run_agent_prompt "$(alignment_prompt "$scope")"
+}
+
+run_backfill() {
+  local scope="${1:-repo}"
+
+  if (( dry_run )); then
+    run_agent_prompt "$(backfill_prompt "$scope")"
+    return 0
+  fi
+
+  require_live_beads
+
+  local output
+  output="$(run_agent_prompt "$(backfill_prompt "$scope")")"
+  printf '%s\n' "$output"
+
+  local status
+  status="$(extract_backfill_status "$output" || true)"
+  if [[ -z "$status" ]]; then
+    echo "helix: backfill output missing BACKFILL_STATUS trailer" >&2
+    return 1
+  fi
+
+  local report
+  report="$(extract_backfill_report "$output" || true)"
+  if [[ -z "$report" ]]; then
+    echo "helix: backfill output missing BACKFILL_REPORT trailer" >&2
+    return 1
+  fi
+
+  if [[ ! -f "$target_root/$report" ]]; then
+    echo "helix: declared backfill report does not exist: $report" >&2
+    return 1
+  fi
+
+  local epic
+  epic="$(extract_research_epic "$output" || true)"
+  if [[ -n "$epic" ]]; then
+    printf 'helix: research epic=%s\n' "$epic" >&2
+  fi
+  printf 'helix: backfill report=%s\n' "$report" >&2
+
+  case "$status" in
+    COMPLETE|GUIDANCE_NEEDED)
+      return 0
+      ;;
+    BLOCKED)
+      return 1
+      ;;
+    *)
+      echo "helix: unknown BACKFILL_STATUS: $status" >&2
+      return 1
+      ;;
+  esac
+}
+
+run_plan() {
+  local scope="${1:-}"
+  local rounds="${2:-5}"
+  # Planning does NOT require live beads — it happens before bead creation
+  run_agent_prompt "$(plan_prompt "$scope" "$rounds")"
+}
+
+run_polish() {
+  local scope="${1:-}"
+  local rounds="${2:-6}"
+  if (( ! dry_run )); then
+    require_live_beads
+  fi
+  run_agent_prompt "$(polish_prompt "$scope" "$rounds")"
+}
+
+run_review() {
+  local scope="${1:-last-commit}"
+  run_agent_prompt "$(review_prompt "$scope")"
+}
+
+run_next() {
+  require_live_beads
+  need_cmd jq
+  if has_bv; then
+    (cd "$target_root" && bv --robot-next)
+  else
+    echo "bv not available, falling back to bd ready" >&2
+    bd_cmd ready --json | jq -r '.[0].id // "no ready beads"'
+  fi
+}
+
+run_spawn() {
+  local count="${1:-2}"
+  local stagger="${2:-30}"
+
+  if ! has_ntm; then
+    echo "helix: ntm not found; install it for swarm orchestration" >&2
+    echo "helix: falling back to single-agent helix run" >&2
+    run_loop
+    return
+  fi
+
+  need_cmd tmux
+  require_live_beads
+
+  local session_name="helix-$(date +%s)"
+  local i
+  for ((i = 0; i < count; i++)); do
+    if (( i > 0 )); then
+      sleep "$stagger"
+    fi
+    ntm spawn "${session_name}-${i}" -- \
+      bash "$library_root/scripts/helix" run --agent "$agent"
+  done
+  printf 'helix: spawned %d agents with session prefix %s\n' "$count" "$session_name" >&2
+}
+
+recover_prompt() {
+  local bead_id="$1"
+  local bead_info="$2"
+  local git_status="$3"
+  local log_tail="$4"
+  local sandbox_note
+  sandbox_note="$(beads_prompt_note)"
+  cat <<EOF
+You are recovering from a crashed or timed-out HELIX implementation session.
+
+Bead ${bead_id} is in_progress but the previous agent session ended without
+closing it. Your job is to assess the partial work and either complete it
+or revert it cleanly.
+
+Read and follow the action at ${helix_docs_root}/actions/implementation.md.
+Execute in the current repository rooted at ${target_root}.
+${sandbox_note}
+
+BEAD STATE:
+${bead_info}
+
+GIT STATUS (uncommitted changes):
+${git_status}
+
+PREVIOUS SESSION LOG (last 50 lines):
+${log_tail}
+
+RECOVERY RULES:
+1. If the worktree has uncommitted changes related to this bead:
+   - Read the changed files and assess quality
+   - If the work looks substantially complete: run tests, fix failures, commit, close the bead
+   - If the work is broken or too incomplete: revert the changes with git checkout on the affected files, unclaim the bead with bd update <id> --status open
+2. If the worktree is clean (no uncommitted changes):
+   - The previous session either committed successfully or never started editing
+   - Check if the bead's acceptance criteria are already met
+   - If met: close the bead
+   - If not met: unclaim with bd update <id> --status open so the next cycle picks it up fresh
+3. CRITICAL: If tests fail after your changes, fix them. 99% of test failures are caused by your changes. Retry up to 3 times. Never commit broken work.
+
+Do the work — do not just describe what you would do.
+Session log: ${helix_log}
+EOF
+}
+
+run_recovery() {
+  local bead_id="$1"
+  local bead_info="$2"
+  local git_status="$3"
+  local log_tail="$4"
+  run_agent_prompt "$(recover_prompt "$bead_id" "$bead_info" "$git_status" "$log_tail")"
+}
+
+recover_orphaned_beads() {
+  # Find in-progress helix beads that might be orphaned from a crashed session
+  local in_progress
+  in_progress="$(bd_cmd list --status in_progress --label helix --json 2>/dev/null || echo '[]')"
+  local count
+  count="$(printf '%s' "$in_progress" | jq 'length' 2>/dev/null || echo 0)"
+
+  if (( count == 0 )); then
+    return 0
+  fi
+
+  printf 'helix: found %s in-progress bead(s), checking for orphans...\n' "$count" >&2
+
+  local i
+  for ((i = 0; i < count; i++)); do
+    local bead_id
+    bead_id="$(printf '%s' "$in_progress" | jq -r ".[$i].id" 2>/dev/null)"
+
+    # Check if another helix process is already working on this bead
+    if pgrep -f "helix.*implement.*${bead_id}" >/dev/null 2>&1; then
+      printf 'helix: bead %s is being worked on by another process, skipping\n' "$bead_id" >&2
+      continue
+    fi
+
+    printf 'helix: bead %s is orphaned (in_progress, no active agent)\n' "$bead_id" >&2
+
+    # Gather context for recovery
+    local bead_info
+    bead_info="$(bd_cmd show "$bead_id" 2>/dev/null || echo "unable to load bead")"
+    local git_status
+    git_status="$(cd "$target_root" && git diff --stat 2>/dev/null || echo "clean")"
+    local log_tail=""
+    local latest_log
+    latest_log="$(ls -t "$helix_log_dir"/helix-*.log 2>/dev/null | head -1 || true)"
+    if [[ -n "$latest_log" ]]; then
+      log_tail="$(tail -50 "$latest_log" 2>/dev/null || true)"
+    fi
+
+    if [[ "$git_status" == "clean" || -z "$git_status" ]]; then
+      # No uncommitted changes — just unclaim the bead
+      printf 'helix: worktree is clean, unclaiming bead %s\n' "$bead_id" >&2
+      bd_cmd update "$bead_id" --status open 2>/dev/null || true
+    else
+      # Uncommitted changes exist — ask the agent to recover
+      printf 'helix: worktree has changes, running recovery for bead %s\n' "$bead_id" >&2
+      if ! run_recovery "$bead_id" "$bead_info" "$git_status" "$log_tail"; then
+        printf 'helix: recovery failed for bead %s, reverting and unclaiming\n' "$bead_id" >&2
+        # Last resort: revert uncommitted changes and unclaim
+        (cd "$target_root" && git checkout -- . 2>/dev/null || true)
+        bd_cmd update "$bead_id" --status open 2>/dev/null || true
+      fi
+    fi
+  done
+}
+
+run_loop() {
+  local cycles=0
+  local post_drain_alignment_ran=0
+  local unblock_attempts=0
+
+  need_cmd jq
+  require_live_beads
+
+  # Recover orphaned beads from crashed sessions before starting the loop
+  recover_orphaned_beads
+
+  while true; do
+    local ready_count
+    ready_count="$(helix_ready_count)"
+
+    if (( ready_count > 0 )); then
+      printf 'helix: ready=%s, cycle=%s\n' "$ready_count" "$((cycles + 1))" >&2
+      if ! run_implementation; then
+        printf 'helix: implementation failed during cycle %s (will recover on next cycle)\n' "$((cycles + 1))" >&2
+        # Don't exit — the orphan recovery at the top of the next iteration
+        # will detect the in-progress bead and handle it.
+        # Sleep briefly to avoid tight retry loops.
+        sleep 5
+        recover_orphaned_beads
+      fi
+      cycles=$((cycles + 1))
+      post_drain_alignment_ran=0
+
+      if (( review_every > 0 )) && (( cycles % review_every == 0 )); then
+        printf 'helix: periodic alignment after %s cycles\n' "$cycles" >&2
+        if ! run_alignment repo; then
+          printf 'helix: periodic alignment failed after %s cycles\n' "$cycles" >&2
+          return 1
+        fi
+      fi
+
+      if (( max_cycles > 0 )) && (( cycles >= max_cycles )); then
+        printf 'helix: reached max cycles (%s)\n' "$max_cycles" >&2
+        return 0
+      fi
+
+      continue
+    fi
+
+    local check_output
+    if ! check_output="$(run_check repo)"; then
+      echo "helix: check failed after queue drain" >&2
+      return 1
+    fi
+    printf '%s\n' "$check_output"
+
+    local next_action
+    next_action="$(extract_next_action "$check_output" || true)"
+
+    case "$next_action" in
+      IMPLEMENT)
+        continue
+        ;;
+      ALIGN)
+        if (( auto_align )) && (( post_drain_alignment_ran == 0 )); then
+          printf 'helix: queue drained, running alignment\n' >&2
+          if ! run_alignment repo; then
+            echo "helix: post-drain alignment failed" >&2
+            return 1
+          fi
+          post_drain_alignment_ran=1
+          continue
+        fi
+        echo "helix: stopping after check returned ALIGN" >&2
+        return 0
+        ;;
+      WAIT)
+        if (( auto_unblock )) && (( unblock_attempts == 0 )); then
+          unblock_attempts=1
+          printf 'helix: check returned WAIT, attempting to unblock\n' >&2
+          if run_implementation; then
+            continue
+          fi
+          printf 'helix: unblock attempt failed, stopping\n' >&2
+        else
+          printf 'helix: stopping after check returned WAIT\n' >&2
+        fi
+        return 0
+        ;;
+      BACKFILL|GUIDANCE|STOP)
+        printf 'helix: stopping after check returned %s\n' "$next_action" >&2
+        return 0
+        ;;
+      *)
+        echo "helix: unable to determine NEXT_ACTION from check output" >&2
+        return 1
+        ;;
+    esac
+  done
+}
+
+main() {
+  local command="${1:-help}"
+  shift || true
+
+  case "$command" in
+    help|-h|--help)
+      usage
+      ;;
+    run)
+      parse_common_flags "$@"
+      set -- "${REMAINING_ARGS[@]}"
+
+      while [[ $# -gt 0 ]]; do
+        case "$1" in
+          --review-every)
+            review_every="$2"
+            shift 2
+            ;;
+          --max-cycles)
+            max_cycles="$2"
+            shift 2
+            ;;
+          --no-auto-align)
+            auto_align=0
+            shift
+            ;;
+          --no-auto-unblock)
+            auto_unblock=0
+            shift
+            ;;
+          *)
+            echo "unknown option for run: $1" >&2
+            exit 1
+            ;;
+        esac
+      done
+
+      run_loop
+      ;;
+    implement)
+      parse_common_flags "$@"
+      set -- "${REMAINING_ARGS[@]}"
+      run_implementation "${1:-}"
+      ;;
+    check)
+      parse_common_flags "$@"
+      set -- "${REMAINING_ARGS[@]}"
+      run_check "${1:-repo}"
+      ;;
+    align)
+      parse_common_flags "$@"
+      set -- "${REMAINING_ARGS[@]}"
+      run_alignment "${1:-repo}"
+      ;;
+    backfill)
+      parse_common_flags "$@"
+      set -- "${REMAINING_ARGS[@]}"
+      run_backfill "${1:-repo}"
+      ;;
+    plan)
+      parse_common_flags "$@"
+      set -- "${REMAINING_ARGS[@]}"
+      local plan_rounds=5
+      while [[ $# -gt 0 ]]; do
+        case "$1" in
+          --rounds) plan_rounds="$2"; shift 2 ;;
+          *) break ;;
+        esac
+      done
+      run_plan "${1:-}" "$plan_rounds"
+      ;;
+    polish)
+      parse_common_flags "$@"
+      set -- "${REMAINING_ARGS[@]}"
+      local polish_rounds=6
+      while [[ $# -gt 0 ]]; do
+        case "$1" in
+          --rounds) polish_rounds="$2"; shift 2 ;;
+          *) break ;;
+        esac
+      done
+      run_polish "${1:-}" "$polish_rounds"
+      ;;
+    next)
+      parse_common_flags "$@"
+      run_next
+      ;;
+    review)
+      parse_common_flags "$@"
+      set -- "${REMAINING_ARGS[@]}"
+      run_review "${1:-last-commit}"
+      ;;
+    spawn)
+      parse_common_flags "$@"
+      set -- "${REMAINING_ARGS[@]}"
+      local spawn_count=2
+      local spawn_stagger=30
+      while [[ $# -gt 0 ]]; do
+        case "$1" in
+          --count) spawn_count="$2"; shift 2 ;;
+          --stagger) spawn_stagger="$2"; shift 2 ;;
+          *) break ;;
+        esac
+      done
+      run_spawn "$spawn_count" "$spawn_stagger"
+      ;;
+    experiment)
+      parse_common_flags "$@"
+      set -- "${REMAINING_ARGS[@]}"
+      local experiment_close=0
+      while [[ $# -gt 0 ]]; do
+        case "$1" in
+          --close) experiment_close=1; shift ;;
+          *) break ;;
+        esac
+      done
+      run_experiment "${1:-}" "$experiment_close"
+      ;;
+    *)
+      echo "unknown command: $command" >&2
+      usage >&2
+      exit 1
+      ;;
+  esac
+}
+
+main "$@"

@@ -1,0 +1,11 @@
+# Beads database
+.beads/
+
+# HELIX session logs
+.helix-logs/
+
+# Experiment session files (ephemeral, gitignored on experiment branches)
+autoresearch.md
+autoresearch.sh
+autoresearch.jsonl
+experiments/

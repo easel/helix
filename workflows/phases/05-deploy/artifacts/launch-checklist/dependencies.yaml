@@ -1,0 +1,42 @@
+# Launch Checklist Dependencies
+artifact: launch-checklist
+prefix: LC
+
+inputs:
+  required:
+    - artifact: gtm-plan
+      phase: "05-deploy"
+      prefix: GTM
+      relationship: "drives launch activities and timing"
+    - artifact: deployment-checklist
+      phase: "05-deploy"
+      prefix: DP
+      relationship: "confirms technical readiness"
+  optional:
+    - artifact: implementation-plan
+      phase: "04-build"
+      prefix: IP
+      relationship: "verifies feature completeness"
+    - artifact: test-plan
+      phase: "04-build"
+      relationship: "confirms quality assurance status"
+
+outputs:
+  produces:
+    - artifact: release-notes
+      phase: "05-deploy"
+      prefix: RN
+      relationship: "triggers release communication"
+    - artifact: iteration-report
+      phase: "06-iterate"
+      prefix: IR
+      relationship: "launch outcomes feed iteration"
+
+completion:
+  automated_checks:
+    - type: all_items_checked
+    - type: no_blockers_open
+  manual_checks:
+    - "Cross-functional stakeholder sign-off"
+    - "Go/no-go decision documented"
+    - "Rollback plan confirmed"
