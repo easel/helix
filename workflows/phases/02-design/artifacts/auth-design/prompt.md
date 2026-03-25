@@ -38,7 +38,7 @@ Design the following:
    - Session security
    - Token security
 
-Use the template at `workflows/helix/phases/02-design/artifacts/auth-design/template.md`.
+Use the template at `workflows/phases/02-design/artifacts/auth-design/template.md`.
 
 ## Completion Criteria
 - [ ] All authentication methods documented

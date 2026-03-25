@@ -45,7 +45,7 @@ Document guidelines for:
    - Common vulnerabilities
    - Secure patterns
 
-Use the template at `workflows/helix/phases/04-build/artifacts/secure-coding/template.md`.
+Use the template at `workflows/phases/04-build/artifacts/secure-coding/template.md`.
 
 ## Completion Criteria
 - [ ] All major vulnerability categories covered

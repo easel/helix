@@ -38,6 +38,6 @@ Refine the bead queue through multiple passes before implementation begins.
 
 ## References
 
-- Action prompt: `workflows/helix/actions/polish.md`
-- Output template: `workflows/helix/templates/polish-report.md`
+- Action prompt: `workflows/actions/polish.md`
+- Output template: `workflows/templates/polish-report.md`
 - CLI: `helix polish [--rounds N] [scope]`

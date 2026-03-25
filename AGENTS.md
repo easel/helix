@@ -5,7 +5,7 @@ methodology, action prompts, skills, CLI, and execution contract.
 
 This project uses **bd** (beads) for issue tracking. Run `bd onboard` to get started.
 
-The workflow definitions live under `workflows/helix/`. Treat those docs as
+The workflow definitions live under `workflows/`. Treat those docs as
 the source of truth for the workflow contract.
 
 ## Quick Reference
@@ -31,10 +31,10 @@ helix spawn           # Launch multi-agent swarm (requires ntm)
 
 When working on HELIX itself in this repo:
 
-- top-level overview: `workflows/helix/README.md`
-- operator loop and automation: `workflows/helix/EXECUTION.md`
-- upstream Beads integration: `workflows/helix/BEADS.md`
-- command summary: `workflows/helix/REFERENCE.md`
+- top-level overview: `workflows/README.md`
+- operator loop and automation: `workflows/EXECUTION.md`
+- upstream Beads integration: `workflows/BEADS.md`
+- command summary: `workflows/REFERENCE.md`
 
 Key rules:
 
@@ -44,13 +44,13 @@ Key rules:
 - Use `check` when the ready queue drains to decide whether to implement,
   align, backfill, wait, ask for guidance, or stop.
 - Keep alignment and backfill as separate cross-phase actions:
-  - `workflows/helix/actions/reconcile-alignment.md`
-  - `workflows/helix/actions/backfill-helix-docs.md`
-- Quality ratchets are documented in `workflows/helix/ratchets.md`. Ratchet
+  - `workflows/actions/reconcile-alignment.md`
+  - `workflows/actions/backfill-helix-docs.md`
+- Quality ratchets are documented in `workflows/ratchets.md`. Ratchet
   enforcement scripts and floor fixtures belong in adopting projects, not in
   this repo. This repo defines the pattern and the integration points in
   action prompts and enforcers.
-- Both `bd` and `br` (Beads Rust) are supported. See `workflows/helix/BEADS.md`
+- Both `bd` and `br` (Beads Rust) are supported. See `workflows/BEADS.md`
   for the command mapping. The queue guard uses `ready --json | jq 'length'`
   which works identically with either tool.
 
@@ -109,11 +109,11 @@ If you change any of the following, run the HELIX wrapper harness:
 
 - `scripts/helix`
 - `scripts/install-local-skills.sh`
-- `workflows/helix/actions/check.md`
-- `workflows/helix/actions/implementation.md`
-- `workflows/helix/actions/reconcile-alignment.md`
-- `workflows/helix/EXECUTION.md`
-- `workflows/helix/BEADS.md`
+- `workflows/actions/check.md`
+- `workflows/actions/implementation.md`
+- `workflows/actions/reconcile-alignment.md`
+- `workflows/EXECUTION.md`
+- `workflows/BEADS.md`
 - other docs that materially change the HELIX execution contract
 
 Required checks:
@@ -317,7 +317,7 @@ bd dolt pull
 - ❌ Do NOT use external issue trackers
 - ❌ Do NOT duplicate tracking systems
 
-For more details, see README.md and `workflows/helix/BEADS.md`.
+For more details, see README.md and `workflows/BEADS.md`.
 
 ## Landing the Plane (Session Completion)
 

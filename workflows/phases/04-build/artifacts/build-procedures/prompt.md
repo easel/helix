@@ -42,7 +42,7 @@ Document the following:
    - Artifact generation
    - Deployment triggers
 
-Use the template at `workflows/helix/phases/04-build/artifacts/build-procedures/template.md`.
+Use the template at `workflows/phases/04-build/artifacts/build-procedures/template.md`.
 
 ## Completion Criteria
 - [ ] Environment setup is reproducible

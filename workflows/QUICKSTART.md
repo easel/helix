@@ -40,7 +40,7 @@ Notes:
 
 ## Build The Canonical Planning Stack
 
-Prompts and templates live under `workflows/helix/phases/<phase>/artifacts/`.
+Prompts and templates live under `workflows/phases/<phase>/artifacts/`.
 Use them to draft or refine the canonical docs under `docs/helix/`.
 
 Typical order:

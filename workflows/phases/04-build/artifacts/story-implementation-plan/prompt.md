@@ -24,10 +24,10 @@ build plan, create one or more build beads that:
 5. Specify deterministic implementation and verification steps
 
 Use the mapping guidance at:
-`workflows/helix/phases/04-build/artifacts/story-implementation-plan/template.md`
+`workflows/phases/04-build/artifacts/story-implementation-plan/template.md`
 
 Use upstream Beads guidance at:
-`workflows/helix/BEADS.md`
+`workflows/BEADS.md`
 
 ## Completion Criteria
 - [ ] Each failing test is covered by one or more build beads

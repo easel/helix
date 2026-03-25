@@ -41,7 +41,7 @@ Design the following:
    - Data subject rights implementation
    - Anonymization/pseudonymization
 
-Use the template at `workflows/helix/phases/02-design/artifacts/data-protection/template.md`.
+Use the template at `workflows/phases/02-design/artifacts/data-protection/template.md`.
 
 ## Completion Criteria
 - [ ] All data types classified

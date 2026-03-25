@@ -19,9 +19,9 @@ Use this skill for repo-wide or area-scoped reconciliation reviews.
 
 Reference docs:
 
-- `workflows/helix/actions/reconcile-alignment.md`
-- `workflows/helix/templates/alignment-review.md`
-- `workflows/helix/BEADS.md`
+- `workflows/actions/reconcile-alignment.md`
+- `workflows/templates/alignment-review.md`
+- `workflows/BEADS.md`
 
 ## Core Rules
 

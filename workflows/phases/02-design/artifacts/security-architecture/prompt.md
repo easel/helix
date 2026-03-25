@@ -51,7 +51,7 @@ Based on the threat model, security requirements, and system architecture, desig
    |-----------|---------|----------------|--------------|
    | [From threat model] | [Security control] | [How implemented] | [How verified] |
 
-Use the template at `workflows/helix/phases/02-design/artifacts/security-architecture/template.md`.
+Use the template at `workflows/phases/02-design/artifacts/security-architecture/template.md`.
 
 ## Completion Criteria
 - [ ] All high-risk threats have mitigating controls

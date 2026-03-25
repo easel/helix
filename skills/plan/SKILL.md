@@ -43,6 +43,6 @@ to execute.
 
 ## References
 
-- Action prompt: `workflows/helix/actions/plan.md`
-- Output template: `workflows/helix/templates/plan-document.md`
+- Action prompt: `workflows/actions/plan.md`
+- Output template: `workflows/templates/plan-document.md`
 - CLI: `helix plan [--rounds N] [scope]`

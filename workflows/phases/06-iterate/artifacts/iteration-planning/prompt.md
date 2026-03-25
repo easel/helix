@@ -47,8 +47,8 @@ Create a plan that includes:
    - Baseline values
    - Target values
 
-Use the template at `workflows/helix/phases/06-iterate/artifacts/iteration-planning/template.md`.
-Use HELIX bead guidance at `workflows/helix/BEADS.md`.
+Use the template at `workflows/phases/06-iterate/artifacts/iteration-planning/template.md`.
+Use HELIX bead guidance at `workflows/BEADS.md`.
 
 ## Completion Criteria
 - [ ] Scope is well-defined

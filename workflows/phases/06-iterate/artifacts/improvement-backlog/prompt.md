@@ -23,10 +23,10 @@ Based on lessons learned, user feedback, and metrics:
 4. Mark items that need canonical artifact updates before execution
 
 Use the index template at:
-`workflows/helix/phases/06-iterate/artifacts/improvement-backlog/template.md`
+`workflows/phases/06-iterate/artifacts/improvement-backlog/template.md`
 
 Use upstream Beads guidance at:
-`workflows/helix/BEADS.md`
+`workflows/BEADS.md`
 
 ## Completion Criteria
 - [ ] All improvement sources reviewed

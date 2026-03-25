@@ -58,7 +58,7 @@ Rules:
 
 Use native upstream Beads only. Follow:
 
-- `workflows/helix/BEADS.md`
+- `workflows/BEADS.md`
 - <https://github.com/steveyegge/beads>
 - <https://steveyegge.github.io/beads/>
 
@@ -79,7 +79,7 @@ beads during execution, and closes the bead at session close.
    - If live `bd` access is missing or unhealthy, stop immediately.
    - Do not run `bd init` or inspect alternate tracker sources from this action.
 2. Load ratchet floor fixtures if the project has adopted quality ratchets
-   (see `workflows/helix/ratchets.md`). Note the current floors so Phase 3
+   (see `workflows/ratchets.md`). Note the current floors so Phase 3
    can compare against them for auto-bump decisions.
 3. Determine the invocation mode:
    - If `--close` directive: skip directly to Phase 3.
@@ -140,7 +140,7 @@ Load or create the primary metric definition:
 - If a metric definition exists at `docs/helix/06-iterate/metrics/<name>.yaml`,
   read `name`, `unit`, `direction`, `command`, and `tolerance` from it.
 - If no metric definition exists, create one during setup using the
-  `workflows/helix/templates/metric-definition.yaml` template schema. Commit
+  `workflows/templates/metric-definition.yaml` template schema. Commit
   the new metric definition to the canonical location
   (`docs/helix/06-iterate/metrics/<name>.yaml`) before branching. This is a
   normative artifact at authority level 5-6.
@@ -182,14 +182,14 @@ is non-negotiable per Principle 2 (Test-First Development).
 
 3. Create ephemeral session files (untracked, local-only):
    - `autoresearch.md` — session doc, populated from
-     `workflows/helix/templates/autoresearch-session.md`. References the metric
+     `workflows/templates/autoresearch-session.md`. References the metric
      definition by path. Contains objective, metrics, correctness check, files
      in scope, off-limits, constraints, and "What's Been Tried" section.
    - `autoresearch.sh` — benchmark script, derived from the metric definition's
      `command` field. Must output `METRIC <name>=<value>` lines to stdout.
      Make it executable (`chmod +x autoresearch.sh`).
    - `experiments/worklog.md` — narrative log, populated from
-     `workflows/helix/templates/autoresearch-worklog.md`.
+     `workflows/templates/autoresearch-worklog.md`.
    - `autoresearch.jsonl` — initialize with a config header line:
      ```json
      {"type":"config","goal":"<goal>","metric":"<name>","direction":"<lower|higher>","bead":"<id>","started":"<ISO-8601>"}

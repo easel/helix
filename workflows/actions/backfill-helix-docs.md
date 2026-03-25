@@ -87,7 +87,7 @@ Low-confidence claims must either:
 
 Use native upstream Beads only. Follow:
 
-- `workflows/helix/BEADS.md`
+- `workflows/BEADS.md`
 - <https://github.com/steveyegge/beads>
 - <https://steveyegge.github.io/beads/>
 
@@ -393,7 +393,7 @@ Create or update the durable report at:
 
 Use the template at:
 
-- `workflows/helix/templates/backfill-report.md`
+- `workflows/templates/backfill-report.md`
 
 The report must capture:
 

@@ -13,8 +13,8 @@ Use when:
 
 Reference docs:
 
-- `workflows/helix/actions/check.md`
-- `workflows/helix/BEADS.md`
+- `workflows/actions/check.md`
+- `workflows/BEADS.md`
 
 Key rules:
 
@@ -34,9 +34,9 @@ Use when:
 
 Reference docs:
 
-- `workflows/helix/actions/backfill-helix-docs.md`
-- `workflows/helix/templates/backfill-report.md`
-- `workflows/helix/BEADS.md`
+- `workflows/actions/backfill-helix-docs.md`
+- `workflows/templates/backfill-report.md`
+- `workflows/BEADS.md`
 
 Key rules:
 
@@ -56,9 +56,9 @@ Use when:
 
 Reference docs:
 
-- `workflows/helix/actions/reconcile-alignment.md`
-- `workflows/helix/templates/alignment-review.md`
-- `workflows/helix/BEADS.md`
+- `workflows/actions/reconcile-alignment.md`
+- `workflows/templates/alignment-review.md`
+- `workflows/BEADS.md`
 
 Key rules:
 

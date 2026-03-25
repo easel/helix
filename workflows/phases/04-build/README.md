@@ -389,8 +389,8 @@ By the end of Build phase, you should have:
 ## Using AI Assistance
 
 Build execution is driven by `helix implement` or `helix run`, following the
-bounded loop defined in `workflows/helix/actions/implementation.md`. Use the
-phase artifacts under `workflows/helix/phases/04-build/artifacts/` when you
+bounded loop defined in `workflows/actions/implementation.md`. Use the
+phase artifacts under `workflows/phases/04-build/artifacts/` when you
 need supporting build documentation or bead guidance.
 
 Common entry points:

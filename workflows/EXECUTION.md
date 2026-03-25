@@ -19,9 +19,9 @@ see [BEADS.md](BEADS.md).
 This document owns HELIX execution behavior.
 
 - Follow this file for queue guards, loop shape, and `NEXT_ACTION` handling.
-- Follow the bounded action prompts under `workflows/helix/actions/` for
+- Follow the bounded action prompts under `workflows/actions/` for
   action-specific behavior.
-- Treat examples elsewhere in `workflows/helix/` as supportive summaries, not
+- Treat examples elsewhere in `workflows/` as supportive summaries, not
   alternate execution contracts.
 
 ## Core Actions
@@ -102,14 +102,14 @@ The examples below assume a trusted local repository.
 ```bash
 while [ "$(helix_ready_count)" -gt 0 ]; do
   codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor -C "$PWD" --ephemeral <<'EOF'
-Use the HELIX implementation action at workflows/helix/actions/implementation.md.
+Use the HELIX implementation action at workflows/actions/implementation.md.
 Execute one ready HELIX execution bead end-to-end.
 Follow the action exactly.
 EOF
 done
 
 codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor -C "$PWD" --ephemeral <<'EOF'
-Use the HELIX check action at workflows/helix/actions/check.md.
+Use the HELIX check action at workflows/actions/check.md.
 Return the required NEXT_ACTION line and the exact next command.
 Follow the action exactly.
 EOF
@@ -123,7 +123,7 @@ while [ "$(helix_ready_count)" -gt 0 ]; do
     --permission-mode bypassPermissions \
     --dangerously-skip-permissions \
     --no-session-persistence <<'EOF'
-Use the HELIX implementation action at workflows/helix/actions/implementation.md.
+Use the HELIX implementation action at workflows/actions/implementation.md.
 Execute one ready HELIX execution bead end-to-end.
 Follow the action exactly.
 EOF
@@ -133,7 +133,7 @@ claude -p \
   --permission-mode bypassPermissions \
   --dangerously-skip-permissions \
   --no-session-persistence <<'EOF'
-Use the HELIX check action at workflows/helix/actions/check.md.
+Use the HELIX check action at workflows/actions/check.md.
 Return the required NEXT_ACTION line and the exact next command.
 Follow the action exactly.
 EOF

@@ -21,7 +21,7 @@ When conventions and execution guidance disagree, follow:
 1. [README.md](README.md)
 2. [EXECUTION.md](EXECUTION.md)
 3. [BEADS.md](BEADS.md)
-4. the bounded action prompts under `workflows/helix/actions/`
+4. the bounded action prompts under `workflows/actions/`
 
 ## Documentation Structure
 
@@ -281,8 +281,8 @@ Use HELIX workflow templates to create consistent artifacts:
 
 ```bash
 # Review the artifact prompt and template
-sed -n '1,120p' workflows/helix/phases/01-frame/artifacts/prd/prompt.md
-cp -f $DDX_HOME/workflows/helix/phases/01-frame/artifacts/prd/template.md \
+sed -n '1,120p' workflows/phases/01-frame/artifacts/prd/prompt.md
+cp -f $DDX_HOME/workflows/phases/01-frame/artifacts/prd/template.md \
       docs/helix/01-frame/prd.md
 ```
 
@@ -423,7 +423,7 @@ Addresses bugs discovered during implementation phase.
 Use the standard refinement template for consistency:
 ```bash
 # Copy and fill the refinement template
-cp workflows/helix/templates/refinement-log.md docs/helix/06-iterate/refinements/US-001-refinement-001.md
+cp workflows/templates/refinement-log.md docs/helix/06-iterate/refinements/US-001-refinement-001.md
 ```
 
 ## Evolution

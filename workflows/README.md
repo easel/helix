@@ -25,7 +25,7 @@ Treat the following files as the canonical HELIX workflow contract:
 - [backfill-helix-docs.md](actions/backfill-helix-docs.md) for conservative documentation reconstruction
 - [alignment-review.md](templates/alignment-review.md) and [backfill-report.md](templates/backfill-report.md) for durable review outputs
 
-The rest of `workflows/helix/` is supporting guidance, templates, phase
+The rest of `workflows/` is supporting guidance, templates, phase
 context, or examples. If a supporting document conflicts with the files above,
 follow the normative contract and update the supporting document.
 
@@ -241,7 +241,7 @@ HELIX may not be suitable for:
 helix run
 
 # Or follow the comprehensive guide
-open workflows/helix/QUICKSTART.md
+open workflows/QUICKSTART.md
 ```
 
 For a detailed walkthrough, see our [Quick Start Guide](QUICKSTART.md) which includes a complete example of building a TODO API using HELIX.

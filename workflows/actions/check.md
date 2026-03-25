@@ -105,7 +105,7 @@ Check for:
 - open execution beads whose governing artifacts are too weak to execute safely
 - queue starvation caused by missing review, decision, or doc work
 - ratchet status if the project has adopted quality ratchets
-  (see `workflows/helix/ratchets.md`): current measured value vs. floor,
+  (see `workflows/ratchets.md`): current measured value vs. floor,
   trend direction, and whether any ratchet is approaching its failure
   threshold
 

@@ -4,7 +4,7 @@ Story implementation work is stored as build beads, not as markdown
 implementation plans.
 
 Use upstream Beads via `bd create`, `bd update`, `bd dep add`, and `bd ready`.
-See `workflows/helix/BEADS.md`.
+See `workflows/BEADS.md`.
 
 ## Required Story Build Bead Mapping
 

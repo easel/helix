@@ -11,7 +11,7 @@ with explicit bead traceability, close the bead, and exit.
 This action is intentionally single-run. It must never loop internally or claim
 multiple beads in one invocation. External supervisors may invoke it
 repeatedly, but each run handles at most one bead. When the ready queue drains,
-the external supervisor should run `workflows/helix/actions/check.md` instead
+the external supervisor should run `workflows/actions/check.md` instead
 of continuing blindly.
 
 ## Action Input
@@ -57,7 +57,7 @@ Rules:
 
 Use native upstream Beads only. Follow:
 
-- `workflows/helix/BEADS.md`
+- `workflows/BEADS.md`
 - <https://github.com/steveyegge/beads>
 - <https://steveyegge.github.io/beads/>
 
@@ -91,10 +91,10 @@ scope, or missing verification must be refined before implementation.
    - If unrelated changes create commit risk, isolate your bead changes rather
      than cleaning the tree destructively.
 3. Load project quality and completeness gates.
-   - Read relevant HELIX guidance such as `workflows/helix/phases/04-build/enforcer.md`
+   - Read relevant HELIX guidance such as `workflows/phases/04-build/enforcer.md`
      and any repo-specific CI, lint, test, security, or release rules.
    - Load ratchet floor fixtures if the project has adopted quality ratchets
-     (see `workflows/helix/ratchets.md`). Note the current floors so Phase 7
+     (see `workflows/ratchets.md`). Note the current floors so Phase 7
      can compare against them.
 
 ## PHASE 1 - Candidate Discovery
@@ -245,7 +245,7 @@ At minimum, verify:
 - docs/config/runbooks are updated where required
 - any build, deploy, or iterate phase exit conditions touched by the work are still valid
 - ratchet enforcement commands pass if the project has adopted quality ratchets
-  (see `workflows/helix/ratchets.md`). If a ratchet auto-bump is triggered,
+  (see `workflows/ratchets.md`). If a ratchet auto-bump is triggered,
   include the updated floor fixture in the bead commit.
 
 If the repository defines canonical verification wrappers or proof lanes, use

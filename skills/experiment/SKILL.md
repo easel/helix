@@ -44,9 +44,9 @@ doesn't, repeat until converged or interrupted.
 
 ## References
 
-- Action prompt: `workflows/helix/actions/experiment.md`
-- Session doc template: `workflows/helix/templates/autoresearch-session.md`
-- Worklog template: `workflows/helix/templates/autoresearch-worklog.md`
-- Metric definition template: `workflows/helix/templates/metric-definition.yaml`
-- Ratchet integration: `workflows/helix/ratchets.md`
+- Action prompt: `workflows/actions/experiment.md`
+- Session doc template: `workflows/templates/autoresearch-session.md`
+- Worklog template: `workflows/templates/autoresearch-worklog.md`
+- Metric definition template: `workflows/templates/metric-definition.yaml`
+- Ratchet integration: `workflows/ratchets.md`
 - Autoresearch ecosystem: compatible with pi-autoresearch JSONL protocol

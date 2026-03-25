@@ -39,7 +39,7 @@ Based on the user story (US-{XXX}) and its technical design (TD-{XXX}), create a
    - Branch coverage target
    - Mutation testing considerations
 
-Use the template at `workflows/helix/phases/03-test/artifacts/story-test-plan/template.md`.
+Use the template at `workflows/phases/03-test/artifacts/story-test-plan/template.md`.
 
 ## Completion Criteria
 - [ ] Every acceptance criterion has at least one test case

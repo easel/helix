@@ -46,7 +46,7 @@ Based on the threat model and security architecture, create:
    - Penetration test scenarios
    - Fuzz testing targets
 
-Use the template at `workflows/helix/phases/03-test/artifacts/security-tests/template.md`.
+Use the template at `workflows/phases/03-test/artifacts/security-tests/template.md`.
 
 ## Completion Criteria
 - [ ] All high-risk threats have tests

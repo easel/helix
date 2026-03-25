@@ -51,7 +51,7 @@ Rules:
 
 Use native upstream Beads only. Follow:
 
-- `workflows/helix/BEADS.md`
+- `workflows/BEADS.md`
 - <https://github.com/steveyegge/beads>
 - <https://steveyegge.github.io/beads/>
 
@@ -163,7 +163,7 @@ For each user story and feature spec in the reviewed scope:
 4. Record results in the Gap Register with the governing artifact as planning
    evidence and the test or code file as implementation evidence.
 5. If the project has adopted an acceptance criteria ratchet
-   (see `workflows/helix/ratchets.md`), compare the current satisfaction
+   (see `workflows/ratchets.md`), compare the current satisfaction
    count against the committed floor. Flag any regression — a decrease in
    SATISFIED criteria that was not accompanied by a floor override.
 
@@ -227,7 +227,7 @@ Create or update the durable report at:
 
 Use the template at:
 
-- `workflows/helix/templates/alignment-review.md`
+- `workflows/templates/alignment-review.md`
 
 The report must consolidate all review beads into one coherent repo artifact.
 It is the durable output of the review run.

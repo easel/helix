@@ -328,7 +328,7 @@ The workflow's overarching principles guide all decisions and ensure consistency
 ## File Organization
 
 ### Structure Overview
-- **Artifact Definitions**: `workflows/helix/phases/01-frame/artifacts/`
+- **Artifact Definitions**: `workflows/phases/01-frame/artifacts/`
   - Contains templates, prompts, and examples for each artifact
   - Defines the structure and guidance for artifact creation
 
@@ -458,7 +458,7 @@ Remember: Frame defines the "what" and "why" - Design will define the "how".
 ## Using AI Assistance
 
 Frame prompts live beside their templates under
-`workflows/helix/phases/01-frame/artifacts/`. Start with the relevant
+`workflows/phases/01-frame/artifacts/`. Start with the relevant
 `prompt.md`, copy the matching template into `docs/helix/01-frame/`, and fill
 it in with project-specific content.
 

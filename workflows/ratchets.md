@@ -92,7 +92,7 @@ The fixture may optionally include a `metric` field referencing a shared metric
 definition at `docs/helix/06-iterate/metrics/<name>.yaml`. When present, the
 metric definition provides the measurement command, output pattern, and
 tolerance — the floor fixture only needs to record the floor value and update
-history. See `workflows/helix/templates/metric-definition.yaml` for the schema.
+history. See `workflows/templates/metric-definition.yaml` for the schema.
 
 ## Three Ratchet Types
 

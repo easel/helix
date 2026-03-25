@@ -27,7 +27,7 @@ Examples:
 
 Use native upstream Beads only. Follow:
 
-- `workflows/helix/BEADS.md`
+- `workflows/BEADS.md`
 - <https://github.com/steveyegge/beads>
 - <https://steveyegge.github.io/beads/>
 

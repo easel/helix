@@ -15,7 +15,7 @@ claude -p \
 ```
 
 - when updating the HELIX operator flow, also check:
-  - `workflows/helix/EXECUTION.md`
-  - `workflows/helix/BEADS.md`
-  - `workflows/helix/ratchets.md`
+  - `workflows/EXECUTION.md`
+  - `workflows/BEADS.md`
+  - `workflows/ratchets.md`
   - `tests/helix-cli.sh`

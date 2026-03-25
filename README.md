@@ -71,12 +71,12 @@ tracking. Run `bd onboard` to get started.
 
 ## Documentation
 
-- [Workflow Overview](workflows/helix/README.md)
-- [Execution Guide](workflows/helix/EXECUTION.md)
-- [Beads Integration](workflows/helix/BEADS.md)
-- [Reference Card](workflows/helix/REFERENCE.md)
-- [Quality Ratchets](workflows/helix/ratchets.md)
-- [Conventions](workflows/helix/conventions.md)
+- [Workflow Overview](workflows/README.md)
+- [Execution Guide](workflows/EXECUTION.md)
+- [Beads Integration](workflows/BEADS.md)
+- [Reference Card](workflows/REFERENCE.md)
+- [Quality Ratchets](workflows/ratchets.md)
+- [Conventions](workflows/conventions.md)
 
 ## Origin
 

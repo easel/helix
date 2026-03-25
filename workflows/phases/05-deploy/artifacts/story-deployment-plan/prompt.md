@@ -23,10 +23,10 @@ Each deploy bead must:
 4. Stay small enough to execute and close independently
 
 Use the mapping guidance at:
-`workflows/helix/phases/05-deploy/artifacts/story-deployment-plan/template.md`
+`workflows/phases/05-deploy/artifacts/story-deployment-plan/template.md`
 
 Use upstream Beads guidance at:
-`workflows/helix/BEADS.md`
+`workflows/BEADS.md`
 
 ## Completion Criteria
 - [ ] Every story rollout task is captured by one or more deploy beads

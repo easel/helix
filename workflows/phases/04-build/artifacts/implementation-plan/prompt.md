@@ -65,8 +65,8 @@ The build plan must include:
 ## Template
 
 Use the template at
-`workflows/helix/phases/04-build/artifacts/implementation-plan/template.md`.
-Use HELIX bead guidance at `workflows/helix/BEADS.md`.
+`workflows/phases/04-build/artifacts/implementation-plan/template.md`.
+Use HELIX bead guidance at `workflows/BEADS.md`.
 
 ## Completion Criteria
 

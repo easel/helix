@@ -13,7 +13,7 @@ canonical planning stack and an execution layer tracked in upstream Beads
 ## Use This Skill When
 
 - the user is building or refining a feature under HELIX
-- the repo has `docs/helix/` or `workflows/helix/`
+- the repo has `docs/helix/` or `workflows/`
 - the user wants TDD phase guidance or artifact sequencing
 - the user wants implementation kept aligned to requirements, design, and tests
 - the user wants a ready HELIX bead executed end-to-end with the right quality gates
@@ -62,14 +62,14 @@ HELIX uses upstream Beads (`bd`) for execution tracking.
 - Use `bd` (or `br`) issues, dependencies, parents, `spec-id`, and labels.
 - Do not invent custom bead files or custom status taxonomies.
 - Recommended labels: `helix`, plus phase/kind/traceability labels as needed.
-- See `workflows/helix/BEADS.md` for bd/br command mapping.
+- See `workflows/BEADS.md` for bd/br command mapping.
 
 Reference docs (read as needed):
 
-- `workflows/helix/README.md`
-- `workflows/helix/BEADS.md`
-- `workflows/helix/actions/check.md` when the user wants queue health or the next action
-- `workflows/helix/actions/implementation.md` when the user wants ready work executed
+- `workflows/README.md`
+- `workflows/BEADS.md`
+- `workflows/actions/check.md` when the user wants queue health or the next action
+- `workflows/actions/implementation.md` when the user wants ready work executed
 - relevant phase README and artifact prompts/templates
 
 ## On Invocation
@@ -109,7 +109,7 @@ bd update <id> --claim    # or: br update <id> --status in_progress
 1. Read the bead's `spec-id`, parent, labels, and acceptance criteria.
 2. Read the governing artifacts (requirements, design, tests) referenced by
    the bead.
-3. Read `workflows/helix/actions/implementation.md` for full phase-specific
+3. Read `workflows/actions/implementation.md` for full phase-specific
    rules (build, deploy, iterate).
 4. Implement the work: write code, update docs, create follow-on beads for
    any out-of-scope work discovered.
@@ -128,12 +128,12 @@ verification fails, fix within scope or leave the bead open with a status note.
 ### Step 6 — Queue drain
 
 When no ready beads remain, read and execute
-`workflows/helix/actions/check.md` to decide what happens next. That action
+`workflows/actions/check.md` to decide what happens next. That action
 produces a `NEXT_ACTION` code:
 
 - `IMPLEMENT` → go to Step 1
-- `ALIGN` → read and execute `workflows/helix/actions/reconcile-alignment.md`
-- `BACKFILL` → read and execute `workflows/helix/actions/backfill-helix-docs.md`
+- `ALIGN` → read and execute `workflows/actions/reconcile-alignment.md`
+- `BACKFILL` → read and execute `workflows/actions/backfill-helix-docs.md`
 - `WAIT` / `GUIDANCE` → report what is blocking and stop
 - `STOP` → report that no actionable work remains
 

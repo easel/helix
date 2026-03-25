@@ -345,8 +345,8 @@ tests/
 
 ## Using AI Assistance
 
-Test prompts live under `workflows/helix/phases/03-test/artifacts/`, with
-phase-local helper prompts under `workflows/helix/phases/03-test/actions/`.
+Test prompts live under `workflows/phases/03-test/artifacts/`, with
+phase-local helper prompts under `workflows/phases/03-test/actions/`.
 Open the relevant prompt, use the adjacent template, and keep outputs in
 `docs/helix/03-test/` plus executable files under `tests/`.
 
@@ -363,7 +363,7 @@ constraint.
 ## File Organization
 
 ### Structure Overview
-- **Test Definitions**: `workflows/helix/phases/03-test/`
+- **Test Definitions**: `workflows/phases/03-test/`
   - Templates and prompts for test creation
   - Test planning documents
 

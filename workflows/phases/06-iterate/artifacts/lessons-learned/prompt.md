@@ -44,7 +44,7 @@ Based on production metrics, user feedback, and team retrospective, document:
    - Documentation updates needed
    - Training recommendations
 
-Use the template at `workflows/helix/phases/06-iterate/artifacts/lessons-learned/template.md`.
+Use the template at `workflows/phases/06-iterate/artifacts/lessons-learned/template.md`.
 
 ## Completion Criteria
 - [ ] Both successes and improvements documented

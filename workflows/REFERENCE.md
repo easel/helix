@@ -126,13 +126,13 @@ Recommended labels:
 
 Use the prompts and templates under:
 
-- `workflows/helix/phases/00-discover/artifacts/`
-- `workflows/helix/phases/01-frame/artifacts/`
-- `workflows/helix/phases/02-design/artifacts/`
-- `workflows/helix/phases/03-test/artifacts/`
-- `workflows/helix/phases/04-build/artifacts/`
-- `workflows/helix/phases/05-deploy/artifacts/`
-- `workflows/helix/phases/06-iterate/artifacts/`
+- `workflows/phases/00-discover/artifacts/`
+- `workflows/phases/01-frame/artifacts/`
+- `workflows/phases/02-design/artifacts/`
+- `workflows/phases/03-test/artifacts/`
+- `workflows/phases/04-build/artifacts/`
+- `workflows/phases/05-deploy/artifacts/`
+- `workflows/phases/06-iterate/artifacts/`
 
 Those artifact directories support the canonical docs under `docs/helix/`; they
 do not replace the bounded execution contract.

@@ -384,7 +384,7 @@ deploy:
 
 Deploy execution is driven by deploy beads through `helix implement` or
 `helix run`. Use the prompts and templates under
-`workflows/helix/phases/05-deploy/artifacts/` to prepare rollout and
+`workflows/phases/05-deploy/artifacts/` to prepare rollout and
 operational documentation.
 
 Common entry points:
@@ -399,7 +399,7 @@ Go/no-go decisions, incident handling, and rollback approval remain human-owned.
 ## File Organization
 
 ### Structure Overview
-- **Deployment Definitions**: `workflows/helix/phases/05-deploy/`
+- **Deployment Definitions**: `workflows/phases/05-deploy/`
   - Templates and prompts for deployment artifacts
   - Action definitions for deployment tasks
 
