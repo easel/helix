@@ -1,60 +1,37 @@
 # Security Monitoring Setup
 
-**Project**: [Project Name]
-**Date**: [Creation Date]
-**Security Operations**: [Name]
+**Service**: [Project Name]
+**Security Owner**: [Name]
 
-## Monitoring Architecture
+## Detection Scope
+- High-risk assets: [Accounts, secrets, sensitive data paths, admin surfaces]
+- Data sources: [Application logs, auth logs, infra events, security tools]
 
-### SIEM
-- **Platform**: [Splunk, Azure Sentinel, AWS Security Hub]
-- **Data sources**: Application logs, system logs, network logs, security tools
-- **Retention**: Security events retained for [X] months
-- **Alerting**: Real-time alerts for critical security events
-
-### Log Collection
-- Centralized logging via [tool/service]
-- Structured logging with security event categorization
-- Automated correlation and anomaly detection
-- Encrypted storage with integrity protection
-
-## Security Alerts
+## Alerts and Routing
 
 | Category | Signals |
 |----------|---------|
-| Authentication | Failed logins, MFA bypass attempts, new device/location, lockouts |
-| Authorization | Privilege escalation, sensitive access, unusual permission changes, cross-tenant access |
-| Data protection | Large exports, unusual queries, key access anomalies, policy violations |
-| Infrastructure | Unusual traffic, security config changes, deployments, security tool status changes |
+| Authentication | [Failed logins, MFA bypass, lockouts] |
+| Authorization | [Privilege changes, denied access, tenant boundary violations] |
+| Data protection | [Exports, sensitive reads, key access anomalies] |
+| Infrastructure | [Security config drift, unusual traffic, tool failures] |
 
-## Incident Response Integration
+## Triage and Response
 
-### Alert Triage
-- **Priority**: Critical (immediate), High (1h), Medium (4h), Low (24h)
-- **Escalation**: Security team -> Manager -> CISO
-- **Channels**: [Slack, PagerDuty, Email]
-
-## Compliance Monitoring
-
-### Audit Trail
-- All user actions logged with timestamps
-- Administrative changes tracked
-- Data access events recorded
-- Log integrity verified
-
-### Regulatory Reporting
-- Breach notification compliance (e.g. GDPR 72h)
-- Compliance dashboard with KPIs
-- Evidence collection for audits
+| Priority | Trigger | Route | Target Response |
+|----------|---------|-------|-----------------|
+| Critical | [Condition] | [PagerDuty / phone / incident bridge] | [Time] |
+| High | [Condition] | [Channel] | [Time] |
+| Medium / Low | [Condition] | [Channel] | [Time] |
 
 ## KPIs
 
-- Mean time to detect (MTTD)
-- Mean time to respond (MTTR)
-- False positive rate
-- Security control effectiveness
+- MTTD: [Target]
+- MTTR: [Target]
+- False positive rate: [Target]
+- Security control coverage: [Target or notes]
 
-### Post-Deployment
+## Operational Checks
 - [ ] Log data flowing from all sources
 - [ ] Alerts triggering appropriately
 - [ ] Incident response procedures tested

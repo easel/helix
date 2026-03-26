@@ -1,34 +1,15 @@
 # Data Design
 
-## Conceptual Data Model
+## Data Summary
+- Scope: [What feature or workflow this data design supports]
+- Storage systems: [Database, queue, cache, object store]
+- Main concerns: [Consistency, scale, retention, privacy, migration]
 
-```mermaid
-erDiagram
-    %% [Define entities with attributes and relationships]
-```
+## Entities and Stores
 
-### Entity Descriptions
-
-#### Entity: [Name]
-- **Purpose**: [What this entity represents]
-- **Key Attributes**: [Most important fields]
-- **Business Rules**: [Rules governing this entity]
-- **Volume**: [Expected records] | **Growth**: [Rate]
-
-## Logical Data Model
-
-### Table: [table_name]
-```sql
-CREATE TABLE table_name (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    -- [columns with types and constraints]
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
--- Indexes
-CREATE INDEX idx_table_field ON table_name(field);
-```
+| Entity or Store | Purpose | Key Fields | Volume / Growth | Notes |
+|-----------------|---------|------------|-----------------|-------|
+| [Name] | [What it represents] | [Important fields] | [Expected scale] | [Business rules or constraints] |
 
 ### Relationships
 
@@ -36,52 +17,20 @@ CREATE INDEX idx_table_field ON table_name(field);
 |------|-----|------|-------------|-----------|
 | [Entity1] | [Entity2] | [1:N, N:M] | [Required/Optional] | [CASCADE/RESTRICT/SET NULL] |
 
-## Data Patterns
+## Access Patterns and Constraints
 
-### Audit Trail
-```sql
--- [Audit log table and trigger implementation]
-```
+| Access Pattern | Frequency | Performance Need | Supporting Index or Cache |
+|----------------|-----------|------------------|---------------------------|
+| [Read or write path] | [Rate] | [Latency or throughput target] | [Index, partition, cache] |
 
-### Soft Deletes
-```sql
--- [deleted_at column, active views, soft delete function]
-```
+## Validation and Security
 
-### Versioning (if needed)
-- **Approach**: [Temporal tables | Version tables | Event sourcing]
-
-## Access Patterns
-
-### Common Queries
-```sql
--- [Key query with index support notes]
-```
-
-### Caching Strategy
-
-| Data Type | Cache Level | TTL | Invalidation |
-|-----------|------------|-----|--------------|
-| [Type] | [App/CDN/Redis] | [Duration] | [Strategy] |
-
-## Validation Rules
-
-| Entity.Field | Rules | Error Message |
-|--------------|-------|---------------|
-| [Field] | [Constraints] | [Message] |
+| Field or Data Type | Rules / Classification | Protection or Error Handling |
+|--------------------|------------------------|------------------------------|
+| [Field] | [Constraints or classification] | [Masking, encryption, validation, retention] |
 
 ## Migration Strategy
 
-- **Tooling**: [Migration framework]
-- **Approach**: [Versioned migrations with rollback]
-- **Data backfill**: [Strategy for existing data]
-
-## Data Security
-
-| Data Type | Classification | Protection |
-|-----------|---------------|------------|
-| [Type] | [Public/Internal/Confidential/Restricted] | [Controls] |
-
-- **Encryption at rest**: [Strategy]
-- **Encryption in transit**: [Strategy]
-- **Data retention**: [Policy]
+- Tooling: [Migration framework]
+- Approach: [Schema rollout and rollback strategy]
+- Backfill or cleanup: [If needed]

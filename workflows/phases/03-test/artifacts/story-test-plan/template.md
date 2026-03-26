@@ -18,72 +18,31 @@ dun:
 
 ## Acceptance Criteria Test Mapping
 
-### AC1: [First Acceptance Criterion]
-**Given** [precondition], **When** [action], **Then** [expected outcome]
-
-| Test Case | Type | What it Verifies |
-|-----------|------|-----------------|
-| `test_[name]` | Happy path | [Description] |
-| `test_[name]_edge` | Edge case | [Description] |
-| `test_[name]_error` | Error | [Description] |
-
-### AC2: [Second Acceptance Criterion]
-**Given** [precondition], **When** [action], **Then** [expected outcome]
-
-| Test Case | Type | What it Verifies |
-|-----------|------|-----------------|
-| `test_[name]` | Happy path | [Description] |
-| `test_[name]_boundary` | Boundary | [Description] |
+| Acceptance Criterion | Test Type | Test Cases | Setup or Data | Notes |
+|----------------------|-----------|------------|---------------|-------|
+| [Given/When/Then criterion] | Unit / Integration / API / E2E | `[test_name]`, `[test_name_error]` | [Fixtures, mocks, seed data] | [Edge cases or constraints] |
 
 ## Test Categories
 
 ### Unit Tests
-```yaml
-test_suite: unit/[component]
-coverage_target: 80%
-test_cases:
-  - name: test_[function]
-    input: [test data]
-    expected: [expected result]
-```
+- [Modules or rules to cover]
 
 ### Integration Tests
-```yaml
-test_suite: integration/[feature]
-test_cases:
-  - name: test_components_integrate
-    setup: [required setup]
-    expected: [expected behavior]
-```
+- [Component boundaries or dependencies to cover]
 
 ### API Tests (if applicable)
-```yaml
-test_suite: api/[resource]
-test_cases:
-  - endpoint: POST /api/v1/[resource]
-    scenarios:
-      - { name: success, response: {status: 201} }
-      - { name: validation_error, response: {status: 400} }
-```
+- [Endpoints and key scenarios]
 
 ### E2E Tests
-```yaml
-test_suite: e2e/[story]
-test_cases:
-  - name: complete_user_flow
-    steps: [User action 1, User action 2, Verify outcome]
-```
+- [Only if needed for story confidence]
 
 ## Test Data Requirements
 
-```yaml
-valid_data:
-  fields: { field1: value1, field2: value2 }
-edge_case_data:
-  fields: [{ field1: minimum_value }, { field1: maximum_value }]
-invalid_data:
-  fields: [{ field1: null }, { field1: invalid_format }]
-```
+| Kind | Needed For | Notes |
+|------|------------|-------|
+| Valid data | [Tests] | [Shape or fixture] |
+| Edge data | [Tests] | [Boundary values] |
+| Invalid data | [Tests] | [Validation failures] |
 
 ## Edge Cases and Error Scenarios
 
@@ -93,10 +52,5 @@ invalid_data:
 - Missing dependencies (graceful degradation)
 - Authorization failures (401/403)
 
-## Definition of Done
-
-- [ ] All acceptance criteria have test cases
-- [ ] Edge cases identified and covered
-- [ ] Error scenarios covered
-- [ ] Test data requirements documented
-- [ ] Tests can be implemented as failing tests (TDD)
+## Build Handoff
+- [Implementation order or notable sequencing constraints]

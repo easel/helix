@@ -2,11 +2,11 @@
 Create a concise technical design for one user story.
 
 ## Focus
-- Map acceptance criteria to implementation, data, security, and tests.
+- Map each acceptance criterion to component changes, interfaces, data, security, and tests.
 - Stay on the vertical slice for the story.
-- Keep rollout or migration notes only if they matter.
+- Keep implementation sequence and rollout or migration notes only when they affect execution.
 
 ## Completion Criteria
 - The story is implementable.
-- Key interfaces and changes are explicit.
+- Key interfaces, changes, and test coverage are explicit.
 - The design stays compact.

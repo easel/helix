@@ -6,10 +6,6 @@ dun:
 ---
 # Test Plan
 
-| Project | Version | Date | Status |
-|---------|---------|------|--------|
-| [Name] | 1.0.0 | [Date] | Draft |
-
 ## Testing Strategy
 
 **Goals**: [Primary objective] | [Quality gates]
@@ -19,10 +15,10 @@ dun:
 
 | Level | Coverage Target | Priority |
 |-------|-----------------|----------|
-| Contract | 100% API endpoints | P0 |
-| Integration | 90% component interactions | P0 |
-| Unit | 80% business logic | P1 |
-| E2E | Critical paths only | P1 |
+| Contract | [Target] | P0/P1 |
+| Integration | [Target] | P0/P1 |
+| Unit | [Target] | P0/P1 |
+| E2E | [Target] | P0/P1 |
 
 ### Frameworks
 
@@ -59,15 +55,10 @@ dun:
 
 - P1: [Secondary features] | P2: [Edge cases, rare scenarios]
 
-## Implementation Phases
-
-| Phase | Days | Deliverables |
-|-------|------|--------------|
-| Foundation | 1-2 | Infrastructure, frameworks, mocks, CI |
-| Contract | 3 | API tests, schemas, auth, errors |
-| Integration | 4 | Services, DB, external, state |
-| Unit | 5 | Logic, validation, calculations |
-| E2E | 6 | Journeys, workflows, recovery |
+## Implementation Order
+1. [What must be written first and why]
+2. [What follows]
+3. [What can wait]
 
 ## Infrastructure
 
@@ -88,6 +79,5 @@ dun:
 
 ## Build Handoff
 
-**Commands**: `npm test` | `npm run test:coverage`
-
-**Priority**: Contract -> Integration -> Unit -> E2E
+**Commands**: `[test command]` | `[coverage command]`
+**Priority**: [Recommended order]

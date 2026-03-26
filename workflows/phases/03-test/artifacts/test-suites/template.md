@@ -26,15 +26,7 @@ tests/
 | /api/[resource] | GET | [resource].get.test.ts | Red |
 | /api/[resource] | POST | [resource].post.test.ts | Red |
 
-### Contract Test Pattern
-
-```typescript
-describe('[METHOD] /api/[resource]', () => {
-  it('covers the success path', async () => { /* ... */ });
-  it('covers validation and auth failures', async () => { /* ... */ });
-  it('covers not-found or conflict cases', async () => { /* ... */ });
-});
-```
+Coverage: success path, validation, auth, and not-found/conflict behavior.
 
 ## Integration Tests
 
@@ -43,15 +35,7 @@ describe('[METHOD] /api/[resource]', () => {
 | [Service] | [Repository] | [service]-persistence.test.ts | Red |
 | [Service] | [External API] | [service]-api.test.ts | Red |
 
-### Integration Test Pattern
-
-```typescript
-describe('[Feature] Integration', () => {
-  beforeEach(() => { /* minimal setup */ });
-  it('coordinates components', async () => { /* ... */ });
-  it('handles downstream failure', async () => { /* ... */ });
-});
-```
+Coverage: component coordination, persistence, and downstream failure handling.
 
 ## Unit Tests
 
@@ -60,15 +44,7 @@ describe('[Feature] Integration', () => {
 | [validators] | validate[Entity] | validators.test.ts | Red |
 | [calculators] | calculate[Metric] | calculators.test.ts | Red |
 
-### Unit Test Pattern
-
-```typescript
-describe('[functionName]', () => {
-  it('covers the happy path', () => { /* ... */ });
-  it('covers edge and error cases', () => { /* ... */ });
-  it('covers business rules', () => { /* ... */ });
-});
-```
+Coverage: happy path, edge/error cases, and business rules.
 
 ## E2E Tests
 
@@ -79,23 +55,11 @@ describe('[functionName]', () => {
 
 ## Test Data
 
-### Fixtures
-```typescript
-export const [entity]Fixtures = {
-  valid: { minimal: () => ({/* ... */}), complete: () => ({/* ... */}) },
-  invalid: { missingRequired: () => ({...}), invalidFormat: () => ({...}) },
-  edge: { empty: () => ({}), maxLength: () => ({...}) }
-};
-```
-
-### Factory Pattern
-```typescript
-export class [Entity]Factory {
-  static build(overrides = {}) {
-    return { id: faker.datatype.uuid(), name: faker.name.fullName(), ...overrides };
-  }
-}
-```
+| Asset | Purpose |
+|-------|---------|
+| Fixtures | [Canonical valid, invalid, and edge payloads] |
+| Factories | [Generated test objects] |
+| Mocks | [External services or time/network controls] |
 
 ## Coverage Targets
 
@@ -106,13 +70,7 @@ export class [Entity]Factory {
 | Critical Path Coverage | 100% |
 | Error Handling Coverage | 90% |
 
-## Definition of Done
-
-- [ ] All API endpoints have contract tests
-- [ ] All components have integration tests
-- [ ] All business logic has unit tests
-- [ ] Critical user journeys have E2E tests
-- [ ] Test data fixtures and factories are prepared
-- [ ] Mocks for external services are ready
-- [ ] CI pipeline is configured
-- [ ] All suites start in RED
+## Readiness
+- [ ] Suite boundaries are defined
+- [ ] Shared test data assets are identified
+- [ ] All planned suites begin in RED

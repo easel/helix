@@ -7,38 +7,20 @@
 - **Overall Sentiment**: [Positive/Neutral/Negative] - Trend: [Improving/Stable/Declining]
 - **Top Themes**: [Theme 1], [Theme 2], [Theme 3]
 
-## Key Findings
+## Themes and Actions
 
-| Finding | Frequency | Sentiment | Impact | Action |
-|---------|-----------|-----------|--------|--------|
-| [Finding] | [%] | [Positive/Negative/Mixed] | [High/Med/Low] | [Action] |
+| Theme | Signal | Impact | Decision |
+|-------|--------|--------|----------|
+| [Theme] | [Frequency, examples, sentiment] | [High/Med/Low] | [Backlog issue, no action, investigate] |
 
-## Requests and Pain Points
+## Positive Signals
 
-| Type | Item | Volume | Severity | Suggested Action |
-|------|------|--------|----------|------------------|
-| Feature request | [Feature] | [Count] | [High/Med/Low] | [Fix] |
-| Pain point | [Issue] | [Count] | [Critical/High/Med/Low] | [Fix] |
+| Area | Why It Matters | Keep / Expand |
+|------|----------------|---------------|
+| [Feature or aspect] | [Benefit] | [Decision] |
 
-## What Users Like
+## Prior Decisions Review
 
-| Area | Mentions | Why It Matters |
-|------|----------|-----------------|
-| [Feature/Aspect] | [Count] | [Benefit] |
-
-## Recommendations
-
-### Critical (user satisfaction at risk)
-- **[Action]**: Affects [N] users, expected impact [description]
-
-### High-Value Improvements
-- **[Improvement]**: Requested by [%] of users, effort [estimate]
-
-### Quick Wins
-- **[Fix]**: Effort [hours/days], impact [N] users
-
-## Previous Actions
-
-| Action Taken | Date | User Response | Result |
-|-------------|------|---------------|--------|
-| [Action] | [Date] | [Feedback] | [Outcome] |
+| Previous Action | Result | Next Step |
+|-----------------|--------|----------|
+| [Action] | [Observed outcome] | [Continue, adjust, stop] |

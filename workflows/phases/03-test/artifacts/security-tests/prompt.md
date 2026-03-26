@@ -1,19 +1,12 @@
 # Security Tests Generation
+Create concise, project-specific security tests that map threats and security requirements to executable checks.
 
-## Required Inputs
-- `docs/helix/01-frame/threat-model.md`
-- `docs/helix/02-design/security-architecture.md`
-- `docs/helix/01-frame/security-requirements.md`
+## Focus
+- Cover the highest-risk threats first.
+- Use a small threat-to-test matrix rather than broad prose.
+- Include only the fixtures, setup, tooling, and controls that this stack actually needs.
 
-## Produced Output
-- `docs/helix/03-test/security-tests.md`
-- security test implementations
-
-Create concise, project-specific security tests that map threats and security requirements to executable checks. Include only relevant categories, a threat-to-test matrix, and any tooling or automation needed for this stack.
-
-Keep the output concrete:
-- cover the highest-risk threats first
-- note expected failures, pass criteria, and required fixtures or setup
-- include only applicable security controls and tools
-
-Use template at `workflows/phases/03-test/artifacts/security-tests/template.md`.
+## Completion Criteria
+- Relevant threat coverage is explicit.
+- Expected failures and pass criteria are clear.
+- The output is usable in the Red phase.

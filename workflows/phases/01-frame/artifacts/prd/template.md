@@ -4,12 +4,7 @@ dun:
 ---
 # Product Requirements Document
 
-**Version**: 1.0.0
-**Date**: [Current Date]
-**Status**: Draft | In Review | Approved
-**Author**: [Author Name]
-
-## Executive Summary
+## Summary
 [What we're building, who uses it, and why it matters now]
 
 ## Problem and Goals
@@ -31,7 +26,7 @@ dun:
 
 Deferred items tracked in `docs/helix/parking-lot.md`.
 
-## Users
+## Users and Scope
 
 ### Primary Persona: [Name]
 **Role**: [Job title/function]
@@ -72,9 +67,4 @@ Deferred items tracked in `docs/helix/parking-lot.md`.
 | [Risk] | High/Med/Low | High/Med/Low | [Strategy] |
 
 ## Success Criteria
-
-### Definition of Done
-- [ ] All P0 requirements implemented
-- [ ] Success metrics tracking in place
-- [ ] User documentation complete
-- [ ] Stakeholder approval received
+- [What must be true to call the initiative successful]

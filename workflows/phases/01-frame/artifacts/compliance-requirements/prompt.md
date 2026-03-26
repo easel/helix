@@ -2,11 +2,11 @@
 Document the compliance obligations for this project in the local template.
 
 ## Focus
-- Identify applicable regulations and standards.
-- Map each obligation to concrete controls, owners, and timing.
+- Identify only the regulations and standards that actually apply to this system.
+- Map each obligation to its source, affected scope, concrete controls, owners, and timing.
 - Keep the result concise and implementation-relevant.
 
 ## Completion Criteria
 - Applicable requirements are identified.
-- Controls, risks, and deadlines are explicit.
+- Controls, risks, owners, and deadlines are explicit.
 - No generic filler is added.

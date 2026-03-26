@@ -5,54 +5,14 @@
 **Date**: [Date]
 **Result**: [ ] Pass | [ ] Conditional Pass | [ ] Fail
 
-## Core Checks
-
-### PRD
-- [ ] Exists at `docs/helix/01-frame/prd.md`
-- [ ] Problem statement is clear and quantified
-- [ ] Success metrics are specific and measurable
-- [ ] Requirements are prioritized
-
-### Principles
-- [ ] Exists at `docs/helix/01-frame/principles.md`
-- [ ] Core principles are defined and enforceable
-
-### Feature Specifications
-- [ ] P0 features have specs in `docs/helix/01-frame/features/`
-- [ ] Requirements are testable
-- [ ] Open questions are explicit
-
-### User Stories
-- [ ] P0 features have stories in `docs/helix/01-frame/user-stories/`
-- [ ] Acceptance criteria are written in Given/When/Then form
-- [ ] Stories are linked to features
-
-### Feature Registry
-- [ ] Exists at `docs/helix/01-frame/feature-registry.md`
-- [ ] Features have unique FEAT-XXX IDs
-- [ ] Dependencies and ownership are documented
-
-### Risk Register
-- [ ] Exists at `docs/helix/01-frame/risk-register.md`
-- [ ] Major risks are identified and scored
-- [ ] High risks have mitigation strategies
-
-## Quality Gates
-- [ ] Documents are clear and unambiguous
-- [ ] No contradictions between artifacts
-- [ ] Traceability is intact
-- [ ] External dependencies are identified
-
-## Stakeholder Validation
-- [ ] Product Owner: PRD approved
-- [ ] Technical Lead: Feasibility confirmed
-- [ ] Key Stakeholders: Buy-in secured
-
-## Cross-Reference Validation
-- [ ] PRD requirements -> Feature specs
-- [ ] Features -> User stories
-- [ ] Stories -> Acceptance criteria
-- [ ] Registry matches specifications
+## Go / No-Go Gates
+- [ ] Problem, goals, and success metrics are clear enough to judge outcomes.
+- [ ] P0 scope is identified, prioritized, and separated from non-goals.
+- [ ] Features and stories are traceable through IDs and links.
+- [ ] Acceptance criteria are testable.
+- [ ] Major risks, dependencies, and external constraints are explicit.
+- [ ] Frame artifacts do not contradict each other.
+- [ ] Required stakeholders have reviewed the plan.
 
 ## Result
 - [ ] **PASS**: Ready for Design phase

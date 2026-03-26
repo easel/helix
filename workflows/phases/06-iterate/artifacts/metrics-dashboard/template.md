@@ -2,17 +2,17 @@
 
 ## Summary
 
-**Health Score**: [Score]/100 - Trend: [Improving/Stable/Declining]
-**Key Drivers**: [Top 3 factors]
-**Action Required**: [Yes/No - brief description]
+**Current State**: [Healthy / Watch / At Risk]
+**Key Drivers**: [Top 2-3 factors]
+**Owner Action**: [What needs attention now]
 
 ## Metrics
 
-| Category | Metric | Current | Target | Trend | Status |
-|----------|--------|---------|--------|-------|--------|
-| Business | [Metric name] | [Value] | [Target] | [Up/Down/Stable] | [Green/Yellow/Red] |
-| Technical | [Metric name] | [Value] | [Target] | [Up/Down/Stable] | [Green/Yellow/Red] |
-| Quality | [Metric name] | [Value] | [Target] | [Up/Down/Stable] | [Green/Yellow/Red] |
+| Category | Metric | Current | Target | Trend | Status | Owner / Action |
+|----------|--------|---------|--------|-------|--------|----------------|
+| Business | [Metric name] | [Value] | [Target] | [Up/Down/Stable] | [Green/Yellow/Red] | [Owner or next step] |
+| Technical | [Metric name] | [Value] | [Target] | [Up/Down/Stable] | [Green/Yellow/Red] | [Owner or next step] |
+| Quality | [Metric name] | [Value] | [Target] | [Up/Down/Stable] | [Green/Yellow/Red] | [Owner or next step] |
 
 ## Anomalies and Alerts
 
@@ -20,19 +20,8 @@
 |-------|----------|----------|--------|-------------------|
 | [Alert] | [Critical/High/Med/Low] | [Date] | [Affected metrics] | [Action] |
 
-## Recommendations
+## Changes Since Last Period
 
-### Immediate Actions
-- **[Action]**: Metric [X] at risk, expected improvement [Y]
-
-### Optimization Opportunities
-- **[Optimization]**: Potential impact [description], effort [estimate]
-
-### Positive Trends to Maintain
-- **[Area]**: [What is working and how to sustain it]
-
-## Week-over-Week Comparison
-
-| Category | Last Week | This Week | Change |
-|----------|-----------|-----------|--------|
-| [Category] | [Score] | [Score] | [+/-]% |
+| Metric or Area | Previous | Current | Why It Changed | Decision |
+|----------------|----------|---------|----------------|----------|
+| [Metric] | [Value] | [Value] | [Reason] | [Action or none] |

@@ -6,8 +6,6 @@ dun:
 ---
 # Iteration Report: IR-XXX-[story-name]
 
-*Post-deployment learnings and outcomes for a single story*
-
 ## Story Reference
 
 **User Story**: [[US-XXX-[story-name]]]
@@ -20,11 +18,11 @@ dun:
 
 **Key Takeaway**: [One-sentence summary]
 
-## Acceptance Criteria Review
+## Outcome Review
 
-| Criterion | Target | Actual | Status |
-|-----------|--------|--------|--------|
-| [AC1] | [Target] | [Actual] | [Pass/Partial/Fail] |
+| Area | Expected | Actual | Status | Evidence |
+|------|----------|--------|--------|----------|
+| [Acceptance criterion or goal] | [Target] | [Actual] | [Pass/Partial/Fail] | [Metric, ticket, log, or observation] |
 
 ## Metrics and Evidence
 
@@ -40,11 +38,11 @@ dun:
 
 - [Observation]
 
-## Issues and Resolutions
+## Issues and Follow-Up
 
-| Issue | Impact | Resolution | Follow-up Needed |
-|------|--------|------------|------------------|
-| [Issue] | [Impact] | [Resolution] | [Yes/No] |
+| Issue | Impact | Resolution or Mitigation | Follow-Up |
+|------|--------|--------------------------|-----------|
+| [Issue] | [Impact] | [What was done] | [Tracker issue or none] |
 
 ## Derived Backlog Issues
 
@@ -57,8 +55,3 @@ dun:
 | Artifact | Why Update Is Needed |
 |----------|----------------------|
 | [Artifact path] | [Reason] |
-
-## Close-Out
-
-- [ ] Follow-up backlog issues created or referenced
-- [ ] Required canonical updates identified
