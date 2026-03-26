@@ -1,36 +1,14 @@
-# Story Build Bead Generation
+# Story Build Issue Generation
 
 ## Required Inputs
-- `docs/helix/03-test/test-plans/TP-{XXX}-*.md` - Failing tests for story
-- `docs/helix/02-design/technical-designs/TD-{XXX}-*.md` - Technical design
-- `docs/helix/04-build/implementation-plan.md` - Project build plan
+- `docs/helix/03-test/test-plans/TP-{XXX}-*.md`
+- `docs/helix/02-design/technical-designs/TD-{XXX}-*.md`
+- `docs/helix/04-build/implementation-plan.md`
 
 ## Produced Output
-- one or more upstream `bd` issues labeled `helix`, `phase:build`, `story:US-{XXX}`
+- one or more tracker issues labeled `helix`, `phase:build`, `story:US-{XXX}`
 
-## Prompt
+Create scoped build issues for one story. Each issue should be a deterministic TDD task that makes a specific set of failing tests pass with minimal files, explicit dependencies, and clear verification steps.
 
-You are creating build beads for a specific user story. Your goal is to define
-scoped, deterministic implementation tasks that make the failing tests pass
-using TDD.
-
-Based on the test plan (TP-{XXX}), technical design (TD-{XXX}), and project
-build plan, create one or more build beads that:
-
-1. Cite the governing canonical artifacts
-2. Define a single coherent goal per bead
-3. List only the files and tests relevant to that bead
-4. Make dependencies between beads explicit
-5. Specify deterministic implementation and verification steps
-
-Use the mapping guidance at:
-`workflows/phases/04-build/artifacts/story-implementation-plan/template.md`
-
-Use upstream Beads guidance at:
-`workflows/BEADS.md`
-
-## Completion Criteria
-- [ ] Each failing test is covered by one or more build beads
-- [ ] Each bead is independently completable
-- [ ] Dependencies between beads are explicit
-- [ ] No `[NEEDS CLARIFICATION]` markers remain
+Use mapping guidance at `workflows/phases/04-build/artifacts/story-implementation-plan/template.md`.
+Tracker guidance: `workflows/TRACKER.md`

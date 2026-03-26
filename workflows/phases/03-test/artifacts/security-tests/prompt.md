@@ -1,55 +1,19 @@
 # Security Tests Generation
 
 ## Required Inputs
-- `docs/helix/01-frame/threat-model.md` - Threat model
-- `docs/helix/02-design/security-architecture.md` - Security architecture
-- `docs/helix/01-frame/security-requirements.md` - Security requirements
+- `docs/helix/01-frame/threat-model.md`
+- `docs/helix/02-design/security-architecture.md`
+- `docs/helix/01-frame/security-requirements.md`
 
 ## Produced Output
-- `docs/helix/03-test/security-tests.md` - Security test plan
-- Security test implementations
+- `docs/helix/03-test/security-tests.md`
+- security test implementations
 
-## Prompt
+Create concise, project-specific security tests that map threats and security requirements to executable checks. Include only relevant categories, a threat-to-test matrix, and any tooling or automation needed for this stack.
 
-You are creating security tests for the system. Your goal is to verify that security controls are effective.
+Keep the output concrete:
+- cover the highest-risk threats first
+- note expected failures, pass criteria, and required fixtures or setup
+- include only applicable security controls and tools
 
-Based on the threat model and security architecture, create:
-
-1. **Security Test Categories**
-   - Authentication tests
-   - Authorization tests
-   - Input validation tests
-   - Encryption verification
-   - Session management tests
-   - Error handling tests
-
-2. **Threat-Based Tests**
-   | Threat ID | Test | Expected Result | Pass Criteria |
-   |-----------|------|-----------------|---------------|
-   | [From threat model] | [Test description] | [Expected behavior] | [How to verify] |
-
-3. **OWASP Top 10 Coverage**
-   - Injection attacks
-   - Broken authentication
-   - Sensitive data exposure
-   - XML external entities
-   - Broken access control
-   - Security misconfiguration
-   - XSS
-   - Insecure deserialization
-   - Vulnerable components
-   - Insufficient logging
-
-4. **Security Test Implementation**
-   - Static analysis (SAST) configuration
-   - Dynamic analysis (DAST) approach
-   - Penetration test scenarios
-   - Fuzz testing targets
-
-Use the template at `workflows/phases/03-test/artifacts/security-tests/template.md`.
-
-## Completion Criteria
-- [ ] All high-risk threats have tests
-- [ ] OWASP Top 10 covered
-- [ ] Tests are implementable
-- [ ] No `[NEEDS CLARIFICATION]` markers remain
+Use template at `workflows/phases/03-test/artifacts/security-tests/template.md`.
