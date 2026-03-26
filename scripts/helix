@@ -22,10 +22,10 @@ target_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 source "$script_dir/tracker.sh"
 
 agent="${HELIX_AGENT:-codex}"
-review_every=0
+review_every=5
 max_cycles=0
 auto_align=1
-auto_unblock=1
+auto_review=1
 dry_run=0
 quiet=0
 
@@ -40,7 +40,7 @@ exec 2> >(tee -a "$helix_log" >&3)
 usage() {
   cat <<EOF
 Usage:
-  helix run [--agent codex|claude] [--review-every N] [--max-cycles N] [--no-auto-align] [--dry-run]
+  helix run [--agent codex|claude] [--review-every N] [--max-cycles N] [--no-auto-align] [--no-auto-review] [--dry-run]
   helix implement [--agent codex|claude] [selector]
   helix check [--agent codex|claude] [scope]
   helix align [--agent codex|claude] [scope]
@@ -75,7 +75,7 @@ Options:
   --review-every    Run alignment every N completed implementation cycles
   --max-cycles      Stop after N completed implementation cycles
   --no-auto-align   Do not auto-run alignment when check returns ALIGN
-  --no-auto-unblock Do not attempt implementation when check returns WAIT
+  --no-auto-review  Do not run fresh-eyes review after each implementation
   --dry-run         Print the agent command instead of executing it
   --quiet, -q       Suppress progress output (command echo, prompt sizes)
 
@@ -296,7 +296,7 @@ Execute the following HELIX backfill action.
 $(inline_action "${helix_docs_root}/actions/backfill-helix-docs.md")
 Use supporting references at ${helix_docs_root}/README.md and ${helix_docs_root}/templates/backfill-report.md as needed.
 Execute in the current repository rooted at ${target_root}.
-Issue tracker: built-in JSONL at ${tracker_file}. Use \`helix tracker\` subcommands instead of bd.
+Issue tracker: built-in JSONL at ${tracker_file}. Use \`helix tracker\` subcommands.
 This is a writable live session: run real tracker commands, update docs/helix/, and do not claim that you need another session unless a concrete command actually fails.
 Backfill scope: ${scope}.
 Return the required BACKFILL_STATUS, BACKFILL_REPORT, and RESEARCH_EPIC trailer lines exactly.
@@ -335,11 +335,14 @@ EOF
 
 review_prompt() {
   local scope="${1:-last-commit}"
+  local in_loop="${2:-0}"
   cat <<EOF
 Execute the following HELIX fresh-eyes review action.
 $(inline_action "${helix_docs_root}/actions/fresh-eyes-review.md")
 Execute in the current repository rooted at ${target_root}.
+Issue tracker: built-in JSONL at ${tracker_file}. Use \`helix tracker\` subcommands.
 Review scope: ${scope}.
+${in_loop:+This review is running inside the automated helix run loop after an implementation cycle.}
 Follow the action exactly. Do the work — do not just describe what you would do.
 EOF
 }
@@ -521,7 +524,7 @@ run_backfill() {
 run_plan() {
   local scope="${1:-}"
   local rounds="${2:-5}"
-  # Planning does NOT require live beads — it happens before bead creation
+  # Planning does NOT require tracker — it happens before issue creation
   run_agent_prompt "$(plan_prompt "$scope" "$rounds")"
 }
 
@@ -536,7 +539,8 @@ run_polish() {
 
 run_review() {
   local scope="${1:-last-commit}"
-  run_agent_prompt "$(review_prompt "$scope")"
+  local in_loop="${2:-0}"
+  run_agent_prompt "$(review_prompt "$scope" "$in_loop")"
 }
 
 run_next() {
@@ -621,7 +625,9 @@ run_recovery() {
 }
 
 recover_orphaned_issues() {
-  # Find in-progress helix issues that might be orphaned from a crashed session
+  # Without claim freshness metadata, process absence is not enough evidence
+  # to reclaim or revert work safely. Surface the ambiguity and leave state
+  # intact rather than destroying unrelated local changes.
   local in_progress
   in_progress="$(tracker_list --status in_progress --label helix --json 2>/dev/null || echo '[]')"
   local count
@@ -644,40 +650,19 @@ recover_orphaned_issues() {
       continue
     fi
 
-    printf 'helix: issue %s is orphaned (in_progress, no active agent)\n' "$issue_id" >&2
-
-    # Gather context for recovery
-    local issue_info
-    issue_info="$(tracker_show "$issue_id" 2>/dev/null || echo "unable to load issue")"
     local git_status
     git_status="$(cd "$target_root" && git diff --stat 2>/dev/null || echo "clean")"
-    local log_tail=""
-    local latest_log
-    latest_log="$(ls -t "$helix_log_dir"/helix-*.log 2>/dev/null | head -1 || true)"
-    if [[ -n "$latest_log" ]]; then
-      log_tail="$(tail -50 "$latest_log" 2>/dev/null || true)"
-    fi
-
-    if [[ "$git_status" == "clean" || -z "$git_status" ]]; then
-      # No uncommitted changes — just unclaim
-      printf 'helix: worktree is clean, unclaiming issue %s\n' "$issue_id" >&2
-      tracker_update "$issue_id" --status open 2>/dev/null || true
-    else
-      # Uncommitted changes exist — ask the agent to recover
-      printf 'helix: worktree has changes, running recovery for issue %s\n' "$issue_id" >&2
-      if ! run_recovery "$issue_id" "$issue_info" "$git_status" "$log_tail"; then
-        printf 'helix: recovery failed for issue %s, reverting and unclaiming\n' "$issue_id" >&2
-        (cd "$target_root" && git checkout -- . 2>/dev/null || true)
-        tracker_update "$issue_id" --status open 2>/dev/null || true
-      fi
+    printf 'helix: issue %s may be stale, but no active process is not sufficient evidence to reclaim it\n' "$issue_id" >&2
+    if [[ "$git_status" != "clean" && -n "$git_status" ]]; then
+      printf 'helix: leaving local changes intact while issue %s remains claimed\n' "$issue_id" >&2
     fi
   done
 }
 
 run_loop() {
-  local cycles=0
+  local attempted_cycles=0
+  local completed_cycles=0
   local post_drain_alignment_ran=0
-  local unblock_attempts=0
 
   need_cmd jq
   require_tracker
@@ -690,27 +675,46 @@ run_loop() {
     ready_count="$(helix_ready_count)"
 
     if (( ready_count > 0 )); then
-      printf 'helix: ready=%s, cycle=%s\n' "$ready_count" "$((cycles + 1))" >&2
+      local attempt_number="$((attempted_cycles + 1))"
+      local closed_before
+      closed_before="$(tracker_list --status closed --json | jq 'length')"
+
+      printf 'helix: ready=%s, cycle=%s\n' "$ready_count" "$attempt_number" >&2
+      attempted_cycles=$((attempted_cycles + 1))
       if ! run_implementation; then
-        printf 'helix: implementation failed during cycle %s (will recover on next cycle)\n' "$((cycles + 1))" >&2
-        # Don't exit — the orphan recovery at the top of the next iteration
-        # will detect the in-progress bead and handle it.
-        # Sleep briefly to avoid tight retry loops.
+        printf 'helix: implementation failed during cycle %s (will not count toward completed cycles)\n' "$attempt_number" >&2
         sleep 5
-        recover_orphaned_beads
+        recover_orphaned_issues
+      else
+        local review_ok=1
+        # Post-implementation review: catch bugs and capture learnings
+        if (( auto_review )); then
+          printf 'helix: post-implementation review after cycle %s\n' "$attempt_number" >&2
+          if ! run_review last-commit 1; then
+            printf 'helix: review failed after cycle %s (continuing)\n' "$attempt_number" >&2
+            review_ok=0
+          fi
+        fi
+
+        local closed_after
+        closed_after="$(tracker_list --status closed --json | jq 'length')"
+        if (( closed_after > closed_before )) && (( review_ok )); then
+          completed_cycles=$((completed_cycles + 1))
+        else
+          printf 'helix: cycle %s did not complete a tracked issue; completed cycles remain %s\n' "$attempt_number" "$completed_cycles" >&2
+        fi
       fi
-      cycles=$((cycles + 1))
       post_drain_alignment_ran=0
 
-      if (( review_every > 0 )) && (( cycles % review_every == 0 )); then
-        printf 'helix: periodic alignment after %s cycles\n' "$cycles" >&2
+      if (( completed_cycles > 0 )) && (( review_every > 0 )) && (( completed_cycles % review_every == 0 )); then
+        printf 'helix: periodic alignment after %s cycles\n' "$completed_cycles" >&2
         if ! run_alignment repo; then
-          printf 'helix: periodic alignment failed after %s cycles\n' "$cycles" >&2
+          printf 'helix: periodic alignment failed after %s cycles\n' "$completed_cycles" >&2
           return 1
         fi
       fi
 
-      if (( max_cycles > 0 )) && (( cycles >= max_cycles )); then
+      if (( max_cycles > 0 )) && (( completed_cycles >= max_cycles )); then
         printf 'helix: reached max cycles (%s)\n' "$max_cycles" >&2
         return 0
       fi
@@ -746,19 +750,15 @@ run_loop() {
         return 0
         ;;
       WAIT)
-        if (( auto_unblock )) && (( unblock_attempts == 0 )); then
-          unblock_attempts=1
-          printf 'helix: check returned WAIT, attempting to unblock\n' >&2
-          if run_implementation; then
-            continue
-          fi
-          printf 'helix: unblock attempt failed, stopping\n' >&2
-        else
-          printf 'helix: stopping after check returned WAIT\n' >&2
-        fi
+        printf 'helix: stopping after check returned WAIT\n' >&2
         return 0
         ;;
-      BACKFILL|GUIDANCE|STOP)
+      BACKFILL)
+        printf 'helix: stopping after check returned BACKFILL\n' >&2
+        printf 'helix: run helix backfill repo\n' >&2
+        return 0
+        ;;
+      GUIDANCE|STOP)
         printf 'helix: stopping after check returned %s\n' "$next_action" >&2
         return 0
         ;;
@@ -796,8 +796,8 @@ main() {
             auto_align=0
             shift
             ;;
-          --no-auto-unblock)
-            auto_unblock=0
+          --no-auto-review)
+            auto_review=0
             shift
             ;;
           *)
