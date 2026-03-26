@@ -3,7 +3,7 @@ dun:
   id: helix.workflow.execution
   depends_on:
     - helix.workflow
-    - helix.workflow.beads
+    - helix.workflow.tracker
 ---
 # HELIX Execution Guide
 
@@ -11,8 +11,8 @@ This guide covers operator-facing HELIX execution flow: how to run bounded work
 passes, how to decide whether more work remains, and how to automate the queue
 for Codex or Claude Code.
 
-For upstream Beads integration, labels, `spec-id`, and raw `bd` conventions,
-see [BEADS.md](BEADS.md).
+For tracker integration, labels, `spec-id`, and `helix tracker` conventions,
+see [TRACKER.md](TRACKER.md).
 
 ## Scope
 
@@ -29,12 +29,12 @@ This document owns HELIX execution behavior.
 HELIX uses four top-level execution actions:
 
 - `helix implement`
-  Executes one ready execution bead end-to-end, then exits.
+  Executes one ready execution issue end-to-end, then exits.
 - `helix check`
   Determines whether the next step is implementation, alignment, backfill,
   waiting, guidance, or stopping.
 - `helix align <scope>`
-  Runs a top-down reconciliation review and can emit follow-up execution beads.
+  Runs a top-down reconciliation review and can emit follow-up execution issues.
 - `helix backfill <scope>`
   Reconstructs missing HELIX docs conservatively from current evidence.
 
@@ -42,13 +42,18 @@ HELIX uses four top-level execution actions:
 
 Use a two-stage control loop:
 
-1. Guard on true ready work with `bd ready`, not `bd list --ready`
+1. Guard on true ready work with `helix tracker ready`, not `helix tracker list --ready`
 2. Run the bounded `implementation` action while ready work exists
 3. When the queue drains, run the bounded `check` action once
-4. Follow `check` to either implement again, align, backfill, wait, ask for
-   guidance, or stop
+4. Follow `check` exactly, without inventing a new state:
+   - `IMPLEMENT`: continue the implementation loop
+   - `ALIGN`: run reconciliation once if enabled, then re-check
+   - `BACKFILL`: stop and hand off to `helix backfill <scope>`
+   - `WAIT`: stop; do not attempt an unblock implementation pass
+   - `GUIDANCE`: stop and ask for user or stakeholder input
+   - `STOP`: stop because no actionable work remains
 
-`bd ready` is blocker-aware. `bd list --ready` is not equivalent and should not
+`helix tracker ready` is blocker-aware. `helix tracker list --ready` is not equivalent and should not
 control an autonomous execution loop.
 
 ## Queue Guard
@@ -57,7 +62,7 @@ These examples assume `jq` is available.
 
 ```bash
 helix_ready_count() {
-  bd ready --json | jq 'length'
+  helix tracker ready --json | jq 'length'
 }
 ```
 
@@ -78,15 +83,31 @@ Interpret `check` as follows:
 - `NEXT_ACTION: IMPLEMENT`
   More safe ready work exists; continue.
 - `NEXT_ACTION: ALIGN`
-  Run `reconcile-alignment` for the indicated scope.
+  Run `reconcile-alignment` once for the indicated scope if auto-alignment is
+  enabled, then re-run `check`.
 - `NEXT_ACTION: BACKFILL`
-  Run `backfill-helix-docs` for the indicated scope.
+  Stop and hand off to `backfill-helix-docs` for the indicated scope.
 - `NEXT_ACTION: WAIT`
-  Stop and wait for blockers or other in-progress work to resolve.
+  Stop. Do not attempt to implement around the blocker or auto-unblock it.
 - `NEXT_ACTION: GUIDANCE`
   Stop and get user or stakeholder input.
 - `NEXT_ACTION: STOP`
   No actionable work remains for the current scope.
+
+`helix run` is a bounded controller, not a repair loop.
+
+- It counts only completed implementation passes toward `--max-cycles`.
+- It may run fresh-eyes review after a successful implementation when review
+  automation is enabled; `--no-auto-review` disables that post-implementation
+  review.
+- It may run `reconcile-alignment` every `N` completed implementation passes
+  when `--review-every N` is set; `--no-auto-align` disables that post-drain
+  alignment step.
+- It must not auto-dispatch backfill.
+- It must not attempt an unblock implementation pass after `WAIT`.
+- If a run is interrupted, recovery must be issue-scoped and non-destructive:
+  do not clear a claim, revert files, or touch unrelated work without tracker
+  evidence that the abandoned work belongs to that issue.
 
 ## Agent Loops
 
@@ -94,8 +115,6 @@ The examples below assume a trusted local repository.
 
 - Codex is intentionally run with `--dangerously-bypass-approvals-and-sandbox`
   and `--progress-cursor`.
-- If the agent runtime cannot reach localhost Dolt sockets, force Beads direct
-  mode with `BEADS_DOLT_SERVER_MODE=0`.
 
 ### Codex
 
@@ -103,7 +122,7 @@ The examples below assume a trusted local repository.
 while [ "$(helix_ready_count)" -gt 0 ]; do
   codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor -C "$PWD" --ephemeral <<'EOF'
 Use the HELIX implementation action at workflows/actions/implementation.md.
-Execute one ready HELIX execution bead end-to-end.
+Execute one ready HELIX execution issue end-to-end.
 Follow the action exactly.
 EOF
 done
@@ -124,7 +143,7 @@ while [ "$(helix_ready_count)" -gt 0 ]; do
     --dangerously-skip-permissions \
     --no-session-persistence <<'EOF'
 Use the HELIX implementation action at workflows/actions/implementation.md.
-Execute one ready HELIX execution bead end-to-end.
+Execute one ready HELIX execution issue end-to-end.
 Follow the action exactly.
 EOF
 done
@@ -164,13 +183,18 @@ Main commands:
 - loops only while true ready HELIX execution work exists
 - runs one bounded implementation pass at a time
 - runs `check` when the queue drains
-- can trigger `reconcile-alignment` every `N` cycles or when `check` returns
-  `ALIGN`
-- stops on `WAIT`, `GUIDANCE`, or `STOP`
+- can trigger `reconcile-alignment` every `N` completed implementation passes
+  or when `check` returns `ALIGN`
+- may run `helix review` after each successful implementation pass when review
+  automation is enabled
+- stops on `WAIT`, `BACKFILL`, `GUIDANCE`, or `STOP`
 - uses `codex --dangerously-bypass-approvals-and-sandbox exec
   --progress-cursor` when `--agent codex` is selected
-- keeps wrapper and child Beads calls in direct mode when
-  `BEADS_DOLT_SERVER_MODE=0` is set
+- uses the built-in tracker for queue state
+- does not attempt an unblock implementation pass after `WAIT`
+- does not auto-dispatch `helix backfill`
+- treats interrupted runs as recoverable only when the abandoned work can be
+  attributed safely and without reverting unrelated changes
 
 Examples:
 
@@ -196,7 +220,7 @@ bash tests/helix-cli.sh
 This harness:
 
 - creates temporary git workspaces
-- stubs `bd`, `codex`, and `claude`
+- stubs `helix tracker`, `codex`, and `claude`
 - drives exact ready-queue and `NEXT_ACTION` sequences
 - verifies `helix run`, periodic alignment, auto-alignment, dry-run output, and
   installer behavior
@@ -207,13 +231,13 @@ Before the implementation loop, the recommended sequence for new work is:
 
 1. `helix plan [scope]` — create a comprehensive design document through
    iterative refinement (recommended for new features or major work)
-2. `helix polish [scope]` — refine beads against the plan: deduplication,
+2. `helix polish [scope]` — refine issues against the plan: deduplication,
    coverage verification, acceptance criteria sharpening (recommended after
-   bead creation)
+   issue creation)
 3. `helix run` — execute the bounded implementation loop
 
 These steps are optional for small changes but strongly recommended for any
-scope that will produce more than a handful of beads.
+scope that will produce more than a handful of issues.
 
 ## Graph-Aware Routing
 
@@ -224,25 +248,28 @@ candidate ranking:
 - High PageRank + High Betweenness = critical bottleneck (prioritize)
 - Low PageRank + Low Betweenness = leaf work (safe to parallelize)
 
-When `bv` is absent, the existing `bd ready` ranking applies unchanged.
+When `bv` is absent, the existing `helix tracker ready` ranking applies unchanged.
 
-`helix next` prints the recommended next bead without spawning an agent:
+`helix next` prints the recommended next issue without spawning an agent:
 
 ```bash
-helix next          # uses bv if available, falls back to bd ready
+helix next          # uses bv if available, falls back to helix tracker ready
 ```
 
 ## Fresh-Eyes Review
 
-After implementing a bead, `helix review` performs 1-3 self-review passes
+After implementing an issue, `helix review` performs 1-3 self-review passes
 looking for bugs, integration issues, and security concerns with fresh
 perspective:
 
 ```bash
 helix review                  # review last commit
-helix review bd-abc123        # review changes for a specific bead
+helix review ddx-abc123       # review changes for a specific issue
 helix review src/auth/        # review specific files
 ```
+
+Review findings are advisory for the loop controller unless they produce
+follow-up work or a failing verification result.
 
 ## Swarm Execution
 
@@ -254,15 +281,15 @@ helix spawn --count 3 --stagger 45  # 3 agents, 45s apart
 ```
 
 - Staggered starts (default 30s apart) avoid thundering herd contention
-- All agents share the same `bd` tracker
-- Bead claiming via `bd update --claim` provides advisory locking
-- Agents are fungible — any agent picks any bead
+- All agents share the same tracker
+- Issue claiming via `helix tracker update --claim` provides advisory locking
+- Agents are fungible — any agent picks any issue
 - Graceful fallback to single-agent `helix run` when `ntm` is absent
 
 ## Experiment Loop
 
 `helix experiment` runs a single iteration of a metric-optimization loop for
-`phase:iterate` beads. Each invocation: hypothesize → edit → test → benchmark →
+`phase:iterate` issues. Each invocation: hypothesize → edit → test → benchmark →
 keep/discard → log → exit.
 
 The loop is driven externally by the `/ddx:experiment` skill (analogous to how
@@ -284,11 +311,11 @@ experiments to ratchets and monitoring through a shared metric definition.
 Session artifacts (`autoresearch.*`, `experiments/`) are untracked local files,
 gitignored on the experiment branch. At session close (`helix experiment
 --close`), the action squash-merges the experiment branch back to produce a
-single commit and records the result in the bead close comment. Experiments
-are execution-layer work tracked by beads, not canonical HELIX docs.
+single commit and records the result in the issue close comment. Experiments
+are execution-layer work tracked by issues, not canonical HELIX docs.
 
 `--close` is unique to the experiment command — it directs the action to
-execute session close (squash-merge, ratchet update, bead close) instead of
+execute session close (squash-merge, ratchet update, issue close) instead of
 running another iteration.
 
 Experiments validate governing artifacts at session setup and close (not
@@ -298,7 +325,7 @@ after every kept iteration.
 
 ## Practical Rules
 
-- Keep execution bounded to one bead per implementation pass.
+- Keep execution bounded to one issue per implementation pass.
 - Do not use an unconditional `while true` loop.
 - Treat `check` as the queue-drain decision point, not `reconcile-alignment`.
 - Use alignment to expose or refine the next work set, not as the default work
