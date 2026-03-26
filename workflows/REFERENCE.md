@@ -74,7 +74,7 @@ helix plan [scope]                    # create design document
 helix plan --rounds 8 auth            # more refinement rounds
 helix polish [scope]                  # refine issues before implementation
 helix polish --rounds 10              # more polish rounds
-helix next                            # recommended next issue (uses bv if available)
+helix next                            # recommended next issue
 helix review [scope]                  # fresh-eyes review of recent work
 helix spawn                           # launch multi-agent swarm (requires ntm)
 helix spawn --count 3 --stagger 45    # 3 agents, 45s apart

@@ -239,21 +239,12 @@ Before the implementation loop, the recommended sequence for new work is:
 These steps are optional for small changes but strongly recommended for any
 scope that will produce more than a handful of issues.
 
-## Graph-Aware Routing
-
-When `bv` is available, `helix implement` injects dependency graph metrics
-(PageRank, betweenness centrality) into the agent prompt to inform Phase 2
-candidate ranking:
-
-- High PageRank + High Betweenness = critical bottleneck (prioritize)
-- Low PageRank + Low Betweenness = leaf work (safe to parallelize)
-
-When `bv` is absent, the existing `helix tracker ready` ranking applies unchanged.
+## Next Issue
 
 `helix next` prints the recommended next issue without spawning an agent:
 
 ```bash
-helix next          # uses bv if available, falls back to helix tracker ready
+helix next          # uses helix tracker ready ranking
 ```
 
 ## Fresh-Eyes Review
