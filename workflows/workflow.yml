@@ -2,7 +2,7 @@
 # The normative HELIX contract lives in:
 # - workflows/README.md
 # - workflows/EXECUTION.md
-# - workflows/BEADS.md
+# - workflows/TRACKER.md
 # - workflows/actions/*.md bounded action prompts
 
 name: helix
@@ -12,7 +12,7 @@ author: DDX Team
 created: 2025-01-13
 tags:
   - test-driven-development
-  - beads
+  - tracker
   - bounded-execution
 
 phases:

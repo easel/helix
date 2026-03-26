@@ -37,16 +37,16 @@ helix experiment --close
 
 | Command | Purpose |
 |---------|---------|
-| `helix run` | Loop: implement ready beads, check, decide, repeat |
-| `helix implement [bead]` | Execute one ready bead end-to-end |
+| `helix run` | Loop: implement ready issues, check, decide, repeat |
+| `helix implement [issue]` | Execute one ready issue end-to-end |
 | `helix check [scope]` | Decide next action (IMPLEMENT/ALIGN/BACKFILL/WAIT/STOP) |
 | `helix align [scope]` | Top-down reconciliation review |
 | `helix backfill [scope]` | Reconstruct missing HELIX docs |
 | `helix plan [scope]` | Create design document through iterative refinement |
-| `helix polish [scope]` | Refine beads before implementation |
-| `helix next` | Show recommended next bead (uses bv if available) |
+| `helix polish [scope]` | Refine issues before implementation |
+| `helix next` | Show recommended next issue |
 | `helix review [scope]` | Fresh-eyes post-implementation review |
-| `helix experiment [bead]` | One metric-optimization iteration |
+| `helix experiment [issue]` | One metric-optimization iteration |
 | `helix spawn` | Launch multi-agent swarm (requires ntm) |
 
 ## Skills
@@ -55,25 +55,25 @@ Installed as Claude Code skills (invocable as `/helix:<name>`):
 
 - `helix` — Main workflow execution
 - `helix-alignment-review` — Drift analysis and traceability
-- `execute` — Single bead end-to-end
+- `execute` — Single issue end-to-end
 - `grind` — Continuous queue execution
 - `review` — Critical review for errors
 - `triage` — Queue health analysis
 - `handoff` — Review changes from other agents
 - `plan` — Design document creation
-- `polish` — Bead refinement
+- `polish` — Issue refinement
 - `experiment` — Metric-driven optimization loop
 
-## Beads Integration
+## Tracker
 
-HELIX uses [Beads](https://github.com/steveyegge/beads) (`bd`) for execution
-tracking. Run `bd onboard` to get started.
+HELIX uses a built-in JSONL tracker for execution tracking. Issues are stored
+in `.helix/issues.jsonl`. Run `helix tracker` to manage issues.
 
 ## Documentation
 
 - [Workflow Overview](workflows/README.md)
 - [Execution Guide](workflows/EXECUTION.md)
-- [Beads Integration](workflows/BEADS.md)
+- [Tracker Guide](workflows/TRACKER.md)
 - [Reference Card](workflows/REFERENCE.md)
 - [Quality Ratchets](workflows/ratchets.md)
 - [Conventions](workflows/conventions.md)

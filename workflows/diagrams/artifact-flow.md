@@ -40,7 +40,7 @@ graph LR
 
     subgraph "⚙️ BUILD Artifacts"
         IP[Implementation Plan]
-        BB[Build Beads]
+        BB[Build Issues]
         SC[Source Code]
         CD[Code Documentation]
         CR2[Code Reviews]
@@ -49,7 +49,7 @@ graph LR
     end
 
     subgraph "🚀 DEPLOY Artifacts"
-        DB[Deploy Beads]
+        DB[Deploy Issues]
         RN[Release Notes]
         MC[Monitoring Config]
         RP[Runbook Procedures]
@@ -61,7 +61,7 @@ graph LR
         RCA[Root Cause Analysis]
         LR[Lessons Report]
         IS[Improvement Suggestions]
-        BI[Backlog Beads]
+        BI[Backlog Issues]
     end
 
     PRD --> SD
@@ -273,7 +273,7 @@ graph LR
 1. **PRD → All Design Artifacts**: Requirements drive all technical decisions
 2. **API Contracts → Contract Tests**: Every API must have corresponding tests
 3. **Threat Model → Security Tests**: Each threat must have validation tests
-4. **Test Plan → Build Beads**: Tests define the work that implementation beads must satisfy
+4. **Test Plan → Build Issues**: Tests define the work that implementation issues must satisfy
 5. **Metrics → Next Iteration PRD**: Production data informs future requirements
 
 ### Validation Chains

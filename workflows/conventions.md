@@ -14,13 +14,13 @@ This document defines conventions for projects using the HELIX workflow, ensurin
 
 This document defines documentation layout, naming, and traceability
 conventions. It does not define queue control, execution-loop behavior, or
-upstream Beads semantics.
+tracker semantics.
 
 When conventions and execution guidance disagree, follow:
 
 1. [README.md](README.md)
 2. [EXECUTION.md](EXECUTION.md)
-3. [BEADS.md](BEADS.md)
+3. [TRACKER.md](TRACKER.md)
 4. the bounded action prompts under `workflows/actions/`
 
 ## Documentation Structure
@@ -31,7 +31,7 @@ Projects using HELIX should organize their documentation using the `docs/helix/`
 
 ```
 project-root/
-├── .beads/                  # Upstream bd workspace for execution tracking
+├── .helix/                  # Built-in tracker workspace for execution tracking
 ├── docs/
 │   ├── helix/                  # HELIX phase artifacts
 │   │   ├── 00-discover/        # Optional opportunity validation
@@ -51,7 +51,7 @@ project-root/
 
 1. **Clear Separation**: Phase artifacts are distinct from operational/reference docs
 2. **Workflow Alignment**: Numbered directories match HELIX phase order
-3. **Execution Separation**: Ephemeral task execution lives in upstream Beads under `.beads/`, not in canonical planning docs
+3. **Execution Separation**: Ephemeral task execution lives in the built-in tracker under `.helix/`, not in canonical planning docs
 4. **Tool Support**: Consistent structure enables validation and automation
 5. **Flexibility**: Non-phase documentation has dedicated locations
 
@@ -129,25 +129,24 @@ The parking lot is a project-level registry for deferred and future work:
 - **Eligibility**: Any HELIX artifact may be parked
 - **Tooling**: Mark parked artifacts with `dun.parking_lot: true` to exclude them from dependency graphs
 
-## Beads Conventions
+## Tracker Conventions
 
-Beads capture scoped work that can be opened, updated, split, blocked, and
+Issues capture scoped work that can be opened, updated, split, blocked, and
 closed without changing the canonical authority stack.
 
-HELIX uses upstream Beads (`bd`) rather than a HELIX-specific bead schema. See
-[BEADS.md](BEADS.md), <https://github.com/steveyegge/beads>, and
-<https://steveyegge.github.io/beads/>.
+HELIX uses a built-in JSONL tracker. See [TRACKER.md](TRACKER.md) for full
+conventions and command patterns.
 
-### When to Use Beads
+### When to Use Issues
 
-Use beads for:
+Use issues for:
 - Story-level implementation work
 - Story-level deployment work
 - Prioritized backlog items
 - Review and reconciliation tasks
 - Follow-up actions derived from reports or retrospectives
 
-Do not use beads as the source of truth for:
+Do not use issues as the source of truth for:
 - Vision
 - Requirements
 - Architecture or ADRs
@@ -157,8 +156,8 @@ Do not use beads as the source of truth for:
 
 ### Required Properties
 
-Every bead should:
-1. Use native upstream `bd` issue types, parents, dependencies, and statuses
+Every issue should:
+1. Use native tracker issue types, parents, dependencies, and statuses
 2. Reference governing canonical artifacts in `spec-id` and/or the issue description
 3. Define a single coherent goal
 4. Specify deterministic completion criteria
@@ -171,14 +170,14 @@ Every bead should:
 - Add a phase label when applicable: `phase:build`, `phase:deploy`, `phase:iterate`, or `phase:review`
 - Add `kind:build`, `kind:deploy`, `kind:backlog`, or `kind:review` when helpful
 - Add traceability labels such as `story:US-XXX`, `feature:FEAT-XXX`, `source:metrics`, or `area:auth`
-- Use `bd ready`, `bd blocked`, and `bd dep tree` instead of relying on custom HELIX status fields
+- Use `helix tracker ready`, `helix tracker blocked`, and `helix tracker dep tree` instead of relying on custom HELIX status fields
 
 ### HELIX Integration
 
-- Project-level implementation plans decompose execution into upstream Beads issues.
-- Improvement backlog documents summarize and prioritize backlog beads stored in `bd`.
-- Iteration planning selects bead sets for the next cycle by bead ID.
-- Reports and retrospectives should emit follow-up beads instead of embedding
+- Project-level implementation plans decompose execution into tracker issues.
+- Improvement backlog documents summarize and prioritize backlog issues stored in the tracker.
+- Iteration planning selects issue sets for the next cycle by issue ID.
+- Reports and retrospectives should emit follow-up issues instead of embedding
   durable task lists in canonical docs.
 
 ## Naming Conventions

@@ -43,11 +43,9 @@ Each issue is a JSON object appended to `.helix/issues.jsonl` with these fields:
 - `design`: implementation approach
 - `acceptance`: deterministic completion criteria
 - `notes`: additional context
-- `claimed_by`: owner identity when an issue is `in_progress`
-- `claimed_at`: ISO-8601 timestamp for when the current claim began
-- `claim_session`: opaque session or process identifier for the owner
-- `claim_expires_at`: optional lease-expiration timestamp for stale detection
-- `claim_heartbeat_at`: optional last-renewal timestamp for claim freshness
+- `assignee`: owner identity when an issue is `in_progress`
+- `created`: ISO-8601 timestamp for when the issue was created
+- `updated`: ISO-8601 timestamp for the most recent mutation
 
 ## HELIX Mapping
 
@@ -60,8 +58,7 @@ Use tracker fields directly:
   `deferred`, and `closed`
 - `spec-id`: point to the nearest governing canonical artifact
 - `description`, `design`, `acceptance`, and `notes`: capture the work contract
-- `claimed_by`, `claimed_at`, `claim_session`, `claim_expires_at`, and
-  `claim_heartbeat_at`: encode active ownership and lease freshness
+- `assignee`: encode active ownership for claimed work
 - `labels`: encode HELIX-specific execution semantics
 
 Blocked work should be modeled with dependencies and surfaced through
@@ -76,31 +73,24 @@ be treated as queue-ready. `deferred` means the work is intentionally
 non-actionable for now. `closed` means the work is complete.
 
 Claiming an issue must set `status = in_progress`, assign `assignee = helix`,
-and record ownership metadata. A claim is an advisory lock for execution, not a
+and update the issue timestamp. A claim is an advisory lock for execution, not a
 generic “started work” marker.
 
-Preferred ownership metadata:
+Current ownership metadata:
 
-- `claimed_by`: the agent or operator identity that owns the issue
-- `claim_session`: the opaque session/process identifier for that owner
-- `claimed_at`: when the claim started
-- `claim_expires_at`: when the claim should be considered stale if not renewed
-- `claim_heartbeat_at`: the most recent renewal timestamp, if supported
+- `assignee`: the agent or operator identity that owns the issue
 
-Queue consumers must prefer claim metadata over local process heuristics. A
-live `in_progress` claim remains authoritative even if the original local
-process cannot be observed directly.
+Queue consumers must prefer tracker claim state over local process heuristics.
+A live `in_progress` claim remains authoritative even if the original local
+process cannot be observed directly. Additional lease metadata is recommended
+future work, not current tracker behavior.
 
 ## Stale Claim Detection
 
 A claim is stale only when ownership metadata is no longer trustworthy.
 
-Treat a claim as stale when one or more of these are true:
-
-- `claim_expires_at` is present and has passed
-- `claim_heartbeat_at` is present and older than the freshness threshold used
-  by the wrapper
-- required ownership metadata is missing, contradictory, or otherwise invalid
+Treat a claim as stale only when explicit ownership metadata exists and becomes
+untrustworthy, or when the user explicitly requests recovery.
 
 Do not infer staleness from the absence of a matching local process alone.
 Process absence is a hint, not proof.
@@ -196,9 +186,9 @@ helix tracker create "Roll out US-036: list MCP servers" \
   --type task \
   --labels helix,phase:deploy,kind:deploy,story:US-036 \
   --spec-id docs/helix/05-deploy/deployment-checklist.md \
-  --description "Governing artifacts: deployment-checklist.md, monitoring-setup.md, runbook.md, build issue ddx-a3f2dd" \
+  --description "Governing artifacts: deployment-checklist.md, monitoring-setup.md, runbook.md, build issue hx-a3f2dd" \
   --acceptance "Smoke checks pass, monitoring is clean, rollback trigger is documented." \
-  --deps ddx-a3f2dd
+  --deps hx-a3f2dd
 ```
 
 ### Backlog Issue
@@ -256,7 +246,6 @@ Check blocked work or epic progress:
 
 ```bash
 helix tracker blocked
-helix tracker epic status
 ```
 
 ## What Not To Do

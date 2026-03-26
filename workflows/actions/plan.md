@@ -5,7 +5,7 @@ You are creating a comprehensive design plan for a HELIX project scope.
 Your goal is to produce a thorough markdown design document through iterative
 self-critique and refinement, capturing architecture, interfaces, error
 handling, security, testing strategy, and implementation ordering — all before
-any code is written or beads are created.
+any code is written or issues are created.
 
 This action is intentionally front-loaded. Invest deeply in planning quality
 now to prevent expensive rework during implementation.
@@ -50,7 +50,7 @@ when they exist.
    - architecture docs, ADRs, technical designs
    - existing test plans and implementation plans
 2. Read the current implementation state relevant to the scope.
-3. Read the current bead queue state if beads are initialized.
+3. Read the current issue queue state if the tracker is initialized.
 4. Identify gaps: what questions does the existing planning stack leave open?
 
 ## PHASE 1 - First Draft
@@ -81,7 +81,7 @@ Do not skip sections; mark them "N/A" with rationale if genuinely inapplicable.
    - What to test at each level (unit, integration, e2e)
    - Critical paths that must have coverage before shipping
 9. **Implementation Plan with Dependency Ordering**
-   - Work breakdown into bead-sized slices
+   - Work breakdown into issue-sized slices
    - Dependency graph showing what must be built first
    - Parallel tracks that can proceed independently
 10. **Risk Register**

@@ -1,7 +1,7 @@
 # HELIX Action: Experiment
 
 You are performing one bounded experiment iteration within a metric-optimization
-session against upstream Beads (`bd`).
+session against the built-in tracker (`helix tracker`).
 
 Your goal is to hypothesize a change, implement it within scoped files, verify
 correctness, benchmark the result, make a keep/discard decision, log everything,
@@ -11,8 +11,8 @@ re-invoking `helix experiment`) decides whether to continue iterating.
 This action performs one experiment iteration. It modifies only files declared in
 scope, does not change test expectations, and does not implement new features.
 Session state (`autoresearch.*`, `experiments/`) is ephemeral and gitignored on
-the experiment branch. The experiment is execution-layer work tracked by a bead;
-the result is recorded in the bead close comment, not as a canonical HELIX doc.
+the experiment branch. The experiment is execution-layer work tracked by an issue;
+the result is recorded in the issue close comment, not as a canonical HELIX doc.
 The only normative artifact the experiment may create or update is a metric
 definition at `docs/helix/06-iterate/metrics/`.
 
@@ -20,15 +20,15 @@ definition at `docs/helix/06-iterate/metrics/`.
 
 You may receive:
 
-- no argument (auto-select a ready `phase:iterate` bead)
-- an explicit bead ID such as `bd-abc123`
+- no argument (auto-select a ready `phase:iterate` issue)
+- an explicit issue ID
 - a goal description such as `optimize test-suite-runtime`
 - a `--close` flag directing you to skip iteration and execute Phase 3
 
 Examples:
 
 - `helix experiment`
-- `helix experiment bd-abc123`
+- `helix experiment <id>`
 - `helix experiment optimize test-suite-runtime`
 - `helix experiment --close`
 
@@ -50,34 +50,31 @@ Rules:
 - Higher layers govern lower layers.
 - Tests govern build execution but do not override requirements or design.
 - Source code reflects current state but does not redefine the plan.
-- If a bead conflicts with its governing artifacts, do not implement the drift.
+- If an issue conflicts with its governing artifacts, do not implement the drift.
 - Prefer aligning code and docs to plan. Only propose plan changes when the
   evidence is strong and the governing artifacts are stale or incomplete.
 
-## Beads Rules
+## Tracker Rules
 
-Use native upstream Beads only. Follow:
+Use the built-in tracker only. Follow:
 
-- `workflows/BEADS.md`
-- <https://github.com/steveyegge/beads>
-- <https://steveyegge.github.io/beads/>
+- `workflows/TRACKER.md`
 
-Do not create custom HELIX bead files.
+Issues are stored in `.helix/issues.jsonl`.
 
-This action works only on execution beads labeled `phase:iterate`. Exclude
-review beads and build/deploy beads by default.
+This action works only on execution issues labeled `phase:iterate`. Exclude
+review issues and build/deploy issues by default.
 
-The experiment action claims one bead at session setup, may create follow-on
-beads during execution, and closes the bead at session close.
+The experiment action claims one issue at session setup, may create follow-on
+issues during execution, and closes the issue at session close.
 
 ## PHASE 0 - Bootstrap
 
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
-1. Verify upstream Beads is available.
-   - If live `bd` access is missing or unhealthy, stop immediately.
-   - Do not run `bd init` or inspect alternate tracker sources from this action.
+1. Verify the built-in tracker is available.
+   - If `helix tracker status` fails, stop immediately.
 2. Load ratchet floor fixtures if the project has adopted quality ratchets
    (see `workflows/ratchets.md`). Note the current floors so Phase 3
    can compare against them for auto-bump decisions.
@@ -96,41 +93,41 @@ session is in progress. This survives context compaction and agent restarts.
 
 This phase runs on the first invocation only. If resuming, Phase 0 skips here.
 
-### 1.1 Bead Selection
+### 1.1 Issue Selection
 
-Select the experiment bead:
+Select the experiment issue:
 
-1. If the input is an explicit bead ID: inspect that bead.
-2. If the input is a goal description: search ready `phase:iterate` beads
+1. If the input is an explicit issue ID: inspect that issue.
+2. If the input is a goal description: search ready `phase:iterate` issues
    matching the goal.
-3. If no input is given: inspect ready `phase:iterate` execution beads and
+3. If no input is given: inspect ready `phase:iterate` execution issues and
    choose the best candidate.
 
-The selected bead MUST:
+The selected issue MUST:
 
 - be labeled `phase:iterate`
 - have passing tests (the project's test suite must be green before
   experimenting)
 - have clear acceptance criteria defining what metric to optimize
-- not be a review bead or a build/deploy bead
+- not be a review issue or a build/deploy issue
 
-If no eligible bead exists, report the reason and exit cleanly.
+If no eligible issue exists, report the reason and exit cleanly.
 
-### 1.2 Claim Bead
+### 1.2 Claim Issue
 
-Claim the selected bead with `bd update <id> --claim`.
+Claim the selected issue with `helix tracker update <id> --claim`.
 
 ### 1.3 Authority Check
 
-Load the governing artifacts referenced by the bead:
+Load the governing artifacts referenced by the issue:
 
 - `spec-id`
-- parent epic or parent bead
+- parent epic or parent issue
 - dependency tree
 - linked user story, feature, design, or test artifacts
 
 Verify the optimization goal is consistent with architecture and design docs.
-If the bead's goal contradicts a higher-authority artifact, do not proceed.
+If the issue's goal contradicts a higher-authority artifact, do not proceed.
 Document the conflict and exit.
 
 ### 1.4 Metric Definition
@@ -192,7 +189,7 @@ is non-negotiable per Principle 2 (Test-First Development).
      `workflows/templates/autoresearch-worklog.md`.
    - `autoresearch.jsonl` — initialize with a config header line:
      ```json
-     {"type":"config","goal":"<goal>","metric":"<name>","direction":"<lower|higher>","bead":"<id>","started":"<ISO-8601>"}
+     {"type":"config","goal":"<goal>","metric":"<name>","direction":"<lower|higher>","issue":"<id>","started":"<ISO-8601>"}
      ```
 
 4. Session files are never committed. They are local working state for the
@@ -359,9 +356,9 @@ when iteration is complete. It does NOT run during normal iteration.
 ### 3.1 Authority Check
 
 Review the cumulative diff on the experiment branch against governing
-artifacts. Verify that the total set of changes is consistent with the bead's
+artifacts. Verify that the total set of changes is consistent with the issue's
 scope and the project's architecture. If the cumulative diff has drifted from
-the bead's intent, flag the issue and determine whether to proceed.
+the issue's intent, flag the problem and determine whether to proceed.
 
 ### 3.2 Zero-Improvement Case
 
@@ -370,7 +367,7 @@ Read `autoresearch.jsonl` to determine whether any iterations were kept.
 If no iterations were kept (best equals baseline):
 
 - Skip the squash-merge — there are no code changes to merge.
-- Close the bead with a note recording what was tried, how many iterations
+- Close the issue with a note recording what was tried, how many iterations
   ran, and why nothing improved. This is a valid outcome. Not every
   experiment produces improvement.
 - Proceed to cleanup (3.5).
@@ -401,7 +398,7 @@ If iterations were kept:
    ```
    experiment(<goal>): <one-line summary of result>
 
-   Bead: <bead-id>
+   Issue: <issue-id>
    Metric: <name> (<unit>, <direction> is better)
    Baseline: <baseline-value>
    Final: <best-value> (<delta>% improvement)
@@ -431,9 +428,9 @@ Delete the experiment branch:
 git branch -d experiment/<goal>-<date>
 ```
 
-### 3.6 Close Bead
+### 3.6 Close Issue
 
-Close the bead with `bd close <id>` and a comprehensive close comment
+Close the issue with `helix tracker close <id>` and a comprehensive close comment
 recording execution evidence:
 
 - Goal and optimization target
@@ -445,14 +442,14 @@ recording execution evidence:
 - Ratchet floor updates (if any)
 - Files modified in the final squash commit
 
-This is execution evidence on the bead, not a canonical HELIX doc.
+This is execution evidence on the issue, not a canonical HELIX doc.
 
-### 3.7 Follow-On Beads
+### 3.7 Follow-On Issues
 
 If the experiment revealed additional optimization opportunities, code quality
-issues, or architectural concerns:
+concerns, or architectural concerns:
 
-- Create follow-on beads immediately.
+- Create follow-on issues immediately.
 - Make them atomic and deterministic.
 - Set `spec-id` to the nearest governing artifact.
 - Add the correct HELIX labels.
@@ -487,7 +484,7 @@ EXPERIMENT_CONFIDENCE: <score>
   The experiment has stalled. The operator should consider closing the session
   or changing strategy.
 - `CLOSED` — session close completed (Phase 3 executed). The experiment
-  branch has been squash-merged (or skipped if zero improvement), the bead
+  branch has been squash-merged (or skipped if zero improvement), the issue
   has been closed, and session files have been cleaned up.
 
 These statuses are derived from the cumulative `autoresearch.jsonl` history,
@@ -512,11 +509,11 @@ determine whether a convergence or stall pattern has emerged.
 Report these sections in order:
 
 1. Experiment Status (trailer lines)
-2. Bead ID
+2. Issue ID
 3. Current Iteration Summary (hypothesis, result, keep/discard decision)
 4. Cumulative Progress (iterations run, kept, best result, delta)
 5. Confidence Assessment
-6. Follow-On Beads Created (if any)
+6. Follow-On Issues Created (if any)
 7. Suggested Next Step (continue iterating, close session, change strategy)
 
 Be precise, quantitative, and operational.

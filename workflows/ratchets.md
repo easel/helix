@@ -54,7 +54,7 @@ Every ratchet has five components:
 
 - The floor file is committed to version control. It is not ephemeral.
 - The floor only increases unless the override protocol is followed.
-- The override protocol requires a bead that documents the justification,
+- The override protocol requires an issue that documents the justification,
   the new floor, and the acceptance criteria for restoring the previous
   level.
 - Measurement commands must be deterministic and reproducible. Flaky metrics
@@ -170,9 +170,9 @@ defines concrete metrics to track.
 - **Phase 0 (Bootstrap)**: load ratchet floor fixtures from the project if they
   exist, alongside other project quality gates.
 - **Phase 7 (Verification)**: run ratchet enforcement commands as part of
-  verification. A ratchet failure blocks bead closure. If the measured value
+  verification. A ratchet failure blocks issue closure. If the measured value
   exceeds the auto-bump threshold, update the floor fixture and include the
-  change in the bead commit.
+  change in the issue commit.
 
 ### Check Action
 
@@ -188,8 +188,8 @@ defines concrete metrics to track.
   the acceptance criteria ratchet. When a ratchet floor fixture exists,
   compare the current satisfaction count against the floor and flag any
   regression.
-- **Phase 7 (Execution Beads)**: if a ratchet regression is detected, create
-  a regression bead that references the specific criteria or metrics that
+- **Phase 7 (Execution Issues)**: if a ratchet regression is detected, create
+  a regression issue that references the specific criteria or metrics that
   dropped below the floor.
 
 ### Build Phase Enforcer
@@ -213,7 +213,7 @@ Ratchet floor trends are iterate-phase metrics. The iterate phase should:
 
 To intentionally lower a ratchet floor:
 
-1. Create a bead documenting:
+1. Create a tracker issue documenting:
    - which ratchet and metric are being lowered
    - the current floor and the proposed new floor
    - the justification (e.g., feature removal, architectural change,
@@ -222,7 +222,7 @@ To intentionally lower a ratchet floor:
      for why restoration is not needed)
 2. Lower the floor in the fixture file using the project's override mechanism
    (typically a `--force` flag on the enforcement script).
-3. Commit the floor change and the bead together.
+3. Commit the floor change and the issue together.
 
 The override protocol exists to prevent ratchets from becoming immovable
 obstacles. But the audit trail ensures that every regression is intentional

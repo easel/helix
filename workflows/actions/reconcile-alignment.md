@@ -6,13 +6,13 @@ project.
 Your goal is to re-align the implementation with the authoritative planning
 stack, identify explicit divergence, determine whether additional execution
 work remains for the reviewed scope, and produce deterministic next steps using
-upstream Beads (`bd`).
+the built-in tracker (`helix tracker`).
 
 This action is read-only with respect to product code unless explicitly told to
 make fixes. It may create or update:
 
-- upstream review beads in `bd`
-- upstream execution beads in `bd`
+- review issues in the tracker
+- execution issues in the tracker
 - one durable alignment report in `docs/helix/06-iterate/alignment-reviews/`
 
 ## Action Input
@@ -47,32 +47,30 @@ Rules:
 - If a higher layer is missing or contradictory, do not infer intent from lower layers.
 - Prefer aligning code to plan. Propose plan changes only when strongly justified.
 
-## Beads Rules
+## Tracker Rules
 
-Use native upstream Beads only. Follow:
+Use the built-in tracker only. Follow:
 
-- `workflows/BEADS.md`
-- <https://github.com/steveyegge/beads>
-- <https://steveyegge.github.io/beads/>
+- `workflows/TRACKER.md`
 
-Do not create custom HELIX bead files.
+Issues are stored in `.helix/issues.jsonl`.
 
 ### Review Structure
 
-Use two bead categories:
+Use two issue categories:
 
 1. Review epic
-   - native `type: epic`
+   - `type: epic`
    - labels: `helix`, `phase:review`, `kind:review`
    - title pattern: `HELIX alignment review: <scope>`
 
-2. Review beads
-   - native `type: task`
+2. Review issues
+   - `type: task`
    - parented to the review epic
    - labels: `helix`, `phase:review`, `kind:review`, plus area labels
 
-Only after consolidation, create execution beads for approved follow-up work.
-Execution beads must use native `bd` IDs, `parent`, `deps`, `spec-id`, and
+Only after consolidation, create execution issues for approved follow-up work.
+Execution issues must use tracker IDs, `parent`, `deps`, `spec-id`, and
 HELIX labels appropriate to the work phase.
 
 ## PHASE 0 - Review Bootstrap
@@ -80,18 +78,17 @@ HELIX labels appropriate to the work phase.
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
-1. Verify upstream Beads is available.
-   - If live `bd` access is missing or unhealthy, stop immediately.
-   - Do not run `bd init` or inspect alternate tracker sources from this action.
+1. Verify the built-in tracker is available.
+   - If `helix tracker status` fails, stop immediately.
 2. Determine the review scope.
 3. Break the scope into functional areas.
-4. Reconcile any existing review epic and review beads for the same scope.
+4. Reconcile any existing review epic and review issues for the same scope.
    - Reuse and update existing review work where possible.
    - Mark stale review work as closed, superseded, or split as appropriate.
 5. Create or update:
    - one review epic for the run
-   - one review bead per functional area
-6. Record the epic ID and review bead IDs in the alignment report.
+   - one review issue per functional area
+6. Record the epic ID and review issue IDs in the alignment report.
 
 ## PHASE 1 - Reconstruct Intent
 
@@ -184,7 +181,7 @@ Each classification must include:
 - implementation evidence
 - explanation
 - default resolution direction: `code-to-plan`, `plan-to-code`, or `decision-needed`
-- owning review bead ID
+- owning review issue ID
 
 ### Quality Evaluation
 
@@ -202,7 +199,7 @@ For each area classified as ALIGNED or INCOMPLETE, evaluate:
 
 Quality concerns do not change the gap classification. Instead, record them as
 supplementary findings in the Gap Register with resolution direction
-`quality-improvement` and create backlog-type execution beads in Phase 7 when
+`quality-improvement` and create backlog-type execution issues in Phase 7 when
 warranted.
 
 ## PHASE 5 - Traceability Matrix
@@ -229,43 +226,43 @@ Use the template at:
 
 - `workflows/templates/alignment-review.md`
 
-The report must consolidate all review beads into one coherent repo artifact.
+The report must consolidate all review issues into one coherent repo artifact.
 It is the durable output of the review run.
 
-## PHASE 7 - Execution Beads
+## PHASE 7 - Execution Issues
 
-After consolidation, create or update deterministic execution beads only for
+After consolidation, create or update deterministic execution issues only for
 real gaps that require follow-up work.
 
-Execution bead rules:
+Execution issue rules:
 
-- one coherent gap per bead
+- one coherent gap per issue
 - use native upstream types such as `task`, `chore`, or `decision`
 - assign HELIX phase/kind labels that match the actual work
 - set `spec-id` to the nearest governing canonical artifact
-- link to the source review bead using description, parenting, or `discovered-from` dependencies
-- add explicit blockers with `bd dep add`
-- if canonical docs must change before implementation, create the doc/design bead before the code bead
-- do not create duplicate beads for the same gap
+- link to the source review issue using description, parenting, or `discovered-from` dependencies
+- add explicit blockers with `helix tracker dep add`
+- if canonical docs must change before implementation, create the doc/design issue before the code issue
+- do not create duplicate issues for the same gap
 
-### Bead Coverage Verification
+### Issue Coverage Verification
 
-After creating execution beads, verify completeness:
+After creating execution issues, verify completeness:
 
 1. For every gap in the Gap Register that is not ALIGNED, confirm at least one
-   execution bead exists that addresses it.
+   execution issue exists that addresses it.
 2. For every acceptance criterion classified as UNTESTED or UNIMPLEMENTED,
-   confirm at least one execution bead exists that would resolve it.
-3. For every quality concern recorded, confirm either an execution bead exists
+   confirm at least one execution issue exists that would resolve it.
+3. For every quality concern recorded, confirm either an execution issue exists
    or the concern is explicitly deferred with rationale.
 
-If coverage gaps remain, create the missing execution beads before proceeding.
-The bead set must fully represent the work required to move from current state
+If coverage gaps remain, create the missing execution issues before proceeding.
+The issue set must fully represent the work required to move from current state
 to the end state defined by the planning stack.
 
-If a ratchet regression was detected in Phase 3, create a regression bead that
+If a ratchet regression was detected in Phase 3, create a regression issue that
 references the specific criteria or metrics that dropped below the floor. The
-bead must include the previous floor value, the current measured value, and the
+issue must include the previous floor value, the current measured value, and the
 governing artifact where the regression is visible.
 
 ## PHASE 8 - Execution Order
@@ -274,7 +271,7 @@ Output:
 
 - dependency chain
 - critical path
-- parallelizable execution beads
+- parallelizable execution issues
 - blockers
 - first recommended execution set
 - queue health and exhaustion assessment for the reviewed scope
@@ -301,9 +298,9 @@ Produce these sections in order:
 6. Acceptance Criteria Status
 7. Gap Register (with Quality Findings)
 8. Traceability Matrix
-9. Review Bead Summary
-10. Execution Beads Generated
-11. Bead Coverage Verification
+9. Review Issue Summary
+10. Execution Issues Generated
+11. Issue Coverage Verification
 12. Execution Order
 13. Open Decisions
 14. Queue Health and Exhaustion Assessment

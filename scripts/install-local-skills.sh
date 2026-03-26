@@ -49,13 +49,6 @@ install_pair "plan-workflow" "$repo_root/skills/plan"
 install_pair "polish-workflow" "$repo_root/skills/polish"
 install_pair "experiment-workflow" "$repo_root/skills/experiment"
 
-beads_skill_src="$(ls -d "$HOME"/go/pkg/mod/github.com/steveyegge/beads@*/claude-plugin/skills/beads 2>/dev/null | sort -V | tail -1 || true)"
-if [[ -n "$beads_skill_src" ]]; then
-  install_pair "beads" "$beads_skill_src"
-else
-  echo "warning: upstream beads skill not found under ~/go/pkg/mod; skipping beads install" >&2
-fi
-
 echo "Installed skills into:"
 echo "  Codex:  $codex_skills_dir"
 echo "  Claude: $claude_skills_dir"

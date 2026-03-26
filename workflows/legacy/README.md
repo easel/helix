@@ -1,7 +1,7 @@
 # HELIX Legacy Surfaces
 
 The files below were retired from the active HELIX contract because they
-defined a second execution model that conflicted with the bounded Beads-driven
+defined a second execution model that conflicted with the bounded tracker-driven
 workflow:
 
 - `actions/build-story.md`

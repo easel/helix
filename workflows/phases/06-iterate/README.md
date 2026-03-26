@@ -151,7 +151,7 @@ Knowledge capture and pattern recognition:
 
 #### 5. Improvement Backlog
 **Artifact Location**: `artifacts/improvement-backlog/`
-**Output Location**: `docs/helix/06-iterate/improvement-backlog.md` and upstream Beads in `.beads/`
+**Output Location**: `docs/helix/06-iterate/improvement-backlog.md` and tracker issues in `.helix/issues.jsonl`
 
 Prioritized list of improvements with impact analysis:
 - Feature enhancements
@@ -168,7 +168,7 @@ Prioritized list of improvements with impact analysis:
 - ROI prediction
 
 The backlog document is the canonical index and prioritization view. Actionable
-items themselves should be stored as upstream Beads issues labeled for HELIX
+items themselves should be stored as tracker issues labeled for HELIX
 iterate/backlog work.
 
 #### 6. Retrospective
@@ -181,7 +181,7 @@ Team reflection and process improvement:
 - Process effectiveness
 - Communication assessment
 - Tool and technology review
-- Candidate backlog beads for improvement
+- Candidate backlog issues for improvement
 
 **AI Capabilities**:
 - Meeting transcript analysis
@@ -212,7 +212,7 @@ Post-incident analysis and prevention:
 **Output Location**: `docs/helix/06-iterate/next-iteration.md`
 
 Strategic planning for the next cycle:
-- Selected backlog beads for the next iteration
+- Selected backlog issues for the next iteration
 - Canonical artifact updates required before execution
 - Technical improvements needed
 - Process changes to implement
@@ -231,10 +231,10 @@ Strategic planning for the next cycle:
 **Output Location**: `docs/helix/06-iterate/alignment-reviews/AR-YYYY-MM-DD[-scope].md`
 
 Cross-phase reconciliation review:
-- creates or reconciles a review epic and review beads in upstream Beads
+- creates or reconciles a review epic and review issues in the tracker
 - audits the canonical HELIX stack against implementation evidence
 - writes a consolidated alignment report for the review run
-- emits follow-up execution beads only where explicit gaps exist
+- emits follow-up execution issues only where explicit gaps exist
 
 #### Cross-Phase Action: Queue Check
 **Action Location**: `../../actions/check.md`
@@ -357,7 +357,7 @@ The Iterate phase is complete when:
 1. **Data Analyzed**: All metrics, logs, and feedback processed
 2. **Insights Generated**: Clear learnings extracted from data
 3. **Improvements Identified**: Prioritized backlog of enhancements
-4. **Team Aligned**: Retrospective completed with follow-up beads identified
+4. **Team Aligned**: Retrospective completed with follow-up issues identified
 5. **Next Cycle Planned**: Clear goals for next iteration
 6. **Knowledge Captured**: Learnings documented for future reference
 

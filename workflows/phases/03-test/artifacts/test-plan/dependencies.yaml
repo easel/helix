@@ -23,9 +23,9 @@ outputs:
   produces:
     - artifact: test-suites
       relationship: "actual test implementation"
-    - artifact: build-bead
+    - artifact: build-issue
       phase: "04-build"
-      relationship: "build beads tracked in upstream bd make the tests pass"
+      relationship: "build issues tracked in helix tracker make the tests pass"
 
 completion:
   automated_checks:

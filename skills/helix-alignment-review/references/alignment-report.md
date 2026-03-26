@@ -10,9 +10,9 @@ Use this section order:
 6. Acceptance Criteria Status
 7. Gap Register (with Quality Findings)
 8. Traceability Matrix
-9. Review Bead Summary
-10. Execution Beads Generated
-11. Bead Coverage Verification
+9. Review Issue Summary
+10. Execution Issues Generated
+11. Issue Coverage Verification
 12. Execution Order
 13. Open Decisions
 
@@ -26,7 +26,7 @@ Use this section order:
 
 ### Gap Register
 
-| Area | Classification | Planning Evidence | Implementation Evidence | Resolution Direction | Review Bead | Notes |
+| Area | Classification | Planning Evidence | Implementation Evidence | Resolution Direction | Review Issue | Notes |
 |------|----------------|-------------------|--------------------------|----------------------|-------------|-------|
 
 ### Traceability Matrix
@@ -34,18 +34,18 @@ Use this section order:
 | Vision Item | Requirement | Feature / Story | Architecture / ADR | Solution / Technical Design | Test Reference | Implementation Plan | Code Status | Classification |
 |-------------|-------------|-----------------|--------------------|-----------------------------|----------------|---------------------|-------------|----------------|
 
-### Review Bead Summary
+### Review Issue Summary
 
-| Review Bead | Functional Area | Status | Key Findings | Recommended Direction |
+| Review Issue | Functional Area | Status | Key Findings | Recommended Direction |
 |-------------|-----------------|--------|--------------|-----------------------|
 
-### Execution Beads Generated
+### Execution Issues Generated
 
-| Bead ID | Type | HELIX Labels | Parent / Source | Goal | Dependencies | Verification |
+| Issue ID | Type | HELIX Labels | Parent / Source | Goal | Dependencies | Verification |
 |---------|------|--------------|-----------------|------|--------------|-------------|
 
-### Bead Coverage Verification
+### Issue Coverage Verification
 
-| Gap / Criterion | Covering Bead | Status |
+| Gap / Criterion | Covering Issue | Status |
 |-----------------|---------------|--------|
-| [gap or criterion] | [bd ID or "MISSING"] | [covered/missing/deferred] |
+| [gap or criterion] | [issue ID or "MISSING"] | [covered/missing/deferred] |

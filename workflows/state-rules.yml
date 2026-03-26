@@ -6,7 +6,7 @@ version: 1.0.0
 description: Test-driven development workflow with optional discovery and phase-based progression
 
 # Artifact patterns for state detection
-# Note: build/deploy execution is managed in upstream Beads (`bd`). Static file
+# Note: build/deploy execution is managed in the built-in tracker. Static file
 # matching is sufficient for canonical docs, but per-story build/deploy state
 # should be queried with the `query_command` hints below.
 artifact_patterns:
@@ -28,16 +28,16 @@ artifact_patterns:
       phase: test
 
     build:
-      pattern: ".beads/"
-      type: build-bead
+      pattern: ".helix/"
+      type: build-issue
       phase: build
-      query_command: "Inspect open bd issues labeled helix, phase:build, story:US-{id}"
+      query_command: "Inspect open tracker issues labeled helix, phase:build, story:US-{id}"
 
     deploy:
-      pattern: ".beads/"
-      type: deploy-bead
+      pattern: ".helix/"
+      type: deploy-issue
       phase: deploy
-      query_command: "Inspect open bd issues labeled helix, phase:deploy, story:US-{id}"
+      query_command: "Inspect open tracker issues labeled helix, phase:deploy, story:US-{id}"
 
     iterate:
       pattern: "docs/helix/06-iterate/iteration-reports/IR-{id}-*.md"
@@ -131,7 +131,7 @@ naming_conventions:
       US: "User Story (Frame)"
       TD: "Technical Design (Design)"
       TP: "Test Plan (Test)"
-      BEAD: "Execution tracked in upstream bd"
+      ISSUE: "Execution tracked in built-in tracker"
       IR: "Iteration Report (Iterate)"
 
   feature:
@@ -156,14 +156,14 @@ transitions:
 
     test_to_build:
       requires: ["TP-{id} exists", "tests failing"]
-      creates: "build bead issue(s) in bd"
+      creates: "build issue(s) in tracker"
 
     build_to_deploy:
-      requires: ["build bead issue(s) exist", "tests passing"]
-      creates: "deploy bead issue(s) in bd"
+      requires: ["build issue(s) exist", "tests passing"]
+      creates: "deploy issue(s) in tracker"
 
     deploy_to_iterate:
-      requires: ["deploy bead issue(s) exist", "deployed"]
+      requires: ["deploy issue(s) exist", "deployed"]
       creates: "IR-{id}"
 
 # Validation rules
@@ -175,8 +175,8 @@ validation:
     - rule: "TP cannot exist without TD"
       check: "If TP-{id} exists, then TD-{id} must exist"
 
-    - rule: "Build bead work should not start without TP"
-      check: "If a build bead query returns work for story {id}, then TP-{id} must exist"
+    - rule: "Build issue work should not start without TP"
+      check: "If a build issue query returns work for story {id}, then TP-{id} must exist"
 
   cross_references:
     - rule: "TD must reference US"
@@ -197,7 +197,7 @@ metadata:
 execution_integration:
   commands:
     implementation:
-      description: "Execute one ready HELIX execution bead"
+      description: "Execute one ready HELIX execution issue"
       example: "helix implement"
 
     check:

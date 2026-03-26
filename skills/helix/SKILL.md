@@ -1,14 +1,14 @@
 ---
 name: helix-workflow
-description: HELIX test-first workflow with authority-ordered planning stack and Beads execution tracking. Use when working through Frame/Design/Test/Build/Deploy/Iterate phases, executing beads, or aligning implementation to specs.
-argument-hint: "[scope|bead-id]"
+description: HELIX test-first workflow with authority-ordered planning stack and tracker-based execution tracking. Use when working through Frame/Design/Test/Build/Deploy/Iterate phases, executing issues, or aligning implementation to specs.
+argument-hint: "[scope|issue-id]"
 ---
 
 # HELIX Workflow Skill
 
 Guide development using the HELIX methodology: a test-first workflow with a
-canonical planning stack and an execution layer tracked in upstream Beads
-(`bd`).
+canonical planning stack and an execution layer tracked in the built-in HELIX
+tracker (`helix tracker`).
 
 ## Use This Skill When
 
@@ -16,7 +16,7 @@ canonical planning stack and an execution layer tracked in upstream Beads
 - the repo has `docs/helix/` or `workflows/`
 - the user wants TDD phase guidance or artifact sequencing
 - the user wants implementation kept aligned to requirements, design, and tests
-- the user wants a ready HELIX bead executed end-to-end with the right quality gates
+- the user wants a ready HELIX issue executed end-to-end with the right quality gates
 - the user wants to know whether more HELIX work remains or what the next action should be
 - the user wants a repo-wide reconciliation, drift analysis, or traceability audit
 - the user wants to backfill HELIX documentation from an existing repo or subsystem
@@ -57,17 +57,18 @@ design.
 
 ## Execution Layer
 
-HELIX uses upstream Beads (`bd`) for execution tracking.
+HELIX uses the built-in tracker (`helix tracker`) for execution tracking.
+Issues are stored in `.helix/issues.jsonl`.
 
-- Use `bd` (or `br`) issues, dependencies, parents, `spec-id`, and labels.
-- Do not invent custom bead files or custom status taxonomies.
+- Use `helix tracker` issues, dependencies, parents, `spec-id`, and labels.
+- Do not invent custom issue files or custom status taxonomies.
 - Recommended labels: `helix`, plus phase/kind/traceability labels as needed.
-- See `workflows/BEADS.md` for bd/br command mapping.
+- See `workflows/TRACKER.md` for helix tracker command mapping.
 
 Reference docs (read as needed):
 
 - `workflows/README.md`
-- `workflows/BEADS.md`
+- `workflows/TRACKER.md`
 - `workflows/actions/check.md` when the user wants queue health or the next action
 - `workflows/actions/implementation.md` when the user wants ready work executed
 - relevant phase README and artifact prompts/templates
@@ -78,56 +79,56 @@ When this skill is invoked, **execute work immediately** — do not just report
 status, do not just describe what you would do, do not ask for confirmation.
 Start doing real work right now.
 
-### Step 1 — Find ready beads
+### Step 1 — Find ready issues
 
 Run this command:
 
 ```bash
-bd ready --json    # or: br ready --json
+helix tracker ready --json
 ```
 
-If no ready beads exist, skip to Step 6 (Queue Drain).
+If no ready issues exist, skip to Step 6 (Queue Drain).
 
-### Step 2 — Select and claim one bead
+### Step 2 — Select and claim one issue
 
-Pick the best ready bead (smallest unblocked bead with clear governing
+Pick the best ready issue (smallest unblocked issue with clear governing
 artifacts). Inspect it:
 
 ```bash
-bd show <id>
-bd dep tree <id>
+helix tracker show <id>
+helix tracker dep tree <id>
 ```
 
 Then claim it:
 
 ```bash
-bd update <id> --claim    # or: br update <id> --status in_progress
+helix tracker update <id> --claim
 ```
 
 ### Step 3 — Load context and implement
 
-1. Read the bead's `spec-id`, parent, labels, and acceptance criteria.
+1. Read the issue's `spec-id`, parent, labels, and acceptance criteria.
 2. Read the governing artifacts (requirements, design, tests) referenced by
-   the bead.
+   the issue.
 3. Read `workflows/actions/implementation.md` for full phase-specific
    rules (build, deploy, iterate).
-4. Implement the work: write code, update docs, create follow-on beads for
+4. Implement the work: write code, update docs, create follow-on issues for
    any out-of-scope work discovered.
 
 ### Step 4 — Verify
 
 Run all project verification: tests, lint, type checks, format checks. If
-verification fails, fix within scope or leave the bead open with a status note.
+verification fails, fix within scope or leave the issue open with a status note.
 
 ### Step 5 — Commit and close
 
-1. Commit with the bead ID in the message.
-2. Close the bead: `bd close <id>` (or `br close <id>`)
-3. Go back to Step 1 for the next ready bead.
+1. Commit with the issue ID in the message.
+2. Close the issue: `helix tracker close <id>`
+3. Go back to Step 1 for the next ready issue.
 
 ### Step 6 — Queue drain
 
-When no ready beads remain, read and execute
+When no ready issues remain, read and execute
 `workflows/actions/check.md` to decide what happens next. That action
 produces a `NEXT_ACTION` code:
 
@@ -139,7 +140,7 @@ produces a `NEXT_ACTION` code:
 
 ### Scope narrowing
 
-If the user provides a scope or selector (e.g., a bead ID, feature name, or
+If the user provides a scope or selector (e.g., an issue ID, feature name, or
 phase), narrow all steps to that scope.
 
 ## How To Work
@@ -157,7 +158,7 @@ phase), narrow all steps to that scope.
 - `Test`: what failing tests prove the behavior?
 - `Build`: what is the minimum implementation to make those tests pass?
 - `Deploy`: how do we release safely and observe health?
-- `Iterate`: what did we learn, and what follow-up work belongs in `bd`?
+- `Iterate`: what did we learn, and what follow-up work belongs in the tracker?
 
 ## Notes
 

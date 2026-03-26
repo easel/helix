@@ -6,7 +6,7 @@ dun:
 
 A test-driven development workflow with AI-assisted collaboration for building high-quality software iteratively.
 
-> **Quick Links**: [Quick Start Guide](QUICKSTART.md) | [Visual Overview](diagrams/workflow-overview.md) | [Reference Card](REFERENCE.md) | [Execution Guide](EXECUTION.md) | [Artifact Flow](diagrams/artifact-flow.md) | [Beads Integration](BEADS.md) | [Quality Ratchets](ratchets.md)
+> **Quick Links**: [Quick Start Guide](QUICKSTART.md) | [Visual Overview](diagrams/workflow-overview.md) | [Reference Card](REFERENCE.md) | [Execution Guide](EXECUTION.md) | [Artifact Flow](diagrams/artifact-flow.md) | [Tracker](TRACKER.md) | [Quality Ratchets](ratchets.md)
 
 ## Overview
 
@@ -18,7 +18,7 @@ Treat the following files as the canonical HELIX workflow contract:
 
 - [README.md](README.md) for the high-level workflow model and authority order
 - [EXECUTION.md](EXECUTION.md) for operator flow, queue control, and loop behavior
-- [BEADS.md](BEADS.md) for upstream `bd` mapping, labels, and execution tracking
+- [TRACKER.md](TRACKER.md) for built-in tracker mapping, labels, and execution tracking
 - [check.md](actions/check.md) for queue-drain decisions
 - [implementation.md](actions/implementation.md) for bounded execution work
 - [reconcile-alignment.md](actions/reconcile-alignment.md) for top-down reconciliation
@@ -32,9 +32,9 @@ follow the normative contract and update the supporting document.
 Additional actions extend the workflow without altering the core loop:
 
 - [plan.md](actions/plan.md) for iterative design document creation
-- [polish.md](actions/polish.md) for bead refinement before implementation
+- [polish.md](actions/polish.md) for issue refinement before implementation
 - [fresh-eyes-review.md](actions/fresh-eyes-review.md) for post-implementation review
-- [experiment.md](actions/experiment.md) for metric-driven optimization (execution tracked by beads, not HELIX docs)
+- [experiment.md](actions/experiment.md) for metric-driven optimization (execution tracked by issues, not HELIX docs)
 
 These are operator-chosen entry points that do not participate in the
 check → NEXT_ACTION dispatch. If a supporting document conflicts with the
@@ -106,27 +106,21 @@ When HELIX artifacts disagree, resolve the conflict using this authority order:
 - Tests do not override upstream requirements or design. If tests conflict with higher-order artifacts, return to the earlier phase and fix the inconsistency there.
 - Source code is evidence of implementation, not the source of truth for requirements, design, or behavior.
 
-## Beads
+## Tracker
 
-Beads are HELIX's execution layer. HELIX uses upstream Beads (`bd`) by Steve
-Yegge instead of a HELIX-specific bead file format.
+The built-in tracker is HELIX's execution layer. Issues are stored in
+`.helix/issues.jsonl` and managed via `helix tracker` subcommands.
 
-- HELIX bead guide: [BEADS.md](BEADS.md)
-- Upstream repo (`@steveyegge/beads` / `steveyegge/beads`): <https://github.com/steveyegge/beads>
-- Upstream docs: <https://steveyegge.github.io/beads/>
-- Local usage help: `bd quickstart`, `bd human`, `bd --help`
+- HELIX tracker guide: [TRACKER.md](TRACKER.md)
 
-- The repo-local Beads DB under `.beads/dolt` is the authoritative working database.
-- A Dolt remote is optional.
-- If a shared remote is used, it must be a real shared remote, not a machine-local or CIFS/SMB-backed `file://` path used for hot coordination.
-- Beads are governed by the HELIX authority stack.
-- Beads must cite the canonical artifacts that authorize the work.
-- Closing a bead records completion of a task; it does not redefine
+- Issues are governed by the HELIX authority stack.
+- Issues must cite the canonical artifacts that authorize the work.
+- Closing an issue records completion of a task; it does not redefine
   requirements, design, or tests.
-- If bead execution changes behavior or scope, the governing canonical artifacts
+- If issue execution changes behavior or scope, the governing canonical artifacts
   must be updated explicitly.
 
-HELIX execution categories are expressed through native `bd` issue types,
+HELIX execution categories are expressed through native issue types,
 parents, dependencies, `spec-id`, and labels rather than custom files:
 
 - `phase:build` for story-level implementation work
@@ -139,7 +133,7 @@ parents, dependencies, `spec-id`, and labels rather than custom files:
 HELIX execution is intentionally bounded and uses a small set of top-level
 actions:
 
-- `implementation`: execute one ready execution bead and exit
+- `implementation`: execute one ready execution issue and exit
 - `check`: determine whether the next step is implementation, alignment,
   backfill, waiting, guidance, or stopping
 - `reconcile-alignment`: run a top-down audit when the plan exists but the next

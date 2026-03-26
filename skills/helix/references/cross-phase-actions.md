@@ -14,11 +14,11 @@ Use when:
 Reference docs:
 
 - `workflows/actions/check.md`
-- `workflows/BEADS.md`
+- `workflows/TRACKER.md`
 
 Key rules:
 
-- use `bd ready`, not `bd list --ready`
+- use `helix tracker ready`, not `helix tracker list --ready`
 - treat the check as a bounded queue-health probe
 - do not claim work from the check action
 - use it when the implementation loop drains
@@ -36,7 +36,7 @@ Reference docs:
 
 - `workflows/actions/backfill-helix-docs.md`
 - `workflows/templates/backfill-report.md`
-- `workflows/BEADS.md`
+- `workflows/TRACKER.md`
 
 Key rules:
 
@@ -58,11 +58,11 @@ Reference docs:
 
 - `workflows/actions/reconcile-alignment.md`
 - `workflows/templates/alignment-review.md`
-- `workflows/BEADS.md`
+- `workflows/TRACKER.md`
 
 Key rules:
 
 - review top-down
 - classify gaps explicitly
-- create a review epic plus review beads in `bd`
-- consolidate findings before creating execution beads
+- create a review epic plus review issues in `helix tracker`
+- consolidate findings before creating execution issues

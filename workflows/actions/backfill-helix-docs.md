@@ -10,8 +10,8 @@ canonical HELIX docs without canonizing guesses as fact.
 This action may create or update:
 
 - canonical HELIX artifacts under `docs/helix/`
-- upstream research and review beads in `bd`
-- follow-up execution beads in `bd`
+- research and review issues in the tracker
+- follow-up execution issues in the tracker
 - one durable backfill report in `docs/helix/06-iterate/backfill-reports/`
 
 ## Action Input
@@ -40,10 +40,10 @@ is low, ask the user before finalizing canonical artifacts.
 When this action is launched by `helix backfill`, assume you are running inside
 an active writable session rooted at the target repository.
 
-- use live `bd` commands for tracker state
+- use live `helix tracker` commands for tracker state
 - write directly to `docs/helix/` when evidence supports canonical updates
 - do not claim that you need a different session, different permissions, or a
-  separate "live bd" environment unless a concrete command actually fails
+  separate environment unless a concrete command actually fails
 
 If a command fails, report the exact command and the observed error. Do not
 invent capability limits.
@@ -83,20 +83,17 @@ Low-confidence claims must either:
 - be confirmed by the user before canonization, or
 - remain explicitly marked as unresolved in the backfill report and draft artifacts
 
-## Beads Rules
+## Tracker Rules
 
-Use native upstream Beads only. Follow:
+Use the built-in tracker only. Follow:
 
-- `workflows/BEADS.md`
-- <https://github.com/steveyegge/beads>
-- <https://steveyegge.github.io/beads/>
+- `workflows/TRACKER.md`
 
-Do not create custom HELIX bead files.
+Issues are stored in `.helix/issues.jsonl`.
 
-Use live tracker commands such as `bd ready`, `bd show`, `bd query`, and
-`bd list` as needed for queue state. Do not treat `.beads/backup/`,
-checked-in planning snapshots, exported JSON, or direct Dolt state as tracker
-fallbacks. If live `bd` access is missing or unhealthy, stop immediately.
+Use live tracker commands such as `helix tracker ready`, `helix tracker show`,
+`helix tracker list` as needed for queue state. If `helix tracker status`
+fails, stop immediately.
 
 ### Research Structure
 
@@ -107,14 +104,14 @@ Use a review-style research structure:
    - labels: `helix`, `phase:review`, `kind:review`
    - title pattern: `HELIX docs backfill: <scope>`
 
-2. Research beads
-   - native `type: task`
+2. Research issues
+   - `type: task`
    - parented to the research epic
    - labels: `helix`, `phase:review`, `kind:review`, plus area labels
 
-3. Follow-up execution beads
+3. Follow-up execution issues
    - created only after the backfill report exists
-   - use native `bd` issue IDs, `deps`, `spec-id`, and HELIX labels
+   - use tracker IDs, `deps`, `spec-id`, and HELIX labels
 
 ### Recursive Review Model
 
@@ -138,10 +135,10 @@ Rules:
 - if a folder is too large or heterogeneous for one thorough pass, split it again
 - do not stop at top-level summaries; recurse until leaf review scopes are small enough to inspect thoroughly
 - parent nodes cannot be considered complete until child nodes have been reviewed and synthesized
-- if multiple agents are available, leaf review beads may be parallelized, but the same consolidation protocol still applies
+- if multiple agents are available, leaf review issues may be parallelized, but the same consolidation protocol still applies
 
 No special orchestration technology is required beyond the explicit review tree
-and upstream Beads hierarchy. Multi-agent execution is optional; staged review
+and tracker hierarchy. Multi-agent execution is optional; staged review
 and consolidation are mandatory.
 
 ## Multi-Stage Review and Consolidation Protocol
@@ -173,10 +170,9 @@ evidence extraction pass are complete for the relevant scope.
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
 1. Determine the backfill scope.
-2. Verify upstream Beads is available.
-   - If live `bd` access is missing or unhealthy, stop immediately.
-   - Do not run `bd init` or inspect alternate tracker sources from this action.
-   - Use live `bd` output as the authoritative queue source for the run.
+2. Verify the built-in tracker is available.
+   - If `helix tracker status` fails, stop immediately.
+   - Use `helix tracker` output as the authoritative queue source for the run.
 3. Inventory existing documentation:
    - `docs/helix/`
    - non-HELIX docs
@@ -187,26 +183,26 @@ evidence extraction pass are complete for the relevant scope.
 5. Break the scope into functional areas.
 6. Build the review tree:
    - research epic
-   - area review beads
-   - folder review beads
-   - leaf file-set review beads
-   - consolidation beads where needed
+   - area review issues
+   - folder review issues
+   - leaf file-set review issues
+   - consolidation issues where needed
 7. Create a coverage ledger so every folder and file in scope has a review owner or an explicit exclusion.
 8. Reconcile or create:
    - one research epic for the run
-   - one research bead per functional area
-   - child review beads for folders and file-sets as required
-9. Record the epic ID, bead IDs, and coverage baseline in the backfill report.
+   - one research issue per functional area
+   - child review issues for folders and file-sets as required
+9. Record the epic ID, issue IDs, and coverage baseline in the backfill report.
 
 ## Completion Contract
 
 Do not stop at an analysis-only summary if the repository is writable and live
-`bd` commands succeed.
+`helix tracker` commands succeed.
 
 Before returning, you must do all applicable work that is supported by the
 available evidence:
 
-1. create or update the research epic and review beads in live `bd`
+1. create or update the research epic and review issues in the tracker
 2. create or update the durable backfill report under
    `docs/helix/06-iterate/backfill-reports/`
 3. create or update any high-confidence canonical HELIX artifacts justified by
@@ -383,7 +379,7 @@ Backfill is not complete until:
 - every review node has a parent consolidation path back to the scope root
 - no top-level domain remains without a synthesized current-state summary
 - no canonical artifact was drafted from unresolved low-confidence assumptions
-- all remaining ambiguity is captured as guidance gates or follow-up beads
+- all remaining ambiguity is captured as guidance gates or follow-up issues
 
 ## PHASE 7 - Durable Backfill Report
 
@@ -405,12 +401,12 @@ The report must capture:
 - required user guidance
 - follow-up work
 
-## PHASE 8 - Follow-Up Beads
+## PHASE 8 - Follow-Up Issues
 
-Create or update follow-up execution beads only after the backfill report
+Create or update follow-up execution issues only after the backfill report
 exists.
 
-Use follow-up beads for:
+Use follow-up issues for:
 
 - unresolved guidance-dependent doc updates
 - tests or implementation that should be aligned after backfill
@@ -419,11 +415,11 @@ Use follow-up beads for:
 
 Rules:
 
-- one coherent gap per bead
+- one coherent gap per issue
 - use native upstream types such as `task`, `chore`, or `decision`
 - set `spec-id` to the nearest governing artifact
-- add blockers with `bd dep add`
-- create doc/design beads before code beads where appropriate
+- add blockers with `helix tracker dep add`
+- create doc/design issues before code issues where appropriate
 
 ## Evidence Requirements
 
@@ -447,7 +443,7 @@ Produce these sections in order:
 7. Guidance Gates
 8. Backfilled Artifacts
 9. Assumption Ledger
-10. Follow-Up Beads
+10. Follow-Up Issues
 11. Next Recommended Steps
 
 Be precise, evidence-driven, and conservative about canonizing uncertain intent.
@@ -456,4 +452,4 @@ After those sections, emit this machine-readable trailer exactly:
 
 `BACKFILL_STATUS: COMPLETE|GUIDANCE_NEEDED|BLOCKED`
 `BACKFILL_REPORT: docs/helix/06-iterate/backfill-reports/<file>.md`
-`RESEARCH_EPIC: <bd-id|none>`
+`RESEARCH_EPIC: <id|none>`

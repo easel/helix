@@ -28,7 +28,7 @@ traceability. It does not define ready-queue logic, loop control, or how to
 select execution work.
 
 For execution behavior, follow [EXECUTION.md](EXECUTION.md) and the bounded
-action prompts. For upstream Beads conventions, follow [BEADS.md](BEADS.md).
+action prompts. For tracker conventions, follow [TRACKER.md](TRACKER.md).
 
 ## Canonical Authority Order
 
@@ -49,12 +49,12 @@ HELIX artifacts disagree, this is the canonical authority order:
 - Feature specifications and user stories refine the PRD and remain above downstream design and implementation artifacts.
 - Tests govern Build phase execution because they are executable specifications, but they are still derived from Frame and Design artifacts.
 - Source code must conform to higher-order artifacts; it does not redefine them.
-- Beads are not part of the canonical authority order. They are execution
+- Issues are not part of the canonical authority order. They are execution
   records derived from authoritative artifacts.
 
 ## Artifact Types and Relationships
 
-### Canonical Artifacts Plus Execution Beads
+### Canonical Artifacts Plus Execution Issues
 
 ```mermaid
 graph TD
@@ -78,8 +78,8 @@ graph TD
     end
 
     subgraph "Execution Layer (Non-Canonical)"
-        BB[Build Beads]
-        DB[Deploy Beads]
+        BB[Build Issues]
+        DB[Deploy Issues]
     end
 
     PRD --> FEAT
@@ -103,8 +103,8 @@ Each user story progresses through all phases independently:
 Frame:   US-036-list-mcp-servers.md
 Design:  TD-036-list-mcp-servers.md
 Test:    TP-036-list-mcp-servers.md
-Build:   bead issue `ddx-a3f2dd` labeled `helix`, `phase:build`, `story:US-036`
-Deploy:  bead issue `ddx-b4c9e1` labeled `helix`, `phase:deploy`, `story:US-036`
+Build:   issue `hx-a3f2dd` labeled `helix`, `phase:build`, `story:US-036`
+Deploy:  issue `hx-b4c9e1` labeled `helix`, `phase:deploy`, `story:US-036`
 Iterate: IR-036-list-mcp-servers.md
 ```
 
@@ -115,7 +115,7 @@ Iterate: IR-036-list-mcp-servers.md
 | US | User Story | Frame | Defines WHAT needs to be built |
 | TD | Technical Design | Design | Details HOW to build it |
 | TP | Test Plan | Test | Specifies tests to verify it |
-| BEAD | Build / Deploy Bead | Build / Deploy | Tracks scoped execution work in upstream `bd` |
+| ISSUE | Build / Deploy Issue | Build / Deploy | Tracks scoped execution work in the built-in tracker |
 | IR | Iteration Report | Iterate | Captures metrics and learnings |
 
 ## Feature-Level Progression (Epics)
@@ -174,7 +174,7 @@ docs/
         └── iteration-reports/
             └── IR-XXX-*.md           # Story-level (NEW)
 
-.beads/                               # Upstream bd workspace (Dolt-backed)
+.helix/                               # Built-in tracker workspace
 ```
 
 ## Cross-References
@@ -191,11 +191,11 @@ Each artifact references its dependencies:
 
 ### Traceability Chain
 ```
-FEAT-001 → US-036 → TD-036 → TP-036 → build bead(s) → deploy bead(s) → IR-036
+FEAT-001 → US-036 → TD-036 → TP-036 → build issue(s) → deploy issue(s) → IR-036
          ↓
-         US-037 → TD-037 → TP-037 → build bead(s) → deploy bead(s) → IR-037
+         US-037 → TD-037 → TP-037 → build issue(s) → deploy issue(s) → IR-037
          ↓
-         US-038 → TD-038 → TP-038 → build bead(s) → deploy bead(s) → IR-038
+         US-038 → TD-038 → TP-038 → build issue(s) → deploy issue(s) → IR-038
 ```
 
 ## Naming Rules
@@ -204,7 +204,7 @@ FEAT-001 → US-036 → TD-036 → TP-036 → build bead(s) → deploy bead(s) �
 1. **Number stays constant**: 036 throughout all phases
 2. **Name stays constant**: "list-mcp-servers" throughout
 3. **Only canonical artifact prefix changes**: US → TD → TP → IR
-4. **Build and Deploy use native bead IDs**: execution is tracked in upstream `bd`, not numbered HELIX files
+4. **Build and Deploy use native issue IDs**: execution is tracked in the built-in tracker, not numbered HELIX files
 
 ### Valid Examples
 ✅ `US-001-initialize-ddx.md`
@@ -225,8 +225,8 @@ The workflow state is determined by which artifacts exist:
 If exists US-036: Story is in FRAME
 If exists TD-036: Story is in DESIGN
 If exists TP-036: Story is in TEST
-If open HELIX build beads exist for story US-036: Story is in BUILD
-If open HELIX deploy beads exist for story US-036: Story is in DEPLOY
+If open HELIX build issues exist for story US-036: Story is in BUILD
+If open HELIX deploy issues exist for story US-036: Story is in DEPLOY
 If exists IR-036: Story is in ITERATE
 ```
 
@@ -303,8 +303,8 @@ Story Level:
 Monday:   Create US-041-user-authentication.md (FRAME)
 Tuesday:  Create TD-041-user-authentication.md (DESIGN)
 Wednesday: Create TP-041-user-authentication.md (TEST)
-Thursday: Create build bead(s) for US-041 (BUILD)
-Friday:   Create deploy bead(s) for US-041 (DEPLOY)
+Thursday: Create build issue(s) for US-041 (BUILD)
+Friday:   Create deploy issue(s) for US-041 (DEPLOY)
 Next Week: Create IR-041-user-authentication.md (ITERATE)
 ```
 
@@ -314,9 +314,9 @@ Use the current HELIX queue controls with this hierarchy:
 
 ```bash
 # Inspect the current queue
-bd ready --json
+helix tracker ready --json
 
-# Execute one ready bead
+# Execute one ready issue
 helix implement
 
 # Decide the next action when the queue drains

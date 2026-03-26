@@ -3,7 +3,7 @@
 You are performing a self-review of recently completed work, looking for bugs,
 omissions, and quality issues with fresh perspective.
 
-After implementing a bead, 1-3 review passes catch bugs that implementation
+After implementing an issue, 1-3 review passes catch bugs that implementation
 blindness misses. Each pass focuses on a different failure mode.
 
 ## Action Input
@@ -12,14 +12,14 @@ You may receive:
 
 - no argument (default: `last-commit`)
 - `last-commit` — review the most recent commit
-- a bead ID such as `bd-abc123` — review all changes associated with that bead
+- an issue ID — review all changes associated with that issue
 - a file list — review those specific files
 
 Examples:
 
 - `helix review`
 - `helix review last-commit`
-- `helix review bd-abc123`
+- `helix review <id>`
 - `helix review src/auth/`
 
 ## PHASE 0 - Identify Review Target
@@ -29,7 +29,7 @@ Examples:
    dropped critical project rules. This step is cheap insurance against drift.
 1. Determine what was just implemented:
    - If `last-commit` or no argument: `git diff HEAD~1`
-   - If bead ID: load the bead, find associated commits via bead ID in commit
+   - If issue ID: load the issue, find associated commits via issue ID in commit
      messages, compute the aggregate diff
    - If file paths: review those files in their current state
 2. Load the governing artifacts for the reviewed code (acceptance criteria,
@@ -41,7 +41,7 @@ For every changed function or method:
 
 1. Does it handle all error cases documented in the design?
 2. Are edge cases covered (empty input, null, boundary values, overflow)?
-3. Does it match the acceptance criteria from the governing bead?
+3. Does it match the acceptance criteria from the governing issue?
 4. Are return values and error codes consistent with interface contracts?
 5. Are there off-by-one errors, missing bounds checks, or unclosed resources?
 
@@ -72,12 +72,45 @@ For every changed test:
 Skip this pass when changes are purely documentation, configuration, or
 internal refactoring with no new attack surface or performance impact.
 
+## Pass 4 - Operational Learnings
+
+Review the changes for lessons that should be captured in project operational
+docs. This pass ensures that hard-won knowledge is not lost to context
+compaction or session boundaries.
+
+1. **AGENTS.md drift**: Do the changes introduce new tools, commands, patterns,
+   or conventions that AGENTS.md does not yet document? Are there existing
+   AGENTS.md instructions that the changes have made stale or wrong?
+   - New CLI commands or flags
+   - Changed file paths or directory layout
+   - New or removed dependencies
+   - Changed testing or CI procedures
+   - New conventions for naming, structure, or workflow
+
+2. **Behavioral learnings**: Did this implementation reveal non-obvious
+   constraints, failure modes, or gotchas that future agents should know about?
+   - Surprising API behavior or edge cases
+   - Performance constraints discovered during implementation
+   - Configuration interactions that were not obvious from docs
+   - Test patterns that proved necessary
+
+3. **Apply updates directly**: If AGENTS.md needs updating and the required
+   change is clear from the evidence, make the edit. Do not just recommend it.
+   Keep AGENTS.md concise — add actionable instructions, not narrative history.
+
+4. **File learnings issues**: For behavioral learnings that do not belong in
+   AGENTS.md (they are project-specific knowledge, not agent instructions),
+   create a `kind:backlog` issue with label `source:learnings` capturing the
+   insight and its evidence.
+
+Skip this pass only when changes are trivial (typos, formatting, comment-only).
+
 ## Output
 
 For each issue found, report:
 
 - **File and line**: exact location
-- **Category**: bug, security, performance, correctness, integration
+- **Category**: bug, security, performance, correctness, integration, drift
 - **Severity**: critical, high, medium, low
 - **Description**: what is wrong
 - **Suggested fix**: how to resolve it
@@ -87,10 +120,14 @@ Report these trailer lines at the end of your output:
 ```
 REVIEW_STATUS: CLEAN|ISSUES_FOUND
 ISSUES_COUNT: N
+AGENTS_MD_UPDATED: YES|NO
+LEARNINGS_FILED: N
 ```
 
 - `CLEAN`: no issues found across all passes
 - `ISSUES_FOUND`: one or more issues identified
+- `AGENTS_MD_UPDATED`: whether AGENTS.md was modified during this review
+- `LEARNINGS_FILED`: number of learnings issues created (0 if none)
 
 If issues are found with severity `critical` or `high`, recommend that the
-associated bead be reopened or a regression bead be created.
+associated issue be reopened or a regression issue be created.

@@ -2,16 +2,16 @@
 # HELIX Quickstart Demo — scripted asciinema recording
 #
 # This script drives a full HELIX cycle on a tiny Node.js project:
-#   1. Setup: init repo, init beads, install ddx skills
+#   1. Setup: init repo, init tracker, install ddx skills
 #   2. Seed: one prompt creates the PRD
-#   3. Queue: set up beads for the planning + build chain
-#   4. Execute: drain the queue — one bead at a time
+#   3. Queue: set up issues for the planning + build chain
+#   4. Execute: drain the queue — one issue at a time
 #   5. Verify: tests pass, app runs
 #   6. Review: /review critically reviews all work products
-#   7. Triage: /triage identifies gaps and creates follow-up beads
+#   7. Triage: /triage identifies gaps and creates follow-up issues
 #   8. Experiment: metric-driven optimization iteration on test runtime
 #
-# Every artifact is created by Claude. Beads drive the work.
+# Every artifact is created by Claude. Issues drive the work.
 #
 # Usage:
 #   docker run --rm \
@@ -77,7 +77,7 @@ claude_run() {
     fi
     # Check if files were created despite error
     local new_files
-    new_files=$(find . -not -path './.git/*' -not -path './.beads/*' -newer /tmp/claude_ts 2>/dev/null | wc -l || echo 0)
+    new_files=$(find . -not -path './.git/*' -not -path './.helix/*' -newer /tmp/claude_ts 2>/dev/null | wc -l || echo 0)
     if [[ "$new_files" -gt 0 ]]; then
       break
     fi
@@ -96,19 +96,19 @@ claude_run() {
   sleep "$COOLDOWN"
 }
 
-# Execute a bead: show it, run claude, close it
-execute_bead() {
-  local bead_id="$1"
+# Execute an issue: show it, run claude, close it
+execute_issue() {
+  local issue_id="$1"
   local title
-  title=$(br show "$bead_id" --json 2>/dev/null | jq -r '.[0].title // empty' 2>/dev/null || echo "")
+  title=$(helix tracker show "$issue_id" --json 2>/dev/null | jq -r '.title // empty' 2>/dev/null || echo "")
 
-  echo "▶ Bead $bead_id"
+  echo "▶ Issue $issue_id"
   if [[ -n "$title" ]]; then
     echo "  $title"
   fi
   echo ""
 
-  claude_run "$title Read existing artifacts under docs/helix/ for context. When done, close the bead: br close $bead_id"
+  claude_run "$title Read existing artifacts under docs/helix/ for context. When done, close the issue: helix tracker close $issue_id"
 }
 
 require_file() {
@@ -139,7 +139,7 @@ demo_body() {
 
   run git init hello-helix
   cd hello-helix
-  run br init
+  run helix tracker init
 
   mkdir -p .claude/skills
   cp -rf /ddx-library/skills/* .claude/skills/
@@ -164,49 +164,37 @@ SETTINGS
   # ── ACT 3: Build the work queue ─────────────────────────
   narrate "ACT 3: Build the Work Queue"
 
-  echo "Creating beads for the HELIX chain..."
+  echo "Creating issues for the HELIX chain..."
   echo ""
 
-  br create "Write user story US-001 from the PRD. Acceptance criteria: convert --to-celsius 212 prints 100.0, convert --to-fahrenheit 0 prints 32.0. Write to docs/helix/01-frame/user-stories/US-001-temperature-conversion.md" \
-    --type task --priority 1 2>&1
-  B1=$(br list --json | jq -r '.[0].id')
-  br label add -l helix "$B1" >/dev/null
-  br label add -l phase:frame "$B1" >/dev/null
+  B1=$(helix tracker create "Write user story US-001 from the PRD. Acceptance criteria: convert --to-celsius 212 prints 100.0, convert --to-fahrenheit 0 prints 32.0. Write to docs/helix/01-frame/user-stories/US-001-temperature-conversion.md" \
+    --type task --priority 1 --labels helix,phase:frame)
 
-  br create "Write technical design TD-001: single bin/convert.js exporting toFahrenheit(c) and toCelsius(f), CLI via process.argv, toFixed(1) output. Write to docs/helix/02-design/technical-designs/TD-001-temperature-conversion.md" \
-    --type task --priority 1 2>&1
-  B2=$(br list --json | jq -r '[.[] | select(.status == "open")] | sort_by(.created_at) | last | .id')
-  br label add -l helix "$B2" >/dev/null
-  br label add -l phase:design "$B2" >/dev/null
+  B2=$(helix tracker create "Write technical design TD-001: single bin/convert.js exporting toFahrenheit(c) and toCelsius(f), CLI via process.argv, toFixed(1) output. Write to docs/helix/02-design/technical-designs/TD-001-temperature-conversion.md" \
+    --type task --priority 1 --labels helix,phase:design)
 
-  br create "Write test plan TP-001 and failing tests. Create package.json with node --test, and tests/convert.test.js requiring ../bin/convert.js for toFahrenheit(0)===32, toCelsius(212)===100, toCelsius(98.6)~=37. Do NOT create bin/convert.js." \
-    --type task --priority 1 2>&1
-  B3=$(br list --json | jq -r '[.[] | select(.status == "open")] | sort_by(.created_at) | last | .id')
-  br label add -l helix "$B3" >/dev/null
-  br label add -l phase:test "$B3" >/dev/null
+  B3=$(helix tracker create "Write test plan TP-001 and failing tests. Create package.json with node --test, and tests/convert.test.js requiring ../bin/convert.js for toFahrenheit(0)===32, toCelsius(212)===100, toCelsius(98.6)~=37. Do NOT create bin/convert.js." \
+    --type task --priority 1 --labels helix,phase:test)
 
-  br create "Implement bin/convert.js per the technical design. Export toFahrenheit(c) and toCelsius(f). Add CLI with --to-celsius and --to-fahrenheit flags, toFixed(1) output. Run npm test — all tests must pass." \
-    --type task --priority 1 2>&1
-  B4=$(br list --json | jq -r '[.[] | select(.status == "open")] | sort_by(.created_at) | last | .id')
-  br label add -l helix "$B4" >/dev/null
-  br label add -l phase:build "$B4" >/dev/null
+  B4=$(helix tracker create "Implement bin/convert.js per the technical design. Export toFahrenheit(c) and toCelsius(f). Add CLI with --to-celsius and --to-fahrenheit flags, toFixed(1) output. Run npm test — all tests must pass." \
+    --type task --priority 1 --labels helix,phase:build)
 
   echo ""
-  run br list
+  run helix tracker list
   sleep 2
 
   # ── ACT 4: Drain the queue ─────────────────────────────
-  narrate "ACT 4: Execute Beads"
+  narrate "ACT 4: Execute Issues"
 
-  execute_bead "$B1"
+  execute_issue "$B1"
   require_file docs/helix/01-frame/user-stories/US-001-temperature-conversion.md "user story"
   show_file docs/helix/01-frame/user-stories/US-001-temperature-conversion.md
 
-  execute_bead "$B2"
+  execute_issue "$B2"
   require_file docs/helix/02-design/technical-designs/TD-001-temperature-conversion.md "tech design"
   show_file docs/helix/02-design/technical-designs/TD-001-temperature-conversion.md
 
-  execute_bead "$B3"
+  execute_issue "$B3"
   # Ensure package.json exists for npm test
   [[ -f package.json ]] || echo '{"name":"hello-helix","version":"0.1.0","scripts":{"test":"node --test"}}' > package.json
   require_file tests/convert.test.js "tests"
@@ -217,7 +205,7 @@ SETTINGS
   echo ""
   sleep 2
 
-  execute_bead "$B4"
+  execute_issue "$B4"
   show_file bin/convert.js 25
 
   # ── ACT 5: Verify ──────────────────────────────────────
@@ -250,7 +238,7 @@ SETTINGS
   git commit -m "feat: temperature conversion CLI via HELIX" --allow-empty || true
 
   echo ""
-  run br list --all
+  run helix tracker list --all
   sleep 2
 
   # ── ACT 6: Review ──────────────────────────────────────
@@ -265,27 +253,24 @@ SETTINGS
   claude_run "Read tests/convert.test.js and bin/convert.js. List gaps: which error paths have no tests? Which edge cases are untested? Which acceptance criteria lack integration tests? Numbered list, one line each."
 
   echo ""
-  echo "Creating follow-up beads from triage..."
-  run br create "Add CLI integration tests for acceptance criteria" --type task --priority 2
-  run br create "Add error-path tests (missing flag, bad input)" --type task --priority 2
-  run br create "Add edge-case tests (negative temps, -40 crossover)" --type task --priority 3
+  echo "Creating follow-up issues from triage..."
+  run helix tracker create "Add CLI integration tests for acceptance criteria" --type task --priority 2
+  run helix tracker create "Add error-path tests (missing flag, bad input)" --type task --priority 2
+  run helix tracker create "Add edge-case tests (negative temps, -40 crossover)" --type task --priority 3
 
   echo ""
   echo "Final queue:"
-  run br list --all
+  run helix tracker list --all
   sleep 2
 
   # ── ACT 8: Experiment ──────────────────────────────────
   narrate "ACT 8: Experiment"
 
-  echo "Creating an iterate bead for test-runtime optimization..."
+  echo "Creating an iterate issue for test-runtime optimization..."
   echo ""
-  run br create "Optimize test suite startup time — reduce wall-clock time of npm test" \
-    --type task --priority 2
-  B_EXP=$(br list --json | jq -r '[.[] | select(.status == "open")] | sort_by(.created_at) | last | .id')
-  br label add -l helix "$B_EXP" >/dev/null
-  br label add -l phase:iterate "$B_EXP" >/dev/null
-  echo "  Experiment bead: $B_EXP"
+  B_EXP=$(helix tracker create "Optimize test suite startup time — reduce wall-clock time of npm test" \
+    --type task --priority 2 --labels helix,phase:iterate)
+  echo "  Experiment issue: $B_EXP"
   echo ""
   sleep 2
 
@@ -320,7 +305,7 @@ METRIC_DEF
   claude_run <<'EXPERIMENT_PROMPT'
 You are running one experiment iteration to optimize test suite startup time.
 
-Bead: use br to find the open phase:iterate bead and claim it with br update <id> --claim.
+Issue: use helix tracker to find the open phase:iterate issue and claim it with helix tracker update <id> --claim.
 
 Steps:
 1. Create branch experiment/test-runtime
@@ -346,10 +331,10 @@ EXPERIMENT_PROMPT
     sleep 2
   fi
 
-  # Show final bead status
+  # Show final issue status
   echo ""
-  echo "Experiment bead status:"
-  run br show "$B_EXP"
+  echo "Experiment issue status:"
+  run helix tracker show "$B_EXP"
   sleep 2
 
   # Clean up experiment branch
@@ -366,13 +351,13 @@ EXPERIMENT_PROMPT
   echo ""
   echo "What you just saw:"
   echo "  1. One prompt seeded the PRD"
-  echo "  2. Beads defined the work queue"
-  echo "  3. Each bead executed in phase order: story -> design -> tests -> code"
+  echo "  2. Issues defined the work queue"
+  echo "  3. Each issue executed in phase order: story -> design -> tests -> code"
   echo "  4. Tests pass, app runs, acceptance criteria verified"
-  echo "  5. Review found gaps, triage created follow-up beads"
+  echo "  5. Review found gaps, triage created follow-up issues"
   echo "  6. Experiment optimized test runtime with metric-driven iteration"
   echo ""
-  echo "One seed. Beads drive. HELIX delivers."
+  echo "One seed. Issues drive. HELIX delivers."
   echo ""
 }
 

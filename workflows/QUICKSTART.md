@@ -15,7 +15,7 @@ Read these files in order when you need the canonical contract:
 
 1. [README.md](README.md)
 2. [EXECUTION.md](EXECUTION.md)
-3. [BEADS.md](BEADS.md)
+3. [TRACKER.md](TRACKER.md)
 
 Use the bounded action prompts only when you are doing the corresponding work:
 
@@ -27,13 +27,13 @@ Use the bounded action prompts only when you are doing the corresponding work:
 ## Bootstrap A Repo
 
 ```bash
-bd init
+helix tracker init
 scripts/install-local-skills.sh
 ```
 
 Notes:
 
-- `bd init` creates the upstream Beads workspace in `.beads/`.
+- `helix tracker init` creates the tracker workspace in `.helix/`.
 - `scripts/install-local-skills.sh` links the local `helix` wrapper into
   `~/.local/bin/helix`.
 - The wrapper is optional but preferred for operator loops.
@@ -54,25 +54,25 @@ Typical order:
    designs.
 4. Test in `docs/helix/03-test/` and `tests/`
    Write the test plan and failing tests before implementation.
-5. Build in `docs/helix/04-build/` plus upstream `bd`
-   Keep project build guidance in docs and story-level execution work in Beads.
-6. Deploy in `docs/helix/05-deploy/` plus upstream `bd`
-   Keep rollout docs canonical and rollout tasks in Beads.
+5. Build in `docs/helix/04-build/` plus the tracker
+   Keep project build guidance in docs and story-level execution work in the tracker.
+6. Deploy in `docs/helix/05-deploy/` plus the tracker
+   Keep rollout docs canonical and rollout tasks in the tracker.
 7. Iterate in `docs/helix/06-iterate/`
    Capture backlog, lessons, reviews, and next-iteration planning.
 
 ## Create Execution Work
 
-HELIX execution runs through upstream Beads, not HELIX-specific task files.
+HELIX execution runs through the built-in tracker, not HELIX-specific task files.
 
 Build, deploy, and iterate execution work should:
 
-- use native `bd` issues and dependencies
+- use native tracker issues and dependencies
 - carry `helix` plus one phase label
 - cite the governing docs with `spec-id` and/or description
 - stay small enough to close independently
 
-See [BEADS.md](BEADS.md) for the mapping and examples.
+See [TRACKER.md](TRACKER.md) for the mapping and examples.
 
 ## Run The Queue
 
@@ -97,11 +97,11 @@ helix backfill repo
 
 Execution rules:
 
-- Use `implementation` for one ready execution bead at a time.
+- Use `implementation` for one ready execution issue at a time.
 - When the ready queue drains, run `check`.
 - Run alignment only when the plan exists but the next work set is unclear.
 - Run backfill only when the canonical stack is missing or too weak.
-- Do not drive the queue with `bd list --ready`.
+- Do not drive the queue with `helix tracker list --ready`.
 
 ## Minimal Operator Loop
 
@@ -109,7 +109,7 @@ If you are not using `helix run`, use the bounded manual loop from
 [EXECUTION.md](EXECUTION.md):
 
 ```bash
-while [ "$(bd ready --json | jq 'length')" -gt 0 ]; do
+while [ "$(helix tracker ready --json | jq 'length')" -gt 0 ]; do
   helix implement
 done
 
@@ -122,8 +122,8 @@ helix check
   Read [conventions.md](conventions.md) and the relevant phase README.
 - Need queue behavior:
   Read [EXECUTION.md](EXECUTION.md).
-- Need `bd` labels or bead examples:
-  Read [BEADS.md](BEADS.md).
+- Need tracker labels or issue examples:
+  Read [TRACKER.md](TRACKER.md).
 - Need a top-down audit:
   Run alignment with [reconcile-alignment.md](actions/reconcile-alignment.md).
 - Need missing docs reconstructed:

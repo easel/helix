@@ -397,6 +397,101 @@ tracker_status() {
   fi
 }
 
+# ── migrate ────────────────────────────────────────────────────────────
+# Import issues from a legacy beads installation (bd or br).
+# Priority: live bd → live br → .beads/issues.jsonl fallback
+tracker_migrate() {
+  need_cmd jq
+
+  local source="" source_label=""
+  local issues="[]"
+
+  # 1. Try live bd
+  if command -v bd >/dev/null 2>&1 && [[ -d "${target_root:-.}/.beads" ]]; then
+    if issues="$(bd list --json 2>/dev/null)" && [[ -n "$issues" ]] && [[ "$(printf '%s' "$issues" | jq 'length')" -gt 0 ]]; then
+      source="bd"
+      source_label="bd (live Dolt database)"
+    fi
+  fi
+
+  # 2. Try live br
+  if [[ -z "$source" ]] && command -v br >/dev/null 2>&1; then
+    if issues="$(br list --json 2>/dev/null)" && [[ -n "$issues" ]] && [[ "$(printf '%s' "$issues" | jq 'length')" -gt 0 ]]; then
+      source="br"
+      source_label="br (live SQLite database)"
+    fi
+  fi
+
+  # 3. Fall back to JSONL export
+  if [[ -z "$source" ]]; then
+    local legacy_jsonl="${target_root:-.}/.beads/issues.jsonl"
+    if [[ -f "$legacy_jsonl" ]] && [[ -s "$legacy_jsonl" ]]; then
+      issues="$(jq -s '.' "$legacy_jsonl" 2>/dev/null || echo '[]')"
+      if [[ "$(printf '%s' "$issues" | jq 'length')" -gt 0 ]]; then
+        source="jsonl"
+        source_label=".beads/issues.jsonl (may be stale)"
+      fi
+    fi
+  fi
+
+  if [[ -z "$source" ]]; then
+    echo "tracker: no beads data found (tried bd, br, .beads/issues.jsonl)" >&2
+    return 1
+  fi
+
+  local count
+  count="$(printf '%s' "$issues" | jq 'length')"
+  printf 'tracker: found %s issues from %s\n' "$count" "$source_label" >&2
+
+  # Check for existing tracker data
+  tracker_ensure
+  local existing
+  existing="$(tracker_read_all)"
+  local existing_count
+  existing_count="$(printf '%s' "$existing" | jq 'length')"
+
+  if (( existing_count > 0 )); then
+    printf 'tracker: WARNING — .helix/issues.jsonl already has %s issues\n' "$existing_count" >&2
+    printf 'tracker: migration will APPEND, not replace. Duplicates may result.\n' >&2
+    printf 'tracker: to start fresh, remove .helix/issues.jsonl first.\n' >&2
+  fi
+
+  # Normalize each issue to ensure required fields exist
+  local now
+  now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+  local normalized
+  normalized="$(printf '%s' "$issues" | jq -c --arg now "$now" '
+    .[] | {
+      id:          (.id // "hx-unknown"),
+      title:       (.title // "untitled"),
+      type:        (.type // "task"),
+      status:      (.status // "open"),
+      priority:    (.priority // 2),
+      labels:      (if (.labels | type) == "array" then .labels else [] end),
+      parent:      (.parent // ""),
+      "spec-id":   (.["spec-id"] // ""),
+      description: (.description // ""),
+      design:      (.design // ""),
+      acceptance:  (.acceptance // ""),
+      deps:        (if (.deps | type) == "array" then .deps else [] end),
+      assignee:    (.assignee // ""),
+      notes:       (.notes // ""),
+      created:     (.created // $now),
+      updated:     (.updated // $now)
+    }
+  ')"
+
+  # Append to tracker file
+  printf '%s\n' "$normalized" >> "$tracker_file"
+
+  local migrated
+  migrated="$(printf '%s\n' "$normalized" | wc -l)"
+  printf 'tracker: migrated %s issues to .helix/issues.jsonl\n' "$migrated" >&2
+  printf 'tracker: source: %s\n' "$source_label" >&2
+  printf 'tracker: verify with: helix tracker status\n' >&2
+}
+
 # ── CLI dispatch (when called as `helix tracker <cmd>`) ────────────────
 tracker_dispatch() {
   local cmd="${1:-status}"; shift || true
@@ -412,9 +507,10 @@ tracker_dispatch() {
     blocked)  tracker_blocked "$@" ;;
     dep)      tracker_dep "$@" ;;
     status)   tracker_status "$@" ;;
+    migrate)  tracker_migrate "$@" ;;
     *)
       echo "tracker: unknown command: $cmd" >&2
-      echo "tracker: commands: init create show update close list ready blocked dep status" >&2
+      echo "tracker: commands: init create show update close list ready blocked dep status migrate" >&2
       return 1
       ;;
   esac

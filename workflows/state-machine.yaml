@@ -132,7 +132,7 @@ phases:
     artifacts:
       ordered:
         - implementation-plan    # Plan the build
-        - story-implementation-plan  # Emits per-story build beads
+        - story-implementation-plan  # Emits per-story build issues
       parallel:
         - build-procedures       # Build documentation
         - secure-coding          # Security guidelines
@@ -206,8 +206,8 @@ story_flow:
     user_story: US
     technical_design: TD
     test_plan: TP
-    implementation_bead: "bd issue labeled phase:build"
-    deployment_bead: "bd issue labeled phase:deploy"
+    implementation_issue: "helix tracker issue labeled phase:build"
+    deployment_issue: "helix tracker issue labeled phase:deploy"
     iteration_report: IR
 
   transitions:
@@ -218,12 +218,12 @@ story_flow:
       to: TP-{id}
       phase_change: design -> test
     - from: TP-{id}
-      to: "bd issue(s) labeled helix, phase:build, story:US-{id}"
+      to: "tracker issue(s) labeled helix, phase:build, story:US-{id}"
       phase_change: test -> build
-    - from: "bd issue(s) labeled helix, phase:build, story:US-{id}"
-      to: "bd issue(s) labeled helix, phase:deploy, story:US-{id}"
+    - from: "tracker issue(s) labeled helix, phase:build, story:US-{id}"
+      to: "tracker issue(s) labeled helix, phase:deploy, story:US-{id}"
       phase_change: build -> deploy
-    - from: "bd issue(s) labeled helix, phase:deploy, story:US-{id}"
+    - from: "tracker issue(s) labeled helix, phase:deploy, story:US-{id}"
       to: IR-{id}
       phase_change: deploy -> iterate
 
@@ -233,8 +233,8 @@ story_flow:
       If exists US-036: Story is in FRAME
       If exists TD-036: Story is in DESIGN
       If exists TP-036: Story is in TEST
-      If open HELIX build beads exist for story US-036: Story is in BUILD
-      If open HELIX deploy beads exist for story US-036: Story is in DEPLOY
+      If open HELIX build issues exist for story US-036: Story is in BUILD
+      If open HELIX deploy issues exist for story US-036: Story is in DEPLOY
       If exists IR-036: Story is in ITERATE
 
 # Parallelization rules

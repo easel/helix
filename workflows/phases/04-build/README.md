@@ -36,15 +36,15 @@ Technical execution strategy:
 - **Coding Standards**: Conventions and patterns
 - **Integration Points**: How components connect
 - **Resource Planning**: Team assignments and timeline
-- **Build Bead Strategy**: How story-level execution is decomposed into upstream `bd` issues
+- **Build Issue Strategy**: How story-level execution is decomposed into tracker issues
 
-### Story Build Beads
-**Output Location**: upstream Beads workspace in `.beads/` queried through `bd`
+### Story Build Issues
+**Output Location**: `.helix/issues.jsonl` queried through `helix tracker`
 
-Story-level implementation work is tracked as build beads rather than
-per-story markdown plans. Build beads:
+Story-level implementation work is tracked as build issues rather than
+per-story markdown plans. Build issues:
 - reference the user story, technical design, test plan, and build plan
-- use native `bd` issue IDs, dependencies, labels, and ready queues
+- use native tracker issue IDs, dependencies, labels, and ready queues
 - define deterministic implementation steps
 - close independently once verification criteria are met
 
@@ -52,14 +52,14 @@ The canonical execution entry point for ready work is:
 
 ```bash
 helix implement
-helix implement bd-abc123
+helix implement issue-abc123
 helix implement US-042
 ```
 
-This action handles one bead per run: it selects or loads a ready execution
-bead, claims it, validates governing artifacts, performs the scoped work, runs
-required verification, creates follow-on beads when needed, commits with bead
-traceability, closes the bead, and exits.
+This action handles one issue per run: it selects or loads a ready execution
+issue, claims it, validates governing artifacts, performs the scoped work, runs
+required verification, creates follow-on issues when needed, commits with issue
+traceability, closes the issue, and exits.
 
 Use this action as the canonical ready-queue entry point. Use story- or
 feature-specific Build actions only when the work is already explicitly scoped
@@ -391,7 +391,7 @@ By the end of Build phase, you should have:
 Build execution is driven by `helix implement` or `helix run`, following the
 bounded loop defined in `workflows/actions/implementation.md`. Use the
 phase artifacts under `workflows/phases/04-build/artifacts/` when you
-need supporting build documentation or bead guidance.
+need supporting build documentation or issue guidance.
 
 Common entry points:
 - `artifacts/implementation-plan/`

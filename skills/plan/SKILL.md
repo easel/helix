@@ -12,14 +12,14 @@ refinement. Invest deeply in planning quality before any code is written.
 ## When to Use
 
 - Starting a new feature or project
-- Before creating execution beads for a large scope
+- Before creating execution issues for a large scope
 - When existing planning artifacts are thin or incomplete
 - When the implementation path is unclear
 
 ## Steps
 
 1. **Load context** — read all existing planning artifacts (vision, PRD,
-   architecture, designs), current implementation, and bead queue state.
+   architecture, designs), current implementation, and issue queue state.
 
 2. **Draft a comprehensive plan** covering: problem statement, requirements,
    architecture decisions with alternatives, interface contracts, data model,
@@ -38,7 +38,7 @@ refinement. Invest deeply in planning quality before any code is written.
 
 ## After Planning
 
-Run `helix polish` to create and refine beads from the plan, then `helix run`
+Run `helix polish` to create and refine issues from the plan, then `helix run`
 to execute.
 
 ## References

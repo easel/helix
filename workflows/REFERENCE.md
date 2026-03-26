@@ -10,13 +10,13 @@ dun:
 
 - [README.md](README.md): high-level model and authority order
 - [EXECUTION.md](EXECUTION.md): queue control and operator loop
-- [BEADS.md](BEADS.md): upstream `bd` mapping and labels
+- [TRACKER.md](TRACKER.md): built-in tracker mapping and labels
 - [implementation.md](actions/implementation.md): one bounded execution pass
 - [check.md](actions/check.md): queue-drain decision
 - [reconcile-alignment.md](actions/reconcile-alignment.md): top-down review
 - [backfill-helix-docs.md](actions/backfill-helix-docs.md): conservative reconstruction
 - [plan.md](actions/plan.md): iterative design document creation
-- [polish.md](actions/polish.md): bead refinement before implementation
+- [polish.md](actions/polish.md): issue refinement before implementation
 - [fresh-eyes-review.md](actions/fresh-eyes-review.md): post-implementation review
 - [experiment.md](actions/experiment.md): metric-driven optimization iteration
 - [metric-definition.yaml](templates/metric-definition.yaml): shared metric definitions
@@ -29,8 +29,8 @@ dun:
 | `01-frame` | requirements and stories | `docs/helix/01-frame/` |
 | `02-design` | architecture and design contracts | `docs/helix/02-design/` |
 | `03-test` | test plans and failing tests | `docs/helix/03-test/`, `tests/` |
-| `04-build` | project build guidance + execution beads | `docs/helix/04-build/`, `.beads/` |
-| `05-deploy` | rollout docs + deploy beads | `docs/helix/05-deploy/`, `.beads/` |
+| `04-build` | project build guidance + execution issues | `docs/helix/04-build/`, `.helix/` |
+| `05-deploy` | rollout docs + deploy issues | `docs/helix/05-deploy/`, `.helix/` |
 | `06-iterate` | backlog, reports, follow-up planning | `docs/helix/06-iterate/` |
 
 ## Authority Order
@@ -49,7 +49,7 @@ dun:
 ### Bootstrap
 
 ```bash
-bd init
+helix tracker init
 scripts/install-local-skills.sh
 ```
 
@@ -58,7 +58,7 @@ scripts/install-local-skills.sh
 ```bash
 helix run
 helix implement
-helix implement bd-abc123
+helix implement hx-abc123
 helix check repo
 helix align repo
 helix backfill repo
@@ -69,37 +69,37 @@ helix backfill repo
 ```bash
 helix plan [scope]                    # create design document
 helix plan --rounds 8 auth            # more refinement rounds
-helix polish [scope]                  # refine beads before implementation
+helix polish [scope]                  # refine issues before implementation
 helix polish --rounds 10              # more polish rounds
-helix next                            # recommended next bead (uses bv if available)
+helix next                            # recommended next issue (uses bv if available)
 helix review [scope]                  # fresh-eyes review of recent work
 helix spawn                           # launch multi-agent swarm (requires ntm)
 helix spawn --count 3 --stagger 45    # 3 agents, 45s apart
-helix experiment [bead-id|goal]       # one experiment iteration
+helix experiment [issue-id|goal]      # one experiment iteration
 helix experiment --close              # squash-merge and close session
 ```
 
-### Beads
+### Tracker
 
 ```bash
-bd ready --json              # or: br ready --json
-bd update <id> --claim       # or: br update <id> --status in_progress
-bd show <id>                 # or: br show <id>
-bd dep tree <id>             # or: br dep add/remove/list
-bd blocked --json
-bd close <id>                # or: br close <id>
-bd doctor
+helix tracker ready --json
+helix tracker update <id> --claim
+helix tracker show <id>
+helix tracker dep tree <id>
+helix tracker blocked --json
+helix tracker close <id>
+helix tracker status
 ```
 
-See [BEADS.md](BEADS.md) for the full bd/br comparison and setup guidance.
+See [TRACKER.md](TRACKER.md) for full tracker conventions and setup guidance.
 
-## Beads Labeling
+## Tracker Labeling
 
 Labels are organizational conventions for triage and traceability. They are
 not required by the execution loop queue guard.
 
 Recommended labels:
-- `helix` — identifies HELIX-managed beads (recommended, not required by the queue guard).
+- `helix` -- identifies HELIX-managed issues (recommended, not required by the queue guard).
 - Phase labels: `phase:build`, `phase:deploy`, `phase:iterate`, `phase:review`.
 - Kind labels: `kind:build`, `kind:deploy`, `kind:backlog`, `kind:review`.
 - Traceability labels: `story:US-XXX`, `feature:FEAT-XXX`, `area:<name>`, `source:metrics`.
@@ -108,9 +108,9 @@ Recommended labels:
 
 - Starting new work or a large scope:
   run `helix plan`, then `helix polish`, then `helix run`.
-- Ready execution beads exist:
+- Ready execution issues exist:
   run `implementation` or `helix run`.
-- No ready execution bead, but the planning stack exists and next work is
+- No ready execution issue, but the planning stack exists and next work is
   unclear:
   run alignment.
 - Canonical docs are missing or too incomplete to execute safely:
@@ -118,8 +118,8 @@ Recommended labels:
 - Work exists but is blocked or already in progress:
   stop and wait.
 - The queue drains:
-  run `check`, not a blind loop and not `bd list --ready`.
-- After implementing a bead:
+  run `check`, not a blind loop and not `helix tracker list --ready`.
+- After implementing an issue:
   run `helix review` for fresh-eyes quality check.
 
 ## Artifact Inputs

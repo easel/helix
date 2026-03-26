@@ -22,12 +22,12 @@ Rules:
 
 ### 1. Bootstrap
 
-- verify `bd` is available
-- if live `bd` access is missing or unhealthy, stop immediately
+- verify `helix tracker` is available
+- if tracker access is missing or unhealthy, stop immediately
 - create or reconcile one review epic:
   - `type: epic`
   - labels: `helix`, `phase:review`, `kind:review`
-- create or reconcile one child review bead per functional area:
+- create or reconcile one child review issue per functional area:
   - `type: task`
   - parent: review epic
   - labels: `helix`, `phase:review`, `kind:review`, plus area labels
@@ -99,7 +99,7 @@ For each gap include:
 - implementation evidence
 - explanation
 - resolution direction: `code-to-plan`, `plan-to-code`, `decision-needed`, or `quality-improvement`
-- owning review bead
+- owning review issue
 
 #### Quality Evaluation
 
@@ -113,20 +113,20 @@ Write one durable report at:
 
 - `docs/helix/06-iterate/alignment-reviews/AR-YYYY-MM-DD[-scope].md`
 
-### 7. Generate Execution Beads
+### 7. Generate Execution Issues
 
 Only after consolidation:
 
-- create deterministic execution beads for real gaps
+- create deterministic execution issues for real gaps
 - set the closest governing artifact in `spec-id`
-- add blockers with `bd dep add`
-- create doc/design beads before code beads when upstream artifacts must change first
+- add blockers with `helix tracker dep add`
+- create doc/design issues before code issues when upstream artifacts must change first
 
-#### Bead Coverage Verification
+#### Issue Coverage Verification
 
-After creating execution beads, verify every non-ALIGNED gap and every
-UNTESTED/UNIMPLEMENTED acceptance criterion has at least one covering bead.
-Create missing beads before proceeding. The bead set must fully represent the
+After creating execution issues, verify every non-ALIGNED gap and every
+UNTESTED/UNIMPLEMENTED acceptance criterion has at least one covering issue.
+Create missing issues before proceeding. The issue set must fully represent the
 work to reach the end state defined by the planning stack.
 
 ### 8. Output Execution Order

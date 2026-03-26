@@ -33,7 +33,7 @@ doesn't, repeat until converged or interrupted.
    current iteration before changing direction.
 
 4. **Close** — when done, invoke with `--close` to squash-merge the experiment
-   branch, update ratchet floors, and close the bead.
+   branch, update ratchet floors, and close the issue.
 
 ## Constraints
 

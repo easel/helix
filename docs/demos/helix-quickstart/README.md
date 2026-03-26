@@ -5,11 +5,11 @@ tiny Node.js temperature converter CLI.
 
 ## What It Shows
 
-1. **Setup** — init repo, beads tracker, DDx plugin
+1. **Setup** — init repo, tracker, DDx plugin
 2. **Planning Stack** — PRD, user story with acceptance criteria, technical
    design, test plan with failing tests (Red phase)
-3. **Execution** — create a bead, implement to pass the tests (Green phase),
-   close the bead with traceability
+3. **Execution** — create an issue, implement to pass the tests (Green phase),
+   close the issue with traceability
 4. **Alignment** — HELIX check to assess queue health
 
 ## Prerequisites
@@ -67,8 +67,8 @@ asciinema upload recordings/helix-quickstart-*.cast
 exist and contain valid OAuth credentials. Both are bind-mounted read-only
 into the container. Run `claude` locally first to authenticate if needed.
 
-**br not found**: The install script downloads a pre-built binary. If it fails
-in your environment, install manually with `cargo install --git https://github.com/Dicklesworthstone/beads_rust.git`.
+**helix tracker not found**: Ensure the `helix` CLI is installed and available
+on your PATH.
 
 **Tests don't fail in Red phase**: The demo script creates tests before
 implementation. If a previous run left artifacts in the workspace, rebuild

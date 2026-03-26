@@ -16,10 +16,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN pipx install asciinema
 ENV PATH="/root/.local/bin:$PATH"
 
-# Install br (beads_rust) — lightweight SQLite-based issue tracker
-RUN curl -fsSL https://raw.githubusercontent.com/Dicklesworthstone/beads_rust/main/install.sh | bash
-ENV PATH="/root/.local/bin:$PATH"
-
 # Install Claude Code CLI
 RUN npm install -g @anthropic-ai/claude-code
 

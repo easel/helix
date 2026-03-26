@@ -122,13 +122,13 @@ Operational procedures:
 - Emergency contacts
 - Disaster recovery
 
-### Story Deploy Beads
-**Output Location**: upstream Beads workspace in `.beads/` queried through `bd`
+### Story Deploy Issues
+**Output Location**: `.helix/issues.jsonl` queried through `helix tracker`
 
-Story-level rollout work is tracked as deploy beads rather than per-story
-deployment markdown plans. Deploy beads reference the project deployment
-artifacts and the build beads they are rolling out using native `bd` issue IDs,
-dependencies, and labels.
+Story-level rollout work is tracked as deploy issues rather than per-story
+deployment markdown plans. Deploy issues reference the project deployment
+artifacts and the build issues they are rolling out using native tracker issue
+IDs, dependencies, and labels.
 
 ## Artifact Metadata
 
@@ -382,7 +382,7 @@ deploy:
 
 ## Using AI Assistance
 
-Deploy execution is driven by deploy beads through `helix implement` or
+Deploy execution is driven by deploy issues through `helix implement` or
 `helix run`. Use the prompts and templates under
 `workflows/phases/05-deploy/artifacts/` to prepare rollout and
 operational documentation.
