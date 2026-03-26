@@ -682,7 +682,6 @@ test_installer_creates_launcher() {
     helix-polish
     helix-next
     helix-review
-    helix-spawn
     helix-experiment
   )
   local skill
@@ -1048,16 +1047,6 @@ test_next_no_ready_issues() {
   rm -rf "$root"
 }
 
-test_spawn_without_ntm() {
-  local root
-  root="$(make_workspace)"
-
-  local output
-  output="$(run_helix "$root" spawn 2>&1)" || true
-  assert_contains "$output" "ntm not found" "spawn should report ntm absence"
-  rm -rf "$root"
-}
-
 test_help_includes_all_commands() {
   local root
   root="$(make_workspace)"
@@ -1067,7 +1056,6 @@ test_help_includes_all_commands() {
   assert_contains "$output" "helix polish" "help should list polish command"
   assert_contains "$output" "helix next" "help should list next command"
   assert_contains "$output" "helix review" "help should list review command"
-  assert_contains "$output" "helix spawn" "help should list spawn command"
   assert_contains "$output" "helix experiment" "help should list experiment command"
   assert_contains "$output" "helix tracker" "help should list tracker command"
   rm -rf "$root"
@@ -1600,7 +1588,6 @@ run_test "review dry-run" test_review_dry_run
 run_test "review custom scope" test_review_custom_scope
 run_test "next shows ready issue" test_next_shows_ready_issue
 run_test "next no ready issues" test_next_no_ready_issues
-run_test "spawn without ntm" test_spawn_without_ntm
 run_test "help includes all commands" test_help_includes_all_commands
 run_test "experiment dry-run" test_experiment_dry_run
 run_test "experiment requires clean worktree" test_experiment_requires_clean_worktree

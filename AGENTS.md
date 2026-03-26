@@ -24,7 +24,6 @@ helix plan                    # Create design document through iterative refinem
 helix polish                  # Refine issues before implementation
 helix next                    # Show recommended next issue
 helix review                  # Fresh-eyes review of recent work
-helix spawn                   # Launch multi-agent swarm (requires ntm)
 ```
 
 ## HELIX Workflow Notes
@@ -64,7 +63,6 @@ Installed agent skills mirror CLI commands exactly:
 - `helix-polish` <-> `helix polish`
 - `helix-next` <-> `helix next`
 - `helix-review` <-> `helix review`
-- `helix-spawn` <-> `helix spawn`
 - `helix-experiment` <-> `helix experiment`
 
 Rule: public skill names are `helix-<command>`, and `<command>` must match the
@@ -91,7 +89,6 @@ helix align auth
 helix backfill repo
 helix next                            # show recommended next issue
 helix review                          # fresh-eyes review of last commit
-helix spawn --count 3                 # launch multi-agent swarm
 helix experiment hx-abc123            # one experiment iteration
 helix experiment --close              # squash-merge and close session
 helix tracker create "Title" --type task --labels helix,phase:build
@@ -183,12 +180,6 @@ For new features or major work:
 1. `helix plan [scope]` — create comprehensive design document
 2. `helix polish [scope]` — refine issues against the plan
 3. `helix run` — execute the implementation loop
-
-## Swarm Execution (optional)
-
-If `ntm` is installed, `helix spawn [--count N]` launches multiple agents in
-tmux sessions with staggered starts. Agents are fungible — any agent picks any
-issue. Issue claiming via `helix tracker update --claim` provides advisory locking.
 
 ## Metric-Driven Optimization
 

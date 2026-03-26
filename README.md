@@ -47,7 +47,6 @@ helix experiment --close
 | `helix next` | Show recommended next issue |
 | `helix review [scope]` | Fresh-eyes post-implementation review |
 | `helix experiment [issue]` | One metric-optimization iteration |
-| `helix spawn` | Launch multi-agent swarm (requires ntm) |
 
 ## Skills
 
@@ -62,7 +61,6 @@ Installed as local agent skills named to mirror the CLI:
 - `helix-polish` <-> `helix polish`
 - `helix-next` <-> `helix next`
 - `helix-review` <-> `helix review`
-- `helix-spawn` <-> `helix spawn`
 - `helix-experiment` <-> `helix experiment`
 
 The contract is strict: public skill names are `helix-<command>` and must

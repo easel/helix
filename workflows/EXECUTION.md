@@ -262,21 +262,6 @@ helix review src/auth/        # review specific files
 Review findings are advisory for the loop controller unless they produce
 follow-up work or a failing verification result.
 
-## Swarm Execution
-
-`helix spawn` launches multiple agents in tmux sessions via `ntm`:
-
-```bash
-helix spawn                       # 2 agents, 30s stagger (default)
-helix spawn --count 3 --stagger 45  # 3 agents, 45s apart
-```
-
-- Staggered starts (default 30s apart) avoid thundering herd contention
-- All agents share the same tracker
-- Issue claiming via `helix tracker update --claim` provides advisory locking
-- Agents are fungible — any agent picks any issue
-- Graceful fallback to single-agent `helix run` when `ntm` is absent
-
 ## Experiment Loop
 
 `helix experiment` runs a single iteration of a metric-optimization loop for

@@ -76,7 +76,6 @@ install_pair "helix-plan" "$repo_root/skills/plan"
 install_pair "helix-polish" "$repo_root/skills/polish"
 install_pair "helix-next" "$repo_root/skills/next"
 install_pair "helix-review" "$repo_root/skills/review"
-install_pair "helix-spawn" "$repo_root/skills/spawn"
 install_pair "helix-experiment" "$repo_root/skills/experiment"
 
 echo "Installed skills into:"

@@ -50,7 +50,6 @@ Usage:
   helix next
   helix review [--agent codex|claude] [scope]
   helix experiment [--agent codex|claude] [--close] [issue-id|goal]
-  helix spawn [--agent codex|claude] [--count N] [--stagger S]
   helix tracker <command> [args...]
   helix help
 
@@ -65,7 +64,6 @@ Commands:
   next        Show recommended next issue
   review      Fresh-eyes review of recent work
   experiment  Run one experiment iteration for metric-driven optimization
-  spawn       Launch multi-agent swarm (requires ntm)
   tracker     Built-in issue tracker (init, create, show, update, close, list, ready, blocked, dep, status)
 
 Options:
@@ -241,10 +239,6 @@ run_agent_prompt() {
 inline_action() {
   local action_file="$1"
   printf 'Read and follow the action at %s.\n' "$action_file"
-}
-
-has_ntm() {
-  command -v ntm >/dev/null 2>&1
 }
 
 implementation_prompt() {
@@ -548,32 +542,6 @@ run_next() {
   tracker_ready --json | jq -r '.[0].id // "no ready issues"'
 }
 
-run_spawn() {
-  local count="${1:-2}"
-  local stagger="${2:-30}"
-
-  if ! has_ntm; then
-    echo "helix: ntm not found; install it for swarm orchestration" >&2
-    echo "helix: falling back to single-agent helix run" >&2
-    run_loop
-    return
-  fi
-
-  need_cmd tmux
-  require_tracker
-
-  local session_name="helix-$(date +%s)"
-  local i
-  for ((i = 0; i < count; i++)); do
-    if (( i > 0 )); then
-      sleep "$stagger"
-    fi
-    ntm spawn "${session_name}-${i}" -- \
-      bash "$library_root/scripts/helix" run --agent "$agent"
-  done
-  printf 'helix: spawned %d agents with session prefix %s\n' "$count" "$session_name" >&2
-}
-
 recover_prompt() {
   local issue_id="$1"
   local issue_info="$2"
@@ -861,20 +829,6 @@ main() {
       parse_common_flags "$@"
       set -- "${REMAINING_ARGS[@]}"
       run_review "${1:-last-commit}"
-      ;;
-    spawn)
-      parse_common_flags "$@"
-      set -- "${REMAINING_ARGS[@]}"
-      local spawn_count=2
-      local spawn_stagger=30
-      while [[ $# -gt 0 ]]; do
-        case "$1" in
-          --count) spawn_count="$2"; shift 2 ;;
-          --stagger) spawn_stagger="$2"; shift 2 ;;
-          *) break ;;
-        esac
-      done
-      run_spawn "$spawn_count" "$spawn_stagger"
       ;;
     experiment)
       parse_common_flags "$@"

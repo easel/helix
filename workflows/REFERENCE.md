@@ -76,8 +76,6 @@ helix polish [scope]                  # refine issues before implementation
 helix polish --rounds 10              # more polish rounds
 helix next                            # recommended next issue
 helix review [scope]                  # fresh-eyes review of recent work
-helix spawn                           # launch multi-agent swarm (requires ntm)
-helix spawn --count 3 --stagger 45    # 3 agents, 45s apart
 helix experiment [issue-id|goal]      # one experiment iteration
 helix experiment --close              # squash-merge and close session
 ```
