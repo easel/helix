@@ -22,6 +22,7 @@ bash tests/helix-cli.sh
 - issue creation and display
 - dependency-aware ready and blocked queries
 - claim flow setting `in_progress` and assignee
+- claimed work remains owned until it is explicitly released or closed
 - tracker status summary
 
 ### Wrapper Help and Dry-Run Output
@@ -32,19 +33,30 @@ bash tests/helix-cli.sh
 - `plan`, `polish`, `review`, and `experiment` dry-runs include their scoped
   prompt details
 
-### Loop and Queue Control
+### Loop, Queue, and Cycle Control
 
 - `run` stops after the queue drains
 - `run --review-every N` triggers periodic alignment
 - `run` auto-aligns once after `NEXT_ACTION: ALIGN`
 - `run` surfaces alignment failures
-- `run` attempts one unblock implementation pass after `NEXT_ACTION: WAIT`
-- `run --no-auto-unblock` suppresses the unblock attempt
+- `run` treats `NEXT_ACTION: WAIT` as terminal and does not attempt an unblock implementation pass
+- `run` surfaces `NEXT_ACTION: BACKFILL` as a distinct terminal branch rather than collapsing it into `WAIT` or `STOP`
+- `run --max-cycles N` counts successful implementation completions, not failed attempts
+- failed implementation attempts do not advance completed-cycle counters or periodic alignment timing
 
 ### Backfill Contract
 
 - `backfill` fails when `BACKFILL_REPORT` is missing
 - `backfill` succeeds only when the declared report file exists
+
+### Recovery and Review
+
+- orphan recovery does not destroy unrelated worktree changes
+- orphan recovery does not unclaim legitimately active work without sufficient evidence
+- recovery is issue-scoped and non-destructive by default
+- `run` invokes post-implementation review when enabled
+- `REVIEW_STATUS: CLEAN` allows the loop to continue
+- review findings are surfaced and redirect or stop the loop rather than being ignored
 
 ### Utility Commands
 
@@ -67,6 +79,8 @@ bash tests/helix-cli.sh
   agent correctness.
 - The harness does not validate tmux or `ntm` success paths; it only checks the
   no-`ntm` fallback.
+- The harness should be extended if claim leases or heartbeat-based ownership
+  are added to the tracker data model.
 
 ## Evidence
 

@@ -7,7 +7,7 @@ whether there is more actionable work for the given scope, and recommend the
 next HELIX action without inventing work or drifting from the authority stack.
 
 This action is read-only by default. Do not modify product code. Do not claim
-execution beads. Only recommend what should happen next.
+execution issues. Only recommend what should happen next.
 
 ## Action Input
 
@@ -39,12 +39,21 @@ Your first output line must be exactly one of:
 
 Use them precisely:
 
-- `IMPLEMENT`: one or more ready HELIX execution beads exist and should be worked now
-- `ALIGN`: no safe ready execution bead exists, but reconciliation should create or refine the next work set
-- `BACKFILL`: the canonical HELIX stack is too incomplete to continue safely
-- `WAIT`: there is open work, but it is claimed by another agent or blocked by a truly external dependency that code changes cannot resolve
+- `IMPLEMENT`: one or more safe ready HELIX execution issues exist and should be worked now
+- `ALIGN`: the planning stack exists, but no safe ready execution issue exists and a reconciliation pass is likely to expose or refine the next work set
+- `BACKFILL`: the canonical HELIX stack is missing, stale, or contradictory enough that continued execution would be unsafe without reconstructing or repairing the governing docs
+- `WAIT`: there is open work, but it is blocked by claimed work or a truly external dependency that code changes cannot resolve
 - `GUIDANCE`: user or stakeholder input is required before safe work can continue
 - `STOP`: there is no actionable work remaining for the scope right now
+
+Supervisor interpretation:
+
+- `IMPLEMENT` means continue the bounded implementation loop now.
+- `ALIGN` means run `helix align <scope>` once, then re-evaluate the queue.
+- `BACKFILL` means stop implementation and run `helix backfill <scope>` before resuming any execution work.
+- `WAIT` means stop the current loop, do not auto-implement, and wait for the blocker to clear or the scope to change.
+- `GUIDANCE` means stop and request the missing decision from the user or stakeholder.
+- `STOP` means stop because there is no actionable work in scope.
 
 ## Authority Order
 
@@ -65,16 +74,15 @@ Rules:
 - Tests govern build execution but do not override requirements or design.
 - Source code reflects current state but does not redefine the plan.
 - Do not treat open implementation work as proof that the plan is complete.
-- Prefer a real `bd ready` (or `br ready`) view over status-only heuristics such as `bd list --ready`.
+- Prefer a real `helix tracker ready` view over status-only heuristics.
 
 ## PHASE 0 - Bootstrap
 
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
-1. Verify upstream Beads is available.
-   - If live `bd` access is missing or unhealthy, stop immediately.
-   - Do not run `bd init` or infer queue state from alternate tracker sources.
+1. Verify the built-in tracker is available.
+   - If `helix tracker status` fails, stop immediately.
 2. Determine the scope.
 3. Detect whether canonical HELIX docs exist for the scope.
    - check `docs/helix/`
@@ -82,16 +90,16 @@ Rules:
 
 ## PHASE 1 - Queue Health
 
-Inspect the current execution queue using blocker-aware Beads commands.
+Inspect the current execution queue using tracker commands.
 
 At minimum, inspect:
 
-- `bd status --json` for global queue health
-- `bd ready --json` (or `br ready --json`)
-- `bd list --status in_progress --label helix --json` for active claimed work
-- `bd blocked --json` and open HELIX beads for blocked work when relevant
+- `helix tracker status` for global queue health
+- `helix tracker ready --json`
+- `helix tracker list --status in_progress --label helix --json` for active claimed work
+- `helix tracker blocked --json` and open HELIX issues for blocked work when relevant
 
-Do not use review beads as evidence that implementation should continue.
+Do not use review issues as evidence that implementation should continue.
 
 ## PHASE 2 - Artifact Health
 
@@ -102,7 +110,7 @@ Check for:
 - missing or obviously incomplete `docs/helix/` coverage
 - stale or contradictory upstream artifacts
 - recent implementation changes without corresponding planning or test support
-- open execution beads whose governing artifacts are too weak to execute safely
+- open execution issues whose governing artifacts are too weak to execute safely
 - queue starvation caused by missing review, decision, or doc work
 - ratchet status if the project has adopted quality ratchets
   (see `workflows/ratchets.md`): current measured value vs. floor,
@@ -114,24 +122,26 @@ Check for:
 Apply these rules in order:
 
 1. Recommend `IMPLEMENT` when:
-   - one or more safe ready HELIX execution beads exist
+   - one or more safe ready HELIX execution issues exist
 2. Recommend `BACKFILL` when:
-   - the canonical HELIX stack is missing or too incomplete to continue safely
+   - the canonical HELIX stack is missing, stale, or contradictory enough to make safe execution impossible
 3. Recommend `ALIGN` when:
-   - the planning stack exists, but no safe ready execution bead exists and a reconciliation pass is likely to expose or refine the next work
+   - the planning stack exists, but no safe ready execution issue exists and a reconciliation pass is likely to expose or refine the next work
 4. Recommend `IMPLEMENT` (not `WAIT`) when:
-   - work is blocked, but the blocking beads themselves are actionable
+   - work is blocked, but the blocking issues themselves are actionable
      (e.g., config changes, migrations, infrastructure-as-code fixes)
-   - in this case, recommend implementing the blocker bead directly
+   - in this case, recommend implementing the blocker issue directly
 5. Recommend `WAIT` when:
    - work exists, but is claimed by another agent or blocked on a truly
      external dependency that cannot be resolved by code changes (e.g.,
      waiting for a third-party service, hardware provisioning, or human
      approval)
+   - the correct supervisor response is to pause execution, surface the
+     blocker, and retry only after the blocking condition changes
 6. Recommend `GUIDANCE` when:
    - a user or stakeholder decision is the real blocker
 7. Recommend `STOP` when:
-   - there are no ready execution beads
+   - there are no ready execution issues
    - no missing planning work is indicated
    - no blocked or in-progress scope requires action
 
@@ -151,6 +161,9 @@ Provide the exact next command for the recommended action where possible:
 
 For `WAIT`, `GUIDANCE`, or `STOP`, provide the exact reason and the condition
 that would change the result.
+
+For `BACKFILL`, provide the exact backfill command and the missing or
+contradictory artifacts that triggered it.
 
 ## Output Format
 

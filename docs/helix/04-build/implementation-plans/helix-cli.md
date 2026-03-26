@@ -12,15 +12,42 @@
 - Treat `workflows/` action files as the source of truth for delegated action
   behavior.
 
+## Build Sequencing
+
+1. Update the governing HELIX specs first.
+2. Update deterministic tests second.
+3. Update the wrapper and tracker implementation third.
+4. Update user-facing workflow docs last.
+
 ## Build Rules
 
-1. Change command routing, prompts, or loop behavior in `scripts/helix`.
-2. Change tracker storage and queue semantics in `scripts/tracker.sh`.
-3. Change local setup behavior in `scripts/install-local-skills.sh`.
-4. Add or update deterministic tests in `tests/helix-cli.sh` for any wrapper
-   behavior change.
-5. Update user-facing command docs when the CLI surface or safety contract
-   changes.
+1. Change `helix run` command routing, prompts, or loop behavior in
+   `scripts/helix` only after the feature, design, and test plan describe the
+   target contract.
+2. Change tracker storage, ownership metadata, queue semantics, or claim
+   recovery in `scripts/tracker.sh` only when the tracker contract is updated
+   to match.
+3. Add or update deterministic tests in `tests/helix-cli.sh` before or with
+   any wrapper behavior change.
+4. Change local setup behavior in `scripts/install-local-skills.sh` only when
+   launcher or skill installation requirements change.
+5. Update user-facing command docs and workflow docs when the CLI surface,
+   queue contract, or safety contract changes.
+
+## Contract Rules
+
+- `WAIT` is terminal for `helix run` unless the governing spec explicitly says
+  otherwise.
+- `BACKFILL` is handled by stopping the loop and surfacing the exact
+  `helix backfill <scope>` handoff command.
+- Recovery must be non-destructive by default and must not revert unrelated
+  work.
+- Claim ownership must be explicit enough to distinguish active work from a
+  stale claim.
+- Review findings must have a defined effect on loop control, issue state, or
+  follow-on issue creation.
+- Completed-cycle accounting must count successful implementation passes, not
+  failed attempts or recovery-only iterations.
 
 ## Required Validation
 
@@ -43,8 +70,12 @@ git diff --check
 
 - Any change that affects `backfill`, `check`, or `run` should preserve the
   machine-readable contracts consumed by automation.
-- Any change that affects tracker readiness must preserve dependency-aware
-  queue behavior.
+- Any change that affects tracker readiness or ownership must preserve
+  dependency-aware queue behavior and stable claim semantics.
+- Any change that affects recovery must preserve unrelated working tree
+  changes.
+- Any change that affects review handling must keep review findings visible to
+  the loop controller and follow-on issue flow.
 - Any change that affects installation must preserve creation of
   `~/.local/bin/helix`.
 
