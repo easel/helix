@@ -17,6 +17,8 @@ shared library is missing, stop and report an incomplete HELIX package.
 
 - After creating issues from a plan
 - Whenever governing specs or designs change while open issues still exist
+- When HELIX itself changes and the tracker needs to reflect the resulting
+  implementation and verification work precisely
 - Before starting a `helix run` cycle
 - When issue quality is uneven or coverage gaps are suspected
 - After importing issues from another source
@@ -39,6 +41,10 @@ shared library is missing, stop and report an incomplete HELIX package.
    consecutive rounds.
 
 4. **Report** — summarize modifications across rounds.
+
+5. **Preserve executability** — ensure issues are small enough to verify,
+   explicit about governing specs, and ordered so tests and safety work land
+   before behavior changes where required.
 
 ## References
 

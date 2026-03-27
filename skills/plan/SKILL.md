@@ -18,6 +18,8 @@ package.
 - Starting a new feature or project
 - When a functionality change requires new or expanded design authority before
   implementation can continue
+- When changing HELIX itself: workflow contract, tracker semantics, skill
+  behavior, installer behavior, or CLI control rules
 - Before creating execution issues for a large scope
 - When existing planning artifacts are thin or incomplete
 - When the implementation path is unclear
@@ -41,6 +43,10 @@ package.
    two consecutive rounds.
 
 5. **Output the plan** to `docs/helix/02-design/plan-YYYY-MM-DD[-scope].md`.
+
+6. **Capture execution work** — once the intended design is clear enough,
+   create or refine HELIX tracker issues that represent the implementation
+   slices needed to make the design real.
 
 ## After Planning
 
