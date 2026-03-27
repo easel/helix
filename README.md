@@ -50,7 +50,15 @@ helix experiment --close
 
 ## Skills
 
-Installed as local agent skills named to mirror the CLI:
+Installed as local agent skills named to mirror the CLI.
+
+Canonical install path:
+- `~/.agents/skills`
+
+Temporary compatibility mirror:
+- `~/.claude/skills`
+
+Installed skill set:
 
 - `helix-run` <-> `helix run`
 - `helix-implement` <-> `helix implement`

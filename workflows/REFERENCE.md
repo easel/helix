@@ -56,6 +56,9 @@ scripts/install-local-skills.sh
 Installed agent skills mirror CLI commands exactly: `helix-<command>` maps to
 `helix <command>`.
 
+Canonical user install path: `~/.agents/skills`
+Claude compatibility path: `~/.claude/skills`
+
 ### Execution Commands
 
 ```bash

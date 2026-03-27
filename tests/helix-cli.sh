@@ -663,7 +663,7 @@ test_installer_creates_launcher() {
   (
     cd "$repo_root"
     HOME="$root/home" \
-    CODEX_HOME="$root/codex-home" \
+    AGENTS_HOME="$root/agents-home" \
     CLAUDE_HOME="$root/claude-home" \
     bash scripts/install-local-skills.sh >/dev/null
   )
@@ -686,11 +686,11 @@ test_installer_creates_launcher() {
   )
   local skill
   for skill in "${canonical_skills[@]}"; do
-    [[ -L "$root/codex-home/skills/$skill" ]] || fail "installer should link $skill into Codex"
+    [[ -L "$root/agents-home/skills/$skill" ]] || fail "installer should link $skill into .agents"
     [[ -L "$root/claude-home/skills/$skill" ]] || fail "installer should link $skill into Claude"
   done
-  [[ ! -e "$root/codex-home/skills/helix-workflow" ]] || fail "installer should remove legacy skill aliases"
-  [[ ! -e "$root/codex-home/skills/plan-workflow" ]] || fail "installer should remove legacy skill aliases"
+  [[ ! -e "$root/agents-home/skills/helix-workflow" ]] || fail "installer should remove legacy skill aliases"
+  [[ ! -e "$root/agents-home/skills/plan-workflow" ]] || fail "installer should remove legacy skill aliases"
   rm -rf "$root"
 }
 

@@ -76,6 +76,8 @@ This repo now ships a small HELIX wrapper CLI:
 - tracker library: `scripts/tracker.sh`
 - local launcher install: `scripts/install-local-skills.sh`
 - installed command: `~/.local/bin/helix`
+- canonical user skill path: `~/.agents/skills`
+- Claude compatibility path: `~/.claude/skills`
 
 Useful commands:
 

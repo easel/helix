@@ -2,11 +2,11 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-codex_skills_dir="${CODEX_HOME:-$HOME/.codex}/skills"
+agents_skills_dir="${AGENTS_HOME:-$HOME/.agents}/skills"
 claude_skills_dir="${CLAUDE_HOME:-$HOME/.claude}/skills"
 local_bin_dir="$HOME/.local/bin"
 
-mkdir -p "$codex_skills_dir" "$claude_skills_dir" "$local_bin_dir"
+mkdir -p "$agents_skills_dir" "$claude_skills_dir" "$local_bin_dir"
 
 install_link() {
   local src="$1"
@@ -28,7 +28,7 @@ install_link() {
 install_pair() {
   local name="$1"
   local src="$2"
-  install_link "$src" "$codex_skills_dir/$name"
+  install_link "$src" "$agents_skills_dir/$name"
   install_link "$src" "$claude_skills_dir/$name"
 }
 
@@ -61,11 +61,32 @@ remove_noncanonical_links() {
   )
   local name
   for name in "${names[@]}"; do
-    rm -f "$codex_skills_dir/$name" "$claude_skills_dir/$name"
+    rm -f "$agents_skills_dir/$name" "$claude_skills_dir/$name"
+  done
+}
+
+remove_obsolete_native_links() {
+  local codex_skills_dir="${CODEX_HOME:-$HOME/.codex}/skills"
+  local names=(
+    helix-run
+    helix-implement
+    helix-check
+    helix-align
+    helix-backfill
+    helix-plan
+    helix-polish
+    helix-next
+    helix-review
+    helix-experiment
+  )
+  local name
+  for name in "${names[@]}"; do
+    rm -f "$codex_skills_dir/$name"
   done
 }
 
 remove_noncanonical_links
+remove_obsolete_native_links
 
 install_pair "helix-run" "$repo_root/skills/helix"
 install_pair "helix-implement" "$repo_root/skills/execute"
@@ -79,7 +100,7 @@ install_pair "helix-review" "$repo_root/skills/review"
 install_pair "helix-experiment" "$repo_root/skills/experiment"
 
 echo "Installed skills into:"
-echo "  Codex:  $codex_skills_dir"
+echo "  Agents: $agents_skills_dir"
 echo "  Claude: $claude_skills_dir"
 
 chmod +x "$repo_root/scripts/helix"

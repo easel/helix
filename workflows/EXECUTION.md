@@ -169,6 +169,8 @@ scripts/install-local-skills.sh
 ```
 
 That installer now also links `~/.local/bin/helix` to this repo's wrapper.
+It installs mirrored HELIX skills to `~/.agents/skills` and also mirrors them
+to `~/.claude/skills` for Claude compatibility.
 
 Main commands:
 
