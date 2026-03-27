@@ -455,6 +455,18 @@ extract_research_epic() {
   printf '%s\n' "$1" | grep -oE 'RESEARCH_EPIC: *[^ ]+' | head -n1 | sed 's/^RESEARCH_EPIC: *//'
 }
 
+extract_review_status() {
+  local stripped
+  stripped="$(printf '%s\n' "$1" | sed 's/[*`]//g')"
+  printf '%s\n' "$stripped" | grep -oE 'REVIEW_STATUS: *(CLEAN|ISSUES_FOUND)' | head -n1 | sed 's/^REVIEW_STATUS: *//'
+}
+
+extract_review_issues_count() {
+  local stripped
+  stripped="$(printf '%s\n' "$1" | sed 's/[*`]//g')"
+  printf '%s\n' "$stripped" | grep -oE 'ISSUES_COUNT: *[0-9]+' | head -n1 | sed 's/^ISSUES_COUNT: *//'
+}
+
 parse_common_flags() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -588,7 +600,41 @@ run_polish() {
 run_review() {
   local scope="${1:-last-commit}"
   local in_loop="${2:-0}"
-  run_agent_prompt "$(review_prompt "$scope" "$in_loop")"
+  if (( dry_run )); then
+    run_agent_prompt "$(review_prompt "$scope" "$in_loop")"
+    return 0
+  fi
+
+  local output
+  output="$(run_agent_prompt "$(review_prompt "$scope" "$in_loop")")"
+  printf '%s\n' "$output"
+
+  local status
+  status="$(extract_review_status "$output" || true)"
+  if [[ -z "$status" ]]; then
+    echo "helix: review output missing REVIEW_STATUS trailer" >&2
+    return 1
+  fi
+
+  case "$status" in
+    CLEAN)
+      return 0
+      ;;
+    ISSUES_FOUND)
+      local issues_count
+      issues_count="$(extract_review_issues_count "$output" || true)"
+      if [[ -z "$issues_count" ]]; then
+        echo "helix: review output missing ISSUES_COUNT trailer" >&2
+        return 1
+      fi
+      printf 'helix: review reported %s actionable issue(s)\n' "$issues_count" >&2
+      return 10
+      ;;
+    *)
+      echo "helix: unknown REVIEW_STATUS: $status" >&2
+      return 1
+      ;;
+  esac
 }
 
 run_next() {
@@ -723,19 +769,29 @@ run_loop() {
           return 0
         fi
 
-        local review_ok=1
         # Post-implementation review: catch bugs and capture learnings
         if (( auto_review )); then
           printf 'helix: post-implementation review after cycle %s\n' "$attempt_number" >&2
-          if ! run_review last-commit 1; then
-            printf 'helix: review failed after cycle %s (continuing)\n' "$attempt_number" >&2
-            review_ok=0
+          if run_review last-commit 1; then
+            :
+          else
+            local review_status="$?"
+            case "$review_status" in
+              10)
+                printf 'helix: stopping after actionable review findings in cycle %s\n' "$attempt_number" >&2
+                return 0
+                ;;
+              *)
+                printf 'helix: review output was not safely interpretable after cycle %s\n' "$attempt_number" >&2
+                return 1
+                ;;
+            esac
           fi
         fi
 
         local closed_after
         closed_after="$(tracker_list --status closed --json | jq 'length')"
-        if (( closed_after > closed_before )) && (( review_ok )); then
+        if (( closed_after > closed_before )); then
           completed_cycles=$((completed_cycles + 1))
         else
           printf 'helix: cycle %s did not complete a tracked issue; completed cycles remain %s\n' "$attempt_number" "$completed_cycles" >&2

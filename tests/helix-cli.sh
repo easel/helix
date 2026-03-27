@@ -1639,6 +1639,100 @@ MOCK
   rm -rf "$root"
 }
 
+test_run_stops_on_review_findings() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+  printf 'STOP\n' > "$root/state/next-actions"
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    if [[ -f .helix/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
+      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *"fresh-eyes review"*)
+    record review
+    echo "REVIEW_STATUS: ISSUES_FOUND"
+    echo "ISSUES_COUNT: 2"
+    echo "AGENTS_MD_UPDATED: NO"
+    echo "LEARNINGS_FILED: 1"
+    ;;
+  *"check action"*)
+    record check
+    echo "NEXT_ACTION: STOP"
+    ;;
+  *) record other; echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  output="$(run_helix "$root" run 2>&1)"
+
+  local calls
+  calls="$(cat "$root/state/calls.log")"
+  assert_eq $'implement\nreview' "$calls" "run should stop before check when review finds issues"
+  assert_contains "$output" "review reported 2 actionable issue(s)" "run should surface review findings count"
+  assert_contains "$output" "stopping after actionable review findings" "run should stop after actionable review findings"
+  rm -rf "$root"
+}
+
+test_run_fails_on_unparseable_review_output() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    if [[ -f .helix/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
+      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *"fresh-eyes review"*)
+    record review
+    echo "review complete without trailer"
+    ;;
+  *"check action"*)
+    record check
+    echo "NEXT_ACTION: STOP"
+    ;;
+  *) record other; echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  if output="$(run_helix "$root" run 2>&1)"; then
+    fail "run should fail when review output cannot be interpreted safely"
+  fi
+
+  local calls
+  calls="$(cat "$root/state/calls.log")"
+  assert_eq $'implement\nreview' "$calls" "run should stop before check on malformed review output"
+  assert_contains "$output" "review output missing REVIEW_STATUS trailer" "run should require REVIEW_STATUS"
+  assert_contains "$output" "review output was not safely interpretable" "run should explain the failure"
+  rm -rf "$root"
+}
+
 # ── Extended tracker tests ─────────────────────────────────────────
 
 test_tracker_create_requires_title() {
@@ -2204,6 +2298,8 @@ run_test "tracker export stdout roundtrip" test_tracker_export_stdout_roundtrip
 # Auto-review in loop tests
 run_test "run auto-reviews after implement" test_run_auto_reviews_after_implement
 run_test "run no-auto-review flag" test_run_no_auto_review_flag
+run_test "run stops on review findings" test_run_stops_on_review_findings
+run_test "run fails on unparseable review output" test_run_fails_on_unparseable_review_output
 
 # CLI integration tests
 run_test "help" test_help
