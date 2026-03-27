@@ -23,8 +23,11 @@ bash tests/helix-cli.sh
 - dependency-aware ready and blocked queries
 - claim flow setting `in_progress` and assignee
 - claimed work remains owned until it is explicitly released or closed
+- tracker update coverage for execution metadata fields including
+  `execution-eligible`, `superseded-by`, and `replaces`
 - tracker status summary
 - lock timeout reports the recorded owner and fails closed
+- execution-safe ready queries exclude refinement and superseded work
 
 ### Wrapper Help and Dry-Run Output
 
@@ -50,6 +53,8 @@ bash tests/helix-cli.sh
   drift is possible
 - interactive refinement during a live run is surfaced as queue drift rather
   than stale claim/close behavior
+- supersession detected during a live run is surfaced as queue drift and blocks
+  a stale close
 
 ### Backfill Contract
 
@@ -95,5 +100,7 @@ bash tests/helix-cli.sh
 - `tests/helix-cli.sh:650-775`
 - `tests/helix-cli.sh:808-937`
 - `tests/helix-cli.sh:978-1010`
+- `tests/helix-cli.sh:1009-1041`
+- `tests/helix-cli.sh:1945-2014`
 - `workflows/EXECUTION.md:185-203`
 - `workflows/REFERENCE.md:149-154`
