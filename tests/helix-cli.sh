@@ -300,7 +300,41 @@ case "$payload" in
 esac
 EOF
 
-  chmod +x "$root/bin/codex" "$root/bin/claude"
+  cat >"$root/bin/bd" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ "${1:-}" != "list" ]] || [[ "${2:-}" != "--json" ]]; then
+  echo "mock bd only supports: bd list --json" >&2
+  exit 1
+fi
+
+if [[ "${MOCK_BD_FAIL:-0}" == "1" ]]; then
+  echo "mock bd failure" >&2
+  exit 1
+fi
+
+printf '%s\n' "${MOCK_BD_LIST_JSON:-[]}"
+EOF
+
+  cat >"$root/bin/br" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ "${1:-}" != "list" ]] || [[ "${2:-}" != "--json" ]]; then
+  echo "mock br only supports: br list --json" >&2
+  exit 1
+fi
+
+if [[ "${MOCK_BR_FAIL:-0}" == "1" ]]; then
+  echo "mock br failure" >&2
+  exit 1
+fi
+
+printf '%s\n' "${MOCK_BR_LIST_JSON:-[]}"
+EOF
+
+  chmod +x "$root/bin/codex" "$root/bin/claude" "$root/bin/bd" "$root/bin/br"
 }
 
 make_workspace() {
@@ -349,6 +383,51 @@ run_helix() {
     MOCK_STATE_ROOT="$root/state" \
     HELIX_LIBRARY_ROOT="$repo_root/workflows" \
     bash "$repo_root/scripts/helix" "$cmd" --quiet "$@"
+  )
+}
+
+run_helix_with_env() {
+  local root="$1"
+  local env_name="$2"
+  local env_value="$3"
+  shift 3
+  local cmd="${1:-help}"
+  shift || true
+  (
+    cd "$root/work"
+    env \
+      HOME="$root/home" \
+      PATH="$root/bin:$PATH" \
+      MOCK_STATE_ROOT="$root/state" \
+      HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+      "$env_name=$env_value" \
+      bash "$repo_root/scripts/helix" "$cmd" --quiet "$@"
+  )
+}
+
+run_helix_with_envs() {
+  local root="$1"
+  shift
+  local env_args=()
+  while [[ $# -gt 0 ]] && [[ "$1" != "--" ]]; do
+    env_args+=("$1")
+    shift
+  done
+  if [[ "${1:-}" != "--" ]]; then
+    fail "run_helix_with_envs requires -- before command arguments"
+  fi
+  shift
+  local cmd="${1:-help}"
+  shift || true
+  (
+    cd "$root/work"
+    env \
+      HOME="$root/home" \
+      PATH="$root/bin:$PATH" \
+      MOCK_STATE_ROOT="$root/state" \
+      HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+      "${env_args[@]}" \
+      bash "$repo_root/scripts/helix" "$cmd" --quiet "$@"
   )
 }
 
@@ -1390,6 +1469,19 @@ test_tracker_json_output() {
   rm -rf "$root"
 }
 
+test_tracker_create_with_deps() {
+  local root
+  root="$(make_workspace)"
+  local parent child
+  parent="$(run_helix "$root" tracker create "Parent issue")"
+  child="$(run_helix "$root" tracker create "Child issue" --deps "$parent")"
+
+  local dep_id
+  dep_id="$(run_helix "$root" tracker show "$child" --json | jq -r '.deps[0]')"
+  assert_eq "$parent" "$dep_id" "create --deps should seed dependencies"
+  rm -rf "$root"
+}
+
 test_tracker_status_json() {
   local root
   root="$(make_workspace)"
@@ -1428,9 +1520,51 @@ test_tracker_empty_ready() {
   rm -rf "$root"
 }
 
+test_tracker_serializes_concurrent_writes() {
+  local root
+  root="$(make_workspace)"
+
+  run_helix_with_env "$root" HELIX_TRACKER_TEST_HOLD_LOCK_SEC 0.3 tracker create "First concurrent issue" >/dev/null &
+  local first_pid=$!
+
+  sleep 0.05
+
+  local second_id
+  second_id="$(run_helix "$root" tracker create "Second concurrent issue")"
+  wait "$first_pid"
+
+  local count
+  count="$(run_helix "$root" tracker list --json | jq 'length')"
+  assert_eq "2" "$count" "concurrent creates should both persist"
+
+  local second_title
+  second_title="$(run_helix "$root" tracker show "$second_id" --json | jq -r '.title')"
+  assert_eq "Second concurrent issue" "$second_title" "second writer should succeed after waiting for the lock"
+  rm -rf "$root"
+}
+
+test_tracker_lock_timeout_reports_owner() {
+  local root
+  root="$(make_workspace)"
+
+  mkdir -p "$root/work/.helix/issues.lock"
+  printf '424242\n' > "$root/work/.helix/issues.lock/pid"
+  printf '2099-01-01T00:00:00Z\n' > "$root/work/.helix/issues.lock/acquired_at"
+
+  local output
+  output="$(run_helix_with_env "$root" HELIX_TRACKER_LOCK_TIMEOUT 0 tracker create "Blocked by lock" 2>&1 || true)"
+  assert_contains "$output" "timed out waiting for tracker lock" "lock timeout should be reported"
+  assert_contains "$output" "owner: 424242" "lock timeout should report the recorded lock owner"
+
+  local count
+  count="$(run_helix "$root" tracker list --json | jq 'length')"
+  assert_eq "0" "$count" "timed out mutation should not create partial tracker state"
+  rm -rf "$root"
+}
+
 # ── Migration tests ───────────────────────────────────────────────
 
-test_migrate_from_jsonl() {
+test_tracker_import_from_jsonl() {
   local root
   root="$(make_workspace)"
 
@@ -1442,42 +1576,42 @@ test_migrate_from_jsonl() {
 LEGACY
 
   local output
-  output="$(run_helix "$root" tracker migrate 2>&1)"
-  assert_contains "$output" "found 2 issues" "migrate should find issues"
-  assert_contains "$output" "migrated 2 issues" "migrate should report count"
-  assert_contains "$output" "may be stale" "JSONL fallback should warn about staleness"
+  output="$(run_helix "$root" tracker import --from jsonl 2>&1)"
+  assert_contains "$output" "found 2 issues" "import should find issues"
+  assert_contains "$output" "imported 2 beads" "import should report count"
+  assert_contains "$output" ".beads/issues.jsonl" "import should report the JSONL source"
 
   # Verify data is accessible
   local count
   count="$(run_helix "$root" tracker list --json | jq 'length')"
-  assert_eq "2" "$count" "migrated tracker should have 2 issues"
+  assert_eq "2" "$count" "imported tracker should have 2 issues"
 
   # Verify IDs are preserved
   local title
   title="$(run_helix "$root" tracker show bd-aaa111 --json | jq -r '.title')"
-  assert_eq "Legacy task one" "$title" "migrated issue should preserve title"
+  assert_eq "Legacy task one" "$title" "imported issue should preserve title"
 
   # Verify deps are preserved
   local deps
   deps="$(run_helix "$root" tracker show bd-bbb222 --json | jq -r '.deps[0]')"
-  assert_eq "bd-aaa111" "$deps" "migrated issue should preserve deps"
+  assert_eq "bd-aaa111" "$deps" "imported issue should preserve deps"
 
   # Verify labels are preserved
   local label
   label="$(run_helix "$root" tracker show bd-aaa111 --json | jq -r '.labels[1]')"
-  assert_eq "phase:build" "$label" "migrated issue should preserve labels"
+  assert_eq "phase:build" "$label" "imported issue should preserve labels"
   rm -rf "$root"
 }
 
-test_migrate_no_source() {
+test_tracker_import_no_source() {
   local root
   root="$(make_workspace)"
   # No .beads/ directory, no bd, no br
-  assert_fails "migrate with no source should fail" run_helix "$root" tracker migrate 2>/dev/null
+  assert_fails "import with no source should fail" run_helix "$root" tracker import 2>/dev/null
   rm -rf "$root"
 }
 
-test_migrate_warns_existing_data() {
+test_tracker_import_warns_existing_data() {
   local root
   root="$(make_workspace)"
 
@@ -1490,18 +1624,18 @@ test_migrate_warns_existing_data() {
     >"$root/work/.beads/issues.jsonl"
 
   local output
-  output="$(run_helix "$root" tracker migrate 2>&1)"
-  assert_contains "$output" "WARNING" "migrate should warn about existing data"
-  assert_contains "$output" "already has 1 issues" "migrate should report existing count"
+  output="$(run_helix "$root" tracker import --from jsonl 2>&1)"
+  assert_contains "$output" "WARNING" "import should warn about existing data"
+  assert_contains "$output" "already has 1 issues" "import should report existing count"
 
   # Verify both old and new data exist
   local count
   count="$(run_helix "$root" tracker list --json | jq 'length')"
-  assert_eq "2" "$count" "migrate should append to existing data"
+  assert_eq "2" "$count" "import should append to existing data"
   rm -rf "$root"
 }
 
-test_migrate_normalizes_missing_fields() {
+test_tracker_import_normalizes_missing_fields() {
   local root
   root="$(make_workspace)"
 
@@ -1510,16 +1644,103 @@ test_migrate_normalizes_missing_fields() {
   printf '{"id":"bd-sparse","title":"Sparse issue"}\n' \
     >"$root/work/.beads/issues.jsonl"
 
-  run_helix "$root" tracker migrate 2>/dev/null
+  run_helix "$root" tracker import --from jsonl 2>/dev/null
 
   # Verify defaults were applied
   local json
   json="$(run_helix "$root" tracker show bd-sparse --json)"
-  assert_eq "task" "$(printf '%s' "$json" | jq -r '.type')" "migrate should default type to task"
-  assert_eq "open" "$(printf '%s' "$json" | jq -r '.status')" "migrate should default status to open"
-  assert_eq "2" "$(printf '%s' "$json" | jq '.priority')" "migrate should default priority to 2"
-  assert_eq "0" "$(printf '%s' "$json" | jq '.deps | length')" "migrate should default deps to empty"
-  assert_eq "0" "$(printf '%s' "$json" | jq '.labels | length')" "migrate should default labels to empty"
+  assert_eq "task" "$(printf '%s' "$json" | jq -r '.type')" "import should default type to task"
+  assert_eq "open" "$(printf '%s' "$json" | jq -r '.status')" "import should default status to open"
+  assert_eq "2" "$(printf '%s' "$json" | jq '.priority')" "import should default priority to 2"
+  assert_eq "0" "$(printf '%s' "$json" | jq '.deps | length')" "import should default deps to empty"
+  assert_eq "0" "$(printf '%s' "$json" | jq '.labels | length')" "import should default labels to empty"
+  rm -rf "$root"
+}
+
+test_tracker_import_from_bd() {
+  local root
+  root="$(make_workspace)"
+  mkdir -p "$root/work/.beads"
+
+  local output
+  output="$(run_helix_with_envs "$root" \
+    MOCK_BD_LIST_JSON='[{"id":"bd-live","title":"From bd","type":"task","status":"open","priority":1,"labels":["helix","phase:build"],"deps":[]}]' \
+    -- tracker import --from bd 2>&1)"
+  assert_contains "$output" "bd (live Dolt database)" "import should report bd as the source"
+
+  local title
+  title="$(run_helix "$root" tracker show bd-live --json | jq -r '.title')"
+  assert_eq "From bd" "$title" "bd import should populate canonical storage"
+  rm -rf "$root"
+}
+
+test_tracker_import_from_br() {
+  local root
+  root="$(make_workspace)"
+
+  local output
+  output="$(run_helix_with_envs "$root" \
+    MOCK_BR_LIST_JSON='[{"id":"br-live","title":"From br","type":"bug","status":"closed","priority":0,"labels":["helix"],"deps":[]}]' \
+    -- tracker import --from br 2>&1)"
+  assert_contains "$output" "br (live SQLite database)" "import should report br as the source"
+
+  local status
+  status="$(run_helix "$root" tracker show br-live --json | jq -r '.status')"
+  assert_eq "closed" "$status" "br import should preserve issue state"
+  rm -rf "$root"
+}
+
+test_tracker_migrate_aliases_import() {
+  local root
+  root="$(make_workspace)"
+  mkdir -p "$root/work/.beads"
+  printf '{"id":"bd-alias","title":"Alias issue","type":"task","status":"open","priority":2,"labels":[],"deps":[]}\n' \
+    >"$root/work/.beads/issues.jsonl"
+
+  local output
+  output="$(run_helix "$root" tracker migrate 2>&1)"
+  assert_contains "$output" "imported 1 beads" "migrate should remain an import alias"
+  rm -rf "$root"
+}
+
+test_tracker_export_writes_beads_jsonl() {
+  local root
+  root="$(make_workspace)"
+  local id
+  id="$(run_helix "$root" tracker create "Export me" --type bug --labels helix,area:cli)"
+  run_helix "$root" tracker update "$id" --claim >/dev/null
+
+  local export_path
+  export_path="$(run_helix "$root" tracker export)"
+  local export_file="$export_path"
+  if [[ "$export_file" != /* ]]; then
+    export_file="$root/work/$export_file"
+  fi
+  [[ -f "$export_file" ]] || fail "export should write bead JSONL"
+
+  local exported_json
+  exported_json="$(jq -s '.' "$export_file")"
+  assert_eq "$id" "$(printf '%s' "$exported_json" | jq -r '.[0].id')" "export should preserve ids"
+  assert_eq "in_progress" "$(printf '%s' "$exported_json" | jq -r '.[0].status')" "export should preserve status"
+  assert_eq "helix" "$(printf '%s' "$exported_json" | jq -r '.[0].assignee')" "export should preserve assignee"
+  rm -rf "$root"
+}
+
+test_tracker_export_stdout_roundtrip() {
+  local root
+  root="$(make_workspace)"
+  run_helix "$root" tracker create "Round trip A" >/dev/null
+  run_helix "$root" tracker create "Round trip B" --labels helix >/dev/null
+
+  mkdir -p "$root/work/tmp"
+  run_helix "$root" tracker export --stdout > "$root/work/tmp/export.jsonl"
+  rm -f "$root/work/.helix/issues.jsonl"
+
+  run_helix "$root" tracker import --from jsonl --file tmp/export.jsonl >/dev/null
+
+  local count
+  count="$(run_helix "$root" tracker list --json | jq 'length')"
+  assert_eq "2" "$count" "exported beads JSONL should round-trip back into canonical storage"
   rm -rf "$root"
 }
 
@@ -1547,16 +1768,24 @@ run_test "tracker dep add and remove" test_tracker_dep_add_and_remove
 run_test "tracker dep tree" test_tracker_dep_tree
 run_test "tracker unique IDs" test_tracker_unique_ids
 run_test "tracker JSON output" test_tracker_json_output
+run_test "tracker create with deps" test_tracker_create_with_deps
 run_test "tracker status JSON" test_tracker_status_json
 run_test "tracker status" test_tracker_status
 run_test "tracker in_progress not ready" test_tracker_in_progress_not_ready
 run_test "tracker empty ready" test_tracker_empty_ready
+run_test "tracker serializes concurrent writes" test_tracker_serializes_concurrent_writes
+run_test "tracker lock timeout reports owner" test_tracker_lock_timeout_reports_owner
 
-# Migration tests
-run_test "migrate from JSONL" test_migrate_from_jsonl
-run_test "migrate no source" test_migrate_no_source
-run_test "migrate warns existing data" test_migrate_warns_existing_data
-run_test "migrate normalizes missing fields" test_migrate_normalizes_missing_fields
+# Beads interop tests
+run_test "tracker import from JSONL" test_tracker_import_from_jsonl
+run_test "tracker import no source" test_tracker_import_no_source
+run_test "tracker import warns existing data" test_tracker_import_warns_existing_data
+run_test "tracker import normalizes missing fields" test_tracker_import_normalizes_missing_fields
+run_test "tracker import from bd" test_tracker_import_from_bd
+run_test "tracker import from br" test_tracker_import_from_br
+run_test "tracker migrate aliases import" test_tracker_migrate_aliases_import
+run_test "tracker export writes beads JSONL" test_tracker_export_writes_beads_jsonl
+run_test "tracker export stdout roundtrip" test_tracker_export_stdout_roundtrip
 
 # Auto-review in loop tests
 run_test "run auto-reviews after implement" test_run_auto_reviews_after_implement

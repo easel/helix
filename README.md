@@ -76,8 +76,10 @@ mirror the CLI subcommand exactly.
 
 ## Tracker
 
-HELIX uses a built-in JSONL tracker for execution tracking. Issues are stored
-in `.helix/issues.jsonl`. Run `helix tracker` to manage issues.
+HELIX uses a built-in file-backed bead tracker for execution tracking.
+Canonical issues live in `.helix/issues.jsonl`. Run `helix tracker` to manage
+issues, `helix tracker import` to pull beads in from `bd`/`br` or JSONL, and
+`helix tracker export` to write bead-compatible JSONL for interop.
 
 ## Documentation
 

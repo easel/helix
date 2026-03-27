@@ -64,7 +64,7 @@ Commands:
   next        Show recommended next issue
   review      Fresh-eyes review of recent work
   experiment  Run one experiment iteration for metric-driven optimization
-  tracker     Built-in issue tracker (init, create, show, update, close, list, ready, blocked, dep, status)
+  tracker     Built-in bead tracker (init, create, show, update, close, list, ready, blocked, dep, status, import, export)
 
 Options:
   --agent           Agent to use: codex or claude (default: ${agent})

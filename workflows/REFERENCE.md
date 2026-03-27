@@ -10,7 +10,7 @@ dun:
 
 - [README.md](README.md): high-level model and authority order
 - [EXECUTION.md](EXECUTION.md): queue control and operator loop
-- [TRACKER.md](TRACKER.md): built-in tracker mapping and labels
+- [TRACKER.md](TRACKER.md): built-in bead tracker mapping, backend contract, and labels
 - [implementation.md](actions/implementation.md): one bounded execution pass
 - [check.md](actions/check.md): queue-drain decision
 - [reconcile-alignment.md](actions/reconcile-alignment.md): top-down review
@@ -93,6 +93,8 @@ helix tracker dep tree <id>
 helix tracker blocked --json
 helix tracker close <id>
 helix tracker status
+helix tracker import --from jsonl --file .beads/issues.jsonl
+helix tracker export
 ```
 
 See [TRACKER.md](TRACKER.md) for full tracker conventions and setup guidance.
