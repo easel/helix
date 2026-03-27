@@ -18,6 +18,7 @@ helix tracker update <id> --claim  # Claim work
 helix tracker close <id>      # Complete work
 helix tracker status          # Check tracker health
 bash tests/helix-cli.sh       # Deterministic HELIX wrapper tests
+bash tests/validate-skills.sh # Deterministic HELIX skill package validation
 helix run                     # Run bounded HELIX execution loop
 helix check                   # Decide next HELIX action
 helix plan                    # Create design document through iterative refinement
@@ -67,6 +68,9 @@ Installed agent skills mirror CLI commands exactly:
 
 Rule: public skill names are `helix-<command>`, and `<command>` must match the
 CLI subcommand exactly.
+Published `SKILL.md` files must declare `name` and `description`; add
+`argument-hint` when the mirrored CLI command accepts a trailing positional
+argument such as a scope, selector, issue ID, or goal.
 
 ## HELIX CLI
 
@@ -121,10 +125,18 @@ If you change any of the following, run the HELIX wrapper harness:
 - `workflows/EXECUTION.md`
 - other docs that materially change the HELIX execution contract
 
+If you change published skill packaging or metadata, also run the skill package
+validator:
+
+- `skills/*/SKILL.md`
+- `.agents/skills`
+- docs that change the HELIX skill packaging contract
+
 Required checks:
 
 ```bash
 bash tests/helix-cli.sh
+bash tests/validate-skills.sh
 git diff --check
 ```
 
