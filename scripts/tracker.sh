@@ -674,11 +674,39 @@ tracker_migrate() {
   tracker_import "$@"
 }
 
+tracker_usage() {
+  cat <<EOF
+Usage:
+  helix tracker init
+  helix tracker create "Title" [--type TYPE] [--labels a,b] [--deps id1,id2] [--parent ID] [--spec-id REF]
+  helix tracker show <id> [--json]
+  helix tracker update <id> [--status S] [--title T] [--assignee A] [--priority N] [--labels a,b] [--claim]
+  helix tracker close <id>
+  helix tracker list [--status S] [--label L] [--json]
+  helix tracker ready [--json]
+  helix tracker blocked [--json]
+  helix tracker dep add <child> <parent>
+  helix tracker dep remove <child> <parent>
+  helix tracker dep tree <id>
+  helix tracker status [--json]
+  helix tracker import [--from auto|bd|br|jsonl] [--file PATH]
+  helix tracker export [--to jsonl] [--file PATH] [--stdout]
+  helix tracker migrate [args...]
+  helix tracker help
+
+Notes:
+  Canonical storage is .helix/issues.jsonl.
+  Export writes bead-compatible JSONL.
+  Migrate is a compatibility alias for import.
+EOF
+}
+
 # ── CLI dispatch (when called as `helix tracker <cmd>`) ────────────────
 tracker_dispatch() {
   local cmd="${1:-status}"; shift || true
 
   case "$cmd" in
+    help|--help|-h) tracker_usage ;;
     init)     tracker_init ;;
     create)   tracker_create "$@" ;;
     show)     tracker_show "$@" ;;
@@ -694,7 +722,7 @@ tracker_dispatch() {
     migrate)  tracker_migrate "$@" ;;
     *)
       echo "tracker: unknown command: $cmd" >&2
-      echo "tracker: commands: init create show update close list ready blocked dep status import export migrate" >&2
+      tracker_usage >&2
       return 1
       ;;
   esac

@@ -516,6 +516,18 @@ test_help() {
   rm -rf "$root"
 }
 
+test_tracker_help() {
+  local root
+  root="$(make_workspace)"
+  local output
+  output="$(run_helix "$root" tracker help)"
+  assert_contains "$output" "helix tracker create" "tracker help should list create"
+  assert_contains "$output" "helix tracker import" "tracker help should list import"
+  assert_contains "$output" "helix tracker export" "tracker help should list export"
+  assert_contains "$output" "Canonical storage is .helix/issues.jsonl" "tracker help should describe canonical storage"
+  rm -rf "$root"
+}
+
 test_check_dry_run() {
   local root
   root="$(make_workspace)"
@@ -1793,6 +1805,7 @@ run_test "run no-auto-review flag" test_run_no_auto_review_flag
 
 # CLI integration tests
 run_test "help" test_help
+run_test "tracker help" test_tracker_help
 run_test "check dry-run" test_check_dry_run
 run_test "backfill dry-run" test_backfill_dry_run
 run_test "run stops after drain" test_run_stops_after_queue_drains
