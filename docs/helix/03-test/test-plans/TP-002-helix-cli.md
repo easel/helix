@@ -24,6 +24,7 @@ bash tests/helix-cli.sh
 - claim flow setting `in_progress` and assignee
 - claimed work remains owned until it is explicitly released or closed
 - tracker status summary
+- lock timeout reports the recorded owner and fails closed
 
 ### Wrapper Help and Dry-Run Output
 
@@ -43,6 +44,10 @@ bash tests/helix-cli.sh
 - `run` surfaces `NEXT_ACTION: BACKFILL` as a distinct terminal branch rather than collapsing it into `WAIT` or `STOP`
 - `run --max-cycles N` counts successful implementation completions, not failed attempts
 - failed implementation attempts do not advance completed-cycle counters or periodic alignment timing
+- `run` revalidates selected work before claim and before close when queue
+  drift is possible
+- interactive refinement during a live run is surfaced as queue drift rather
+  than stale claim/close behavior
 
 ### Backfill Contract
 
@@ -78,6 +83,8 @@ bash tests/helix-cli.sh
   agent correctness.
 - The harness should be extended if claim leases or heartbeat-based ownership
   are added to the tracker data model.
+- The harness should be extended further when execution eligibility or
+  supersession metadata becomes first-class in the tracker.
 
 ## Evidence
 

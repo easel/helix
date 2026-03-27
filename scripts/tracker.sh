@@ -78,7 +78,10 @@ tracker_read_all() {
   if [[ ! -s "$tracker_file" ]]; then
     printf '[]\n'
   else
-    jq -s '.' "$tracker_file"
+    if ! jq -s '.' "$tracker_file"; then
+      echo "tracker: malformed tracker state: $tracker_file" >&2
+      return 1
+    fi
   fi
 }
 
@@ -214,7 +217,7 @@ tracker_create_impl() {
   )"
 
   local all updated
-  all="$(tracker_read_all)"
+  all="$(tracker_read_all)" || return 1
   updated="$(printf '%s' "$all" | jq --argjson obj "$obj" '. + [$obj]')"
   tracker_write_all "$updated"
   printf '%s\n' "$id"
@@ -270,6 +273,8 @@ tracker_update_impl() {
       --status)      updates+=(".status = \"$2\""); shift 2 ;;
       --title)       updates+=(".title = \"$2\""); shift 2 ;;
       --assignee)    updates+=(".assignee = \"$2\""); shift 2 ;;
+      --spec-id)     updates+=(".[\"spec-id\"] = \"$2\""); shift 2 ;;
+      --parent)      updates+=(".parent = \"$2\""); shift 2 ;;
       --description) updates+=(".description = \"$2\""); shift 2 ;;
       --design)      updates+=(".design = \"$2\""); shift 2 ;;
       --acceptance)  updates+=(".acceptance = \"$2\""); shift 2 ;;
@@ -279,6 +284,12 @@ tracker_update_impl() {
         local lj
         lj="$(printf '%s' "$2" | jq -R 'split(",")')"
         updates+=(".labels = $lj")
+        shift 2
+        ;;
+      --deps)
+        local dj
+        dj="$(printf '%s' "$2" | jq -R 'if length == 0 then [] else split(",") end')"
+        updates+=(".deps = $dj")
         shift 2
         ;;
       --claim)
@@ -306,7 +317,7 @@ tracker_update_impl() {
   expr="$(IFS='|'; echo "${updates[*]}")"
 
   local all
-  all="$(tracker_read_all)"
+  all="$(tracker_read_all)" || return 1
   local found
   found="$(printf '%s' "$all" | jq "[.[] | select(.id == \"$id\")] | length")"
 
@@ -346,7 +357,7 @@ tracker_list() {
   done
 
   local all
-  all="$(tracker_read_all)"
+  all="$(tracker_read_all)" || return 1
 
   local filtered="$all"
   if [[ -n "$status_filter" ]]; then
@@ -373,7 +384,7 @@ tracker_ready() {
   [[ "${1:-}" == "--json" ]] && json_flag=1
 
   local all
-  all="$(tracker_read_all)"
+  all="$(tracker_read_all)" || return 1
 
   local ready
   ready="$(printf '%s' "$all" | jq '
@@ -407,7 +418,7 @@ tracker_blocked() {
   [[ "${1:-}" == "--json" ]] && json_flag=1
 
   local all
-  all="$(tracker_read_all)"
+  all="$(tracker_read_all)" || return 1
 
   local blocked
   blocked="$(printf '%s' "$all" | jq '
@@ -438,7 +449,7 @@ tracker_dep_impl() {
     add)
       local child="$1" parent="$2"
       local all
-      all="$(tracker_read_all)"
+      all="$(tracker_read_all)" || return 1
       local updated
       updated="$(printf '%s' "$all" | jq "[.[] | if .id == \"$child\" then .deps += [\"$parent\"] | .deps |= unique else . end]")"
       tracker_write_all "$updated"
@@ -446,7 +457,7 @@ tracker_dep_impl() {
     remove)
       local child="$1" parent="$2"
       local all
-      all="$(tracker_read_all)"
+      all="$(tracker_read_all)" || return 1
       local updated
       updated="$(printf '%s' "$all" | jq "[.[] | if .id == \"$child\" then .deps -= [\"$parent\"] else . end]")"
       tracker_write_all "$updated"
@@ -455,7 +466,7 @@ tracker_dep_impl() {
       local id="$1"
       tracker_ensure
       local all
-      all="$(tracker_read_all)"
+      all="$(tracker_read_all)" || return 1
       printf '%s\n' "$all" | jq -r --arg id "$id" '
         . as $all |
         .[] | select(.id == $id) |
@@ -490,7 +501,7 @@ tracker_status() {
   [[ "${1:-}" == "--json" ]] && json_flag=1
 
   local all
-  all="$(tracker_read_all)"
+  all="$(tracker_read_all)" || return 1
 
   if (( json_flag )); then
     printf '%s' "$all" | jq '{
@@ -598,7 +609,7 @@ tracker_import_impl() {
   # Check for existing tracker data
   tracker_ensure
   local existing
-  existing="$(tracker_read_all)"
+  existing="$(tracker_read_all)" || return 1
   local existing_count
   existing_count="$(printf '%s' "$existing" | jq 'length')"
 
@@ -654,7 +665,7 @@ tracker_export_impl() {
   esac
 
   local all
-  all="$(tracker_read_all)"
+  all="$(tracker_read_all)" || return 1
 
   if (( stdout_flag )); then
     printf '%s\n' "$all" | jq -c '.[]'

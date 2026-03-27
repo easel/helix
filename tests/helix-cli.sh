@@ -1211,6 +1211,7 @@ test_implement_prompt_references_tracker() {
   output="$(run_helix "$root" implement --dry-run)"
   assert_contains "$output" "helix tracker" "implement prompt should reference helix tracker"
   assert_contains "$output" "issues.jsonl" "implement prompt should reference JSONL file"
+  assert_contains "$output" "re-read the selected issue immediately before claim and immediately before close" "implement prompt should require pre-claim and pre-close revalidation"
   rm -rf "$root"
 }
 
@@ -1494,6 +1495,24 @@ test_tracker_create_with_deps() {
   rm -rf "$root"
 }
 
+test_tracker_update_structural_fields() {
+  local root
+  root="$(make_workspace)"
+  local parent dep target
+  parent="$(run_helix "$root" tracker create "Parent issue")"
+  dep="$(run_helix "$root" tracker create "Dependency issue")"
+  target="$(run_helix "$root" tracker create "Target issue")"
+
+  run_helix "$root" tracker update "$target" --spec-id TP-999 --parent "$parent" --deps "$dep" >/dev/null
+
+  local json
+  json="$(run_helix "$root" tracker show "$target" --json)"
+  assert_eq "TP-999" "$(printf '%s' "$json" | jq -r '.["spec-id"]')" "update should set spec-id"
+  assert_eq "$parent" "$(printf '%s' "$json" | jq -r '.parent')" "update should set parent"
+  assert_eq "$dep" "$(printf '%s' "$json" | jq -r '.deps[0]')" "update should set deps"
+  rm -rf "$root"
+}
+
 test_tracker_status_json() {
   local root
   root="$(make_workspace)"
@@ -1571,6 +1590,34 @@ test_tracker_lock_timeout_reports_owner() {
   local count
   count="$(run_helix "$root" tracker list --json | jq 'length')"
   assert_eq "0" "$count" "timed out mutation should not create partial tracker state"
+  rm -rf "$root"
+}
+
+test_tracker_list_fails_on_malformed_jsonl() {
+  local root
+  root="$(make_workspace)"
+
+  mkdir -p "$root/work/.helix"
+  printf '{"id":"hx-good","title":"ok"}\n{"id":"hx-bad"\n' > "$root/work/.helix/issues.jsonl"
+
+  assert_fails "list should fail on malformed tracker state" run_helix "$root" tracker list --json 2>/dev/null
+  assert_fails "status should fail on malformed tracker state" run_helix "$root" tracker status --json 2>/dev/null
+  rm -rf "$root"
+}
+
+test_tracker_mutation_fails_on_malformed_jsonl() {
+  local root
+  root="$(make_workspace)"
+
+  mkdir -p "$root/work/.helix"
+  printf '{"id":"hx-good","title":"ok"}\n{"id":"hx-bad"\n' > "$root/work/.helix/issues.jsonl"
+
+  assert_fails "create should fail on malformed tracker state" run_helix "$root" tracker create "Should fail" 2>/dev/null
+  assert_fails "update should fail on malformed tracker state" run_helix "$root" tracker update hx-good --title "new" 2>/dev/null
+
+  local line_count
+  line_count="$(wc -l < "$root/work/.helix/issues.jsonl" | tr -d ' ')"
+  assert_eq "2" "$line_count" "failed mutation should not rewrite malformed tracker state"
   rm -rf "$root"
 }
 
@@ -1781,12 +1828,15 @@ run_test "tracker dep tree" test_tracker_dep_tree
 run_test "tracker unique IDs" test_tracker_unique_ids
 run_test "tracker JSON output" test_tracker_json_output
 run_test "tracker create with deps" test_tracker_create_with_deps
+run_test "tracker update structural fields" test_tracker_update_structural_fields
 run_test "tracker status JSON" test_tracker_status_json
 run_test "tracker status" test_tracker_status
 run_test "tracker in_progress not ready" test_tracker_in_progress_not_ready
 run_test "tracker empty ready" test_tracker_empty_ready
 run_test "tracker serializes concurrent writes" test_tracker_serializes_concurrent_writes
 run_test "tracker lock timeout reports owner" test_tracker_lock_timeout_reports_owner
+run_test "tracker list fails on malformed jsonl" test_tracker_list_fails_on_malformed_jsonl
+run_test "tracker mutation fails on malformed jsonl" test_tracker_mutation_fails_on_malformed_jsonl
 
 # Beads interop tests
 run_test "tracker import from JSONL" test_tracker_import_from_jsonl

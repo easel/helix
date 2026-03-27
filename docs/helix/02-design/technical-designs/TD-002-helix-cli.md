@@ -32,6 +32,8 @@ decision model exactly as specified by the authority stack.
 - It executes at most one implementation issue per pass.
 - It treats `check` as the source of next-step guidance after the ready queue
   drains.
+- It revalidates selected issue state at safe boundaries so concurrent local
+  refinement does not lead to stale claim or close behavior.
 - It keeps alignment and backfill as distinct follow-up actions.
 - It does not auto-implement blocked work on `WAIT`.
 - It does not silently continue after a review failure.
@@ -60,10 +62,13 @@ decision model exactly as specified by the authority stack.
 When `helix tracker ready --json` reports one or more ready execution issues:
 
 1. Select the best ready execution issue using the tracker ranking rules.
-2. Claim the issue.
-3. Run one bounded implementation pass for that issue.
-4. Verify, commit, and close it when the issue is complete.
-5. Count the pass as a completed cycle only if the issue actually closes.
+2. Re-read the issue and verify it is still a safe execution target.
+3. Claim the issue.
+4. Run one bounded implementation pass for that issue.
+5. Re-read the issue before close and verify no material queue drift or
+   supersession invalidates the close.
+6. Verify, commit, and close it when the issue is complete.
+7. Count the pass as a completed cycle only if the issue actually closes.
 
 ### Queue Drain
 
@@ -135,6 +140,39 @@ Recovery must be non-destructive by default.
 - Recovery results should be visible in the issue notes or a follow-on
   diagnostic issue when cleanup is required.
 
+## Concurrent Interactive Refinement
+
+`helix run` must support the local operating mode where one session advances
+execution while another session refines specs or tracker issues.
+
+### Material Queue Drift
+
+Material drift includes any change that can invalidate execution authority or
+completion status for the currently selected issue:
+
+- changed `spec-id`
+- changed dependencies
+- changed parent or replacement relationship
+- superseded execution issue
+- execution-eligibility change that removes the issue from the runnable set
+
+### Revalidation Rules
+
+- Before claim:
+  - re-read the issue and verify it is still runnable
+  - if materially changed, skip claim and return to queue evaluation
+- Before close:
+  - re-read the issue and verify it has not been superseded or structurally
+    invalidated
+  - if materially changed, do not close it from stale assumptions; stop, reopen
+    the decision path, or create follow-up work as appropriate
+
+### Execution Eligibility
+
+The wrapper must distinguish execution-safe work from general open work so
+interactive refinement issues do not get treated as implementation targets by
+accident.
+
 ## Review Handling
 
 Post-implementation review is part of the orchestration contract.
@@ -179,6 +217,7 @@ freshness metadata when the tracker schema is extended.
 `run_loop` is the orchestration layer for `helix run`. It:
 
 - checks ready work before implementation
+- revalidates the selected issue immediately before claim and before close
 - runs one bounded implementation pass at a time
 - calls `check` after the queue drains
 - can auto-run alignment once after `ALIGN`

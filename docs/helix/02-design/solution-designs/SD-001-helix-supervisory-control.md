@@ -40,6 +40,8 @@ interactive entrypoints.
 **Key Decisions**:
 - `helix-run` is the default autonomous control surface: users should not need
   to restate phase transitions explicitly once HELIX has sufficient authority.
+- `helix-run` must remain responsive to concurrent local refinement activity:
+  tracker and governing-artifact changes are new supervisory input, not noise.
 - Next-step selection follows the principle of least power: prefer refining,
   reconciling, or polishing existing artifacts before escalating to broader
   changes.
@@ -67,7 +69,9 @@ interactive entrypoints.
   ready implementation work plus queue-drain decisions.
 - **Changes**: Expand `helix-run` into a supervisory controller that can detect
   which workflow layer is weakest and route to the appropriate bounded action:
-  align, plan, polish, implement, review, check, or backfill.
+  align, plan, polish, implement, review, check, or backfill. Revalidate the
+  selected issue before claim and before close so concurrent refinement causes
+  a controlled re-check instead of stale execution.
 
 ### Component: Skill trigger model
 - **Current State**: HELIX skills are described mainly as direct mirrors of CLI
@@ -81,8 +85,8 @@ interactive entrypoints.
   expose all metadata mutation surfaces needed by higher-order refinement
   workflows.
 - **Changes**: The supervisory model assumes issue refinement remains
-  tracker-first and may require richer metadata updates to support polish and
-  alignment cleanly.
+  tracker-first and may require richer metadata updates to support polish,
+  alignment, execution-class selection, and issue supersession cleanly.
 
 ### Component: Workflow contract
 - **Current State**: The workflow docs emphasize bounded actions, but they do
@@ -122,6 +126,8 @@ graph TD
    control model from `helix-run`.
 4. Shared-resource integrity: any HELIX skill that depends on `workflows/`
    assumes the full HELIX package layout is present.
+5. Queue drift visibility: concurrent local tracker or spec changes must be
+   observed at safe execution boundaries before claim or close.
 
 ## API/Interface Design
 
@@ -158,6 +164,7 @@ supervisor_outputs:
   rationale:
     - least_power_explanation
     - blocking_authority
+    - queue_drift_reason
 package_layout:
   root:
     - skills/
@@ -248,6 +255,8 @@ packaging_contract:
 - [ ] **Integration**: `run` -> `align/plan` -> `polish` -> `implement` ->
       `review` handoffs
 - [ ] **API**: tracker metadata update flows required by issue refinement
+- [ ] **Concurrency**: operator refinement during a live run causes
+      revalidation before claim and before close
 - [ ] **Packaging**: installs preserve `skills/` plus `workflows/` and shared
       references resolve correctly
 - [ ] **Security**: stop-for-guidance behavior on ambiguity or missing

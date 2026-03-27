@@ -249,6 +249,7 @@ $(inline_action "${helix_docs_root}/actions/implementation.md")
 Use supporting references at ${helix_docs_root}/README.md and ${helix_docs_root}/phases/04-build/enforcer.md as needed.
 Execute in the current repository rooted at ${target_root}.
 Issue tracker: built-in JSONL at ${tracker_file}. Use \`helix tracker ready --json\`, \`helix tracker show <id>\`, \`helix tracker update <id> --claim\`, \`helix tracker close <id>\`.
+Concurrency rule: re-read the selected issue immediately before claim and immediately before close. If tracker metadata drifted materially, do not claim or close from stale assumptions; re-check instead.
 ${selector:+Implementation target: ${selector}.}
 CRITICAL: If tests fail after your changes, fix them. 99% of test failures are caused by your changes, not by pre-existing breakage. Do not blame external causes, do not skip tests, do not commit with failing tests. Fix the code or fix the test. Retry up to 3 times before giving up. Never commit broken work.
 Follow the action exactly. Do the work — do not just describe what you would do.

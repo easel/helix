@@ -139,20 +139,27 @@ supervisor can run the queue-health check.
 
 For the selected issue:
 
-1. claim it with `helix tracker update <id> --claim`
-2. inspect:
+1. re-read the selected issue immediately before claim:
+   - `helix tracker show <id> --json`
+   - verify the issue is still ready, still executable, and has not drifted
+     materially in `spec-id`, dependencies, parentage, or other governing
+     metadata
+   - if it drifted materially, do not claim it from stale assumptions; return
+     to candidate selection or stop with the blocker
+2. claim it with `helix tracker update <id> --claim`
+3. inspect:
    - issue fields and labels
    - `spec-id`
    - parent epic or parent issue
    - dependency tree
    - acceptance text
    - related story, feature, or area labels
-3. load the governing artifacts referenced by:
+4. load the governing artifacts referenced by:
    - `spec-id`
    - issue description
    - parent issue or epic
    - linked user story, feature, design, or test artifacts
-4. determine the work phase from labels:
+5. determine the work phase from labels:
    - `phase:build`
    - `phase:deploy`
    - `phase:iterate`
@@ -272,14 +279,20 @@ If issues are found, fix them before proceeding to Phase 8.
 
 If the issue is complete:
 
-1. review the diff for scope discipline
-2. create a comprehensive commit that references the issue ID
-3. include in the commit message:
+1. re-read the selected issue immediately before close:
+   - `helix tracker show <id> --json`
+   - verify it has not been superseded or materially drifted while execution
+     was in progress
+   - if it drifted materially, do not close it from stale assumptions; stop,
+     reopen the decision path, or create the required follow-on issue
+2. review the diff for scope discipline
+3. create a comprehensive commit that references the issue ID
+4. include in the commit message:
    - issue ID
    - concise summary
    - governing artifact references where helpful
    - verification summary
-4. close the issue with `helix tracker close <id>`
+5. close the issue with `helix tracker close <id>`
 
 If the worktree contains unrelated changes, commit only the files that belong to
 the issue. Never revert unrelated work just to simplify the commit.

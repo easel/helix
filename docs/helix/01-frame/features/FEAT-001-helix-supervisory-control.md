@@ -41,6 +41,8 @@ judgment is actually needed.
 - Ready governed work must trigger bounded implementation.
 - Users must be able to enter any layer of the loop interactively without
   breaking autonomous continuation later.
+- Interactive refinement performed while `helix-run` is active must be
+  reflected at the next safe execution boundary.
 - HELIX must stop and ask for guidance when authority, approval, or product
   judgment is missing.
 
@@ -83,6 +85,8 @@ directly
 - Missing or conflicting authority artifacts must stop autopilot instead of
   guessing.
 - Open issues with changed specs must be polished before implementation.
+- A selected execution issue that changes materially before claim or close must
+  be revalidated instead of being processed from stale state.
 - If the tracker or workflow contract is unhealthy, `helix-run` must stop and
   surface guidance.
 
@@ -114,6 +118,5 @@ directly
 
 ## Open Questions
 
-- Which tracker metadata mutations need to become first-class CLI operations
-  for issue refinement workflows?
-
+- Which tracker metadata mutations and supersession relationships need to
+  become first-class CLI operations for issue refinement workflows?

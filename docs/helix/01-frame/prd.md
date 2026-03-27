@@ -91,6 +91,9 @@ Deferred items tracked in `docs/helix/parking-lot.md`.
      needed.
    - A specification or design change triggers issue refinement when open work
      already exists.
+   - A specification or issue refinement made during a live `helix-run`
+     session must be observed at the next safe execution boundary rather than
+     ignored until a later manual restart.
    - Ready execution work triggers bounded implementation.
 5. HELIX escalates to the user when safe progress depends on missing authority,
    unresolved ambiguity, tradeoffs, prioritization, or approval.
@@ -98,6 +101,11 @@ Deferred items tracked in `docs/helix/parking-lot.md`.
    breaking the overall control model.
 7. Tracker state remains the durable execution layer for refinement, ordering,
    ownership, and completion of work.
+8. `helix-run` must support concurrent local operation where an automated
+   session advances execution while an operator or another agent refines specs
+   and tracker issues interactively.
+9. `helix-run` must revalidate issue state before claim and before close so
+   concurrent refinement does not lead to stale execution or false completion.
 8. HELIX must be distributed and installed as one skill pack, not as isolated
    standalone skills copied without their shared resources.
 9. Resources shared by multiple HELIX skills must live in `workflows/`, while
@@ -118,6 +126,8 @@ Deferred items tracked in `docs/helix/parking-lot.md`.
    supervisory loop.
 5. Packaging and installer rules make incomplete skill-only installs invalid
    rather than silently degrading shared-resource access.
+6. Deterministic tests cover queue drift caused by concurrent interactive
+   refinement while `helix-run` is active.
 
 ### Nice to Have (P2)
 
@@ -145,9 +155,12 @@ Deferred items tracked in `docs/helix/parking-lot.md`.
    HELIX must refine the issue queue before implementation resumes.
 3. When issues are ready and adequately governed by upstream artifacts, HELIX
    must prefer bounded implementation over further speculative planning.
-4. After implementation, HELIX must review the recent work before proceeding to
+4. When tracker or governing-artifact state changes during a live run, HELIX
+   must re-check at the next safe boundary instead of closing or claiming work
+   from stale assumptions.
+5. After implementation, HELIX must review the recent work before proceeding to
    additional execution.
-5. When canonical artifacts are missing or too incomplete for safe progress,
+6. When canonical artifacts are missing or too incomplete for safe progress,
    HELIX must stop for guidance or run a bounded reconstruction path rather
    than guessing.
 

@@ -12,11 +12,10 @@
 **Supported mutation classes**:
 - workflow state: `--status`, `--claim`, `--assignee`, `--priority`
 - descriptive fields: `--title`, `--description`, `--design`, `--acceptance`, `--notes`
-- structural metadata: `--labels`
+- structural metadata: `--labels`, `--spec-id`, `--parent`, `--deps`
 - required future metadata surface for HELIX refinement flows:
-  - `--spec-id`
-  - `--parent`
-  - `--deps`
+  - execution-eligibility metadata
+  - supersession / replacement metadata
   - `--refs`
 
 **Input**: command-line flags mapped to one issue mutation request  
@@ -41,6 +40,18 @@ $ helix tracker update hx-abc123 --deps hx-def456,hx-fedcba
 - The mutation must not silently overwrite unrelated concurrent changes.
 - If the tracker state is malformed or the write cannot be applied safely, the
   command must fail explicitly.
+
+### Supervisory Concurrency Requirements
+
+- Mutation APIs used by interactive refinement must be visible to a live
+  `helix-run` session at the next safe execution boundary.
+- Structural mutations that affect execution validity must be queryable through
+  first-class tracker reads; `helix-run` must not have to infer them from raw
+  JSONL edits.
+- The mutation surface must grow to support:
+  - execution-eligibility changes
+  - issue supersession or replacement relationships
+  - structural re-parenting and dependency rewrites used by polish/alignment
 
 ## Library API
 
@@ -104,3 +115,6 @@ tracker_read_all
    or prevented under the supported local execution model.
 5. **Metadata Mutation Coverage**: supported HELIX refinement fields are
    mutated through CLI/API surfaces instead of direct JSONL edits.
+6. **Runner Revalidation Support**: the mutation surface exposes enough
+   structural metadata for `helix-run` to detect material queue drift before
+   claim or close.
