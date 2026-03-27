@@ -13,9 +13,8 @@
 - workflow state: `--status`, `--claim`, `--assignee`, `--priority`
 - descriptive fields: `--title`, `--description`, `--design`, `--acceptance`, `--notes`
 - structural metadata: `--labels`, `--spec-id`, `--parent`, `--deps`
-- required future metadata surface for HELIX refinement flows:
-  - execution-eligibility metadata
-  - supersession / replacement metadata
+- supervisory refinement metadata: `--execution-eligible`, `--superseded-by`, `--replaces`
+- reserved future metadata surface:
   - `--refs`
 
 **Input**: command-line flags mapped to one issue mutation request  
@@ -48,10 +47,11 @@ $ helix tracker update hx-abc123 --deps hx-def456,hx-fedcba
 - Structural mutations that affect execution validity must be queryable through
   first-class tracker reads; `helix-run` must not have to infer them from raw
   JSONL edits.
-- The mutation surface must grow to support:
+- The mutation surface supports:
   - execution-eligibility changes
   - issue supersession or replacement relationships
   - structural re-parenting and dependency rewrites used by polish/alignment
+  - execution-safe queue reads through `helix tracker ready --execution`
 
 ## Library API
 
@@ -83,7 +83,10 @@ tracker_read_all
   "mutations": {
     "description": "Clarify failure handling",
     "spec-id": "workflows/TRACKER.md",
-    "deps": ["hx-def456"]
+    "deps": ["hx-def456"],
+    "execution-eligible": false,
+    "superseded-by": "hx-def456",
+    "replaces": "hx-older123"
   }
 }
 ```

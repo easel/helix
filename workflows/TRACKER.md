@@ -164,6 +164,9 @@ Each issue is a JSON object stored in `.helix/issues.jsonl` with these fields:
 - `acceptance`: deterministic completion criteria
 - `notes`: additional context
 - `assignee`: owner identity when an issue is `in_progress`
+- `execution-eligible`: whether the issue is safe for automated execution selection
+- `superseded-by`: replacement issue ID when a stale execution slice has been superseded
+- `replaces`: prior issue ID that this issue replaces
 - `created`: ISO-8601 timestamp for when the issue was created
 - `updated`: ISO-8601 timestamp for the most recent mutation
 
@@ -180,10 +183,13 @@ Use tracker fields directly:
 - `description`, `design`, `acceptance`, and `notes`: capture the work contract
 - `assignee`: encode active ownership for claimed work
 - `labels`: encode HELIX-specific execution semantics
+- `execution-eligible`: keep refinement work visible in the tracker without making it runnable by `helix run`
+- `superseded-by` / `replaces`: preserve explicit replacement traceability during refinement
 
 Blocked work should be modeled with dependencies and surfaced through
 `helix tracker blocked` / `helix tracker ready`, not with a custom HELIX status
-taxonomy.
+taxonomy. When you need only execution-safe queue candidates, use
+`helix tracker ready --execution`.
 
 ## Claim Semantics
 

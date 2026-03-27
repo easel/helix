@@ -378,12 +378,12 @@ run_experiment() {
 
 helix_ready_count() {
   need_cmd jq
-  tracker_ready --json | jq 'length'
+  tracker_ready --json --execution | jq 'length'
 }
 
 helix_select_ready_issue() {
   need_cmd jq
-  tracker_ready --json | jq -r '.[0].id // empty'
+  tracker_ready --json --execution | jq -r '.[0].id // empty'
 }
 
 tracker_issue_fingerprint() {
@@ -392,7 +392,10 @@ tracker_issue_fingerprint() {
   tracker_show "$id" --json | jq -c '{
     "spec-id": .["spec-id"],
     parent: .parent,
-    deps: (.deps // [])
+    deps: (.deps // []),
+    "execution-eligible": .["execution-eligible"],
+    "superseded-by": (.["superseded-by"] // ""),
+    replaces: (.replaces // "")
   }'
 }
 
@@ -410,7 +413,10 @@ handle_issue_queue_drift() {
   after_fingerprint="$(printf '%s' "$after_json" | jq -c '{
     "spec-id": .["spec-id"],
     parent: .parent,
-    deps: (.deps // [])
+    deps: (.deps // []),
+    "execution-eligible": .["execution-eligible"],
+    "superseded-by": (.["superseded-by"] // ""),
+    replaces: (.replaces // "")
   }')"
 
   if [[ "$before_fingerprint" == "$after_fingerprint" ]]; then
@@ -587,7 +593,7 @@ run_review() {
 
 run_next() {
   require_tracker
-  tracker_ready --json | jq -r '.[0].id // "no ready issues"'
+  tracker_ready --json --execution | jq -r '.[0].id // "no ready issues"'
 }
 
 recover_prompt() {

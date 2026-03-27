@@ -112,6 +112,13 @@ tracker_normalize_issue_array() {
   now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
   printf '%s' "$issues_json" | jq --arg now "$now" '
+    def default_execution_eligible:
+      if (.labels | type) != "array" then false
+      else
+        ((.labels | index("phase:build")) != null) or
+        ((.labels | index("phase:deploy")) != null) or
+        ((.labels | index("phase:iterate")) != null)
+      end;
     map({
       id:          (.id // "hx-unknown"),
       title:       (.title // "untitled"),
@@ -127,6 +134,10 @@ tracker_normalize_issue_array() {
       deps:        (if (.deps | type) == "array" then .deps else [] end),
       assignee:    (.assignee // ""),
       notes:       (.notes // ""),
+      "execution-eligible":
+                   (if .["execution-eligible"] == null then default_execution_eligible else .["execution-eligible"] end),
+      "superseded-by": (.["superseded-by"] // ""),
+      replaces:    (.replaces // ""),
       created:     (.created // $now),
       updated:     (.updated // $now)
     })
@@ -139,6 +150,7 @@ tracker_create_impl() {
   need_cmd jq
 
   local title="" type="task" labels="" deps="" parent="" spec_id="" description="" design="" acceptance="" priority=2
+  local execution_eligible="" superseded_by="" replaces=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --type)       type="$2"; shift 2 ;;
@@ -150,6 +162,9 @@ tracker_create_impl() {
       --design)     design="$2"; shift 2 ;;
       --acceptance) acceptance="$2"; shift 2 ;;
       --priority)   priority="$2"; shift 2 ;;
+      --execution-eligible) execution_eligible="$2"; shift 2 ;;
+      --superseded-by) superseded_by="$2"; shift 2 ;;
+      --replaces)   replaces="$2"; shift 2 ;;
       --silent)     shift ;; # compat: just suppress extra output
       *)            title="$1"; shift ;;
     esac
@@ -177,6 +192,26 @@ tracker_create_impl() {
     deps_json='[]'
   fi
 
+  if [[ -z "$execution_eligible" ]]; then
+    case ",${labels}," in
+      *,phase:build,*|*,phase:deploy,*|*,phase:iterate,*)
+        execution_eligible="true"
+        ;;
+      *)
+        execution_eligible="false"
+        ;;
+    esac
+  fi
+
+  case "$execution_eligible" in
+    true|false)
+      ;;
+    *)
+      echo "tracker: --execution-eligible must be true or false" >&2
+      return 1
+      ;;
+  esac
+
   local now
   now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
@@ -194,6 +229,9 @@ tracker_create_impl() {
     --arg description "$description" \
     --arg design "$design" \
     --arg acceptance "$acceptance" \
+    --argjson execution_eligible "$execution_eligible" \
+    --arg superseded_by "$superseded_by" \
+    --arg replaces "$replaces" \
     --arg created "$now" \
     --arg updated "$now" \
     '{
@@ -211,6 +249,9 @@ tracker_create_impl() {
       acceptance: $acceptance,
       assignee: "",
       notes: "",
+      "execution-eligible": $execution_eligible,
+      "superseded-by": $superseded_by,
+      replaces: $replaces,
       created: $created,
       updated: $updated
     }'
@@ -253,6 +294,9 @@ tracker_show() {
       (if (.labels | length) > 0 then "  Labels: \(.labels | join(", "))\n" else "" end) +
       (if (.deps | length) > 0 then "  Deps: \(.deps | join(", "))\n" else "" end) +
       (if .parent != "" then "  Parent: \(.parent)\n" else "" end) +
+      (if .["execution-eligible"] != null then "  Execution Eligible: \(.["execution-eligible"])\n" else "" end) +
+      (if .["superseded-by"] != "" then "  Superseded By: \(.["superseded-by"])\n" else "" end) +
+      (if .replaces != "" then "  Replaces: \(.replaces)\n" else "" end) +
       (if .assignee != "" then "  Assignee: \(.assignee)\n" else "" end) +
       (if .["spec-id"] != "" then "  Spec: \(.["spec-id"])\n" else "" end)
     '
@@ -280,6 +324,20 @@ tracker_update_impl() {
       --acceptance)  updates+=(".acceptance = \"$2\""); shift 2 ;;
       --notes)       updates+=(".notes = \"$2\""); shift 2 ;;
       --priority)    updates+=(".priority = $2"); shift 2 ;;
+      --execution-eligible)
+        case "$2" in
+          true|false)
+            updates+=(".[\"execution-eligible\"] = $2")
+            ;;
+          *)
+            echo "tracker: --execution-eligible must be true or false" >&2
+            return 1
+            ;;
+        esac
+        shift 2
+        ;;
+      --superseded-by) updates+=(".[\"superseded-by\"] = \"$2\""); shift 2 ;;
+      --replaces)    updates+=(".replaces = \"$2\""); shift 2 ;;
       --labels)
         local lj
         lj="$(printf '%s' "$2" | jq -R 'split(",")')"
@@ -381,16 +439,31 @@ tracker_ready() {
   need_cmd jq
 
   local json_flag=0
-  [[ "${1:-}" == "--json" ]] && json_flag=1
+  local execution_only=0
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --json) json_flag=1; shift ;;
+      --execution) execution_only=1; shift ;;
+      *) shift ;;
+    esac
+  done
 
   local all
   all="$(tracker_read_all)" || return 1
 
   local ready
   ready="$(printf '%s' "$all" | jq '
+    def default_execution_eligible:
+      if (.labels | type) != "array" then false
+      else
+        ((.labels | index("phase:build")) != null) or
+        ((.labels | index("phase:deploy")) != null) or
+        ((.labels | index("phase:iterate")) != null)
+      end;
     . as $all |
     [.[] | select(
       .status == "open" and
+      '"$(if (( execution_only )); then printf '((if .["execution-eligible"] == null then default_execution_eligible else .["execution-eligible"] end) == true) and ((.["superseded-by"] // "") == "") and'; else printf 'true and'; fi)"'
       (
         (.deps | length) == 0 or
         (
@@ -689,12 +762,12 @@ tracker_usage() {
   cat <<EOF
 Usage:
   helix tracker init
-  helix tracker create "Title" [--type TYPE] [--labels a,b] [--deps id1,id2] [--parent ID] [--spec-id REF]
+  helix tracker create "Title" [--type TYPE] [--labels a,b] [--deps id1,id2] [--parent ID] [--spec-id REF] [--execution-eligible true|false] [--superseded-by ID] [--replaces ID]
   helix tracker show <id> [--json]
-  helix tracker update <id> [--status S] [--title T] [--assignee A] [--priority N] [--labels a,b] [--claim]
+  helix tracker update <id> [--status S] [--title T] [--assignee A] [--priority N] [--labels a,b] [--claim] [--execution-eligible true|false] [--superseded-by ID] [--replaces ID]
   helix tracker close <id>
   helix tracker list [--status S] [--label L] [--json]
-  helix tracker ready [--json]
+  helix tracker ready [--json] [--execution]
   helix tracker blocked [--json]
   helix tracker dep add <child> <parent>
   helix tracker dep remove <child> <parent>

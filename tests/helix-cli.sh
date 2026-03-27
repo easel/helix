@@ -357,7 +357,7 @@ seed_tracker() {
   mkdir -p "$work_dir/.helix"
   local i
   for ((i = 0; i < count; i++)); do
-    printf '{"id":"hx-mock-%d","title":"mock issue %d","type":"task","status":"open","priority":2,"labels":["helix"],"parent":"","spec-id":"","description":"","design":"","acceptance":"","deps":[],"assignee":"","notes":"","created":"2099-01-01T00:00:00Z","updated":"2099-01-01T00:00:00Z"}\n' "$i" "$i"
+    printf '{"id":"hx-mock-%d","title":"mock issue %d","type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"","deps":[],"assignee":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created":"2099-01-01T00:00:00Z","updated":"2099-01-01T00:00:00Z"}\n' "$i" "$i"
   done > "$work_dir/.helix/issues.jsonl"
 }
 
@@ -791,6 +791,100 @@ MOCK
   local status
   status="$(run_helix "$root" tracker show hx-mock-0 --json | jq -r '.status')"
   assert_eq "open" "$status" "run should leave the issue open for re-check"
+  rm -rf "$root"
+}
+
+test_run_skips_execution_ineligible_ready_work() {
+  local root
+  root="$(make_workspace)"
+  mkdir -p "$root/work/.helix"
+  cat >"$root/work/.helix/issues.jsonl" <<'EOF'
+{"id":"hx-refine","title":"refinement","type":"task","status":"open","priority":2,"labels":["helix","phase:design"],"parent":"","spec-id":"","description":"","design":"","acceptance":"","deps":[],"assignee":"","notes":"","execution-eligible":false,"superseded-by":"","replaces":"","created":"2099-01-01T00:00:00Z","updated":"2099-01-01T00:00:00Z"}
+{"id":"hx-build","title":"build","type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"","deps":[],"assignee":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created":"2099-01-01T00:00:00Z","updated":"2099-01-01T00:00:00Z"}
+EOF
+  printf 'STOP\n' > "$root/state/next-actions"
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"
+  tail -n +2 "$file" > "$file.tmp" || true
+  mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*"Implementation target: hx-build"*)
+    record implement
+    tmp="$(jq -c 'if .id == "hx-build" then .status = "closed" else . end' .helix/issues.jsonl)"
+    printf '%s\n' "$tmp" > .helix/issues.jsonl
+    echo "implementation complete"
+    ;;
+  *"implementation action"*)
+    echo "implementation targeted wrong issue" >&2
+    exit 1
+    ;;
+  *"check action"*)
+    record check
+    action="$(next_action)"
+    printf 'NEXT_ACTION: %s\n' "$action"
+    ;;
+  *) record other; echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  run_helix "$root" run --no-auto-review >/dev/null
+
+  local calls
+  calls="$(cat "$root/state/calls.log")"
+  assert_eq $'implement\ncheck' "$calls" "run should implement the eligible issue then check"
+
+  local refine_status build_status
+  refine_status="$(run_helix "$root" tracker show hx-refine --json | jq -r '.status')"
+  build_status="$(run_helix "$root" tracker show hx-build --json | jq -r '.status')"
+  assert_eq "open" "$refine_status" "run should not claim refinement work"
+  assert_eq "closed" "$build_status" "run should execute the eligible build issue"
+  rm -rf "$root"
+}
+
+test_run_stops_when_issue_is_superseded() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    tmp="$(jq -c '.["superseded-by"] = "hx-replacement" | .status = "closed"' .helix/issues.jsonl)"
+    printf '%s\n' "$tmp" > .helix/issues.jsonl
+    echo "implementation complete"
+    ;;
+  *) record other; echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  output="$(run_helix "$root" run --no-auto-review 2>&1)"
+  assert_contains "$output" "queue drift detected" "run should report supersession as drift"
+  assert_contains "$output" "stopping after queue drift" "run should stop when an issue is superseded"
+
+  local status superseded_by
+  status="$(run_helix "$root" tracker show hx-mock-0 --json | jq -r '.status')"
+  superseded_by="$(run_helix "$root" tracker show hx-mock-0 --json | jq -r '.["superseded-by"]')"
+  assert_eq "open" "$status" "run should refuse stale close after supersession"
+  assert_eq "hx-replacement" "$superseded_by" "supersession metadata should remain visible"
   rm -rf "$root"
 }
 
@@ -1594,6 +1688,26 @@ test_tracker_update_structural_fields() {
   rm -rf "$root"
 }
 
+test_tracker_update_execution_metadata_fields() {
+  local root
+  root="$(make_workspace)"
+  local target replacement
+  target="$(run_helix "$root" tracker create "Target issue" --labels helix,phase:build,kind:build)"
+  replacement="$(run_helix "$root" tracker create "Replacement issue" --labels helix,phase:build,kind:build)"
+
+  run_helix "$root" tracker update "$target" \
+    --execution-eligible false \
+    --superseded-by "$replacement" \
+    --replaces hx-older >/dev/null
+
+  local json
+  json="$(run_helix "$root" tracker show "$target" --json)"
+  assert_eq "false" "$(printf '%s' "$json" | jq -r '.["execution-eligible"]')" "update should set execution eligibility"
+  assert_eq "$replacement" "$(printf '%s' "$json" | jq -r '.["superseded-by"]')" "update should set superseded-by"
+  assert_eq "hx-older" "$(printf '%s' "$json" | jq -r '.replaces')" "update should set replaces"
+  rm -rf "$root"
+}
+
 test_tracker_status_json() {
   local root
   root="$(make_workspace)"
@@ -1629,6 +1743,21 @@ test_tracker_empty_ready() {
   local ready_count
   ready_count="$(run_helix "$root" tracker ready --json | jq 'length')"
   assert_eq "0" "$ready_count" "empty tracker should have 0 ready issues"
+  rm -rf "$root"
+}
+
+test_tracker_ready_execution_filters_metadata() {
+  local root
+  root="$(make_workspace)"
+  local runnable refinement superseded
+  runnable="$(run_helix "$root" tracker create "Runnable" --labels helix,phase:build,kind:build)"
+  refinement="$(run_helix "$root" tracker create "Refinement" --labels helix,phase:design --execution-eligible false)"
+  superseded="$(run_helix "$root" tracker create "Superseded" --labels helix,phase:build,kind:build)"
+  run_helix "$root" tracker update "$superseded" --superseded-by "$runnable" >/dev/null
+
+  local ready_ids
+  ready_ids="$(run_helix "$root" tracker ready --json --execution | jq -r '.[].id')"
+  assert_eq "$runnable" "$ready_ids" "execution-ready query should exclude refinement and superseded work"
   rm -rf "$root"
 }
 
@@ -1910,10 +2039,12 @@ run_test "tracker unique IDs" test_tracker_unique_ids
 run_test "tracker JSON output" test_tracker_json_output
 run_test "tracker create with deps" test_tracker_create_with_deps
 run_test "tracker update structural fields" test_tracker_update_structural_fields
+run_test "tracker update execution metadata fields" test_tracker_update_execution_metadata_fields
 run_test "tracker status JSON" test_tracker_status_json
 run_test "tracker status" test_tracker_status
 run_test "tracker in_progress not ready" test_tracker_in_progress_not_ready
 run_test "tracker empty ready" test_tracker_empty_ready
+run_test "tracker ready execution filters metadata" test_tracker_ready_execution_filters_metadata
 run_test "tracker serializes concurrent writes" test_tracker_serializes_concurrent_writes
 run_test "tracker lock timeout reports owner" test_tracker_lock_timeout_reports_owner
 run_test "tracker list fails on malformed jsonl" test_tracker_list_fails_on_malformed_jsonl
@@ -1945,6 +2076,8 @@ run_test "auto-align" test_run_auto_aligns_once
 run_test "periodic alignment failure reason" test_run_reports_periodic_alignment_failure
 run_test "run stops on queue drift before close" test_run_stops_on_queue_drift_before_close
 run_test "run stops on queue drift without closing" test_run_stops_on_queue_drift_before_close_without_closing
+run_test "run skips execution-ineligible ready work" test_run_skips_execution_ineligible_ready_work
+run_test "run stops when issue is superseded" test_run_stops_when_issue_is_superseded
 run_test "backfill requires report marker" test_backfill_requires_report_marker
 run_test "backfill creates report" test_backfill_creates_report
 run_test "installer launcher" test_installer_creates_launcher
