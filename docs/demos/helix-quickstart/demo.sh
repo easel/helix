@@ -141,7 +141,7 @@ demo_body() {
   cd hello-helix
   run helix tracker init
 
-  mkdir -p .agents
+  mkdir -p .agents .claude
   cp -rf /ddx-library/.agents/skills .agents/
   cat > .claude/settings.json <<'SETTINGS'
 {
