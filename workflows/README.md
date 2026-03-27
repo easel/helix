@@ -49,16 +49,20 @@ multiple HELIX skills. Skills are the operational entrypoints into HELIX; the
 shared prompts, templates, metadata, and conventions they reuse live here.
 Assets used by only one skill should live with that skill instead of here.
 
-Additional actions extend the workflow without altering the core loop:
+Additional actions extend the supervisory loop with bounded subroutines:
 
 - [plan.md](actions/plan.md) for iterative design document creation
 - [polish.md](actions/polish.md) for issue refinement before implementation
 - [fresh-eyes-review.md](actions/fresh-eyes-review.md) for post-implementation review
 - [experiment.md](actions/experiment.md) for metric-driven optimization (execution tracked by issues, not HELIX docs)
 
-These are operator-chosen entry points that do not participate in the
-check → NEXT_ACTION dispatch. If a supporting document conflicts with the
-core normative contract above, follow the contract.
+`helix run` may dispatch `plan`, `polish`, and `review` as supervisory
+subroutines when repository state or user intent requires them. These actions
+remain directly invocable by the operator and do not become new `check`
+queue-drain `NEXT_ACTION` codes unless the normative execution contract is
+updated explicitly. `experiment` remains operator-invoked only and is outside
+the `helix run` supervisory dispatch model. If a supporting document conflicts
+with the core normative contract above, follow the contract.
 
 Supporting templates for metrics and reports:
 
@@ -198,8 +202,14 @@ actions:
 - `implementation`: execute one ready execution issue and exit
 - `check`: determine whether the next step is implementation, alignment,
   backfill, waiting, guidance, or stopping
+- `plan`: create or extend the design stack when supervisory routing detects
+  missing design authority for the requested scope
+- `polish`: refine ready or stale issues when specs changed before
+  implementation resumes
 - `reconcile-alignment`: run a top-down audit when the plan exists but the next
   execution set is unclear
+- `fresh-eyes-review`: review completed implementation before additional
+  execution continues when review automation is enabled
 - `backfill-helix-docs`: reconstruct missing HELIX docs conservatively from
   current evidence
 

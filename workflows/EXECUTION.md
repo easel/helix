@@ -30,26 +30,40 @@ here.
 
 ## Core Actions
 
-HELIX uses four top-level execution actions:
+HELIX supervision is built from bounded actions with distinct roles:
 
 - `helix implement`
   Executes one ready execution issue end-to-end, then exits.
 - `helix check`
-  Determines whether the next step is implementation, alignment, backfill,
-  waiting, guidance, or stopping.
+  Performs the queue-drain decision and returns the maintained
+  `NEXT_ACTION` vocabulary: implementation, alignment, backfill, waiting,
+  guidance, or stopping.
 - `helix align <scope>`
   Runs a top-down reconciliation review and can emit follow-up execution issues.
+- `helix plan <scope>`
+  Creates or extends the design stack when supervisory routing detects missing
+  design authority for the requested scope.
+- `helix polish <scope>`
+  Refines issue definitions and dependencies when changed specs or stale issue
+  metadata would make implementation unsafe.
+- `helix review [scope]`
+  Performs fresh-eyes review after implementation before additional execution
+  continues when review automation is enabled.
 - `helix backfill <scope>`
   Reconstructs missing HELIX docs conservatively from current evidence.
 
 ## Execution Model
 
-Use a two-stage control loop:
+Use a supervisory control loop with an explicit queue-drain sub-step:
 
 1. Guard on true ready work with `helix tracker ready`, not `helix tracker list --ready`
-2. Run the bounded `implementation` action while ready work exists
-3. When the queue drains, run the bounded `check` action once
-4. Follow `check` exactly, without inventing a new state:
+2. Route to the least-power bounded subroutine required by user intent and repository state:
+   - `plan` when requested work lacks sufficient design authority
+   - `polish` when governing specs changed and open issues need refinement
+   - `implement` when safe ready execution work exists
+   - `review` after successful implementation when review automation is enabled
+3. When the execution queue drains or supervisory routing needs a queue-health decision, run the bounded `check` action
+4. Follow `check` exactly for queue-drain outcomes, without inventing a new code:
    - `IMPLEMENT`: continue the implementation loop
    - `ALIGN`: run reconciliation once if enabled, then re-check
    - `BACKFILL`: stop and hand off to `helix backfill <scope>`
@@ -59,6 +73,12 @@ Use a two-stage control loop:
 
 `helix tracker ready` is blocker-aware. `helix tracker list --ready` is not equivalent and should not
 control an autonomous execution loop.
+
+`plan`, `polish`, and `review` participate in supervisory dispatch, but they
+are not currently emitted as `check` `NEXT_ACTION` codes. They are triggered by
+the supervisor's live state evaluation or by direct operator invocation. The
+queue-drain `NEXT_ACTION` vocabulary remains the maintained contract until a
+governing artifact changes it explicitly.
 
 ## Queue Guard
 
@@ -101,6 +121,9 @@ Interpret `check` as follows:
 `helix run` is a bounded controller, not a repair loop.
 
 - It counts only completed implementation passes toward `--max-cycles`.
+- It may dispatch `helix plan` or `helix polish` before implementation when
+  supervisory state indicates missing design authority or stale issue
+  refinement.
 - It may run fresh-eyes review after a successful implementation when review
   automation is enabled; `--no-auto-review` disables that post-implementation
   review.
@@ -139,6 +162,8 @@ Main commands:
 `helix run`:
 
 - loops only while true ready HELIX execution work exists
+- routes to `helix plan` or `helix polish` when supervisory state requires
+  bounded planning or issue refinement before implementation can resume
 - runs one bounded implementation pass at a time
 - runs `check` when the queue drains
 - can trigger `reconcile-alignment` every `N` completed implementation passes

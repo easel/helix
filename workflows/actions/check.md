@@ -46,6 +46,11 @@ Use them precisely:
 - `GUIDANCE`: user or stakeholder input is required before safe work can continue
 - `STOP`: there is no actionable work remaining for the scope right now
 
+`check` owns only the queue-drain `NEXT_ACTION` vocabulary above. The broader
+HELIX supervisory model may still route to bounded `plan`, `polish`, or
+`review` subroutines outside this specific `check` code set when live
+repository state or direct operator intent requires them.
+
 Supervisor interpretation:
 
 - `IMPLEMENT` means continue the bounded implementation loop now.
@@ -54,6 +59,12 @@ Supervisor interpretation:
 - `WAIT` means stop the current loop, do not auto-implement, and wait for the blocker to clear or the scope to change.
 - `GUIDANCE` means stop and request the missing decision from the user or stakeholder.
 - `STOP` means stop because there is no actionable work in scope.
+
+Do not invent `NEXT_ACTION: PLAN`, `NEXT_ACTION: POLISH`, or
+`NEXT_ACTION: REVIEW` unless the governing execution contract is updated
+explicitly. If those actions are indicated, describe that supervisory need in
+Artifact Health or Remaining Work Assessment while still returning the
+maintained queue-drain code that best matches the state.
 
 ## Authority Order
 
@@ -123,10 +134,15 @@ Apply these rules in order:
 
 1. Recommend `IMPLEMENT` when:
    - one or more safe ready HELIX execution issues exist
+   - no higher-priority supervisory refinement such as required `plan` or
+     `polish` remains unresolved for the same scope
 2. Recommend `BACKFILL` when:
    - the canonical HELIX stack is missing, stale, or contradictory enough to make safe execution impossible
 3. Recommend `ALIGN` when:
    - the planning stack exists, but no safe ready execution issue exists and a reconciliation pass is likely to expose or refine the next work
+   - or supervisory review shows that requirement/design drift exists but the
+     maintained queue-drain vocabulary has no narrower code than alignment for
+     that repair step
 4. Recommend `IMPLEMENT` (not `WAIT`) when:
    - work is blocked, but the blocking issues themselves are actionable
      (e.g., config changes, migrations, infrastructure-as-code fixes)
@@ -146,7 +162,9 @@ Apply these rules in order:
    - no blocked or in-progress scope requires action
 
 Do not recommend `ALIGN` just because the queue is empty. Distinguish true work
-exhaustion from planning gaps.
+exhaustion from planning gaps. Be explicit when a returned `ALIGN` is carrying
+a broader supervisory need to reconcile, plan, or polish before implementation
+can safely resume.
 
 ## PHASE 4 - Suggested Command
 
