@@ -36,8 +36,8 @@ HELIX supervision is built from bounded actions with distinct roles:
   Executes one ready execution issue end-to-end, then exits.
 - `helix check`
   Performs the queue-drain decision and returns the maintained
-  `NEXT_ACTION` vocabulary: implementation, alignment, backfill, waiting,
-  guidance, or stopping.
+  `NEXT_ACTION` vocabulary: implementation, planning, issue refinement,
+  alignment, backfill, waiting, guidance, or stopping.
 - `helix align <scope>`
   Runs a top-down reconciliation review and can emit follow-up execution issues.
 - `helix plan <scope>`
@@ -65,6 +65,8 @@ Use a supervisory control loop with an explicit queue-drain sub-step:
 3. When the execution queue drains or supervisory routing needs a queue-health decision, run the bounded `check` action
 4. Follow `check` exactly for queue-drain outcomes, without inventing a new code:
    - `IMPLEMENT`: continue the implementation loop
+   - `PLAN`: run one bounded planning pass, then re-check
+   - `POLISH`: run one bounded issue-refinement pass, then re-check
    - `ALIGN`: run reconciliation once if enabled, then re-check
    - `BACKFILL`: stop and hand off to `helix backfill <scope>`
    - `WAIT`: stop; do not attempt an unblock implementation pass
@@ -74,11 +76,10 @@ Use a supervisory control loop with an explicit queue-drain sub-step:
 `helix tracker ready` is blocker-aware. `helix tracker list --ready` is not equivalent and should not
 control an autonomous execution loop.
 
-`plan`, `polish`, and `review` participate in supervisory dispatch, but they
-are not currently emitted as `check` `NEXT_ACTION` codes. They are triggered by
-the supervisor's live state evaluation or by direct operator invocation. The
-queue-drain `NEXT_ACTION` vocabulary remains the maintained contract until a
-governing artifact changes it explicitly.
+`plan`, `polish`, and `review` participate in supervisory dispatch. `plan` and
+`polish` are now explicit `check` `NEXT_ACTION` codes for queue-drain routing;
+`review` remains a post-implementation supervisory step rather than a
+queue-drain code.
 
 ## Queue Guard
 
@@ -106,6 +107,10 @@ Interpret `check` as follows:
 
 - `NEXT_ACTION: IMPLEMENT`
   More safe ready work exists; continue.
+- `NEXT_ACTION: PLAN`
+  Run `helix plan <scope>` once, then re-run `check`.
+- `NEXT_ACTION: POLISH`
+  Run `helix polish <scope>` once, then re-run `check`.
 - `NEXT_ACTION: ALIGN`
   Run `reconcile-alignment` once for the indicated scope if auto-alignment is
   enabled, then re-run `check`.

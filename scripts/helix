@@ -266,7 +266,7 @@ Use supporting references at ${helix_docs_root}/README.md as needed.
 Execute in the current repository rooted at ${target_root}.
 Issue tracker: built-in JSONL at ${tracker_file}. Use \`helix tracker ready --json\`, \`helix tracker list --json\`, \`helix tracker blocked --json\`.
 Review scope: ${scope}.
-CRITICAL: Your output MUST contain the line "NEXT_ACTION: CODE" where CODE is one of IMPLEMENT, ALIGN, BACKFILL, WAIT, GUIDANCE, or STOP. This line must appear on its own, not inside a code block or backticks. Without this line the automation cannot continue. Output this line FIRST, before any other analysis.
+CRITICAL: Your output MUST contain the line "NEXT_ACTION: CODE" where CODE is one of IMPLEMENT, PLAN, POLISH, ALIGN, BACKFILL, WAIT, GUIDANCE, or STOP. This line must appear on its own, not inside a code block or backticks. Without this line the automation cannot continue. Output this line FIRST, before any other analysis.
 Follow the action exactly. Do the work — do not just describe what you would do.
 EOF
 }
@@ -439,7 +439,7 @@ extract_next_action() {
   # Strip markdown bold/backtick formatting but preserve underscores
   stripped="$(printf '%s\n' "$1" | sed 's/[*`]//g')"
   local result
-  result="$(printf '%s\n' "$stripped" | grep -oE 'NEXT_ACTION: *(IMPLEMENT|ALIGN|BACKFILL|WAIT|GUIDANCE|STOP)' | head -n1 | sed 's/^NEXT_ACTION: *//')"
+  result="$(printf '%s\n' "$stripped" | grep -oE 'NEXT_ACTION: *(IMPLEMENT|PLAN|POLISH|ALIGN|BACKFILL|WAIT|GUIDANCE|STOP)' | head -n1 | sed 's/^NEXT_ACTION: *//')"
   printf '%s' "$result"
 }
 
@@ -771,6 +771,22 @@ run_loop() {
 
     case "$next_action" in
       IMPLEMENT)
+        continue
+        ;;
+      PLAN)
+        printf 'helix: queue drained, running plan\n' >&2
+        if ! run_plan repo; then
+          echo "helix: plan failed after queue drain" >&2
+          return 1
+        fi
+        continue
+        ;;
+      POLISH)
+        printf 'helix: queue drained, running polish\n' >&2
+        if ! run_polish repo; then
+          echo "helix: polish failed after queue drain" >&2
+          return 1
+        fi
         continue
         ;;
       ALIGN)

@@ -120,6 +120,10 @@ Recommended labels:
   run `helix plan`, then `helix polish`, then `helix run`.
 - Ready execution issues exist:
   run `implementation` or `helix run`.
+- Work lacks design authority for safe execution:
+  run `helix plan`, or let `helix run` dispatch it from `check`.
+- Specs changed and open work needs issue refinement before implementation:
+  run `helix polish`, or let `helix run` dispatch it from `check`.
 - No ready execution issue, but the planning stack exists and next work is
   unclear:
   run alignment.

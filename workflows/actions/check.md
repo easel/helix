@@ -31,6 +31,8 @@ If no scope is given, default to the repository.
 Your first output line must be exactly one of:
 
 - `NEXT_ACTION: IMPLEMENT`
+- `NEXT_ACTION: PLAN`
+- `NEXT_ACTION: POLISH`
 - `NEXT_ACTION: ALIGN`
 - `NEXT_ACTION: BACKFILL`
 - `NEXT_ACTION: WAIT`
@@ -40,31 +42,30 @@ Your first output line must be exactly one of:
 Use them precisely:
 
 - `IMPLEMENT`: one or more safe ready HELIX execution issues exist and should be worked now
+- `PLAN`: design authority is missing or too weak for safe execution and a bounded planning pass should create or extend the governing design stack
+- `POLISH`: governing specs changed or open issue metadata is stale enough that the queue should be refined before implementation resumes
 - `ALIGN`: the planning stack exists, but no safe ready execution issue exists and a reconciliation pass is likely to expose or refine the next work set
 - `BACKFILL`: the canonical HELIX stack is missing, stale, or contradictory enough that continued execution would be unsafe without reconstructing or repairing the governing docs
 - `WAIT`: there is open work, but it is blocked by claimed work or a truly external dependency that code changes cannot resolve
 - `GUIDANCE`: user or stakeholder input is required before safe work can continue
 - `STOP`: there is no actionable work remaining for the scope right now
 
-`check` owns only the queue-drain `NEXT_ACTION` vocabulary above. The broader
-HELIX supervisory model may still route to bounded `plan`, `polish`, or
-`review` subroutines outside this specific `check` code set when live
-repository state or direct operator intent requires them.
+`check` owns the maintained queue-drain `NEXT_ACTION` vocabulary above. `plan`
+and `polish` are now first-class queue-drain outcomes when repository state
+shows that design authority or issue refinement must happen before execution
+can resume. `review` remains a supervisory subroutine outside this specific
+`check` code set.
 
 Supervisor interpretation:
 
 - `IMPLEMENT` means continue the bounded implementation loop now.
+- `PLAN` means run `helix plan <scope>` once, then re-evaluate the queue.
+- `POLISH` means run `helix polish <scope>` once, then re-evaluate the queue.
 - `ALIGN` means run `helix align <scope>` once, then re-evaluate the queue.
 - `BACKFILL` means stop implementation and run `helix backfill <scope>` before resuming any execution work.
 - `WAIT` means stop the current loop, do not auto-implement, and wait for the blocker to clear or the scope to change.
 - `GUIDANCE` means stop and request the missing decision from the user or stakeholder.
 - `STOP` means stop because there is no actionable work in scope.
-
-Do not invent `NEXT_ACTION: PLAN`, `NEXT_ACTION: POLISH`, or
-`NEXT_ACTION: REVIEW` unless the governing execution contract is updated
-explicitly. If those actions are indicated, describe that supervisory need in
-Artifact Health or Remaining Work Assessment while still returning the
-maintained queue-drain code that best matches the state.
 
 ## Authority Order
 
@@ -136,27 +137,32 @@ Apply these rules in order:
    - one or more safe ready HELIX execution issues exist
    - no higher-priority supervisory refinement such as required `plan` or
      `polish` remains unresolved for the same scope
-2. Recommend `BACKFILL` when:
+2. Recommend `PLAN` when:
+   - requested or discovered work lacks sufficient design authority
+   - a bounded planning pass can create or extend the missing design stack
+   - implementation would otherwise guess at solution details
+3. Recommend `POLISH` when:
+   - governing specs or designs changed and open issues need refinement before execution
+   - issue dependencies, `spec-id`, parentage, or acceptance metadata are stale enough to make implementation unsafe
+4. Recommend `BACKFILL` when:
    - the canonical HELIX stack is missing, stale, or contradictory enough to make safe execution impossible
-3. Recommend `ALIGN` when:
+5. Recommend `ALIGN` when:
    - the planning stack exists, but no safe ready execution issue exists and a reconciliation pass is likely to expose or refine the next work
-   - or supervisory review shows that requirement/design drift exists but the
-     maintained queue-drain vocabulary has no narrower code than alignment for
-     that repair step
-4. Recommend `IMPLEMENT` (not `WAIT`) when:
+   - or supervisory review shows that requirement/design drift exists above the issue queue and neither a bounded `PLAN` nor `POLISH` pass is the right narrower repair step
+6. Recommend `IMPLEMENT` (not `WAIT`) when:
    - work is blocked, but the blocking issues themselves are actionable
      (e.g., config changes, migrations, infrastructure-as-code fixes)
    - in this case, recommend implementing the blocker issue directly
-5. Recommend `WAIT` when:
+7. Recommend `WAIT` when:
    - work exists, but is claimed by another agent or blocked on a truly
      external dependency that cannot be resolved by code changes (e.g.,
      waiting for a third-party service, hardware provisioning, or human
      approval)
    - the correct supervisor response is to pause execution, surface the
      blocker, and retry only after the blocking condition changes
-6. Recommend `GUIDANCE` when:
+8. Recommend `GUIDANCE` when:
    - a user or stakeholder decision is the real blocker
-7. Recommend `STOP` when:
+9. Recommend `STOP` when:
    - there are no ready execution issues
    - no missing planning work is indicated
    - no blocked or in-progress scope requires action
@@ -172,6 +178,10 @@ Provide the exact next command for the recommended action where possible:
 
 - `IMPLEMENT`:
   - `helix implement`
+- `PLAN`:
+  - `helix plan <scope>`
+- `POLISH`:
+  - `helix polish <scope>`
 - `ALIGN`:
   - `helix align <scope>`
 - `BACKFILL`:

@@ -78,6 +78,12 @@ the first `NEXT_ACTION` result exactly:
 - `NEXT_ACTION: IMPLEMENT`
   Re-enter ready-work selection and continue only if the tracker now reports
   ready execution work.
+- `NEXT_ACTION: PLAN`
+  Run one bounded planning pass, then re-check queue state before any
+  implementation resumes.
+- `NEXT_ACTION: POLISH`
+  Run one bounded issue-refinement pass, then re-check queue state before any
+  implementation resumes.
 - `NEXT_ACTION: ALIGN`
   Run one alignment pass if auto-alignment is enabled. If the follow-up check
   still returns `ALIGN`, stop and surface the alignment command rather than

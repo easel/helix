@@ -535,6 +535,7 @@ test_check_dry_run() {
   output="$(run_helix "$root" check --dry-run repo)"
   assert_contains "$output" "codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor -C" "dry-run should print codex command"
   assert_contains "$output" "actions/check.md" "dry-run should reference check action"
+  assert_contains "$output" "IMPLEMENT, PLAN, POLISH, ALIGN, BACKFILL, WAIT, GUIDANCE, or STOP" "check dry-run should advertise the full NEXT_ACTION contract"
   rm -rf "$root"
 }
 
@@ -680,6 +681,139 @@ test_run_auto_aligns_once() {
   local calls
   calls="$(cat "$root/state/calls.log")"
   assert_eq $'check\nalign\ncheck' "$calls" "run should auto-align once when check returns ALIGN"
+  rm -rf "$root"
+}
+
+test_run_dispatches_plan_after_queue_drain() {
+  local root
+  root="$(make_workspace)"
+  printf 'PLAN\nIMPLEMENT\nSTOP\n' > "$root/state/next-actions"
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"
+  tail -n +2 "$file" > "$file.tmp" || true
+  mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"check action"*)
+    record check
+    action="$(next_action)"
+    printf 'NEXT_ACTION: %s\n' "$action"
+    ;;
+  *"plan action"*)
+    record plan
+    mkdir -p .helix
+    cat > .helix/issues.jsonl <<'EOF'
+{"id":"hx-planned","title":"planned issue","type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"SD-001","description":"","design":"","acceptance":"","deps":[],"assignee":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created":"2099-01-01T00:00:00Z","updated":"2099-01-01T00:00:00Z"}
+EOF
+    echo "PLAN_STATUS: CONVERGED"
+    echo "PLAN_DOCUMENT: docs/helix/02-design/plan-2099-01-01-repo.md"
+    ;;
+  *"implementation action"*"Implementation target: hx-planned"*)
+    record implement
+    tmp="$(jq -c 'if .id == "hx-planned" then .status = "closed" else . end' .helix/issues.jsonl)"
+    printf '%s\n' "$tmp" > .helix/issues.jsonl
+    echo "implementation complete"
+    ;;
+  *"implementation action"*)
+    echo "implementation targeted wrong issue after plan" >&2
+    exit 1
+    ;;
+  *) record other; echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  output="$(run_helix "$root" run --no-auto-review 2>&1)"
+
+  local calls
+  calls="$(cat "$root/state/calls.log")"
+  case "$calls" in
+    check$'\n'plan$'\n'implement$'\n'check*|check$'\n'plan$'\n'check$'\n'implement$'\n'check*)
+      ;;
+    *)
+      printf 'unexpected calls:\n%s\n' "$calls" >&2
+      fail "run should dispatch plan before bounded implementation resumes"
+      ;;
+  esac
+  assert_contains "$output" "queue drained, running plan" "run should report plan dispatch"
+  rm -rf "$root"
+}
+
+test_run_dispatches_polish_after_queue_drain() {
+  local root
+  root="$(make_workspace)"
+  mkdir -p "$root/work/.helix"
+  cat >"$root/work/.helix/issues.jsonl" <<'EOF'
+{"id":"hx-refine","title":"refine queue","type":"task","status":"open","priority":2,"labels":["helix","phase:design"],"parent":"","spec-id":"SD-001","description":"","design":"","acceptance":"","deps":[],"assignee":"","notes":"","execution-eligible":false,"superseded-by":"","replaces":"","created":"2099-01-01T00:00:00Z","updated":"2099-01-01T00:00:00Z"}
+EOF
+  printf 'POLISH\nIMPLEMENT\nSTOP\n' > "$root/state/next-actions"
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"
+  tail -n +2 "$file" > "$file.tmp" || true
+  mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"check action"*)
+    record check
+    action="$(next_action)"
+    printf 'NEXT_ACTION: %s\n' "$action"
+    ;;
+  *"polish action"*)
+    record polish
+    cat > .helix/issues.jsonl <<'EOF'
+{"id":"hx-polished","title":"polished issue","type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"SD-001","description":"","design":"","acceptance":"","deps":[],"assignee":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created":"2099-01-01T00:00:00Z","updated":"2099-01-01T00:00:00Z"}
+EOF
+    echo "POLISH_STATUS: CONVERGED"
+    echo "POLISH_ROUNDS: 4"
+    ;;
+  *"implementation action"*"Implementation target: hx-polished"*)
+    record implement
+    tmp="$(jq -c 'if .id == "hx-polished" then .status = "closed" else . end' .helix/issues.jsonl)"
+    printf '%s\n' "$tmp" > .helix/issues.jsonl
+    echo "implementation complete"
+    ;;
+  *"implementation action"*)
+    echo "implementation targeted wrong issue after polish" >&2
+    exit 1
+    ;;
+  *) record other; echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  output="$(run_helix "$root" run --no-auto-review 2>&1)"
+
+  local calls
+  calls="$(cat "$root/state/calls.log")"
+  case "$calls" in
+    check$'\n'polish$'\n'implement$'\n'check*|check$'\n'polish$'\n'check$'\n'implement$'\n'check*)
+      ;;
+    *)
+      printf 'unexpected calls:\n%s\n' "$calls" >&2
+      fail "run should dispatch polish before bounded implementation resumes"
+      ;;
+  esac
+  assert_contains "$output" "queue drained, running polish" "run should report polish dispatch"
   rm -rf "$root"
 }
 
@@ -1214,7 +1348,7 @@ test_extract_next_action_from_claude_output() {
     local stripped
     stripped="$(printf '%s\n' "$1" | sed 's/[*`]//g')"
     local result
-    result="$(printf '%s\n' "$stripped" | grep -oE 'NEXT_ACTION: *(IMPLEMENT|ALIGN|BACKFILL|WAIT|GUIDANCE|STOP)' | head -n1 | sed 's/^NEXT_ACTION: *//')"
+    result="$(printf '%s\n' "$stripped" | grep -oE 'NEXT_ACTION: *(IMPLEMENT|PLAN|POLISH|ALIGN|BACKFILL|WAIT|GUIDANCE|STOP)' | head -n1 | sed 's/^NEXT_ACTION: *//')"
     printf '%s' "$result"
   }
 
@@ -1240,6 +1374,12 @@ Target issue: hx-mock-1")"
 \`NEXT_ACTION: BACKFILL\`
 Some epilogue')"
   assert_eq "BACKFILL" "$result" "extract code-inline NEXT_ACTION"
+
+  result="$(extract_next_action 'NEXT_ACTION: PLAN')"
+  assert_eq "PLAN" "$result" "extract PLAN NEXT_ACTION"
+
+  result="$(extract_next_action '**NEXT_ACTION:** POLISH')"
+  assert_eq "POLISH" "$result" "extract POLISH NEXT_ACTION"
 }
 
 test_plan_dry_run() {
@@ -2073,6 +2213,8 @@ run_test "backfill dry-run" test_backfill_dry_run
 run_test "run stops after drain" test_run_stops_after_queue_drains
 run_test "periodic alignment" test_run_periodic_alignment
 run_test "auto-align" test_run_auto_aligns_once
+run_test "queue-drain plan dispatch" test_run_dispatches_plan_after_queue_drain
+run_test "queue-drain polish dispatch" test_run_dispatches_polish_after_queue_drain
 run_test "periodic alignment failure reason" test_run_reports_periodic_alignment_failure
 run_test "run stops on queue drift before close" test_run_stops_on_queue_drift_before_close
 run_test "run stops on queue drift without closing" test_run_stops_on_queue_drift_before_close_without_closing

@@ -37,6 +37,8 @@ bash tests/helix-cli.sh
 ### Loop, Queue, and Cycle Control
 
 - `run` stops after the queue drains
+- `check` can emit `PLAN` and `POLISH` when planning or issue refinement must happen before execution resumes
+- `run` dispatches bounded `plan` and `polish` passes from queue-drain `NEXT_ACTION` results, then re-checks before implementation
 - `run --review-every N` triggers periodic alignment
 - `run` auto-aligns once after `NEXT_ACTION: ALIGN`
 - `run` surfaces alignment failures
@@ -83,8 +85,8 @@ bash tests/helix-cli.sh
   agent correctness.
 - The harness should be extended if claim leases or heartbeat-based ownership
   are added to the tracker data model.
-- The harness should be extended further when execution eligibility or
-  supersession metadata becomes first-class in the tracker.
+- The harness should be extended if `check` grows additional machine-readable
+  trailers beyond `NEXT_ACTION` that affect loop control.
 
 ## Evidence
 
