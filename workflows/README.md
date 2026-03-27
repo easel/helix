@@ -12,6 +12,21 @@ A test-driven development workflow with AI-assisted collaboration for building h
 
 HELIX enforces Test-Driven Development (TDD) through a structured phase approach where tests are written BEFORE implementation. This ensures quality is built-in from the start and specifications are executable. Human creativity and AI capabilities collaborate throughout, with tests serving as the contract between design and implementation.
 
+## Public Layers
+
+HELIX exposes two public layers that should stay distinct in docs and tooling:
+
+- Portable skill package surface:
+  published at `.agents/skills`, mirrored to `~/.agents/skills`, with
+  `~/.claude/skills` retained only as a temporary compatibility mirror.
+- HELIX workflow and CLI contract:
+  the stricter method defined in `workflows/`, the built-in tracker, and the
+  `helix` wrapper commands that execute bounded actions.
+
+Use the portable layer when you need standards-compliant skill packaging. Use
+the workflow contract when you need HELIX-specific planning, queue control, and
+execution semantics.
+
 ## Normative Contract
 
 Treat the following files as the canonical HELIX workflow contract:

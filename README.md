@@ -1,11 +1,15 @@
 # HELIX
 
-A test-driven development workflow for AI-assisted software development.
+HELIX has two public layers:
 
-HELIX enforces specification-first, test-first discipline through a structured
-phase approach where tests are written BEFORE implementation. Human creativity
-and AI capabilities collaborate throughout, with tests serving as the contract
-between design and implementation.
+- a portable Agent Skills package surface published at `./.agents/skills`
+- a stricter HELIX workflow and CLI contract for planning, execution, and
+  tracker-driven delivery
+
+The workflow layer enforces specification-first, test-first discipline through
+a structured phase approach where tests are written before implementation.
+Humans and AI agents collaborate throughout, with tests serving as the
+contract between design and implementation.
 
 ## Quick Start
 
@@ -13,8 +17,8 @@ between design and implementation.
 # Install skills and CLI
 scripts/install-local-skills.sh
 
-# Run the execution loop
-helix run --agent claude
+# Run the bounded execution loop
+helix run
 
 # Or run individual commands
 helix implement
@@ -50,7 +54,7 @@ helix experiment --close
 
 ## Skills
 
-HELIX publishes its agent-compatible skill surface from the repo at
+HELIX publishes its portable skill surface from the repo at
 `./.agents/skills` and installs those same skills into the canonical user path
 `~/.agents/skills`.
 
@@ -74,8 +78,8 @@ The contract is strict: public skill names are `helix-<command>` and must
 mirror the CLI subcommand exactly.
 
 The `skills/` tree remains the implementation source for skill content and
-shared references. The project-level package surface that agents should consume
-is `./.agents/skills`.
+shared references. The project-level package surface that agent clients should
+consume is `./.agents/skills`.
 
 Required skill metadata:
 
@@ -93,19 +97,32 @@ bash tests/validate-skills.sh
 This validator checks directory-name to skill-name alignment, required
 frontmatter, and the canonical `.agents/skills -> skills/` symlink contract.
 
-## Tracker
+## Workflow Contract
 
-HELIX uses a built-in file-backed bead tracker for execution tracking.
-Canonical issues live in `.helix/issues.jsonl`. Run `helix tracker` to manage
-issues, `helix tracker import` to pull beads in from `bd`/`br` or JSONL, and
-`helix tracker export` to write bead-compatible JSONL for interop.
+The HELIX-specific operating contract lives in `workflows/` and covers:
 
-## Documentation
+- authority order and canonical documentation
+- bounded actions such as `implement`, `check`, `align`, and `backfill`
+- the built-in tracker and queue-control rules
+- the `helix` wrapper CLI used to run those actions consistently
+
+Start with:
 
 - [Workflow Overview](workflows/README.md)
 - [Execution Guide](workflows/EXECUTION.md)
 - [Tracker Guide](workflows/TRACKER.md)
 - [Reference Card](workflows/REFERENCE.md)
+
+## Tracker
+
+HELIX uses a built-in file-backed tracker for execution tracking. Canonical
+issues live in `.helix/issues.jsonl`. Run `helix tracker` to manage issues,
+`helix tracker import` to pull compatible JSONL into the canonical store, and
+`helix tracker export` to write JSONL for interop or recovery.
+
+## Documentation
+
+- [Workflow Contract](workflows/README.md)
 - [Quality Ratchets](workflows/ratchets.md)
 - [Conventions](workflows/conventions.md)
 

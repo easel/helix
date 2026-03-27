@@ -24,6 +24,13 @@ Use the bounded action prompts only when you are doing the corresponding work:
 - [reconcile-alignment.md](actions/reconcile-alignment.md)
 - [backfill-helix-docs.md](actions/backfill-helix-docs.md)
 
+Keep the public layers separate:
+
+- portable skills: `.agents/skills` in the repo and `~/.agents/skills` for the
+  installed user package
+- HELIX workflow contract: the docs in `workflows/` plus the built-in tracker
+  and `helix` CLI
+
 ## Bootstrap A Repo
 
 ```bash
@@ -40,7 +47,8 @@ Notes:
 - The installer installs that package surface into `~/.agents/skills`.
 - It also mirrors them into `~/.claude/skills` until Claude documents
   `.agents/skills` support.
-- The wrapper is optional but preferred for operator loops.
+- The wrapper is optional for skill packaging and preferred for HELIX operator
+  loops.
 
 ## Build The Canonical Planning Stack
 
@@ -80,21 +88,12 @@ See [TRACKER.md](TRACKER.md) for the mapping and examples.
 
 ## Run The Queue
 
-Preferred wrapper commands:
+Preferred HELIX wrapper commands:
 
 ```bash
 helix run
 helix implement
 helix check repo
-helix align repo
-helix backfill repo
-```
-
-These are equivalent to direct action commands:
-
-```bash
-helix implement
-helix check
 helix align repo
 helix backfill repo
 ```
@@ -135,9 +134,11 @@ helix check
 
 ## Validation
 
-When you change HELIX wrapper behavior or its contract docs, run:
+When you change HELIX wrapper behavior, skill packaging docs, or the workflow
+contract, run:
 
 ```bash
 bash tests/helix-cli.sh
+bash tests/validate-skills.sh
 git diff --check
 ```

@@ -8,8 +8,8 @@ dun:
 # HELIX Execution Guide
 
 This guide covers operator-facing HELIX execution flow: how to run bounded work
-passes, how to decide whether more work remains, and how to automate the queue
-for Codex or Claude Code.
+passes, how to decide whether more work remains, and how the HELIX wrapper
+controls the queue.
 
 For tracker integration, labels, `spec-id`, and `helix tracker` conventions,
 see [TRACKER.md](TRACKER.md).
@@ -23,6 +23,10 @@ This document owns HELIX execution behavior.
   action-specific behavior.
 - Treat examples elsewhere in `workflows/` as supportive summaries, not
   alternate execution contracts.
+
+This is the HELIX-specific layer, not the portable skill packaging layer. Skill
+installation lives at `.agents/skills`; queue control and action semantics live
+here.
 
 ## Core Actions
 
@@ -109,55 +113,6 @@ Interpret `check` as follows:
   do not clear a claim, revert files, or touch unrelated work without tracker
   evidence that the abandoned work belongs to that issue.
 
-## Agent Loops
-
-The examples below assume a trusted local repository.
-
-- Codex is intentionally run with `--dangerously-bypass-approvals-and-sandbox`
-  and `--progress-cursor`.
-
-### Codex
-
-```bash
-while [ "$(helix_ready_count)" -gt 0 ]; do
-  codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor -C "$PWD" --ephemeral <<'EOF'
-Use the HELIX implementation action at workflows/actions/implementation.md.
-Execute one ready HELIX execution issue end-to-end.
-Follow the action exactly.
-EOF
-done
-
-codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor -C "$PWD" --ephemeral <<'EOF'
-Use the HELIX check action at workflows/actions/check.md.
-Return the required NEXT_ACTION line and the exact next command.
-Follow the action exactly.
-EOF
-```
-
-### Claude Code
-
-```bash
-while [ "$(helix_ready_count)" -gt 0 ]; do
-  claude -p \
-    --permission-mode bypassPermissions \
-    --dangerously-skip-permissions \
-    --no-session-persistence <<'EOF'
-Use the HELIX implementation action at workflows/actions/implementation.md.
-Execute one ready HELIX execution issue end-to-end.
-Follow the action exactly.
-EOF
-done
-
-claude -p \
-  --permission-mode bypassPermissions \
-  --dangerously-skip-permissions \
-  --no-session-persistence <<'EOF'
-Use the HELIX check action at workflows/actions/check.md.
-Return the required NEXT_ACTION line and the exact next command.
-Follow the action exactly.
-EOF
-```
-
 ## `helix run`
 
 This repo also provides a small wrapper CLI at `scripts/helix`.
@@ -191,8 +146,6 @@ Main commands:
 - may run `helix review` after each successful implementation pass when review
   automation is enabled
 - stops on `WAIT`, `BACKFILL`, `GUIDANCE`, or `STOP`
-- uses `codex --dangerously-bypass-approvals-and-sandbox exec
-  --progress-cursor` when `--agent codex` is selected
 - uses the built-in tracker for queue state
 - does not attempt an unblock implementation pass after `WAIT`
 - does not auto-dispatch `helix backfill`
@@ -203,7 +156,6 @@ Examples:
 
 ```bash
 helix run
-helix run --agent claude
 helix run --review-every 5
 helix check repo
 helix align auth
@@ -212,7 +164,7 @@ helix align auth
 ## Reproducible Testing
 
 The wrapper should be tested with deterministic command stubs rather than live
-Codex or Claude sessions.
+agent sessions.
 
 Run:
 
@@ -223,7 +175,7 @@ bash tests/helix-cli.sh
 This harness:
 
 - creates temporary git workspaces
-- stubs `helix tracker`, `codex`, and `claude`
+- stubs `helix tracker` and agent command execution
 - drives exact ready-queue and `NEXT_ACTION` sequences
 - verifies `helix run`, periodic alignment, auto-alignment, dry-run output, and
   installer behavior

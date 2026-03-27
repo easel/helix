@@ -10,7 +10,7 @@ dun:
 
 - [README.md](README.md): high-level model and authority order
 - [EXECUTION.md](EXECUTION.md): queue control and operator loop
-- [TRACKER.md](TRACKER.md): built-in bead tracker mapping, backend contract, and labels
+- [TRACKER.md](TRACKER.md): built-in tracker mapping, backend contract, and labels
 - [implementation.md](actions/implementation.md): one bounded execution pass
 - [check.md](actions/check.md): queue-drain decision
 - [reconcile-alignment.md](actions/reconcile-alignment.md): top-down review
@@ -59,6 +59,9 @@ Installed agent skills mirror CLI commands exactly: `helix-<command>` maps to
 Canonical project package path: `./.agents/skills`
 Canonical user install path: `~/.agents/skills`
 Claude compatibility path: `~/.claude/skills`
+
+HELIX-specific execution behavior lives in the workflow contract and wrapper
+commands, not in the portable skill packaging layer.
 
 ### Execution Commands
 
@@ -153,9 +156,11 @@ do not replace the bounded execution contract.
 
 ## Validation
 
-When changing HELIX wrapper behavior or the execution contract:
+When changing HELIX wrapper behavior, skill packaging docs, or the execution
+contract:
 
 ```bash
 bash tests/helix-cli.sh
+bash tests/validate-skills.sh
 git diff --check
 ```

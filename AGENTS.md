@@ -51,6 +51,12 @@ Key rules:
   this repo. This repo defines the pattern and the integration points in
   action prompts and enforcers.
 
+Think about HELIX in two layers:
+
+- portable skills packaged from `.agents/skills`
+- the stricter HELIX workflow and CLI contract defined under `workflows/` and
+  executed through `helix`
+
 ## HELIX Skills
 
 Installed agent skills mirror CLI commands exactly:
@@ -131,6 +137,9 @@ validator:
 - `skills/*/SKILL.md`
 - `.agents/skills`
 - docs that change the HELIX skill packaging contract
+
+If you change docs that redefine how portable skills and the HELIX workflow
+contract are presented publicly, run both harnesses.
 
 Required checks:
 
