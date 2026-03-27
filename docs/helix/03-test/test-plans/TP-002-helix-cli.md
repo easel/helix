@@ -76,8 +76,6 @@ bash tests/helix-cli.sh
 
 - The current harness validates prompt shape and loop behavior, not live remote
   agent correctness.
-- The harness does not validate tmux or `ntm` success paths; it only checks the
-  no-`ntm` fallback.
 - The harness should be extended if claim leases or heartbeat-based ownership
   are added to the tracker data model.
 

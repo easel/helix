@@ -73,4 +73,4 @@ available as direct interactive entrypoints.
 - [Product Vision](/home/erik/Projects/helix/docs/helix/00-discover/product-vision.md)
 - [PRD](/home/erik/Projects/helix/docs/helix/01-frame/prd.md)
 - [HELIX Supervisory Control Solution Design](/home/erik/Projects/helix/docs/helix/02-design/solution-designs/SD-001-helix-supervisory-control.md)
-- [HELIX CLI Technical Design](/home/erik/Projects/helix/docs/helix/02-design/technical-designs/TD-001-helix-cli.md)
+- [HELIX CLI Technical Design](/home/erik/Projects/helix/docs/helix/02-design/technical-designs/TD-002-helix-cli.md)

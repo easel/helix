@@ -86,8 +86,11 @@ The CLI must expose these top-level commands:
 
 ### Local Installation
 
-- `scripts/install-local-skills.sh` must install the HELIX skills into Codex and
-  Claude skill directories.
+- `scripts/install-local-skills.sh` must install the HELIX skill entrypoints
+  into the canonical `~/.agents/skills` location and mirror them into
+  `~/.claude/skills` for Claude compatibility.
+- The installed skill links must preserve package-relative access back to the
+  shared `workflows/` resource library in the HELIX repo.
 - The installer must create `~/.local/bin/helix` as a launcher that invokes the
   repository's `scripts/helix`.
 

@@ -1,4 +1,4 @@
-# Technical Design: TD-001-helix-cli
+# Technical Design: TD-002-helix-cli
 
 **Status**: backfilled
 **Backfill Date**: 2026-03-25
@@ -189,9 +189,11 @@ freshness metadata when the tracker schema is extended.
 
 ### 6. Installer
 
-`scripts/install-local-skills.sh` links the HELIX skills into Codex and Claude
-skill directories, makes `scripts/helix` executable, and installs a local
-`helix` launcher under `~/.local/bin`.
+`scripts/install-local-skills.sh` links the HELIX skill entrypoints into
+`~/.agents/skills`, mirrors them into `~/.claude/skills` for Claude
+compatibility, preserves package-relative access back to the repository's
+shared `workflows/` library, makes `scripts/helix` executable, and installs a
+local `helix` launcher under `~/.local/bin`.
 
 ### 7. Deterministic Test Harness
 
