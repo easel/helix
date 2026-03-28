@@ -12,7 +12,8 @@ the source of truth for the workflow contract.
 ## Quick Reference
 
 ```bash
-helix tracker ready           # Find available work
+helix tracker ready           # Find available tracked work
+helix tracker ready --execution # Find execution-safe work for helix run
 helix tracker show <id>       # View issue details
 helix tracker update <id> --claim  # Claim work
 helix tracker close <id>      # Complete work
@@ -39,10 +40,11 @@ When working on HELIX itself in this repo:
 Key rules:
 
 - Use the built-in tracker (`helix tracker`); do not use external issue trackers.
-- For ready-work detection, use `helix tracker ready`, not manual JSONL parsing.
+- For general ready-work detection, use `helix tracker ready`, not manual JSONL parsing.
+- For execution selection or `helix run` reasoning, use `helix tracker ready --execution`.
 - Keep `implementation` single-shot and bounded to one issue per run.
 - Use `check` when the ready queue drains to decide whether to implement,
-  align, backfill, wait, ask for guidance, or stop.
+  plan, polish, align, backfill, wait, ask for guidance, or stop.
 - Keep alignment and backfill as separate cross-phase actions:
   - `workflows/actions/reconcile-alignment.md`
   - `workflows/actions/backfill-helix-docs.md`
@@ -106,13 +108,18 @@ helix experiment hx-abc123            # one experiment iteration
 helix experiment --close              # squash-merge and close session
 helix tracker create "Title" --type task --labels helix,phase:build
 helix tracker ready --json            # machine-readable ready queue
+helix tracker ready --json --execution # machine-readable execution-safe queue
 helix tracker status                  # tracker health summary
 ```
 
 `helix run` is the preferred operator loop. It:
 
 - loops only while true ready HELIX execution work exists
+- may route to `helix plan` or `helix polish` when supervisory state requires
+  bounded planning or issue refinement before implementation resumes
 - executes one bounded implementation pass at a time
+- may run `helix review` after a successful implementation pass when review
+  automation is enabled
 - runs `check` when the queue drains
 - can run periodic alignment reviews
 
@@ -229,6 +236,7 @@ Experiments are operator-invoked. `helix check` does not auto-dispatch them.
 
 ```bash
 helix tracker ready --json
+helix tracker ready --json --execution
 ```
 
 **Create new issues:**
