@@ -815,7 +815,7 @@ run_loop() {
       continue
     fi
 
-    local check_output
+    local check_output=""
     if ! check_output="$(run_check repo)"; then
       echo "helix: check failed after queue drain" >&2
       return 1
