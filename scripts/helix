@@ -22,6 +22,7 @@ target_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 source "$script_dir/tracker.sh"
 
 agent="${HELIX_AGENT:-codex}"
+review_agent="${HELIX_REVIEW_AGENT:-}"
 review_every=5
 max_cycles=0
 auto_align=1
@@ -79,6 +80,7 @@ Options:
   --max-cycles      Stop after N completed implementation cycles
   --no-auto-align   Do not auto-run alignment when check returns ALIGN
   --no-auto-review  Do not run fresh-eyes review after each implementation
+  --review-agent    Use a different agent for reviews (cross-model review)
   --dry-run         Print the agent command instead of executing it
   --quiet, -q       Suppress progress output (command echo, prompt sizes)
 
@@ -731,11 +733,77 @@ run_backfill() {
   esac
 }
 
+plan_critique_prompt() {
+  local scope="${1:-}"
+  local plan_file="${2:-}"
+  cat <<EOF
+You are reviewing a HELIX design plan for errors, omissions, blunders,
+mischaracterizations, and ambiguities.
+
+Read the plan at ${plan_file} and the action template at
+${helix_docs_root}/actions/plan.md.
+
+Execute in the current repository rooted at ${target_root}.
+Plan scope: ${scope:-repo}.
+
+Review the plan against:
+1. The project's actual code and artifacts (read them, don't guess)
+2. The authority order (vision > requirements > specs > architecture > designs > tests > code)
+3. Every section required by the plan template
+
+For each issue found, categorize it:
+- ERROR: factually wrong, contradicts existing code or artifacts
+- OMISSION: missing section, edge case, failure mode, or dependency
+- BLUNDER: architecturally unsound, will cause problems at scale or under failure
+- MISCHARACTERIZATION: describes existing system incorrectly
+- AMBIGUITY: could be interpreted multiple ways, needs to be precise
+
+Update the plan file directly — fix errors, fill omissions, resolve ambiguities.
+For issues you cannot resolve, add a clearly marked OPEN QUESTION.
+
+After updating, append to the plan:
+
+## Cross-Model Review Round
+- Reviewer: [your model identity]
+- Issues found: [count by category]
+- Summary of changes made
+
+Follow the action exactly. Do the work — do not just describe what you would do.
+EOF
+}
+
 run_plan() {
   local scope="${1:-}"
   local rounds="${2:-5}"
   # Planning does NOT require tracker — it happens before issue creation
   run_agent_prompt "$(plan_prompt "$scope" "$rounds")"
+
+  # Cross-model critique: if review_agent is configured, alternate agents
+  # for additional refinement passes on the written plan
+  if [[ -n "$review_agent" ]] && [[ "$review_agent" != "$agent" ]] && (( ! dry_run )); then
+    # Find the plan file just written
+    local plan_file
+    plan_file="$(find "${target_root}/docs" -name "plan-*${scope}*.md" -newer "$helix_log" 2>/dev/null | head -1)" || true
+    if [[ -z "$plan_file" ]]; then
+      plan_file="$(find "${target_root}/docs" -name "plan-*.md" -newer "$helix_log" 2>/dev/null | head -1)" || true
+    fi
+
+    if [[ -n "$plan_file" ]]; then
+      local agents=("$review_agent" "$agent")
+      local critique_rounds=2
+      local i
+      for ((i = 0; i < critique_rounds; i++)); do
+        local critique_agent="${agents[$((i % 2))]}"
+        local _saved_agent="$agent"
+        agent="$critique_agent"
+        printf 'helix: cross-model plan critique round %s using %s\n' "$((i + 1))" "$agent" >&2
+        run_agent_prompt "$(plan_critique_prompt "$scope" "$plan_file")"
+        agent="$_saved_agent"
+      done
+    else
+      printf 'helix: no plan file found for cross-model critique\n' >&2
+    fi
+  fi
 }
 
 run_polish() {
@@ -750,8 +818,20 @@ run_polish() {
 run_review() {
   local scope="${1:-last-commit}"
   local in_loop="${2:-0}"
+
+  # Cross-model review: use a different agent for reviews if configured
+  local _saved_agent=""
+  if [[ -n "$review_agent" ]] && [[ "$review_agent" != "$agent" ]]; then
+    _saved_agent="$agent"
+    agent="$review_agent"
+    if (( ! quiet )); then
+      printf 'helix: cross-model review: switching to %s\n' "$agent" >&2
+    fi
+  fi
+
   if (( dry_run )); then
     run_agent_prompt "$(review_prompt "$scope" "$in_loop")"
+    [[ -n "$_saved_agent" ]] && agent="$_saved_agent"
     return 0
   fi
 
@@ -759,30 +839,33 @@ run_review() {
   output="$(run_agent_prompt "$(review_prompt "$scope" "$in_loop")")"
   printf '%s\n' "$output"
 
+  # Restore agent before returning
+  _restore_review_agent() { [[ -n "$_saved_agent" ]] && agent="$_saved_agent"; }
+
   local status
   status="$(extract_review_status "$output" || true)"
   if [[ -z "$status" ]]; then
     echo "helix: review output missing REVIEW_STATUS trailer" >&2
-    return 1
+    _restore_review_agent; return 1
   fi
 
   case "$status" in
     CLEAN)
-      return 0
+      _restore_review_agent; return 0
       ;;
     ISSUES_FOUND)
       local issues_count
       issues_count="$(extract_review_issues_count "$output" || true)"
       if [[ -z "$issues_count" ]]; then
         echo "helix: review output missing ISSUES_COUNT trailer" >&2
-        return 1
+        _restore_review_agent; return 1
       fi
       printf 'helix: review reported %s actionable issue(s)\n' "$issues_count" >&2
-      return 10
+      _restore_review_agent; return 10
       ;;
     *)
       echo "helix: unknown REVIEW_STATUS: $status" >&2
-      return 1
+      _restore_review_agent; return 1
       ;;
   esac
 }
@@ -1271,6 +1354,10 @@ main() {
           --no-auto-review)
             auto_review=0
             shift
+            ;;
+          --review-agent)
+            review_agent="$2"
+            shift 2
             ;;
           *)
             echo "unknown option for run: $1" >&2
