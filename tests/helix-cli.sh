@@ -382,6 +382,7 @@ run_helix() {
     PATH="$root/bin:$PATH" \
     MOCK_STATE_ROOT="$root/state" \
     HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+    HELIX_SKIP_TRIAGE="${HELIX_SKIP_TRIAGE:-0}" \
     bash "$repo_root/scripts/helix" "$cmd" --quiet "$@"
   )
 }
@@ -437,7 +438,7 @@ test_tracker_create_and_show() {
   local root
   root="$(make_workspace)"
   local id
-  id="$(run_helix "$root" tracker create "Test issue" --type task --labels helix,phase:build)"
+  id="$(run_helix "$root" tracker create "Test issue" --type task --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
   [[ -n "$id" ]] || fail "tracker create should return an ID"
 
   local output
@@ -451,8 +452,8 @@ test_tracker_ready_and_blocked() {
   local root
   root="$(make_workspace)"
   local id1 id2
-  id1="$(run_helix "$root" tracker create "First")"
-  id2="$(run_helix "$root" tracker create "Second")"
+  id1="$(run_helix "$root" tracker create "First" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
+  id2="$(run_helix "$root" tracker create "Second" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
   run_helix "$root" tracker dep add "$id2" "$id1" >/dev/null
 
   local ready_count
@@ -477,7 +478,7 @@ test_tracker_update_and_claim() {
   local root
   root="$(make_workspace)"
   local id
-  id="$(run_helix "$root" tracker create "Claim me")"
+  id="$(run_helix "$root" tracker create "Claim me" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
 
   run_helix "$root" tracker update "$id" --claim >/dev/null
   local status
@@ -493,8 +494,8 @@ test_tracker_update_and_claim() {
 test_tracker_status() {
   local root
   root="$(make_workspace)"
-  run_helix "$root" tracker create "One" >/dev/null
-  run_helix "$root" tracker create "Two" >/dev/null
+  run_helix "$root" tracker create "One" --labels helix,phase:build --spec-id TEST --acceptance "test passes" >/dev/null
+  run_helix "$root" tracker create "Two" --labels helix,phase:build --spec-id TEST --acceptance "test passes" >/dev/null
 
   local output
   output="$(run_helix "$root" tracker status)"
@@ -1353,7 +1354,7 @@ test_run_recovery_preserves_unrelated_dirty_changes() {
   local root
   root="$(make_workspace)"
   local issue_id
-  issue_id="$(run_helix "$root" tracker create "Claimed task" --labels helix,phase:build)"
+  issue_id="$(run_helix "$root" tracker create "Claimed task" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
   run_helix "$root" tracker update "$issue_id" --claim >/dev/null
 
   (
@@ -1807,7 +1808,7 @@ test_tracker_close_sets_status() {
   local root
   root="$(make_workspace)"
   local id
-  id="$(run_helix "$root" tracker create "Close me")"
+  id="$(run_helix "$root" tracker create "Close me" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
 
   run_helix "$root" tracker close "$id" >/dev/null
   local status
@@ -1825,7 +1826,7 @@ test_tracker_update_multiple_fields() {
   local root
   root="$(make_workspace)"
   local id
-  id="$(run_helix "$root" tracker create "Multi update" --priority 2)"
+  id="$(run_helix "$root" tracker create "Multi update" --priority 2 --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
 
   run_helix "$root" tracker update "$id" --priority 0 --title "Urgent" --assignee agent >/dev/null
 
@@ -1841,8 +1842,8 @@ test_tracker_list_filters() {
   local root
   root="$(make_workspace)"
   local id1 id2
-  id1="$(run_helix "$root" tracker create "Open task" --labels helix,phase:build)"
-  id2="$(run_helix "$root" tracker create "Other task" --labels helix,phase:test)"
+  id1="$(run_helix "$root" tracker create "Open task" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
+  id2="$(run_helix "$root" tracker create "Other task" --labels helix,phase:iterate --spec-id TEST --acceptance "test passes")"
 
   run_helix "$root" tracker close "$id1" >/dev/null
 
@@ -1866,8 +1867,8 @@ test_tracker_dep_add_and_remove() {
   local root
   root="$(make_workspace)"
   local id1 id2
-  id1="$(run_helix "$root" tracker create "Parent")"
-  id2="$(run_helix "$root" tracker create "Child")"
+  id1="$(run_helix "$root" tracker create "Parent" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
+  id2="$(run_helix "$root" tracker create "Child" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
 
   # Add dep
   run_helix "$root" tracker dep add "$id2" "$id1" >/dev/null
@@ -1892,8 +1893,8 @@ test_tracker_dep_tree() {
   local root
   root="$(make_workspace)"
   local id1 id2
-  id1="$(run_helix "$root" tracker create "Dep parent")"
-  id2="$(run_helix "$root" tracker create "Dep child")"
+  id1="$(run_helix "$root" tracker create "Dep parent" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
+  id2="$(run_helix "$root" tracker create "Dep child" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
   run_helix "$root" tracker dep add "$id2" "$id1" >/dev/null
 
   local output
@@ -1909,9 +1910,9 @@ test_tracker_unique_ids() {
 
   # Create multiple issues and verify IDs are unique
   local id1 id2 id3
-  id1="$(run_helix "$root" tracker create "First")"
-  id2="$(run_helix "$root" tracker create "Second")"
-  id3="$(run_helix "$root" tracker create "Third")"
+  id1="$(run_helix "$root" tracker create "First" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
+  id2="$(run_helix "$root" tracker create "Second" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
+  id3="$(run_helix "$root" tracker create "Third" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
 
   [[ "$id1" != "$id2" ]] || fail "issue IDs should be unique (1 vs 2)"
   [[ "$id2" != "$id3" ]] || fail "issue IDs should be unique (2 vs 3)"
@@ -1923,7 +1924,7 @@ test_tracker_json_output() {
   local root
   root="$(make_workspace)"
   local id
-  id="$(run_helix "$root" tracker create "JSON test" --type bug --labels area:cli --description "Test desc" --acceptance "Tests pass")"
+  id="$(run_helix "$root" tracker create "JSON test" --type bug --labels area:cli,helix,phase:build --description "Test desc" --acceptance "Tests pass")"
 
   # Verify JSON output is valid and has all fields
   local json
@@ -1942,8 +1943,8 @@ test_tracker_create_with_deps() {
   local root
   root="$(make_workspace)"
   local parent child
-  parent="$(run_helix "$root" tracker create "Parent issue")"
-  child="$(run_helix "$root" tracker create "Child issue" --deps "$parent")"
+  parent="$(run_helix "$root" tracker create "Parent issue" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
+  child="$(run_helix "$root" tracker create "Child issue" --deps "$parent" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
 
   local dep_id
   dep_id="$(run_helix "$root" tracker show "$child" --json | jq -r '.deps[0]')"
@@ -1955,9 +1956,9 @@ test_tracker_update_structural_fields() {
   local root
   root="$(make_workspace)"
   local parent dep target
-  parent="$(run_helix "$root" tracker create "Parent issue")"
-  dep="$(run_helix "$root" tracker create "Dependency issue")"
-  target="$(run_helix "$root" tracker create "Target issue")"
+  parent="$(run_helix "$root" tracker create "Parent issue" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
+  dep="$(run_helix "$root" tracker create "Dependency issue" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
+  target="$(run_helix "$root" tracker create "Target issue" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
 
   run_helix "$root" tracker update "$target" --spec-id TP-999 --parent "$parent" --deps "$dep" >/dev/null
 
@@ -1973,8 +1974,8 @@ test_tracker_update_execution_metadata_fields() {
   local root
   root="$(make_workspace)"
   local target replacement
-  target="$(run_helix "$root" tracker create "Target issue" --labels helix,phase:build,kind:build)"
-  replacement="$(run_helix "$root" tracker create "Replacement issue" --labels helix,phase:build,kind:build)"
+  target="$(run_helix "$root" tracker create "Target issue" --labels helix,phase:build,kind:build --spec-id TEST --acceptance "test passes")"
+  replacement="$(run_helix "$root" tracker create "Replacement issue" --labels helix,phase:build,kind:build --spec-id TEST --acceptance "test passes")"
 
   run_helix "$root" tracker update "$target" \
     --execution-eligible false \
@@ -1992,9 +1993,9 @@ test_tracker_update_execution_metadata_fields() {
 test_tracker_status_json() {
   local root
   root="$(make_workspace)"
-  run_helix "$root" tracker create "A" >/dev/null
+  run_helix "$root" tracker create "A" --labels helix,phase:build --spec-id TEST --acceptance "test passes" >/dev/null
   local id
-  id="$(run_helix "$root" tracker create "B")"
+  id="$(run_helix "$root" tracker create "B" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
   run_helix "$root" tracker close "$id" >/dev/null
 
   local json
@@ -2009,7 +2010,7 @@ test_tracker_in_progress_not_ready() {
   local root
   root="$(make_workspace)"
   local id
-  id="$(run_helix "$root" tracker create "Claimed task")"
+  id="$(run_helix "$root" tracker create "Claimed task" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
   run_helix "$root" tracker update "$id" --claim >/dev/null
 
   local ready_count
@@ -2031,9 +2032,9 @@ test_tracker_ready_execution_filters_metadata() {
   local root
   root="$(make_workspace)"
   local runnable refinement superseded
-  runnable="$(run_helix "$root" tracker create "Runnable" --labels helix,phase:build,kind:build)"
-  refinement="$(run_helix "$root" tracker create "Refinement" --labels helix,phase:design --execution-eligible false)"
-  superseded="$(run_helix "$root" tracker create "Superseded" --labels helix,phase:build,kind:build)"
+  runnable="$(run_helix "$root" tracker create "Runnable" --labels helix,phase:build,kind:build --spec-id TEST --acceptance "test passes")"
+  refinement="$(run_helix "$root" tracker create "Refinement" --labels helix,phase:design --execution-eligible false --spec-id TEST --acceptance "test passes")"
+  superseded="$(run_helix "$root" tracker create "Superseded" --labels helix,phase:build,kind:build --spec-id TEST --acceptance "test passes")"
   run_helix "$root" tracker update "$superseded" --superseded-by "$runnable" >/dev/null
 
   local ready_ids
@@ -2046,13 +2047,13 @@ test_tracker_serializes_concurrent_writes() {
   local root
   root="$(make_workspace)"
 
-  run_helix_with_env "$root" HELIX_TRACKER_TEST_HOLD_LOCK_SEC 0.3 tracker create "First concurrent issue" >/dev/null &
+  run_helix_with_env "$root" HELIX_TRACKER_TEST_HOLD_LOCK_SEC 0.3 tracker create "First concurrent issue" --labels helix,phase:build --spec-id TEST --acceptance "test passes" >/dev/null &
   local first_pid=$!
 
   sleep 0.05
 
   local second_id
-  second_id="$(run_helix "$root" tracker create "Second concurrent issue")"
+  second_id="$(run_helix "$root" tracker create "Second concurrent issue" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
   wait "$first_pid"
 
   local count
@@ -2074,7 +2075,7 @@ test_tracker_lock_timeout_reports_owner() {
   printf '2099-01-01T00:00:00Z\n' > "$root/work/.helix/issues.lock/acquired_at"
 
   local output
-  output="$(run_helix_with_env "$root" HELIX_TRACKER_LOCK_TIMEOUT 0 tracker create "Blocked by lock" 2>&1 || true)"
+  output="$(run_helix_with_env "$root" HELIX_TRACKER_LOCK_TIMEOUT 0 tracker create "Blocked by lock" --labels helix,phase:build --spec-id TEST --acceptance "test passes" 2>&1 || true)"
   assert_contains "$output" "timed out waiting for tracker lock" "lock timeout should be reported"
   assert_contains "$output" "owner: 424242" "lock timeout should report the recorded lock owner"
 
@@ -2166,7 +2167,7 @@ test_tracker_import_warns_existing_data() {
   root="$(make_workspace)"
 
   # Seed existing tracker data
-  run_helix "$root" tracker create "Existing issue" >/dev/null
+  run_helix "$root" tracker create "Existing issue" --labels helix,phase:build --spec-id TEST --acceptance "test passes" >/dev/null
 
   # Create legacy data
   mkdir -p "$root/work/.beads"
@@ -2257,7 +2258,7 @@ test_tracker_export_writes_beads_jsonl() {
   local root
   root="$(make_workspace)"
   local id
-  id="$(run_helix "$root" tracker create "Export me" --type bug --labels helix,area:cli)"
+  id="$(run_helix "$root" tracker create "Export me" --type bug --labels helix,phase:build,area:cli)"
   run_helix "$root" tracker update "$id" --claim >/dev/null
 
   local export_path
@@ -2279,8 +2280,8 @@ test_tracker_export_writes_beads_jsonl() {
 test_tracker_export_stdout_roundtrip() {
   local root
   root="$(make_workspace)"
-  run_helix "$root" tracker create "Round trip A" >/dev/null
-  run_helix "$root" tracker create "Round trip B" --labels helix >/dev/null
+  run_helix "$root" tracker create "Round trip A" --labels helix,phase:build --spec-id TEST --acceptance "test passes" >/dev/null
+  run_helix "$root" tracker create "Round trip B" --labels helix,phase:build --spec-id TEST --acceptance "test passes" >/dev/null
 
   mkdir -p "$root/work/tmp"
   run_helix "$root" tracker export --stdout > "$root/work/tmp/export.jsonl"
@@ -2393,5 +2394,82 @@ run_test "recovery preserves unrelated dirty changes" test_run_recovery_preserve
 # kill the process group, then re-enable.
 # run_test "claude agent timeout kills process" test_claude_agent_timeout_kills_process
 run_test "implement prompt references tracker" test_implement_prompt_references_tracker
+
+# ── triage validation tests ───────────────────────────────────────────
+
+test_triage_rejects_task_without_spec_id() {
+  local root
+  root="$(make_workspace)"
+  assert_fails "task without spec-id should fail" \
+    run_helix "$root" tracker create "Missing spec" --labels helix,phase:build --acceptance "test"
+  rm -rf "$root"
+}
+
+test_triage_rejects_task_without_acceptance() {
+  local root
+  root="$(make_workspace)"
+  assert_fails "task without acceptance should fail" \
+    run_helix "$root" tracker create "Missing AC" --labels helix,phase:build --spec-id TEST
+  rm -rf "$root"
+}
+
+test_triage_rejects_missing_helix_label() {
+  local root
+  root="$(make_workspace)"
+  assert_fails "issue without helix label should fail" \
+    run_helix "$root" tracker create "No helix" --labels phase:build --spec-id TEST --acceptance "test"
+  rm -rf "$root"
+}
+
+test_triage_rejects_missing_phase_label() {
+  local root
+  root="$(make_workspace)"
+  assert_fails "issue without phase label should fail" \
+    run_helix "$root" tracker create "No phase" --labels helix --spec-id TEST --acceptance "test"
+  rm -rf "$root"
+}
+
+test_triage_rejects_epic_without_acceptance() {
+  local root
+  root="$(make_workspace)"
+  assert_fails "epic without acceptance should fail" \
+    run_helix "$root" tracker create "Bad epic" --type epic --labels helix,phase:build --spec-id TEST
+  rm -rf "$root"
+}
+
+test_triage_allows_bug_without_spec_id() {
+  local root
+  root="$(make_workspace)"
+  local id
+  id="$(run_helix "$root" tracker create "Good bug" --type bug --labels helix,phase:build)"
+  assert_contains "$id" "hx-" "bug without spec-id should succeed"
+  rm -rf "$root"
+}
+
+test_triage_allows_valid_task() {
+  local root
+  root="$(make_workspace)"
+  local id
+  id="$(run_helix "$root" tracker create "Good task" --labels helix,phase:build,kind:build --spec-id SD-001 --acceptance "tests pass")"
+  assert_contains "$id" "hx-" "valid task should succeed"
+  rm -rf "$root"
+}
+
+test_triage_rejects_nonexistent_dep() {
+  local root
+  root="$(make_workspace)"
+  assert_fails "dep on nonexistent issue should fail" \
+    run_helix "$root" tracker create "Bad dep" --labels helix,phase:build --spec-id TEST --acceptance "test" --deps hx-nonexistent
+  rm -rf "$root"
+}
+
+run_test "triage rejects task without spec-id" test_triage_rejects_task_without_spec_id
+run_test "triage rejects task without acceptance" test_triage_rejects_task_without_acceptance
+run_test "triage rejects missing helix label" test_triage_rejects_missing_helix_label
+run_test "triage rejects missing phase label" test_triage_rejects_missing_phase_label
+run_test "triage rejects epic without acceptance" test_triage_rejects_epic_without_acceptance
+run_test "triage allows bug without spec-id" test_triage_allows_bug_without_spec_id
+run_test "triage allows valid task" test_triage_allows_valid_task
+run_test "triage rejects nonexistent dep" test_triage_rejects_nonexistent_dep
 
 echo "PASS: ${test_count} helix wrapper tests"

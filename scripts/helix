@@ -51,6 +51,7 @@ Usage:
   helix next
   helix review [--agent codex|claude] [scope]
   helix experiment [--agent codex|claude] [--close] [issue-id|goal]
+  helix triage "Title" [--type task|epic|bug|chore] [tracker create options...]
   helix tracker <command> [args...]
   helix help
 
@@ -65,6 +66,7 @@ Commands:
   next        Show recommended next issue
   review      Fresh-eyes review of recent work
   experiment  Run one experiment iteration for metric-driven optimization
+  triage      Create a validated tracker issue with required metadata
   tracker     Built-in bead tracker (init, create, show, update, close, list, ready, blocked, dep, status, import, export)
 
 Options:
@@ -1288,6 +1290,13 @@ main() {
         esac
       done
       run_experiment "${1:-}" "$experiment_close"
+      ;;
+    triage)
+      # helix triage passes through to tracker create with validation enabled
+      parse_common_flags "$@"
+      set -- "${REMAINING_ARGS[@]}"
+      require_tracker
+      tracker_create "$@"
       ;;
     tracker)
       parse_common_flags "$@"

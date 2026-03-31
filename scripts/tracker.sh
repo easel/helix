@@ -144,6 +144,114 @@ tracker_normalize_issue_array() {
   '
 }
 
+# ── triage validation ──────────────────────────────────────────────────
+
+# Validate issue fields before creation.
+# Returns: 0=ok, 1=hard error (blocks creation), 2=warning (proceeds).
+# Errors/warnings printed to stderr with [triage] prefix.
+tracker_validate_create() {
+  local type="$1" labels="$2" spec_id="$3" acceptance="$4" deps="$5"
+  local rc=0
+
+  # Hard: helix label required
+  case ",${labels}," in
+    *,helix,*) ;;
+    *)
+      printf '[triage] error: missing required label "helix"\n' >&2
+      rc=1
+      ;;
+  esac
+
+  # Hard: at least one phase label
+  case ",${labels}," in
+    *,phase:build,*|*,phase:deploy,*|*,phase:iterate,*|*,phase:design,*|*,phase:review,*) ;;
+    *)
+      printf '[triage] error: missing phase label (phase:build, phase:deploy, phase:iterate, phase:design, or phase:review)\n' >&2
+      rc=1
+      ;;
+  esac
+
+  # Hard: spec-id required for tasks
+  if [[ "$type" == "task" ]] && [[ -z "$spec_id" ]]; then
+    printf '[triage] error: tasks require --spec-id pointing to governing artifact\n' >&2
+    rc=1
+  fi
+
+  # Hard: acceptance required for tasks and epics
+  if [[ "$type" == "task" || "$type" == "epic" ]] && [[ -z "$acceptance" ]]; then
+    printf '[triage] error: %s issues require --acceptance criteria\n' "$type" >&2
+    rc=1
+  fi
+
+  # Hard: deps must reference existing issues
+  if [[ -n "$deps" ]]; then
+    local dep
+    for dep in ${deps//,/ }; do
+      if ! tracker_show "$dep" --json >/dev/null 2>&1; then
+        printf '[triage] error: dependency %s does not exist\n' "$dep" >&2
+        rc=1
+      fi
+    done
+  fi
+
+  # Advisory: kind label
+  if (( rc == 0 )); then
+    case ",${labels}," in
+      *,kind:*) ;;
+      *)
+        printf '[triage] warning: consider adding a kind label (kind:build, kind:implementation, etc.)\n' >&2
+        (( rc == 0 )) && rc=2
+        ;;
+    esac
+  fi
+
+  return "$rc"
+}
+
+# Validate issue fields before update.
+# Only checks fields that are being changed.
+tracker_validate_update() {
+  local id="$1"
+  shift
+  local labels="" deps=""
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --labels)  labels="$2"; shift 2 ;;
+      --deps)    deps="$2"; shift 2 ;;
+      *)         shift 2 2>/dev/null || shift ;;
+    esac
+  done
+
+  local rc=0
+
+  # If labels are being changed, validate helix label is present
+  if [[ -n "$labels" ]]; then
+    case ",${labels}," in
+      *,helix,*) ;;
+      *)
+        printf '[triage] error: cannot remove required "helix" label\n' >&2
+        rc=1
+        ;;
+    esac
+  fi
+
+  # Validate dep references if deps are being changed
+  if [[ -n "$deps" ]]; then
+    local dep
+    for dep in ${deps//,/ }; do
+      if [[ "$dep" == "$id" ]]; then
+        printf '[triage] error: circular dependency: %s depends on itself\n' "$id" >&2
+        rc=1
+      elif ! tracker_show "$dep" --json >/dev/null 2>&1; then
+        printf '[triage] error: dependency %s does not exist\n' "$dep" >&2
+        rc=1
+      fi
+    done
+  fi
+
+  return "$rc"
+}
+
 # ── create ─────────────────────────────────────────────────────────────
 tracker_create_impl() {
   tracker_ensure
@@ -174,6 +282,17 @@ tracker_create_impl() {
   if [[ -z "$title" ]]; then
     echo "tracker: title required" >&2
     return 1
+  fi
+
+  # Triage validation (skip with HELIX_SKIP_TRIAGE=1 for internal ops)
+  if [[ "${HELIX_SKIP_TRIAGE:-0}" != "1" ]]; then
+    local _triage_rc=0
+    tracker_validate_create "$type" "$labels" "$spec_id" "$acceptance" "$deps" || _triage_rc=$?
+    if (( _triage_rc == 1 )); then
+      printf '[triage] issue not created — fix the errors above\n' >&2
+      return 1
+    fi
+    # rc=2 is advisory warning, proceed with creation
   fi
 
   local id
