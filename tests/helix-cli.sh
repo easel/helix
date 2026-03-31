@@ -2472,4 +2472,48 @@ run_test "triage allows bug without spec-id" test_triage_allows_bug_without_spec
 run_test "triage allows valid task" test_triage_allows_valid_task
 run_test "triage rejects nonexistent dep" test_triage_rejects_nonexistent_dep
 
+# ── evolve tests ──────────────────────────────────────────────────────
+
+test_evolve_dry_run() {
+  local root
+  root="$(make_workspace)"
+  local output
+  output="$(run_helix "$root" evolve --dry-run "Add WAL compression")"
+  assert_contains "$output" "actions/evolve.md" "evolve dry-run should reference evolve action"
+  assert_contains "$output" "Add WAL compression" "evolve dry-run should include the requirement"
+  assert_contains "$output" "EVOLUTION_STATUS" "evolve dry-run should require machine-readable trailer"
+  rm -rf "$root"
+}
+
+test_evolve_dry_run_with_scope() {
+  local root
+  root="$(make_workspace)"
+  local output
+  output="$(run_helix "$root" evolve --dry-run --scope area:wal "WAL compression")"
+  assert_contains "$output" "Scope: area:wal" "evolve dry-run should include scope"
+  rm -rf "$root"
+}
+
+test_evolve_dry_run_with_artifact() {
+  local root
+  root="$(make_workspace)"
+  local output
+  output="$(run_helix "$root" evolve --dry-run --artifact SD-017 "Loom support")"
+  assert_contains "$output" "Target artifact: SD-017" "evolve dry-run should include artifact"
+  rm -rf "$root"
+}
+
+test_evolve_requires_description() {
+  local root
+  root="$(make_workspace)"
+  assert_fails "evolve without description should fail" \
+    run_helix "$root" evolve
+  rm -rf "$root"
+}
+
+run_test "evolve dry-run" test_evolve_dry_run
+run_test "evolve dry-run with scope" test_evolve_dry_run_with_scope
+run_test "evolve dry-run with artifact" test_evolve_dry_run_with_artifact
+run_test "evolve requires description" test_evolve_requires_description
+
 echo "PASS: ${test_count} helix wrapper tests"

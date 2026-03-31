@@ -51,6 +51,7 @@ Usage:
   helix next
   helix review [--agent codex|claude] [scope]
   helix experiment [--agent codex|claude] [--close] [issue-id|goal]
+  helix evolve [--agent codex|claude] [--scope S] [--artifact ID] [--from source] "requirement"
   helix triage "Title" [--type task|epic|bug|chore] [tracker create options...]
   helix tracker <command> [args...]
   helix help
@@ -66,6 +67,7 @@ Commands:
   next        Show recommended next issue
   review      Fresh-eyes review of recent work
   experiment  Run one experiment iteration for metric-driven optimization
+  evolve      Thread a new requirement through the artifact stack
   triage      Create a validated tracker issue with required metadata
   tracker     Built-in bead tracker (init, create, show, update, close, list, ready, blocked, dep, status, import, export)
 
@@ -469,6 +471,41 @@ run_experiment() {
     require_clean_worktree
   fi
   run_agent_prompt "$(experiment_prompt "$target" "$close")"
+}
+
+evolve_prompt() {
+  local requirement="${1:-}"
+  local scope="${2:-}"
+  local artifact="${3:-}"
+  local source="${4:-}"
+  cat <<EOF
+Execute the following HELIX evolve action.
+$(inline_action "${helix_docs_root}/actions/evolve.md")
+Use supporting references at ${helix_docs_root}/README.md as needed.
+Execute in the current repository rooted at ${target_root}.
+Issue tracker: built-in JSONL at ${tracker_file}. Use \`helix tracker\` subcommands.
+Requirement: ${requirement}
+${scope:+Scope: ${scope}.}
+${artifact:+Target artifact: ${artifact}.}
+${source:+Requirement source: ${source}.}
+CRITICAL: Output the EVOLUTION_STATUS, ARTIFACTS_UPDATED, ISSUES_CREATED, and CONFLICTS trailer lines exactly. Without these lines the automation cannot parse your result.
+Follow the action exactly. Do the work — do not just describe what you would do.
+EOF
+}
+
+run_evolve() {
+  local requirement="${1:-}"
+  local scope="${2:-}"
+  local artifact="${3:-}"
+  local source="${4:-}"
+  if [[ -z "$requirement" ]]; then
+    echo "helix: evolve requires a requirement description" >&2
+    return 1
+  fi
+  if (( ! dry_run )); then
+    require_tracker
+  fi
+  run_agent_prompt "$(evolve_prompt "$requirement" "$scope" "$artifact" "$source")"
 }
 
 helix_ready_count() {
@@ -1290,6 +1327,20 @@ main() {
         esac
       done
       run_experiment "${1:-}" "$experiment_close"
+      ;;
+    evolve)
+      parse_common_flags "$@"
+      set -- "${REMAINING_ARGS[@]}"
+      local evolve_scope="" evolve_artifact="" evolve_from=""
+      while [[ $# -gt 0 ]]; do
+        case "$1" in
+          --scope) evolve_scope="$2"; shift 2 ;;
+          --artifact) evolve_artifact="$2"; shift 2 ;;
+          --from) evolve_from="$2"; shift 2 ;;
+          *) break ;;
+        esac
+      done
+      run_evolve "${1:-}" "$evolve_scope" "$evolve_artifact" "$evolve_from"
       ;;
     triage)
       # helix triage passes through to tracker create with validation enabled
