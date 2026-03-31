@@ -166,6 +166,7 @@ tracker_create_impl() {
       --superseded-by) superseded_by="$2"; shift 2 ;;
       --replaces)   replaces="$2"; shift 2 ;;
       --silent)     shift ;; # compat: just suppress extra output
+      -h|--help|help) tracker_usage; return 0 ;;
       *)            title="$1"; shift ;;
     esac
   done
@@ -354,6 +355,7 @@ tracker_update_impl() {
         updates+=(".status = \"in_progress\"" ".assignee = \"helix\"")
         shift
         ;;
+      -h|--help|help) tracker_usage; return 0 ;;
       *)
         echo "tracker: unknown update flag: $1" >&2
         return 1
@@ -762,9 +764,9 @@ tracker_usage() {
   cat <<EOF
 Usage:
   helix tracker init
-  helix tracker create "Title" [--type TYPE] [--labels a,b] [--deps id1,id2] [--parent ID] [--spec-id REF] [--execution-eligible true|false] [--superseded-by ID] [--replaces ID]
+  helix tracker create "Title" [--type TYPE] [--labels a,b] [--deps id1,id2] [--parent ID] [--spec-id REF] [--description TEXT] [--design TEXT] [--acceptance TEXT] [--execution-eligible true|false] [--superseded-by ID] [--replaces ID]
   helix tracker show <id> [--json]
-  helix tracker update <id> [--status S] [--title T] [--assignee A] [--priority N] [--labels a,b] [--claim] [--execution-eligible true|false] [--superseded-by ID] [--replaces ID]
+  helix tracker update <id> [--status S] [--title T] [--assignee A] [--priority N] [--labels a,b] [--description TEXT] [--design TEXT] [--acceptance TEXT] [--notes TEXT] [--claim] [--execution-eligible true|false] [--superseded-by ID] [--replaces ID]
   helix tracker close <id>
   helix tracker list [--status S] [--label L] [--json]
   helix tracker ready [--json] [--execution]

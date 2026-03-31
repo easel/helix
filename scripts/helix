@@ -352,7 +352,7 @@ Use supporting references at ${helix_docs_root}/README.md and ${helix_docs_root}
 Execute in the current repository rooted at ${target_root}.
 Issue tracker: built-in JSONL at ${tracker_file}. Use \`helix tracker\` subcommands.
 Experiment target: ${target:-auto-select from ready phase:iterate issues}.
-${close:+CLOSE SESSION: Execute Phase 3 (Session Close) — squash-merge the experiment branch, update ratchet floors, and close the issue. Do not run another iteration.}
+$([ "${close}" = "1" ] && echo 'CLOSE SESSION: Execute Phase 3 (Session Close) — squash-merge the experiment branch, update ratchet floors, and close the issue. Do not run another iteration.')
 Follow the action exactly. Do the work — do not just describe what you would do.
 EOF
 }
@@ -740,22 +740,33 @@ run_loop() {
 
   while true; do
     local ready_count
-    ready_count="$(helix_ready_count)"
+    if ! ready_count="$(helix_ready_count)"; then
+      printf 'helix: failed to read ready count, retrying\n' >&2
+      sleep 2
+      continue
+    fi
 
     if (( ready_count > 0 )); then
       local attempt_number="$((attempted_cycles + 1))"
       local closed_before
       local selected_issue
       local selected_fingerprint
-      closed_before="$(tracker_list --status closed --json | jq 'length')"
-      selected_issue="$(helix_select_ready_issue)"
-
-      if [[ -z "$selected_issue" ]]; then
-        echo "helix: ready count was positive but no ready issue could be selected" >&2
-        return 1
+      if ! closed_before="$(tracker_list --status closed --json | jq 'length')"; then
+        printf 'helix: failed to read closed count, retrying\n' >&2
+        sleep 2
+        continue
+      fi
+      if ! selected_issue="$(helix_select_ready_issue)" || [[ -z "$selected_issue" ]]; then
+        printf 'helix: ready count was positive but no ready issue could be selected, retrying\n' >&2
+        sleep 2
+        continue
       fi
 
-      selected_fingerprint="$(tracker_issue_fingerprint "$selected_issue")"
+      if ! selected_fingerprint="$(tracker_issue_fingerprint "$selected_issue")"; then
+        printf 'helix: failed to fingerprint %s, retrying\n' "$selected_issue" >&2
+        sleep 2
+        continue
+      fi
 
       printf 'helix: ready=%s, cycle=%s, issue=%s\n' "$ready_count" "$attempt_number" "$selected_issue" >&2
       attempted_cycles=$((attempted_cycles + 1))
@@ -790,7 +801,7 @@ run_loop() {
         fi
 
         local closed_after
-        closed_after="$(tracker_list --status closed --json | jq 'length')"
+        closed_after="$(tracker_list --status closed --json | jq 'length' || echo 0)"
         if (( closed_after > closed_before )); then
           completed_cycles=$((completed_cycles + 1))
         else

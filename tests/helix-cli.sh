@@ -1494,6 +1494,7 @@ test_experiment_dry_run() {
   output="$(run_helix "$root" experiment --dry-run)"
   assert_contains "$output" "actions/experiment.md" "experiment dry-run should reference experiment action"
   assert_contains "$output" "Experiment target" "experiment dry-run should include experiment target"
+  [[ "$output" != *"CLOSE SESSION"* ]] || fail "experiment dry-run without --close must not include CLOSE SESSION"
   rm -rf "$root"
 }
 
@@ -1759,6 +1760,18 @@ test_tracker_create_requires_title() {
   local root
   root="$(make_workspace)"
   assert_fails "create without title should fail" run_helix "$root" tracker create 2>/dev/null
+  rm -rf "$root"
+}
+
+test_tracker_create_help_no_side_effect() {
+  local root output
+  root="$(make_workspace)"
+  output="$(run_helix "$root" tracker create --help)"
+  assert_contains "$output" "helix tracker create" "create --help should show usage"
+  # Must not create an issue
+  local count
+  count="$(wc -l < "$root/.helix/issues.jsonl" 2>/dev/null || echo 0)"
+  [[ "$count" -eq 0 ]] || fail "create --help must not create an issue (found $count)"
   rm -rf "$root"
 }
 
@@ -2280,6 +2293,7 @@ run_test() {
 # Tracker unit tests
 run_test "tracker create and show" test_tracker_create_and_show
 run_test "tracker create requires title" test_tracker_create_requires_title
+run_test "tracker create --help no side effect" test_tracker_create_help_no_side_effect
 run_test "tracker show missing issue" test_tracker_show_missing_issue
 run_test "tracker update missing issue" test_tracker_update_missing_issue
 run_test "tracker ready and blocked" test_tracker_ready_and_blocked
