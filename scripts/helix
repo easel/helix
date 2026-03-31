@@ -392,8 +392,6 @@ tracker_issue_fingerprint() {
   tracker_show "$id" --json | jq -c '{
     "spec-id": .["spec-id"],
     parent: .parent,
-    deps: (.deps // []),
-    "execution-eligible": .["execution-eligible"],
     "superseded-by": (.["superseded-by"] // ""),
     replaces: (.replaces // "")
   }'
@@ -413,8 +411,6 @@ handle_issue_queue_drift() {
   after_fingerprint="$(printf '%s' "$after_json" | jq -c '{
     "spec-id": .["spec-id"],
     parent: .parent,
-    deps: (.deps // []),
-    "execution-eligible": .["execution-eligible"],
     "superseded-by": (.["superseded-by"] // ""),
     replaces: (.replaces // "")
   }')"
@@ -423,6 +419,7 @@ handle_issue_queue_drift() {
     return 1
   fi
 
+  # Upstream governance fields changed — genuine external drift
   local status
   status="$(printf '%s' "$after_json" | jq -r '.status')"
   printf 'helix: queue drift detected for %s; refusing stale completion\n' "$issue_id" >&2
