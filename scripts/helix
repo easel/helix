@@ -23,6 +23,8 @@ source "$script_dir/tracker.sh"
 
 agent="${HELIX_AGENT:-codex}"
 review_agent="${HELIX_REVIEW_AGENT:-}"
+check_model="${HELIX_CHECK_MODEL:-}"
+polish_model="${HELIX_POLISH_MODEL:-}"
 review_every=15
 max_cycles=0
 auto_align=1
@@ -81,15 +83,21 @@ Options:
   --max-cycles      Stop after N completed implementation cycles
   --no-auto-align   Do not auto-run alignment when check returns ALIGN
   --no-auto-review  Do not run fresh-eyes review after each implementation
+  --review-threshold N  Skip review for changes below N lines (default: 100)
   --review-agent    Use a different agent for reviews (cross-model review)
+  --check-model     Use a cheaper model for queue-drain decisions
+  --polish-model    Use a cheaper model for issue refinement
   --dry-run         Print the agent command instead of executing it
   --quiet, -q       Suppress progress output (command echo, prompt sizes)
 
 Environment:
-  HELIX_AGENT         Default agent (codex or claude)
-  HELIX_AGENT_TIMEOUT Agent timeout in seconds (default: 900)
-  HELIX_LIBRARY_ROOT  Override the library root that contains workflows/
-  HELIX_TRACKER_DIR   Override the tracker directory (default: .helix/)
+  HELIX_AGENT          Default agent (codex or claude)
+  HELIX_AGENT_TIMEOUT  Agent timeout in seconds (default: 900)
+  HELIX_REVIEW_AGENT   Agent for cross-model reviews
+  HELIX_CHECK_MODEL    Cheaper model for queue-drain decisions
+  HELIX_POLISH_MODEL   Cheaper model for issue refinement
+  HELIX_LIBRARY_ROOT   Override the library root that contains workflows/
+  HELIX_TRACKER_DIR    Override the tracker directory (default: .helix/)
 
 Logs:
   Session logs are written to .helix-logs/helix-YYYYMMDD-HHMMSS.log
@@ -151,6 +159,7 @@ condense_codex_output() {
 
 run_agent_prompt() {
   local prompt="$1"
+  local model_override="${2:-}"
   local prompt_bytes
   prompt_bytes="$(printf '%s' "$prompt" | wc -c)"
   local agent_timeout="${HELIX_AGENT_TIMEOUT:-900}"
@@ -158,22 +167,25 @@ run_agent_prompt() {
   case "$agent" in
     codex)
       need_cmd codex
+      local _codex_model_flag=""
+      [[ -n "$model_override" ]] && _codex_model_flag="-m $model_override"
       if (( dry_run )); then
-        printf 'codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor -C %q --ephemeral %q\n' "$target_root" "$prompt"
+        printf 'codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor -C %q %s --ephemeral %q\n' "$target_root" "$_codex_model_flag" "$prompt"
       else
         local _start_ts _elapsed
         _start_ts="$(date +%s)"
 
         if (( ! quiet )); then
-          printf 'helix: [%s] codex exec -C %s <prompt %s bytes> (timeout %ss)\n' \
-            "$(date +%H:%M:%S)" "$target_root" "$prompt_bytes" "$agent_timeout" >&2
+          printf 'helix: [%s] codex exec -C %s %s <prompt %s bytes> (timeout %ss)\n' \
+            "$(date +%H:%M:%S)" "$target_root" "${model_override:+(model: $model_override)}" "$prompt_bytes" "$agent_timeout" >&2
         fi
 
         # Run codex in background with temp file for output capture
         local _codex_tmp _codex_pid _codex_rc=0
         _codex_tmp="$(mktemp)"
+        # shellcheck disable=SC2086
         codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor \
-          -C "$target_root" --ephemeral "$prompt" > "$_codex_tmp" &
+          -C "$target_root" $_codex_model_flag --ephemeral "$prompt" > "$_codex_tmp" &
         _codex_pid=$!
 
         # Watchdog: timeout + periodic progress heartbeat
@@ -224,11 +236,13 @@ run_agent_prompt() {
       ;;
     claude)
       need_cmd claude
+      local _claude_model_flag=""
+      [[ -n "$model_override" ]] && _claude_model_flag="--model $model_override"
       if (( dry_run )); then
-        printf 'cd %q && claude -p --permission-mode bypassPermissions --dangerously-skip-permissions --no-session-persistence %q\n' "$target_root" "$prompt"
+        printf 'cd %q && claude -p --permission-mode bypassPermissions --dangerously-skip-permissions --no-session-persistence %s %q\n' "$target_root" "$_claude_model_flag" "$prompt"
       else
         if (( ! quiet )); then
-          printf 'helix: [%s] claude -p (timeout %ss)\n' "$(date +%H:%M:%S)" "$agent_timeout" >&2
+          printf 'helix: [%s] claude -p %s (timeout %ss)\n' "$(date +%H:%M:%S)" "${model_override:+(model: $model_override)}" "$agent_timeout" >&2
           printf '%s\n' "$prompt" | sed 's/^/helix: │ /' >&2
           printf 'helix: └─ %s bytes\n' "$prompt_bytes" >&2
         fi
@@ -237,10 +251,12 @@ run_agent_prompt() {
         if (( ! quiet )) && command -v jq >/dev/null 2>&1; then
           # Stream JSON mode: show live tool-call progress on stderr,
           # emit final text result on stdout.
+          # shellcheck disable=SC2086
           (cd "$target_root" && printf '%s' "$prompt" | claude -p \
             --permission-mode bypassPermissions \
             --dangerously-skip-permissions \
             --no-session-persistence \
+            $_claude_model_flag \
             --output-format stream-json \
             --verbose \
           | while IFS= read -r line; do
@@ -306,10 +322,12 @@ run_agent_prompt() {
             done) &
         else
           # Quiet / no jq: plain text mode
+          # shellcheck disable=SC2086
           (cd "$target_root" && printf '%s' "$prompt" | claude -p \
             --permission-mode bypassPermissions \
             --dangerously-skip-permissions \
             --no-session-persistence \
+            $_claude_model_flag \
             --verbose) &
         fi
         claude_pid=$!
@@ -711,7 +729,7 @@ run_check() {
   if (( ! dry_run )); then
     require_tracker
   fi
-  run_agent_prompt "$(check_prompt "$scope")"
+  run_agent_prompt "$(check_prompt "$scope")" "$check_model"
 }
 
 run_alignment() {
@@ -855,7 +873,7 @@ run_polish() {
   if (( ! dry_run )); then
     require_tracker
   fi
-  run_agent_prompt "$(polish_prompt "$scope" "$rounds")"
+  run_agent_prompt "$(polish_prompt "$scope" "$rounds")" "$polish_model"
 }
 
 run_review() {
@@ -1411,6 +1429,14 @@ main() {
             ;;
           --review-threshold)
             review_threshold="$2"
+            shift 2
+            ;;
+          --check-model)
+            check_model="$2"
+            shift 2
+            ;;
+          --polish-model)
+            polish_model="$2"
             shift 2
             ;;
           --review-agent)
