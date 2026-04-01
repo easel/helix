@@ -158,17 +158,28 @@ Interpret `check` as follows:
   alignment step.
 - It may persist run-controller state for `helix status` including current
   issue, focused epic, attempt counters, cycle timing, and token totals.
+- It should refresh `.helix/context.md` at run start, on epic switch, and
+  every 5 completed implementation passes so long-lived sessions keep current
+  build/test commands and tracker counts in view.
 - It may stay on a selected epic until completion, then run a scoped post-epic
   review before leaving that scope.
 - It should absorb small adjacent work that is clearly part of the current
   governed slice instead of creating avoidable tracker noise.
 - It must emit a blocker report when it stops with skipped or intractable
   issues.
+- It must capture Codex stdout and stderr together before token extraction so
+  observability totals do not silently drop stderr-only token footers.
+- It should batch related issues by shared parent or `spec-id`, and fall back
+  to shared `area:*` labels when tracker data has no parent/spec sibling
+  structure.
 - It must not auto-dispatch backfill.
 - It must not attempt an unblock build pass after `WAIT`.
 - If a run is interrupted, recovery must be issue-scoped and non-destructive:
   do not clear a claim, revert files, or touch unrelated work without tracker
   evidence that the abandoned work belongs to that issue.
+- After a failed or timed-out implementation attempt, retry is allowed only
+  after issue-scoped cleanup leaves the worktree clean or the wrapper stops
+  with a blocker; stale claims must be released before a fresh retry.
 
 ## `helix run`
 

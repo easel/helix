@@ -118,6 +118,14 @@ The loop must distinguish between attempted work and completed work.
 - Failed build attempts do not count toward the cycle limit.
 - `cycle_start`, `cycle_end`, `cycle_duration`, and `total_tokens` belong in
   persisted run-controller state and in the loop's progress output.
+- The Codex runner must capture stdout and stderr together before token
+  extraction so the `tokens used` footer is accounted for regardless of which
+  stream Codex used.
+- `.helix/context.md` must be regenerated at run start, on epic switch, and
+  after every 5 completed build cycles. The generator must include:
+  - the Quick Reference build and test commands from `AGENTS.md`
+  - current open, in-progress, ready-execution, and closed issue counts
+  - current focused epic metadata when epic mode is active
 
 ## Recovery and Ownership
 
@@ -152,6 +160,14 @@ Recovery must be non-destructive by default.
   rather than guessing.
 - Recovery results should be visible in the issue notes or a follow-on
   diagnostic issue when cleanup is required.
+- After any implementation failure or timeout, the next retry boundary must
+  verify that the worktree is clean for the issue being retried. If the failed
+  attempt left attributable partial changes behind, the wrapper must either
+  revert only those issue-scoped changes or stop and surface a blocker rather
+  than re-entering the loop with stale state.
+- A failed or timed-out implementation attempt that should be retried fresh
+  must also release the advisory claim by restoring the issue to `open` with an
+  explanatory note, so the next cycle does not inherit stale ownership.
 
 ## Concurrent Interactive Refinement
 
@@ -185,6 +201,19 @@ completion status for the currently selected issue:
 The wrapper must distinguish execution-safe work from general open work so
 interactive refinement issues do not get treated as build targets by
 accident.
+
+### Batch Selection
+
+Batching exists to save context-loading cost without collapsing unrelated work.
+
+- The primary related-work heuristics remain shared parent and shared
+  `spec-id`.
+- When those heuristics produce no sibling candidates, batching must fall back
+  to matching ready execution-safe issues by shared `area:*` labels.
+- Area-label fallback must still exclude skipped issues, epics, and the
+  primary issue itself.
+- If no parent, `spec-id`, or area-label siblings exist, the wrapper must
+  execute the primary issue alone.
 
 ## Review Handling
 

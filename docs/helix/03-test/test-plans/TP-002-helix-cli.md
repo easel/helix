@@ -51,6 +51,11 @@ bash tests/helix-cli.sh
 - `run` surfaces `NEXT_ACTION: BACKFILL` as a distinct terminal branch rather than collapsing it into `WAIT` or `STOP`
 - `run --max-cycles N` counts successful build completions, not failed attempts
 - failed implementation attempts do not advance completed-cycle counters or periodic alignment timing
+- Codex token accounting captures the `tokens used` footer when Codex emits it
+  on stderr
+- `.helix/context.md` is regenerated at run start, on epic switch, and every 5
+  completed build cycles with Quick Reference build/test commands and current
+  issue counts
 - `run` revalidates selected work before claim and before close when queue
   drift is possible
 - interactive refinement during a live run is surfaced as queue drift rather
@@ -61,6 +66,8 @@ bash tests/helix-cli.sh
   blocker releases focus
 - `run` retries difficult issues with bounded exponential backoff before
   reporting them as blocked
+- `run` expands batch selection to shared `area:*` labels when parent and
+  `spec-id` metadata do not produce siblings
 - `run` emits blocker reports, cycle timing, and token-usage observability
   data for `helix status`
 
@@ -74,6 +81,11 @@ bash tests/helix-cli.sh
 - orphan recovery does not destroy unrelated worktree changes
 - orphan recovery does not unclaim legitimately active work without sufficient evidence
 - recovery is issue-scoped and non-destructive by default
+- failed or timed-out implementation attempts leave the worktree clean for the
+  next retry or stop with an explicit blocker instead of retrying atop stale
+  local state
+- failed or timed-out implementation attempts release stale claims before a
+  fresh retry path resumes
 - `run` invokes post-implementation review when enabled
 - `run --review-agent <other-agent>` switches review to a second model for
   cross-model verification

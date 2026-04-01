@@ -69,9 +69,17 @@ The CLI must expose these top-level commands:
   declaring it blocked.
 - `run` must absorb small adjacent work into the current slice when the change
   is clearly part of satisfying the same governing acceptance.
+- `run` must capture Codex token-footers even when Codex writes them to stderr
+  so token accounting and status reporting do not silently drop usage.
 - Only successfully completed build passes count as completed cycles.
 - Failed implementation attempts, reviews, alignment, backfill, and recovery
   retries must not be counted as completed cycles.
+- `run` must refresh `.helix/context.md` at run start, on epic switch, and at
+  least every 5 completed build cycles so long-lived sessions do not execute
+  from stale repository context.
+- The refreshed context file must include the repository build and test
+  commands from the `AGENTS.md` Quick Reference section plus current open,
+  in-progress, ready-execution, and closed issue counts.
 - After each successful build pass, `run` must perform a fresh-eyes review
   before advancing to the next cycle.
 - When `--review-agent` is configured, post-build review must switch to the
@@ -80,6 +88,13 @@ The CLI must expose these top-level commands:
   the epic's governing spec before leaving that scope.
 - A review with findings must be surfaced as actionable follow-up before the
   loop advances.
+- When parent- and `spec-id`-based sibling detection finds no related ready
+  work, `run` must fall back to matching execution-safe siblings by shared
+  `area:*` labels before batching unrelated issues together.
+- After a failed or timed-out implementation attempt, `run` must clean up
+  issue-scoped state before any retry: leave the worktree clean or stop with a
+  blocker, and return the issue to `open` when the failed attempt should be
+  retried fresh.
 - When the loop stops with skipped work, `run` must emit a blocker report and
   persist enough state for `helix status` to explain the stop condition.
 
@@ -135,13 +150,22 @@ The CLI must expose these top-level commands:
   `BACKFILL`.
 - Running `helix run` counts only completed build passes as completed
   cycles.
+- Running `helix run` captures Codex token usage even when the token footer is
+  emitted on stderr.
+- Running `helix run` refreshes `.helix/context.md` every 5 completed cycles
+  and the refreshed context contains Quick Reference build/test commands plus
+  current issue counts.
 - Running `helix run` surfaces review findings before the loop advances.
 - Running `helix run` stays focused on a chosen epic until the epic finishes
   or an explicit blocker forces release.
 - Running `helix run` emits blocker-report output and observability metadata
   for cycle timing and token accounting.
+- Running `helix run` batches sibling work by shared `area:*` labels when
+  parent and `spec-id` metadata are absent.
 - Running `helix run` does not discard unrelated worktree changes during
   recovery.
+- Running `helix run` does not retry a failed or timed-out implementation
+  attempt with stale claims or leftover issue-scoped worktree state.
 - Running `helix backfill <scope>` enforces the required trailers and durable
   report creation contract.
 - Running `bash tests/helix-cli.sh` remains the required deterministic
