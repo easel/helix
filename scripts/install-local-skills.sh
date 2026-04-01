@@ -60,9 +60,15 @@ remove_noncanonical_links() {
     polish
     experiment
   )
-  local name
+  local name dir
   for name in "${names[@]}"; do
-    rm -f "$agents_skills_dir/$name" "$claude_skills_dir/$name"
+    for dir in "$agents_skills_dir" "$claude_skills_dir"; do
+      local target="$dir/$name"
+      # Only remove if it's a symlink (don't delete user-defined skills)
+      if [[ -L "$target" ]]; then
+        rm -f "$target"
+      fi
+    done
   done
 }
 
@@ -82,7 +88,10 @@ remove_obsolete_native_links() {
   )
   local name
   for name in "${names[@]}"; do
-    rm -f "$codex_skills_dir/$name"
+    local target="$codex_skills_dir/$name"
+    if [[ -L "$target" ]]; then
+      rm -f "$target"
+    fi
   done
 }
 
