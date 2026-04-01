@@ -196,7 +196,7 @@ run_agent_prompt() {
         # Always use --ephemeral for codex to avoid broken resume attempts.
         # shellcheck disable=SC2086
         codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor \
-          -C "$target_root" $_codex_model_flag --ephemeral "$prompt" > "$_codex_tmp" &
+          -C "$target_root" $_codex_model_flag --ephemeral "$prompt" > "$_codex_tmp" 2>&1 &
         _codex_pid=$!
 
         # Watchdog: timeout + periodic progress heartbeat
@@ -588,20 +588,45 @@ run_evolve() {
   run_agent_prompt "$(evolve_prompt "$requirement" "$scope" "$artifact" "$source")"
 }
 
+extract_agents_md_commands() {
+  # Extract the first ```bash block from the Quick Reference section of AGENTS.md.
+  # Prints the block contents or nothing if not found.
+  local agents_file="${target_root}/AGENTS.md"
+  [[ -f "$agents_file" ]] || return 0
+  awk '
+    /^#.*[Qq]uick [Rr]eference/ { in_section=1; next }
+    in_section && /^```bash/ { in_block=1; next }
+    in_block && /^```/ { exit }
+    in_block { print }
+  ' "$agents_file"
+}
+
 generate_run_context() {
   # Generate a condensed context file for the agent to reduce token usage.
   # Called at run start and on epic switch. Non-fatal if it fails.
   local epic_id="${1:-}"
   local context_file="${target_root}/.helix/context.md"
   mkdir -p "${target_root}/.helix" 2>/dev/null || true
-  local ready_count
+  local ready_count open_count in_progress_count closed_count
   ready_count="$(tracker_ready --json --execution 2>/dev/null | jq 'length' 2>/dev/null)" || ready_count="?"
+  open_count="$(tracker_list --status open --json 2>/dev/null | jq 'length' 2>/dev/null)" || open_count="?"
+  in_progress_count="$(tracker_list --status in_progress --json 2>/dev/null | jq 'length' 2>/dev/null)" || in_progress_count="?"
+  closed_count="$(tracker_list --status closed --json 2>/dev/null | jq 'length' 2>/dev/null)" || closed_count="?"
 
   {
     printf '# HELIX Execution Context\n\n'
     printf 'Project root: %s\n' "$target_root"
     printf 'Tracker: %s\n' "$tracker_file"
-    printf 'Ready issues: %s\n\n' "$ready_count"
+    printf 'Issue counts: ready=%s, open=%s, in-progress=%s, closed=%s\n\n' \
+      "$ready_count" "$open_count" "$in_progress_count" "$closed_count"
+
+    # Include build/test commands from AGENTS.md Quick Reference
+    local agents_cmds
+    agents_cmds="$(extract_agents_md_commands)" || true
+    if [[ -n "$agents_cmds" ]]; then
+      printf '## Build/Test Commands\n\n'
+      printf '```bash\n%s\n```\n\n' "$agents_cmds"
+    fi
 
     if [[ -n "$epic_id" ]]; then
       local epic_title epic_spec epic_ac
@@ -676,18 +701,23 @@ helix_select_batch() {
   parent="$(printf '%s' "$primary_json" | jq -r '.parent // ""')"
   spec_id="$(printf '%s' "$primary_json" | jq -r '.["spec-id"] // ""')"
 
-  # Find siblings: same parent OR same spec-id, ready, non-epic, not skipped
+  # Extract area:* labels from the primary issue for fallback matching
+  local primary_areas
+  primary_areas="$(printf '%s' "$primary_json" | jq -c '[(.labels // [])[] | select(startswith("area:"))]')"
+
+  # Find siblings: same parent OR same spec-id OR overlapping area labels (fallback)
   local siblings
   siblings="$(tracker_ready --json --execution 2>/dev/null | jq -r --arg primary "$primary_id" \
     --arg parent "$parent" --arg spec "$spec_id" --argjson skip "$skip_json" \
-    --argjson max "$max_batch" '
+    --argjson max "$max_batch" --argjson areas "$primary_areas" '
     [.[] | select(
       .id != $primary and
       .type != "epic" and
       (.id as $id | $skip | index($id) | not) and
       (
         ($parent != "" and .parent == $parent) or
-        ($spec != "" and .["spec-id"] == $spec)
+        ($spec != "" and .["spec-id"] == $spec) or
+        (($areas | length) > 0 and ([(.labels // [])[] | select(startswith("area:"))] | [.[] | select(. as $a | $areas | index($a))]) | length > 0)
       )
     )] | .[0:($max - 1)] | .[].id
   ' 2>/dev/null)" || true
@@ -1259,6 +1289,9 @@ run_loop() {
           printf 'helix: epic %s has no remaining open children — closing epic\n' "$focused_epic" >&2
           tracker_close "$focused_epic" 2>/dev/null || true
           completed_cycles=$((completed_cycles + 1))
+          if (( completed_cycles % 5 == 0 )); then
+            generate_run_context "$focused_epic" || true
+          fi
 
           # Post-epic review: verify acceptance criteria and catch gaps
           if (( auto_review )); then
@@ -1361,6 +1394,10 @@ run_loop() {
       fi
       if ! eval "$_impl_cmd"; then
         printf 'helix: implementation failed during cycle %s (will not count toward completed cycles)\n' "$attempt_number" >&2
+        # Clean up after failed implementation attempt
+        (cd "$target_root" && git checkout -- . 2>/dev/null) || true
+        # Unclaim the issue so it can be retried cleanly
+        tracker_update "$selected_issue" --status open --assignee "" 2>/dev/null || true
         consecutive_failures=$((consecutive_failures + 1))
         issue_attempts["$selected_issue"]=$(( prev_attempts + 1 ))
         # Exponential backoff: skip after 4 attempts (5s + 10s + 20s + 40s = 75s total backoff)
@@ -1428,6 +1465,9 @@ run_loop() {
           completed_cycles=$((completed_cycles + 1))
           consecutive_failures=0
           issue_attempts["$selected_issue"]=0
+          if (( completed_cycles % 5 == 0 )); then
+            generate_run_context "$focused_epic" || true
+          fi
         else
           printf 'helix: cycle %s did not complete a tracked issue; completed cycles remain %s\n' "$attempt_number" "$completed_cycles" >&2
           consecutive_failures=$((consecutive_failures + 1))
