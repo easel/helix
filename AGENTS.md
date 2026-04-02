@@ -20,16 +20,72 @@ helix tracker close <id>      # Complete work
 helix tracker status          # Check tracker health
 bash tests/helix-cli.sh       # Deterministic HELIX wrapper tests
 bash tests/validate-skills.sh # Deterministic HELIX skill package validation
+just test                     # Run all tests (CLI + skills)
 helix run                     # Run bounded HELIX execution loop
-helix check                   # Decide next HELIX action
-helix design                  # Create design document through iterative refinement
-helix status                  # Show tracker health and queue summary
-helix evolve                  # Thread a new requirement through the artifact stack
-helix triage                  # Create well-structured tracker issues
-helix polish                  # Refine issues before implementation
+helix frame [scope]           # Create product vision, PRD, feature specs
+helix design [scope]          # Create design document through iterative refinement
+helix build [selector]        # Run one bounded build pass
+helix check [scope]           # Decide next HELIX action
+helix review [scope]          # Fresh-eyes review of recent work
+helix align [scope]           # Top-down reconciliation audit
+helix evolve "requirement"    # Thread a requirement through the artifact stack
+helix triage "Title"          # Create well-structured tracker issues
+helix commit [issue-id]       # Commit with HELIX format + build gate
+helix polish [scope]          # Refine issues before implementation
 helix next                    # Show recommended next issue
-helix review                  # Fresh-eyes review of recent work
 ```
+
+## Operational Guide
+
+### Starting a background run
+
+```bash
+nohup helix run > /tmp/helix-run.stdout.log 2> /tmp/helix-run.stderr.log &
+echo $! > /tmp/helix-run.pid
+```
+
+Defaults are reasonable: cross-model review (codex builds, claude reviews),
+review threshold 100 lines, alignment every 15 cycles, 45-min timeout.
+
+### Monitoring a run
+
+```bash
+# Is it running?
+kill -0 $(cat /tmp/helix-run.pid) 2>/dev/null && echo "RUNNING" || echo "STOPPED"
+
+# Progress
+grep "^helix:" /tmp/helix-run.stderr.log | grep -E "cycle|complete|tokens" | tail -10
+
+# Why did it stop?
+grep "═══\|stopping\|BLOCKER" /tmp/helix-run.stderr.log | tail -5
+```
+
+### Consolidating related issues
+
+Before a run, group related issues into epics. The run loop's epic focus
+mode will stay on one epic and batch its children:
+
+```bash
+# Create epic
+epic=$(helix tracker create "Epic: ..." --type epic ...)
+# Wire children
+helix tracker update hx-child1 --parent $epic
+helix tracker update hx-child2 --parent $epic
+# Supersede duplicates
+helix tracker update hx-old --superseded-by hx-new
+helix tracker close hx-old
+```
+
+### Known operational gotchas
+
+- **Codex sandbox bypasses pre-commit hooks** — the run loop has a build
+  gate that catches broken code, but the agent should also run
+  `lefthook run pre-commit` before pushing (Phase 8 in implementation.md).
+- **Skill YAML front matter** — quote values containing colons or pipes,
+  otherwise codex's skill loader silently rejects them.
+- **Stale in-progress claims** — after a crashed run, unclaim manually:
+  `helix tracker list --status in_progress --json | jq -r '.[].id'`
+  then `helix tracker update <id> --status open --assignee ""`
 
 ## HELIX Workflow Notes
 
