@@ -1357,10 +1357,9 @@ test_run_recovery_preserves_unrelated_dirty_changes() {
 
   local status
   status="$(run_helix "$root" tracker show "$issue_id" --json | jq -r '.status')"
-  assert_eq "in_progress" "$status" "ambiguous stale claims should remain claimed by default"
+  assert_eq "in_progress" "$status" "fresh claims should remain claimed"
   assert_file_contains "$root/work/keep.txt" "tracked but dirty" "recovery should not revert unrelated dirty worktree changes"
-  assert_contains "$output" "may be stale" "run should warn when a claim looks stale"
-  assert_contains "$output" "leaving local changes intact" "run should report non-destructive recovery handling"
+  assert_contains "$output" "too fresh to reclaim" "run should report that claim is too fresh"
   rm -rf "$root"
 }
 
@@ -2512,6 +2511,427 @@ run_test "evolve dry-run" test_evolve_dry_run
 run_test "evolve dry-run with scope" test_evolve_dry_run_with_scope
 run_test "evolve dry-run with artifact" test_evolve_dry_run_with_artifact
 run_test "evolve requires description" test_evolve_requires_description
+
+# ── summary mode tests ───────────────────────────────────────────────
+
+run_helix_summary() {
+  local root="$1"
+  shift
+  local cmd="${1:-help}"
+  shift || true
+  (
+    cd "$root/work"
+    HOME="$root/home" \
+    PATH="$root/bin:$PATH" \
+    MOCK_STATE_ROOT="$root/state" \
+    HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+    HELIX_SKIP_TRIAGE="${HELIX_SKIP_TRIAGE:-0}" \
+    HELIX_FORCE_EPHEMERAL=1 \
+    HELIX_REVIEW_AGENT="codex" \
+    HELIX_AUTO_ALIGN="${HELIX_AUTO_ALIGN:-0}" \
+    bash "$repo_root/scripts/helix" "$cmd" --summary "$@"
+  )
+}
+
+test_summary_flag_accepted() {
+  # --summary should parse without error (dry-run doesn't exercise run_loop)
+  local root
+  root="$(make_workspace)"
+  local output
+  output="$(run_helix_summary "$root" build --dry-run 2>&1)"
+  # dry-run should still produce the agent command
+  assert_contains "$output" "codex" "summary dry-run should print agent command"
+  rm -rf "$root"
+}
+
+test_summary_concise_output() {
+  # Summary mode should produce concise cycle lines and suppress verbose detail
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+  printf 'STOP\n' > "$root/state/next-actions"
+
+  # Override codex to close the issue after implementing
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"
+  tail -n +2 "$file" > "$file.tmp" || true
+  mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    if [[ -f .helix/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
+      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *"check action"*)
+    record check
+    action="$(next_action)"
+    printf 'NEXT_ACTION: %s\n' "$action"
+    ;;
+  *) record other; echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  output="$(run_helix_summary "$root" run --no-auto-review --no-auto-align 2>&1)"
+
+  # Summary output should contain concise cycle line with issue ID
+  assert_contains "$output" "cycle 1:" "summary should show cycle number"
+  assert_contains "$output" "COMPLETE" "summary should show completion status"
+  # Summary output should contain the run-complete line
+  assert_contains "$output" "run complete" "summary should show run complete"
+  # Verbose detail (like ready count format) should NOT appear
+  if [[ "$output" == *"ready="* ]]; then
+    fail "summary mode should not contain verbose ready= format"
+  fi
+  rm -rf "$root"
+}
+
+test_summary_log_has_verbose_detail() {
+  # In summary mode, verbose output should go to the log file
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+  printf 'STOP\n' > "$root/state/next-actions"
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"
+  tail -n +2 "$file" > "$file.tmp" || true
+  mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    if [[ -f .helix/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
+      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *"check action"*)
+    record check
+    action="$(next_action)"
+    printf 'NEXT_ACTION: %s\n' "$action"
+    ;;
+  *) record other; echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  run_helix_summary "$root" run --no-auto-review --no-auto-align 2>&1 >/dev/null || true
+
+  # Log file should exist and contain verbose codex output
+  local log_file
+  log_file="$(ls -t "$root/work/.helix-logs"/helix-*.log 2>/dev/null | head -1)"
+  [[ -n "$log_file" ]] || fail "summary mode should create a log file"
+  local log_content
+  log_content="$(cat "$log_file")"
+  assert_contains "$log_content" "codex output" "log file should contain verbose codex output"
+  rm -rf "$root"
+}
+
+test_summary_log_line_references() {
+  # Summary mode should include log line references in agent completion lines
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+  printf 'STOP\n' > "$root/state/next-actions"
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"
+  tail -n +2 "$file" > "$file.tmp" || true
+  mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    if [[ -f .helix/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
+      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *"check action"*)
+    record check
+    action="$(next_action)"
+    printf 'NEXT_ACTION: %s\n' "$action"
+    ;;
+  *) record other; echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  output="$(run_helix_summary "$root" run --no-auto-review --no-auto-align 2>&1)"
+
+  # Should contain log line range reference
+  assert_contains "$output" "log L" "summary should include log line references"
+  assert_contains "$output" ".helix-logs/helix-" "summary should reference log file path"
+  rm -rf "$root"
+}
+
+test_summary_help_listed() {
+  local root
+  root="$(make_workspace)"
+  local output
+  output="$(run_helix "$root" help 2>&1)"
+  assert_contains "$output" "--summary" "help should list --summary flag"
+  rm -rf "$root"
+}
+
+run_test "summary flag accepted" test_summary_flag_accepted
+run_test "summary concise output" test_summary_concise_output
+run_test "summary log has verbose detail" test_summary_log_has_verbose_detail
+run_test "summary log line references" test_summary_log_line_references
+run_test "summary help listed" test_summary_help_listed
+
+# ── orphan recovery + BUILD loop tests ────────────────────────────────
+
+# Helper: seed tracker with in-progress issues that have stale claim metadata
+seed_stale_claimed() {
+  local root="$1"
+  local count="${2:-1}"
+  local work_dir="$root/work"
+  mkdir -p "$work_dir/.helix"
+  local stale_ts="2024-01-01T00:00:00Z"  # very old
+  local dead_pid=99999  # unlikely to be alive
+  local i
+  for ((i = 0; i < count; i++)); do
+    printf '{"id":"hx-stale-%d","title":"stale issue %d","type":"task","status":"in_progress","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"mock acceptance","deps":[],"assignee":"helix","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created":"2024-01-01T00:00:00Z","updated":"2024-01-01T00:00:00Z","claimed-at":"%s","claimed-pid":%d}\n' "$i" "$i" "$stale_ts" "$dead_pid"
+  done > "$work_dir/.helix/issues.jsonl"
+}
+
+test_orphan_recovery_reclaims_stale() {
+  local root
+  root="$(make_workspace)"
+  # Seed 2 stale in-progress issues with dead PIDs and old timestamps
+  seed_stale_claimed "$root" 2
+
+  # Verify they're in_progress before recovery
+  local before
+  before="$(cd "$root/work" && HELIX_LIBRARY_ROOT="$repo_root/workflows" bash -c 'source "'"$repo_root"'/scripts/tracker.sh"; tracker_list --status in_progress --json' | jq 'length')"
+  assert_eq "2" "$before" "should have 2 in-progress issues before recovery"
+
+  # Run helix with a mock that returns STOP immediately — recovery happens at startup
+  printf 'STOP\n' > "$root/state/next-actions"
+  make_mock_bin "$root"
+
+  local output
+  output="$(run_helix "$root" run --no-auto-review --no-auto-align 2>&1)" || true
+
+  # Verify issues were reclaimed (back to open)
+  local after
+  after="$(cd "$root/work" && HELIX_LIBRARY_ROOT="$repo_root/workflows" bash -c 'source "'"$repo_root"'/scripts/tracker.sh"; tracker_list --status in_progress --json' | jq 'length')"
+  assert_eq "0" "$after" "orphan recovery should reclaim stale issues"
+  assert_contains "$output" "reclaiming orphaned" "should report reclaiming"
+  assert_contains "$output" "recovered 2 orphaned" "should report recovery count"
+  rm -rf "$root"
+}
+
+test_orphan_recovery_skips_fresh() {
+  local root
+  root="$(make_workspace)"
+  local work_dir="$root/work"
+  mkdir -p "$work_dir/.helix"
+  # Issue with recent claimed-at and current PID (will be alive)
+  local fresh_ts
+  fresh_ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  printf '{"id":"hx-fresh-0","title":"fresh issue","type":"task","status":"in_progress","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"","deps":[],"assignee":"helix","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created":"%s","updated":"%s","claimed-at":"%s","claimed-pid":%d}\n' \
+    "$fresh_ts" "$fresh_ts" "$fresh_ts" "$$" > "$work_dir/.helix/issues.jsonl"
+
+  printf 'STOP\n' > "$root/state/next-actions"
+  make_mock_bin "$root"
+
+  run_helix "$root" run --no-auto-review --no-auto-align 2>&1 >/dev/null || true
+
+  # Issue should still be in_progress (not reclaimed)
+  local status
+  status="$(cd "$work_dir" && HELIX_LIBRARY_ROOT="$repo_root/workflows" bash -c 'source "'"$repo_root"'/scripts/tracker.sh"; tracker_show hx-fresh-0 --json' | jq -r '.status')"
+  assert_eq "in_progress" "$status" "fresh claimed issue should not be reclaimed"
+  rm -rf "$root"
+}
+
+test_build_loop_stops_after_empty_builds() {
+  local root
+  root="$(make_workspace)"
+  # Seed with non-execution-eligible issues (epics) so ready count is 0
+  local work_dir="$root/work"
+  mkdir -p "$work_dir/.helix"
+  printf '{"id":"hx-epic-0","title":"umbrella epic","type":"epic","status":"open","priority":2,"labels":["helix","phase:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"","deps":[],"assignee":"","notes":"","execution-eligible":false,"superseded-by":"","replaces":"","created":"2099-01-01T00:00:00Z","updated":"2099-01-01T00:00:00Z"}\n' \
+    > "$work_dir/.helix/issues.jsonl"
+
+  # Mock: check always returns BUILD
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+payload="$*"
+case "$payload" in
+  *"check action"*)
+    record check
+    printf 'NEXT_ACTION: BUILD\n'
+    ;;
+  *) record other; echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  output="$(run_helix "$root" run --no-auto-review --no-auto-align 2>&1)" || true
+
+  # Should stop after 2 consecutive empty BUILDs, not loop forever
+  assert_contains "$output" "no selectable issues after orphan recovery" \
+    "should stop after consecutive empty BUILD cycles"
+
+  # Should have called check exactly 2 times (2 consecutive empty BUILDs)
+  local check_count
+  check_count="$(grep -c '^check$' "$root/state/calls.log" 2>/dev/null || echo 0)"
+  assert_eq "2" "$check_count" "should run check exactly 2 times before stopping"
+  rm -rf "$root"
+}
+
+test_build_loop_recovers_orphans_and_continues() {
+  # Test that startup orphan recovery reclaims stale issues and they get implemented
+  local root
+  root="$(make_workspace)"
+  local work_dir="$root/work"
+  mkdir -p "$work_dir/.helix"
+  # Start with only a stale in-progress issue (no open execution-eligible work)
+  local stale_ts="2024-01-01T00:00:00Z"
+  printf '{"id":"hx-stale-0","title":"stale issue","type":"task","status":"in_progress","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"mock acceptance","deps":[],"assignee":"helix","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created":"2024-01-01T00:00:00Z","updated":"2024-01-01T00:00:00Z","claimed-at":"%s","claimed-pid":99999}\n' \
+    "$stale_ts" > "$work_dir/.helix/issues.jsonl"
+
+  printf 'STOP\n' > "$root/state/next-actions"
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"
+  tail -n +2 "$file" > "$file.tmp" || true
+  mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    if [[ -f .helix/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
+      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *"check action"*)
+    record check
+    action="$(next_action)"
+    printf 'NEXT_ACTION: %s\n' "$action"
+    ;;
+  *) record other; echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  output="$(run_helix "$root" run --no-auto-review --no-auto-align 2>&1)" || true
+
+  # Startup recovery should reclaim the orphan, then the loop should implement it
+  assert_contains "$output" "reclaiming orphaned" \
+    "should report reclaiming orphaned issue"
+  local calls
+  calls="$(cat "$root/state/calls.log" 2>/dev/null)"
+  assert_contains "$calls" "implement" "should implement after recovering orphan"
+  rm -rf "$root"
+}
+
+test_tracker_claim_records_metadata() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+
+  # Claim the issue
+  (cd "$root/work" && HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+    bash -c 'source "'"$repo_root"'/scripts/tracker.sh"; tracker_update hx-mock-0 --claim')
+
+  # Check claimed-at and claimed-pid are set
+  local issue_json
+  issue_json="$(cd "$root/work" && HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+    bash -c 'source "'"$repo_root"'/scripts/tracker.sh"; tracker_show hx-mock-0 --json')"
+
+  local claimed_at claimed_pid status
+  claimed_at="$(printf '%s' "$issue_json" | jq -r '.["claimed-at"] // ""')"
+  claimed_pid="$(printf '%s' "$issue_json" | jq -r '.["claimed-pid"] // ""')"
+  status="$(printf '%s' "$issue_json" | jq -r '.status')"
+
+  assert_eq "in_progress" "$status" "claim should set status to in_progress"
+  [[ -n "$claimed_at" && "$claimed_at" != "null" ]] || fail "claim should set claimed-at"
+  [[ -n "$claimed_pid" && "$claimed_pid" != "null" ]] || fail "claim should set claimed-pid"
+  rm -rf "$root"
+}
+
+test_tracker_unclaim_clears_metadata() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+
+  # Claim then unclaim
+  (cd "$root/work" && HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+    bash -c 'source "'"$repo_root"'/scripts/tracker.sh"; tracker_update hx-mock-0 --claim; tracker_update hx-mock-0 --unclaim')
+
+  local issue_json
+  issue_json="$(cd "$root/work" && HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+    bash -c 'source "'"$repo_root"'/scripts/tracker.sh"; tracker_show hx-mock-0 --json')"
+
+  local claimed_at claimed_pid status assignee
+  claimed_at="$(printf '%s' "$issue_json" | jq -r '.["claimed-at"] // "null"')"
+  claimed_pid="$(printf '%s' "$issue_json" | jq -r '.["claimed-pid"] // "null"')"
+  status="$(printf '%s' "$issue_json" | jq -r '.status')"
+  assignee="$(printf '%s' "$issue_json" | jq -r '.assignee')"
+
+  assert_eq "open" "$status" "unclaim should set status to open"
+  assert_eq "" "$assignee" "unclaim should clear assignee"
+  assert_eq "null" "$claimed_at" "unclaim should clear claimed-at"
+  assert_eq "null" "$claimed_pid" "unclaim should clear claimed-pid"
+  rm -rf "$root"
+}
+
+run_test "tracker claim records metadata" test_tracker_claim_records_metadata
+run_test "tracker unclaim clears metadata" test_tracker_unclaim_clears_metadata
+run_test "orphan recovery reclaims stale" test_orphan_recovery_reclaims_stale
+run_test "orphan recovery skips fresh" test_orphan_recovery_skips_fresh
+run_test "BUILD loop stops after empty builds" test_build_loop_stops_after_empty_builds
+run_test "BUILD loop recovers orphans and continues" test_build_loop_recovers_orphans_and_continues
 
 # ── frame tests ───────────────────────────────────────────────────────
 

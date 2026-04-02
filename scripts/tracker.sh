@@ -489,7 +489,14 @@ tracker_update_impl() {
         shift 2
         ;;
       --claim)
-        updates+=(".status = \"in_progress\"" ".assignee = \"helix\"")
+        updates+=(".status = \"in_progress\"" ".assignee = \"helix\""
+                  ".[\"claimed-at\"] = \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\""
+                  ".[\"claimed-pid\"] = $$")
+        shift
+        ;;
+      --unclaim)
+        updates+=(".status = \"open\"" ".assignee = \"\""
+                  ".[\"claimed-at\"] = null" ".[\"claimed-pid\"] = null")
         shift
         ;;
       -h|--help|help) tracker_usage; return 0 ;;

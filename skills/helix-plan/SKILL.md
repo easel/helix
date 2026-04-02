@@ -51,8 +51,9 @@ package.
 
 ## After Planning
 
-Run `helix polish` to create and refine issues from the plan, then `helix run`
-to execute.
+Run `helix polish` to create and refine issues from the plan, then
+`helix run --summary` to execute (use `--summary` for token-efficient
+monitoring when managing the run from an outer agent).
 
 ## References
 

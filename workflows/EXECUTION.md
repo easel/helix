@@ -233,10 +233,27 @@ Main commands:
   attributed safely and without reverting unrelated changes
 - writes blocker reports and persisted lifecycle state for `helix status`
 
+### `--summary` mode
+
+Use `--summary` (or `-s`) when launching `helix run` as a background process
+managed by an outer agent. This routes verbose output (tool calls, thinking,
+prompt echo, gate detail) to the log file only, while emitting concise progress
+lines with log-file line-range pointers:
+
+```
+helix: [14:24:01] cycle 1: hx-42 (5 ready)
+helix: [14:24:35] codex complete (rc=0, 34s, 892 tokens) — log L12–L340 in .helix-logs/helix-...log
+helix: [14:24:36] cycle 1: hx-42 → COMPLETE (1/3 done, 892 tokens)
+```
+
+When a cycle fails, read the referenced log line range for full diagnostics.
+All verbose output is preserved in `.helix-logs/helix-*.log`.
+
 Examples:
 
 ```bash
 helix run
+helix run --summary
 helix run --review-every 5
 helix status
 helix check repo
