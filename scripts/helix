@@ -1458,6 +1458,30 @@ run_loop() {
           continue
         fi
 
+        # Build-health gate: verify the workspace still compiles after
+        # the agent's changes. Agent sandboxes may bypass pre-commit hooks,
+        # so this catches cross-crate breakage the agent missed.
+        if (( ! dry_run )); then
+          local _gate_cmd=""
+          if [[ -f "${target_root}/lefthook.yml" ]] && command -v lefthook >/dev/null 2>&1; then
+            _gate_cmd="cd '$target_root' && lefthook run pre-commit"
+          elif [[ -f "${target_root}/Cargo.toml" ]]; then
+            _gate_cmd="cd '$target_root' && cargo check --workspace 2>&1 | tail -5"
+          elif [[ -f "${target_root}/package.json" ]]; then
+            _gate_cmd="cd '$target_root' && npm test 2>&1 | tail -5"
+          fi
+          if [[ -n "$_gate_cmd" ]]; then
+            if ! eval "$_gate_cmd" >/dev/null 2>&1; then
+              printf 'helix: BUILD GATE FAILED after cycle %s — the agent pushed broken code\n' "$attempt_number" >&2
+              printf 'helix: reverting last commit and reopening issue\n' >&2
+              (cd "$target_root" && git revert --no-edit HEAD 2>/dev/null && git push 2>/dev/null) || true
+              tracker_update "$selected_issue" --status open --assignee "" 2>/dev/null || true
+              consecutive_failures=$((consecutive_failures + 1))
+              continue
+            fi
+          fi
+        fi
+
         # Post-implementation review: catch bugs and capture learnings
         # Skip review for small changes (below threshold) to save tokens.
         # Epic close reviews always run regardless of threshold.

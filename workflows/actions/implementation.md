@@ -321,7 +321,7 @@ Before committing, perform one quick fresh-eyes review:
 
 If issues are found, fix them before proceeding to Phase 8.
 
-## PHASE 8 - Commit And Close
+## PHASE 8 - Commit, Gate, Push, And Close
 
 If the issue is complete:
 
@@ -338,7 +338,18 @@ If the issue is complete:
    - concise summary
    - governing artifact references where helpful
    - verification summary
-5. close the issue with `helix tracker close <id>`
+5. **PRE-PUSH GATE**: Before pushing, run the project's full quality gate.
+   This is CRITICAL because agent sandboxes may bypass pre-commit hooks.
+   - If the project has `lefthook`: run `lefthook run pre-commit`
+   - Otherwise: run the project's canonical build check (e.g., `cargo check
+     --workspace`, `npm test`, or whatever AGENTS.md defines as the gate)
+   - If the gate fails: fix the issue, amend the commit, and re-run the gate.
+     Do NOT push broken code. Do NOT skip this step.
+   - The scoped verification in Phase 7 catches most issues, but this
+     full-workspace gate catches cross-crate and cross-module breakage
+     that scoped checks miss (e.g., trait/impl mismatches across files).
+6. push to remote: `git pull --rebase && git push`
+7. close the issue with `helix tracker close <id>`
 
 If the worktree contains unrelated changes, commit only the files that belong to
 the issue. Never revert unrelated work just to simplify the commit.
