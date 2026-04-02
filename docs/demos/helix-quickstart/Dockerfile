@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     ca-certificates \
     jq \
+    bc \
     python3 \
     pipx \
     nodejs \
@@ -35,8 +36,8 @@ COPY demo.sh /usr/local/bin/demo.sh
 RUN chmod +x /usr/local/bin/demo.sh
 
 # Mount points:
-#   /root/.claude     — Claude OAuth credentials (bind-mount, read-only)
-#   /ddx-library      — ddx-library repo (bind-mount, read-only)
+#   /root/.claude     — Claude credentials (bind-mount, read-only)
+#   /helix            — helix repo (bind-mount, read-only)
 #   /workspace        — demo project workspace (ephemeral)
 #   /recordings       — asciinema output (bind-mount for extraction)
 

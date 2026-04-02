@@ -1,75 +1,62 @@
 # HELIX Quickstart Demo
 
-A reproducible, scripted demo showing the full HELIX development cycle on a
-tiny Node.js temperature converter CLI.
+A scripted demonstration of the full HELIX lifecycle: install → frame → design → build → review.
 
-## What It Shows
-
-1. **Setup** — init repo, tracker, DDx plugin
-2. **Planning Stack** — PRD, user story with acceptance criteria, technical
-   design, test plan with failing tests (Red phase)
-3. **Execution** — create an issue, implement to pass the tests (Green phase),
-   close the issue with traceability
-4. **Alignment** — HELIX check to assess queue health
+Builds a tiny Node.js temperature converter from scratch, driven entirely by HELIX artifacts and the tracker.
 
 ## Prerequisites
 
 - Docker
-- Claude OAuth credentials at `~/.claude.json` and `~/.claude/`
-
-## Build
-
-```bash
-cd docs/demos/helix-quickstart
-docker build -t helix-demo .
-```
+- Claude Code credentials (`~/.claude/`)
 
 ## Run
 
-Record an asciinema session:
-
 ```bash
+# From the helix repo root:
+
+# Build the demo container
+docker build -t helix-demo docs/demos/helix-quickstart/
+
+# Run with recording
 docker run --rm \
-  -v ~/.claude.json:/root/.claude.json:ro \
   -v ~/.claude:/root/.claude:ro \
-  -v "$(git rev-parse --show-toplevel)":/ddx-library:ro \
-  -v "$(pwd)/recordings":/recordings \
+  -v $(pwd):/helix:ro \
+  -v $(pwd)/docs/demos/helix-quickstart/recordings:/recordings \
+  helix-demo
+
+# Run without recording (just execute)
+docker run --rm \
+  -v ~/.claude:/root/.claude:ro \
+  -v $(pwd):/helix:ro \
+  -e HELIX_DEMO_RECORDING=1 \
   helix-demo
 ```
 
-The `.cast` file is written to `recordings/`.
+## What It Does
 
-Run without recording (interactive):
+| Act | Phase | What Happens |
+|-----|-------|-------------|
+| 1 | Install | Install HELIX skills and CLI from the repo |
+| 2 | Setup | Initialize git repo, tracker, and AGENTS.md |
+| 3 | Frame | Agent creates product vision, PRD, and feature spec |
+| 4 | Design | Agent creates technical design, then tracker issues |
+| 5 | Build | Red: write failing tests. Green: implement to pass. |
+| 6 | Verify | Run tests, check acceptance criteria |
+| 7 | Review | Agent reviews all work for gaps |
 
-```bash
-docker run --rm -it \
-  -v ~/.claude.json:/root/.claude.json:ro \
-  -v ~/.claude:/root/.claude:ro \
-  -v "$(git rev-parse --show-toplevel)":/ddx-library:ro \
-  helix-demo
-```
+## Recordings
 
-## Playback
+Asciinema recordings are saved to `recordings/`. Play them:
 
 ```bash
 asciinema play recordings/helix-quickstart-*.cast
 ```
 
-Or upload to asciinema.org:
+## Run Locally (no Docker)
 
 ```bash
-asciinema upload recordings/helix-quickstart-*.cast
+cd /tmp
+bash /path/to/helix/docs/demos/helix-quickstart/demo.sh
 ```
 
-## Troubleshooting
-
-**Claude authentication fails**: Ensure both `~/.claude.json` and `~/.claude/`
-exist and contain valid OAuth credentials. Both are bind-mounted read-only
-into the container. Run `claude` locally first to authenticate if needed.
-
-**helix tracker not found**: Ensure the `helix` CLI is installed and available
-on your PATH.
-
-**Tests don't fail in Red phase**: The demo script creates tests before
-implementation. If a previous run left artifacts in the workspace, rebuild
-the container or use `docker run --rm` to ensure a clean workspace.
+Requires: git, jq, node, npm, claude CLI, helix CLI.

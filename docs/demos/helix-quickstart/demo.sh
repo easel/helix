@@ -1,23 +1,21 @@
 #!/usr/bin/env bash
 # HELIX Quickstart Demo — scripted asciinema recording
 #
-# This script drives a full HELIX cycle on a tiny Node.js project:
-#   1. Setup: init repo, init tracker, install ddx skills
-#   2. Seed: one prompt creates the PRD
-#   3. Queue: set up issues for the planning + build chain
-#   4. Execute: drain the queue — one issue at a time
-#   5. Verify: tests pass, app runs
-#   6. Review: /review critically reviews all work products
-#   7. Triage: /triage identifies gaps and creates follow-up issues
-#   8. Experiment: metric-driven optimization iteration on test runtime
+# Demonstrates the full HELIX lifecycle on a tiny Node.js project:
+#   1. Install: install helix skills and CLI
+#   2. Frame: create product vision and PRD using helix frame
+#   3. Design: create solution design using helix design
+#   4. Build: write tests (Red), implement (Green) using helix build
+#   5. Review: cross-model fresh-eyes review
+#   6. Iterate: triage gaps and create follow-up issues
 #
-# Every artifact is created by Claude. Issues drive the work.
+# Every artifact is created by the agent. The tracker drives the work.
 #
 # Usage:
+#   docker build -t helix-demo docs/demos/helix-quickstart/
 #   docker run --rm \
-#     -v ~/.claude.json:/root/.claude.json:ro \
 #     -v ~/.claude:/root/.claude:ro \
-#     -v $(pwd):/ddx-library:ro \
+#     -v $(pwd):/helix:ro \
 #     -v $(pwd)/docs/demos/helix-quickstart/recordings:/recordings \
 #     helix-demo
 #
@@ -25,8 +23,8 @@ set -euo pipefail
 
 RECORDING_FILE="/recordings/helix-quickstart-$(date +%Y%m%d-%H%M%S).cast"
 MAX_RETRIES=3
-COOLDOWN=8  # generous gap between API calls to avoid rate limits
-DEMO_LIBRARY_ROOT="${DEMO_LIBRARY_ROOT:-/ddx-library}"
+COOLDOWN=5
+HELIX_LIBRARY_ROOT="${HELIX_LIBRARY_ROOT:-/helix}"
 
 narrate() {
   echo ""
@@ -54,8 +52,7 @@ show_file() {
   sleep 2
 }
 
-# Run claude -p with prompt visible. Output is captured but printed after.
-# Retries on failure with file-change detection.
+# Run claude -p with prompt visible and retries
 claude_run() {
   local prompt=""
   if [[ $# -gt 0 ]]; then
@@ -64,22 +61,17 @@ claude_run() {
     prompt="$(cat)"
   fi
 
-  # Show the command the viewer would type
-  echo '$ claude -p "'"${prompt}"'"'
+  echo '$ claude -p "'"${prompt:0:80}"'..."'
   echo ""
 
   local attempt output
   for attempt in $(seq 1 "$MAX_RETRIES"); do
-    touch /tmp/claude_ts
-    output=$(printf '%s' "$prompt" | claude -p --no-session-persistence 2>/dev/null) || true
+    output=$(printf '%s' "$prompt" | claude -p \
+      --permission-mode bypassPermissions \
+      --dangerously-skip-permissions \
+      --no-session-persistence 2>/dev/null) || true
 
     if [[ -n "$output" && "$output" != "Execution error" ]]; then
-      break
-    fi
-    # Check if files were created despite error
-    local new_files
-    new_files=$(find . -not -path './.git/*' -not -path './.helix/*' -newer /tmp/claude_ts 2>/dev/null | wc -l || echo 0)
-    if [[ "$new_files" -gt 0 ]]; then
       break
     fi
     if [[ $attempt -lt $MAX_RETRIES ]]; then
@@ -88,28 +80,12 @@ claude_run() {
     fi
   done
 
-  # Show output
   if [[ -n "$output" && "$output" != "Execution error" ]]; then
     printf '%s\n' "$output"
   fi
 
   echo ""
   sleep "$COOLDOWN"
-}
-
-# Execute an issue: show it, run claude, close it
-execute_issue() {
-  local issue_id="$1"
-  local title
-  title=$(helix tracker show "$issue_id" --json 2>/dev/null | jq -r '.title // empty' 2>/dev/null || echo "")
-
-  echo "▶ Issue $issue_id"
-  if [[ -n "$title" ]]; then
-    echo "  $title"
-  fi
-  echo ""
-
-  claude_run "$title Read existing artifacts under docs/helix/ for context. When done, close the issue: helix tracker close $issue_id"
 }
 
 require_file() {
@@ -134,9 +110,34 @@ assert_output() {
   fi
 }
 
-setup_demo_workspace() {
+demo_body() {
+  # ── ACT 1: Install HELIX ──────────────────────────────────
+  narrate "ACT 1: Install HELIX"
+
+  echo "Installing HELIX from /helix..."
+  export HELIX_LIBRARY_ROOT="/helix/workflows"
+  bash /helix/scripts/install-local-skills.sh 2>&1
+  echo ""
+
+  echo "Available skills:"
+  ls ~/.agents/skills/ | tr '\n' ' '
+  echo ""
+  echo ""
+
+  echo "Available commands:"
+  run helix help
+  sleep 2
+
+  # ── ACT 2: Start a new project ─────────────────────────────
+  narrate "ACT 2: Start a New Project"
+
+  run git init hello-helix
+  cd hello-helix
+  run helix tracker init
+
+  # Copy skills into project
   mkdir -p .agents .claude
-  cp -rf "$DEMO_LIBRARY_ROOT/.agents/skills" .agents/
+  cp -rf ~/.agents/skills .agents/
   cat > .claude/settings.json <<'SETTINGS'
 {
   "permissions": {
@@ -144,87 +145,159 @@ setup_demo_workspace() {
   }
 }
 SETTINGS
-}
 
-demo_body() {
-  # ── ACT 1: Setup ──────────────────────────────────────────
-  narrate "ACT 1: Project Setup"
+  # Create AGENTS.md
+  cat > AGENTS.md <<'AGENTS'
+# Agent Instructions
 
-  run git init hello-helix
-  cd hello-helix
-  run helix tracker init
+This is the hello-helix project — a Node.js CLI temperature converter.
 
-  setup_demo_workspace
-  echo "HELIX skills installed: $(ls .agents/skills/ | tr '\n' ' ')"
+## Quick Reference
+
+```bash
+npm test              # Run tests
+node bin/convert.js   # Run the CLI
+```
+
+## Project Structure
+
+- `bin/convert.js` — CLI entry point
+- `tests/` — test files
+- `docs/helix/` — HELIX artifacts
+
+## Workflow
+
+This project uses HELIX. Run `helix --help` for commands.
+AGENTS
+  echo "Created AGENTS.md"
+  git add -A && git commit -m "init: hello-helix project" --quiet
   echo ""
   sleep 2
 
-  # ── ACT 2: Seed the project ─────────────────────────────
-  narrate "ACT 2: Seed the Project"
+  # ── ACT 3: Frame — Vision and PRD ──────────────────────────
+  narrate "ACT 3: Frame — Define What to Build"
 
-  claude_run 'Write a PRD for "hello-helix", a Node.js CLI that converts temperatures. Features: convert --to-celsius <temp> and convert --to-fahrenheit <temp>, output with one decimal place. Write to docs/helix/01-frame/prd.md. Keep it short.'
-  require_file docs/helix/01-frame/prd.md "the PRD"
-  show_file docs/helix/01-frame/prd.md
+  claude_run <<'FRAME_PROMPT'
+Create the Frame-phase artifacts for "hello-helix", a Node.js CLI temperature converter.
 
-  # ── ACT 3: Build the work queue ─────────────────────────
-  narrate "ACT 3: Build the Work Queue"
+1. Write docs/helix/00-discover/product-vision.md:
+   - Mission: simple, reliable temperature conversion from the command line
+   - Target: developers who need quick conversions in scripts and terminals
+   - Keep it to ~30 lines
 
-  echo "Creating issues for the HELIX chain..."
-  echo ""
+2. Write docs/helix/01-frame/prd.md:
+   - Features: convert --to-celsius <temp> and convert --to-fahrenheit <temp>
+   - Output with one decimal place
+   - P0: basic conversion. P1: error messages for bad input. P2: batch mode.
+   - Keep it concise — ~50 lines
 
-  B1=$(helix tracker create "Write user story US-001 from the PRD. Acceptance criteria: convert --to-celsius 212 prints 100.0, convert --to-fahrenheit 0 prints 32.0. Write to docs/helix/01-frame/user-stories/US-001-temperature-conversion.md" \
-    --type task --priority 1 --labels helix,phase:frame)
+3. Write docs/helix/01-frame/features/FEAT-001-temperature-conversion.md:
+   - User stories with acceptance criteria:
+     - convert --to-celsius 212 prints 100.0
+     - convert --to-fahrenheit 0 prints 32.0
+     - convert --to-celsius 98.6 prints 37.0
+   - ~40 lines
 
-  B2=$(helix tracker create "Write technical design TD-001: single bin/convert.js exporting toFahrenheit(c) and toCelsius(f), CLI via process.argv, toFixed(1) output. Write to docs/helix/02-design/technical-designs/TD-001-temperature-conversion.md" \
-    --type task --priority 1 --labels helix,phase:design)
+Create the directory structure as needed. Use markdown.
+FRAME_PROMPT
 
-  B3=$(helix tracker create "Write test plan TP-001 and failing tests. Create package.json with node --test, and tests/convert.test.js requiring ../bin/convert.js for toFahrenheit(0)===32, toCelsius(212)===100, toCelsius(98.6)~=37. Do NOT create bin/convert.js." \
-    --type task --priority 1 --labels helix,phase:test)
+  require_file docs/helix/00-discover/product-vision.md "vision"
+  require_file docs/helix/01-frame/prd.md "PRD"
+  show_file docs/helix/00-discover/product-vision.md 15
+  show_file docs/helix/01-frame/prd.md 20
 
-  B4=$(helix tracker create "Implement bin/convert.js per the technical design. Export toFahrenheit(c) and toCelsius(f). Add CLI with --to-celsius and --to-fahrenheit flags, toFixed(1) output. Run npm test — all tests must pass." \
-    --type task --priority 1 --labels helix,phase:build)
-
-  echo ""
-  run helix tracker list
+  git add -A && git commit -m "frame: vision, PRD, and feature spec" --quiet
   sleep 2
 
-  # ── ACT 4: Drain the queue ─────────────────────────────
-  narrate "ACT 4: Execute Issues"
+  # ── ACT 4: Design — Technical Design ───────────────────────
+  narrate "ACT 4: Design — How to Build It"
 
-  execute_issue "$B1"
-  require_file docs/helix/01-frame/user-stories/US-001-temperature-conversion.md "user story"
-  show_file docs/helix/01-frame/user-stories/US-001-temperature-conversion.md
+  claude_run <<'DESIGN_PROMPT'
+Create the Design-phase artifact for hello-helix.
 
-  execute_issue "$B2"
+Write docs/helix/02-design/technical-designs/TD-001-temperature-conversion.md:
+- Architecture: single bin/convert.js file
+- Exports: toFahrenheit(c) and toCelsius(f) functions
+- CLI: parse process.argv for --to-celsius and --to-fahrenheit flags
+- Output: toFixed(1) for one decimal place
+- Error handling: print usage on bad input, exit 1
+- ~40 lines
+
+Then create tracker issues for the build phase:
+
+helix tracker create "Write failing tests for temperature conversion" \
+  --type task --priority 1 --labels helix,phase:build \
+  --spec-id FEAT-001 --acceptance "tests exist and FAIL (Red phase)"
+
+helix tracker create "Implement bin/convert.js per TD-001" \
+  --type task --priority 1 --labels helix,phase:build \
+  --spec-id TD-001 --acceptance "npm test passes, CLI outputs correct values"
+DESIGN_PROMPT
+
   require_file docs/helix/02-design/technical-designs/TD-001-temperature-conversion.md "tech design"
   show_file docs/helix/02-design/technical-designs/TD-001-temperature-conversion.md
 
-  execute_issue "$B3"
-  # Ensure package.json exists for npm test
-  [[ -f package.json ]] || echo '{"name":"hello-helix","version":"0.1.0","scripts":{"test":"node --test"}}' > package.json
+  echo "Work queue:"
+  run helix tracker list
+  git add -A && git commit -m "design: TD-001 and build issues" --quiet
+  sleep 2
+
+  # ── ACT 5: Build — Red then Green ──────────────────────────
+  narrate "ACT 5: Build — Tests First, Then Code"
+
+  echo "▶ Writing failing tests (Red phase)..."
+  claude_run <<'RED_PROMPT'
+Write failing tests for hello-helix per FEAT-001 and TD-001.
+
+1. Create package.json with {"name":"hello-helix","version":"0.1.0","scripts":{"test":"node --test"}}
+2. Create tests/convert.test.js requiring ../bin/convert.js
+3. Test: toFahrenheit(0) === 32
+4. Test: toCelsius(212) === 100
+5. Test: toCelsius(98.6) is approximately 37.0
+6. Do NOT create bin/convert.js — tests must FAIL
+
+Then claim and close the test issue:
+helix tracker list --json | jq -r '.[] | select(.title | contains("failing tests")) | .id' | head -1
+Use that ID to: helix tracker update <id> --claim && helix tracker close <id>
+RED_PROMPT
+
   require_file tests/convert.test.js "tests"
-  show_file tests/convert.test.js 25
+  [[ -f package.json ]] || echo '{"name":"hello-helix","version":"0.1.0","scripts":{"test":"node --test"}}' > package.json
+  show_file tests/convert.test.js 20
 
   echo "Red phase — tests should fail:"
   npm test 2>&1 || true
   echo ""
+  git add -A && git commit -m "test: failing tests for FEAT-001 (Red)" --quiet
   sleep 2
 
-  execute_issue "$B4"
-  show_file bin/convert.js 25
+  echo ""
+  echo "▶ Implementing to pass tests (Green phase)..."
+  claude_run <<'GREEN_PROMPT'
+Implement bin/convert.js per TD-001 to make all tests pass.
 
-  # ── ACT 5: Verify ──────────────────────────────────────
-  narrate "ACT 5: Verify"
+1. Export toFahrenheit(c) and toCelsius(f)
+2. CLI: parse --to-celsius and --to-fahrenheit from process.argv
+3. Output with toFixed(1)
+4. Run npm test — all tests must pass
+
+Then claim and close the implementation issue:
+helix tracker list --json | jq -r '.[] | select(.title | contains("Implement")) | .id' | head -1
+Use that ID to: helix tracker update <id> --claim && helix tracker close <id>
+GREEN_PROMPT
+
+  require_file bin/convert.js "implementation"
+  show_file bin/convert.js 20
+
+  # ── ACT 6: Verify ──────────────────────────────────────────
+  narrate "ACT 6: Verify"
 
   echo "Tests:"
   npm test 2>&1 || { echo "FAIL: npm test failed — aborting"; exit 1; }
   echo "  ✓ all tests pass"
   echo ""
-  sleep 2
 
-  require_file bin/convert.js "implementation"
-
-  echo "App — checking acceptance criteria:"
+  echo "Acceptance criteria:"
   local out
   out=$(node bin/convert.js --to-celsius 212)
   assert_output "$out" "100.0" "212°F → Celsius"
@@ -236,133 +309,34 @@ demo_body() {
   assert_output "$out" "37.0" "98.6°F → Celsius"
 
   echo ""
+  git add -A && git commit -m "build: implement temperature conversion (Green)" --quiet
   sleep 2
 
-  # Commit
-  git add -A
-  git commit -m "feat: temperature conversion CLI via HELIX" --allow-empty || true
+  # ── ACT 7: Review ──────────────────────────────────────────
+  narrate "ACT 7: Review"
 
-  echo ""
-  run helix tracker list --all
+  claude_run "Review all artifacts and code in this project for errors, omissions, and quality issues. Check docs/helix/ specs against tests and implementation. Are acceptance criteria covered? What's missing? Be concise — bullet points."
   sleep 2
 
-  # ── ACT 6: Review ──────────────────────────────────────
-  narrate "ACT 6: Review"
+  # ── ACT 8: Summary ─────────────────────────────────────────
+  narrate "Demo Complete!"
 
-  claude_run "Review all artifacts and code in this project for errors, omissions, and mischaracterizations. Check docs/helix/ specs, tests/convert.test.js, and bin/convert.js. Does the implementation match the specs? Are acceptance criteria covered? Be concise — bullet points."
-  sleep 2
-
-  # ── ACT 7: Triage ──────────────────────────────────────
-  narrate "ACT 7: Triage"
-
-  claude_run "Read tests/convert.test.js and bin/convert.js. List gaps: which error paths have no tests? Which edge cases are untested? Which acceptance criteria lack integration tests? Numbered list, one line each."
-
+  echo "Tracker status:"
+  run helix tracker status
   echo ""
-  echo "Creating follow-up issues from triage..."
-  run helix tracker create "Add CLI integration tests for acceptance criteria" --type task --priority 2
-  run helix tracker create "Add error-path tests (missing flag, bad input)" --type task --priority 2
-  run helix tracker create "Add edge-case tests (negative temps, -40 crossover)" --type task --priority 3
+  run helix tracker list
 
-  echo ""
-  echo "Final queue:"
-  run helix tracker list --all
-  sleep 2
-
-  # ── ACT 8: Experiment ──────────────────────────────────
-  narrate "ACT 8: Experiment"
-
-  echo "Creating an iterate issue for test-runtime optimization..."
-  echo ""
-  B_EXP=$(helix tracker create "Optimize test suite startup time — reduce wall-clock time of npm test" \
-    --type task --priority 2 --labels helix,phase:iterate)
-  echo "  Experiment issue: $B_EXP"
-  echo ""
-  sleep 2
-
-  # Create the metric definition
-  mkdir -p docs/helix/06-iterate/metrics
-  cat > docs/helix/06-iterate/metrics/test-runtime.yaml <<'METRIC_DEF'
-name: test-runtime
-description: Wall-clock time for the full test suite (npm test)
-unit: seconds
-direction: lower
-command: |
-  start=$(date +%s%N)
-  npm test >/dev/null 2>&1
-  end=$(date +%s%N)
-  elapsed=$(echo "scale=3; ($end - $start) / 1000000000" | bc)
-  echo "METRIC test-runtime=$elapsed"
-tolerance: 10%
-labels:
-  area: testing
-  phase: iterate
-METRIC_DEF
-  echo "── docs/helix/06-iterate/metrics/test-runtime.yaml ──"
-  cat docs/helix/06-iterate/metrics/test-runtime.yaml
-  echo ""
-  sleep 2
-
-  git add docs/helix/06-iterate/metrics/test-runtime.yaml
-  git commit -m "docs: add test-runtime metric definition" --allow-empty || true
-  sleep 1
-
-  # Run the experiment via Claude — setup + one iteration
-  claude_run <<'EXPERIMENT_PROMPT'
-You are running one experiment iteration to optimize test suite startup time.
-
-Issue: use helix tracker to find the open phase:iterate issue and claim it with helix tracker update <id> --claim.
-
-Steps:
-1. Create branch experiment/test-runtime
-2. Add session gitignore entries (autoresearch.md, autoresearch.sh, autoresearch.jsonl, experiments/) and commit
-3. Create autoresearch.sh that measures npm test wall-clock time and prints METRIC test-runtime=<seconds>. Make it executable.
-4. Run ./autoresearch.sh to get baseline
-5. Create autoresearch.jsonl with a config line and the baseline result
-6. Look at tests/convert.test.js and try ONE optimization to reduce startup time (e.g., reduce redundant requires, simplify test structure, or use a faster assertion pattern). Only modify tests/convert.test.js.
-7. Run npm test to verify tests still pass
-8. Run ./autoresearch.sh to measure after
-9. Log the result to autoresearch.jsonl
-10. If improved, commit the change. If not, revert tests/convert.test.js.
-
-Keep it simple — this is a demo. Print a short summary at the end.
-Metric definition: docs/helix/06-iterate/metrics/test-runtime.yaml
-EXPERIMENT_PROMPT
-
-  # Show the JSONL log
-  if [[ -f autoresearch.jsonl ]]; then
-    echo "── autoresearch.jsonl (experiment log) ──"
-    cat autoresearch.jsonl
-    echo ""
-    sleep 2
-  fi
-
-  # Show final issue status
-  echo ""
-  echo "Experiment issue status:"
-  run helix tracker show "$B_EXP"
-  sleep 2
-
-  # Clean up experiment branch
-  local current_branch
-  current_branch=$(git branch --show-current)
-  if [[ "$current_branch" == experiment/* ]]; then
-    git checkout main 2>/dev/null || git checkout - 2>/dev/null || true
-  fi
-  rm -f autoresearch.md autoresearch.sh autoresearch.jsonl
-  rm -rf experiments/
-  git branch -D experiment/test-runtime 2>/dev/null || true
-
-  narrate "Demo complete!"
   echo ""
   echo "What you just saw:"
-  echo "  1. One prompt seeded the PRD"
-  echo "  2. Issues defined the work queue"
-  echo "  3. Each issue executed in phase order: story -> design -> tests -> code"
-  echo "  4. Tests pass, app runs, acceptance criteria verified"
-  echo "  5. Review found gaps, triage created follow-up issues"
-  echo "  6. Experiment optimized test runtime with metric-driven iteration"
+  echo "  1. Install: helix skills and CLI set up in seconds"
+  echo "  2. Frame: vision, PRD, and feature spec created"
+  echo "  3. Design: technical design, then tracker issues for build"
+  echo "  4. Build: failing tests first (Red), then implementation (Green)"
+  echo "  5. Verify: tests pass, acceptance criteria checked"
+  echo "  6. Review: agent reviews its own work for gaps"
   echo ""
-  echo "One seed. Issues drive. HELIX delivers."
+  echo "The HELIX lifecycle: Frame → Design → Test → Build → Review"
+  echo "The tracker drives. Artifacts govern. Agents execute."
   echo ""
 }
 
