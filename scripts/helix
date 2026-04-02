@@ -1550,6 +1550,24 @@ run_loop() {
           fi
         fi
 
+        # Acceptance gate: run project acceptance scripts if they exist
+        if (( ! dry_run )); then
+          local _ac_failed=0
+          for _ac_script in \
+            "${target_root}/scripts/check-acceptance-traceability.sh" \
+            "${target_root}/scripts/check-acceptance-coverage.sh"; do
+            if [[ -x "$_ac_script" ]]; then
+              if ! bash "$_ac_script" >/dev/null 2>&1; then
+                printf 'helix: ACCEPTANCE CHECK FAILED: %s\n' "$(basename "$_ac_script")" >&2
+                _ac_failed=1
+              fi
+            fi
+          done
+          if (( _ac_failed )); then
+            printf 'helix: acceptance criteria not met after cycle %s — continuing but flagging\n' "$attempt_number" >&2
+          fi
+        fi
+
         # Post-implementation review: catch bugs and capture learnings
         # Skip review for small changes (below threshold) to save tokens.
         # Epic close reviews always run regardless of threshold.
@@ -1569,10 +1587,12 @@ run_loop() {
             local review_status="$?"
             case "$review_status" in
               10)
-                printf 'helix: review reported actionable findings in cycle %s — continuing\n' "$attempt_number" >&2
+                printf 'helix: stopping after actionable review findings in cycle %s\n' "$attempt_number" >&2
+                finish_loop 0; return $?
                 ;;
               *)
-                printf 'helix: review output was not safely interpretable after cycle %s — continuing\n' "$attempt_number" >&2
+                printf 'helix: review output was not safely interpretable after cycle %s\n' "$attempt_number" >&2
+                finish_loop 1; return $?
                 ;;
             esac
           fi

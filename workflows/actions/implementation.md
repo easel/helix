@@ -338,7 +338,15 @@ If the issue is complete:
    - concise summary
    - governing artifact references where helpful
    - verification summary
-5. **PRE-PUSH GATE**: Before pushing, run the project's full quality gate.
+5. **ACCEPTANCE CHECK**: Before committing, verify the issue's acceptance
+   criteria are satisfied. If the issue has a `spec-id`, find the matching
+   acceptance manifest (e.g., `TP-SD-010.acceptance.toml`) and verify:
+   - Each criterion the issue claims to satisfy is marked `active` or `satisfied`
+   - The referenced test or evidence actually exists and passes
+   - If acceptance scripts exist (`scripts/check-acceptance-traceability.sh`,
+     `scripts/check-acceptance-coverage.sh`), run them
+   Do not close an issue whose acceptance criteria are not verifiably met.
+6. **PRE-PUSH GATE**: Before pushing, run the project's full quality gate.
    This is CRITICAL because agent sandboxes may bypass pre-commit hooks.
    - If the project has `lefthook`: run `lefthook run pre-commit`
    - Otherwise: run the project's canonical build check (e.g., `cargo check
@@ -348,8 +356,8 @@ If the issue is complete:
    - The scoped verification in Phase 7 catches most issues, but this
      full-workspace gate catches cross-crate and cross-module breakage
      that scoped checks miss (e.g., trait/impl mismatches across files).
-6. push to remote: `git pull --rebase && git push`
-7. close the issue with `helix tracker close <id>`
+7. push to remote: `git pull --rebase && git push`
+8. close the issue with `helix tracker close <id>`
 
 If the worktree contains unrelated changes, commit only the files that belong to
 the issue. Never revert unrelated work just to simplify the commit.
