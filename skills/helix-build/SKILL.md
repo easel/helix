@@ -1,6 +1,6 @@
 ---
 name: helix-build
-description: Execute one bounded HELIX build pass. Public command surface: `helix build`.
+description: 'Execute one bounded HELIX build pass. Public command surface: helix build.'
 argument-hint: "[issue-id|scope]"
 disable-model-invocation: true
 ---

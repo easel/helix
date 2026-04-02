@@ -83,6 +83,21 @@ for name in "${expected_skills[@]}"; do
   description="$(extract_field "$frontmatter" "description")"
   argument_hint="$(extract_field "$frontmatter" "argument-hint")"
 
+  # YAML syntax check: detect unquoted colons in values that break parsers.
+  # Codex's skill loader rejects these with "invalid YAML: mapping values
+  # are not allowed in this context".
+  while IFS= read -r line; do
+    # Skip lines that are properly quoted (single or double quotes after key:)
+    if [[ "$line" =~ ^[a-z-]+:\ *[\'\"] ]]; then
+      continue
+    fi
+    # Check for a second colon-space in an unquoted value
+    key_removed="${line#*: }"
+    if [[ "$key_removed" == *": "* ]]; then
+      fail "unquoted colon in $skill_file frontmatter: $line — wrap the value in quotes"
+    fi
+  done <<< "$frontmatter"
+
   [[ -n "$skill_name" ]] || fail "missing name field in $skill_file"
   [[ "$skill_name" == "$name" ]] || fail "frontmatter name $skill_name does not match directory $name"
   [[ -n "$description" ]] || fail "missing description field in $skill_file"

@@ -1,6 +1,6 @@
 ---
 name: helix-design
-description: Create a comprehensive design document through iterative refinement before build work. Public command surface: `helix design`.
+description: 'Create a comprehensive design document through iterative refinement before build work. Public command surface: helix design.'
 argument-hint: "[scope]"
 disable-model-invocation: true
 ---
