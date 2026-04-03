@@ -22,6 +22,7 @@ target_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 source "$script_dir/tracker.sh"
 
 agent="${HELIX_AGENT:-codex}"
+agent_model="${HELIX_MODEL:-}"
 check_model="${HELIX_CHECK_MODEL:-}"
 polish_model="${HELIX_POLISH_MODEL:-}"
 review_every=15
@@ -123,6 +124,7 @@ Options:
   --agent           Agent to use: codex or claude (default: ${agent})
   --claude          Shorthand for --agent claude
   --codex           Shorthand for --agent codex
+  --model           Model to use (e.g., claude-sonnet-4-6, gpt-5.4)
   --review-every    Run alignment every N completed implementation cycles
   --max-cycles      Stop after N completed implementation cycles
   --no-auto-align   Do not auto-run alignment when check returns ALIGN
@@ -211,7 +213,7 @@ reset_session() {
 
 run_agent_prompt() {
   local prompt="$1"
-  local model_override="${2:-}"
+  local model_override="${2:-$agent_model}"
   local prompt_bytes
   prompt_bytes="$(printf '%s' "$prompt" | wc -c)"
   local agent_timeout="${HELIX_AGENT_TIMEOUT:-2700}"
@@ -897,6 +899,10 @@ parse_common_flags() {
       --codex)
         agent="codex"
         shift
+        ;;
+      --model)
+        agent_model="$2"
+        shift 2
         ;;
       --dry-run)
         dry_run=1
