@@ -97,6 +97,17 @@ The CLI must expose these top-level commands:
   retried fresh.
 - When the loop stops with skipped work, `run` must emit a blocker report and
   persist enough state for `helix status` to explain the stop condition.
+- `run` must support `--summary` (or `-s`) mode which routes verbose output to
+  the log file only and emits concise progress lines with log-file line-range
+  pointers, reducing token consumption when monitored by an outer agent.
+- `run` must detect consecutive empty BUILD cycles (check returns BUILD but no
+  issue can be selected) and stop after 2 consecutive empties, attempting
+  orphan recovery first.
+- `run` must use bounded exponential backoff: `min(5 * 2^(attempt-1), 40)`
+  seconds, blocking the issue as intractable after 4 failures. The backoff
+  delay can be overridden via `HELIX_BACKOFF_SLEEP`.
+- When a child issue is blocked as intractable during epic focus, the parent
+  epic must also be blocked.
 
 ### Tracker Model
 
@@ -108,13 +119,15 @@ The CLI must expose these top-level commands:
   time: `helix` label, one phase label, `--spec-id` for tasks, and
   deterministic `--acceptance` for tasks and epics.
 - Tracker ownership must distinguish active claims from stale or orphaned
-  claims.
-- The wrapper may only reclaim or recover stale work when the tracker's
-  ownership rules indicate that the issue is no longer actively owned.
-- Recovery must preserve unrelated worktree changes and may only act on work
-  that can be attributed to the stale issue.
-- If the wrapper cannot safely attribute the partial work to the issue, it must
-  stop and require guidance rather than discard changes.
+  claims using `claimed-at` (ISO-8601 UTC timestamp) and `claimed-pid`
+  (process ID) metadata recorded on `--claim`.
+- `--unclaim` must restore an issue to `open`, clear `assignee`, and null out
+  `claimed-at` and `claimed-pid`.
+- Orphan recovery must check PID liveness and claim age before reclaiming.
+  The staleness threshold defaults to 7200 seconds (2 hours) and is
+  configurable via `HELIX_ORPHAN_THRESHOLD`.
+- Recovery must preserve unrelated worktree changes — it resets tracker state
+  only, it does not revert files.
 
 ### Operator Safeguards
 
@@ -166,10 +179,21 @@ The CLI must expose these top-level commands:
   recovery.
 - Running `helix run` does not retry a failed or timed-out implementation
   attempt with stale claims or leftover issue-scoped worktree state.
+- Running `helix run --summary` produces concise one-liner output with
+  log-file line-range pointers while routing verbose detail to the log file.
+- Running `helix run` stops after 2 consecutive BUILD cycles with no
+  selectable issues, attempting orphan recovery before stopping.
+- Running `helix run` reclaims orphaned issues when PID is dead and claim age
+  exceeds threshold.
+- Running `helix run` blocks the parent epic when a child is intractable.
+- Running `helix tracker update <id> --claim` records `claimed-at` and
+  `claimed-pid` metadata.
+- Running `helix tracker update <id> --unclaim` restores `open` status and
+  clears claim metadata.
 - Running `helix backfill <scope>` enforces the required trailers and durable
   report creation contract.
 - Running `bash tests/helix-cli.sh` remains the required deterministic
-  verification path for wrapper behavior changes.
+  verification path for wrapper behavior changes (128 tests).
 
 ## Evidence
 

@@ -22,6 +22,8 @@ bash tests/helix-cli.sh
 - issue creation and display
 - dependency-aware ready and blocked queries
 - claim flow setting `in_progress` and assignee
+- `--claim` records `claimed-at` (ISO-8601 UTC) and `claimed-pid` metadata
+- `--unclaim` restores `open` status and clears claim metadata
 - claimed work remains owned until it is explicitly released or closed
 - tracker update coverage for execution metadata fields including
   `execution-eligible`, `superseded-by`, and `replaces`
@@ -56,16 +58,20 @@ bash tests/helix-cli.sh
 - `.helix/context.md` is regenerated at run start, on epic switch, and every 5
   completed build cycles with Quick Reference build/test commands and current
   issue counts
-- `run` revalidates selected work before claim and before close when queue
-  drift is possible
+- `run` revalidates selected work before claim and before close using tracker
+  fingerprints (spec-id, parent, superseded-by, replaces)
 - interactive refinement during a live run is surfaced as queue drift rather
   than stale claim/close behavior
-- supersession detected during a live run is surfaced as queue drift and blocks
-  a stale close
+- parent field changes during execution are detected as queue drift
+- spec-id changes during execution are detected as queue drift
+- supersession during execution is detected as queue drift and blocks a stale
+  close
 - `run` stays focused on an active epic until its child work finishes or a
   blocker releases focus
-- `run` retries difficult issues with bounded exponential backoff before
-  reporting them as blocked
+- `run` retries difficult issues with bounded exponential backoff
+  (`min(5 * 2^(attempt-1), 40)` seconds, 4 attempts max) before blocking
+- backoff delay formula produces correct values (5, 10, 20, 40s cap)
+- intractable child blocks the parent epic during epic focus
 - `run` expands batch selection to shared `area:*` labels when parent and
   `spec-id` metadata do not produce siblings
 - `run` emits blocker reports, cycle timing, and token-usage observability
@@ -78,20 +84,41 @@ bash tests/helix-cli.sh
 
 ### Recovery and Review
 
+- orphan recovery reclaims stale issues when PID is dead and claim age exceeds
+  `HELIX_ORPHAN_THRESHOLD` (default 7200s)
+- orphan recovery skips issues with fresh `claimed-at` timestamps
 - orphan recovery does not destroy unrelated worktree changes
 - orphan recovery does not unclaim legitimately active work without sufficient evidence
 - recovery is issue-scoped and non-destructive by default
 - failed or timed-out implementation attempts leave the worktree clean for the
   next retry or stop with an explicit blocker instead of retrying atop stale
   local state
-- failed or timed-out implementation attempts release stale claims before a
-  fresh retry path resumes
+- failed or timed-out implementation attempts release stale claims via
+  `--unclaim` before a fresh retry path resumes
 - `run` invokes post-implementation review when enabled
 - `run --review-agent <other-agent>` switches review to a second model for
-  cross-model verification
+  cross-model verification (tested in live run, not just dry-run)
 - `REVIEW_STATUS: CLEAN` allows the loop to continue
+- `REVIEW_STATUS: ISSUES_FOUND` with `ISSUES_COUNT` and `FINDINGS_FILED`
+  trailers is parsed and the loop continues
 - review findings are surfaced and redirect or stop the loop rather than being ignored
 - epic closure triggers a scoped post-epic review
+
+### Summary Mode
+
+- `--summary` flag is accepted and implies `--quiet`
+- summary output contains concise cycle lines with issue IDs and completion
+  status
+- verbose detail (tool calls, prompt echo, gate results) goes to log file only
+- summary output includes log-file line-range pointers for diagnostics
+- `--summary` is listed in help output
+
+### BUILD Loop Breaker
+
+- consecutive empty BUILD cycles (check returns BUILD, no issue selectable)
+  stop after 2 iterations
+- orphan recovery is attempted before stopping
+- if recovery frees issues, the loop continues
 
 ### Utility Commands
 
@@ -110,12 +137,21 @@ bash tests/helix-cli.sh
 - Seed `.helix/issues.jsonl` with known issue graphs
 - Assert exact stdout or stderr fragments and filesystem side effects
 
+## Test Count
+
+128 deterministic tests verified by `bash tests/helix-cli.sh`.
+
+## Port Safety
+
+The test harness is implementation-language-agnostic. To verify a port to
+another language, change the `run_helix()` helper to invoke the new binary
+instead of `bash scripts/helix`. All mock agents, tracker JSONL assertions,
+and stderr output checks work unchanged.
+
 ## Known Gaps
 
 - The current harness validates prompt shape and loop behavior, not live remote
   agent correctness.
-- The harness should be extended if claim leases or heartbeat-based ownership
-  are added to the tracker data model.
 - The harness should be extended if `check` grows additional machine-readable
   trailers beyond `NEXT_ACTION` that affect loop control.
 - The harness should be extended when `helix status` begins exposing richer

@@ -261,9 +261,68 @@ helix align auth
 helix design auth
 ```
 
+## Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `HELIX_AGENT` | `codex` | Default agent (`codex` or `claude`) |
+| `HELIX_AGENT_TIMEOUT` | `900` | Agent timeout in seconds |
+| `HELIX_REVIEW_AGENT` | auto | Agent for cross-model reviews |
+| `HELIX_CHECK_MODEL` | — | Cheaper model for queue-drain decisions |
+| `HELIX_POLISH_MODEL` | — | Cheaper model for issue refinement |
+| `HELIX_LIBRARY_ROOT` | `<repo>/workflows` | Override the workflow library root |
+| `HELIX_TRACKER_DIR` | `.helix/` | Override the tracker directory |
+| `HELIX_FORCE_EPHEMERAL` | `0` | Force ephemeral sessions (no resume) |
+| `HELIX_AUTO_ALIGN` | `1` | Enable auto-alignment on ALIGN/STOP |
+| `HELIX_ORPHAN_THRESHOLD` | `7200` | Staleness threshold in seconds for orphan recovery |
+| `HELIX_BACKOFF_SLEEP` | — | Override exponential backoff delay (useful for testing) |
+
+## Orphan Recovery
+
+At run start and after each failed implementation cycle, `helix run`
+checks for stale in-progress issues and reclaims them automatically.
+
+For each `in_progress` issue with `assignee = helix`:
+
+1. **Skip** if another helix process is actively working on the issue.
+2. **Skip** if `claimed-pid` is still alive.
+3. **Skip** if the claim age (from `claimed-at`, or `updated` as fallback)
+   is below `HELIX_ORPHAN_THRESHOLD` (default 2 hours).
+4. **Reclaim** via `tracker update <id> --unclaim`.
+
+Recovery resets tracker state only — it does not revert worktree changes.
+
+## BUILD Loop Breaker
+
+When `check` returns `NEXT_ACTION: BUILD` but no execution-eligible issue can
+be selected, the loop tracks `consecutive_empty_builds`. After 2 consecutive
+empty BUILD cycles:
+
+1. Run orphan recovery to free any stale in-progress issues.
+2. If ready count increased, reset the counter and continue.
+3. Otherwise, stop with "no selectable issues after orphan recovery".
+
+## Exponential Backoff
+
+When an issue fails implementation, the wrapper retries with bounded
+exponential backoff: `delay = min(5 * 2^(attempt-1), 40)` seconds.
+
+| Attempt | Delay |
+|---------|-------|
+| 1 | 5s |
+| 2 | 10s |
+| 3 | 20s |
+| 4+ | 40s (cap) |
+
+After 4 failed attempts (75s total backoff), the issue is blocked as
+intractable. If it is a child of the focused epic, the parent epic is also
+blocked.
+
+Override the delay with `HELIX_BACKOFF_SLEEP=0` for testing.
+
 ## Reproducible Testing
 
-The wrapper should be tested with deterministic command stubs rather than live
+The wrapper is tested with deterministic command stubs rather than live
 agent sessions.
 
 Run:
@@ -272,13 +331,17 @@ Run:
 bash tests/helix-cli.sh
 ```
 
-This harness:
+This harness (128 tests):
 
 - creates temporary git workspaces
-- stubs `helix tracker` and agent command execution
+- stubs `codex` and `claude` binaries via PATH injection
+- seeds `.helix/issues.jsonl` with known issue graphs
 - drives exact ready-queue and `NEXT_ACTION` sequences
-- verifies `helix run`, periodic alignment, auto-alignment, dry-run output, and
-  installer behavior
+- verifies tracker CRUD, run loop orchestration, epic focus, queue drift,
+  orphan recovery, summary mode, backoff, acceptance filing, review trailers,
+  cross-model review, blocker reports, and installer behavior
+- is implementation-language-agnostic: change `run_helix()` to invoke a
+  different binary to verify a port
 
 ## Pre-Execution Pipeline
 

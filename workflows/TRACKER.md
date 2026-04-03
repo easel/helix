@@ -131,8 +131,11 @@ Required behavioral guarantees:
 - mutation commands fail rather than silently dropping requested changes
 - `ready` and `blocked` semantics are dependency-aware and must not be
   reinterpreted by label or by a custom HELIX-only status taxonomy
-- `update --claim` must set `status = in_progress`, set `assignee = helix`, and
-  update `updated`
+- `update --claim` must set `status = in_progress`, set `assignee = helix`,
+  record `claimed-at` (ISO-8601 UTC) and `claimed-pid` (current process ID),
+  and update `updated`
+- `update --unclaim` must set `status = open`, clear `assignee`, and null out
+  `claimed-at` and `claimed-pid`
 - imports may append to existing canonical state, but they must warn when doing
   so
 - exports must preserve canonical tracker state without lossy translation in the
@@ -172,6 +175,8 @@ Each issue is a JSON object stored in `.helix/issues.jsonl` with these fields:
 - `replaces`: prior issue ID that this issue replaces
 - `created`: ISO-8601 timestamp for when the issue was created
 - `updated`: ISO-8601 timestamp for the most recent mutation
+- `claimed-at`: ISO-8601 UTC timestamp recorded when `--claim` is used
+- `claimed-pid`: process ID of the HELIX session that claimed the issue
 
 ## HELIX Mapping
 
@@ -205,9 +210,15 @@ issue is actively owned by one HELIX agent or operator session and should not
 be treated as queue-ready. `deferred` means the work is intentionally
 non-actionable for now. `closed` means the work is complete.
 
-Claiming an issue must set `status = in_progress`, assign `assignee = helix`,
-and update the issue timestamp. A claim is an advisory lock for execution, not a
-generic “started work” marker.
+Claiming an issue (`update --claim`) must set `status = in_progress`, assign
+`assignee = helix`, record `claimed-at` (ISO-8601 UTC timestamp), record
+`claimed-pid` (the process ID of the claiming HELIX session), and update
+`updated`. A claim is an advisory lock for execution, not a generic “started
+work” marker.
+
+Unclaiming an issue (`update --unclaim`) restores it to the ready queue by
+setting `status = open`, clearing `assignee`, and nulling `claimed-at` and
+`claimed-pid`.
 
 This claim lock is separate from the tracker's file mutation lock. The claim
 controls who owns the work. The file lock only serializes writes to
@@ -216,45 +227,55 @@ controls who owns the work. The file lock only serializes writes to
 Current ownership metadata:
 
 - `assignee`: the agent or operator identity that owns the issue
+- `claimed-at`: when the claim was established (ISO-8601 UTC)
+- `claimed-pid`: the OS process ID of the claiming session
 
 Queue consumers must prefer tracker claim state over local process heuristics.
 A live `in_progress` claim remains authoritative even if the original local
-process cannot be observed directly. Additional lease metadata is recommended
-future work, not current tracker behavior.
+process cannot be observed directly.
 
 ## Stale Claim Detection
 
-A claim is stale only when ownership metadata is no longer trustworthy.
+A claim is stale when the claiming process is no longer alive AND the claim is
+older than the staleness threshold.
 
-Treat a claim as stale only when explicit ownership metadata exists and becomes
-untrustworthy, or when the user explicitly requests recovery.
+HELIX uses two signals to determine staleness:
+
+1. **PID liveness**: check whether `claimed-pid` is still a running process
+   (`kill -0`). If the PID is alive, the claim is not stale regardless of age.
+2. **Claim age**: compare `claimed-at` (or `updated` as fallback for legacy
+   issues without `claimed-at`) to the current time. If the age exceeds the
+   staleness threshold, and the PID is dead, the claim is stale.
+
+The staleness threshold defaults to 7200 seconds (2 hours) and can be
+overridden with the `HELIX_ORPHAN_THRESHOLD` environment variable.
 
 Do not infer staleness from the absence of a matching local process alone.
-Process absence is a hint, not proof.
-
-When a claim is stale, the wrapper may reclaim it only if the partial work can
-be attributed to that specific issue with enough confidence to preserve
-unrelated changes.
+Process absence combined with a fresh claim timestamp is insufficient — the
+process may have just exited and the work may still be committable.
 
 ## Safe Orphan Recovery
 
-Recovery must be conservative and non-destructive.
+Recovery runs automatically at the start of `helix run` and after each failed
+implementation cycle. It is conservative and non-destructive.
+
+Recovery algorithm for each `in_progress` issue with `assignee = helix`:
+
+1. **Skip** if another helix process is actively working on the issue
+   (`pgrep -f "helix.*implement.*$id"`).
+2. **Skip** if `claimed-pid` is still alive (`kill -0`).
+3. **Skip** if the claim age is below `HELIX_ORPHAN_THRESHOLD` (default 2 hours).
+4. **Reclaim**: run `tracker update <id> --unclaim` to return the issue to the
+   ready queue.
+
+Recovery does not revert worktree changes or attribute partial work to specific
+files. It only resets tracker state so the issue can be re-selected.
 
 Required rules:
 
 - preserve unrelated local worktree changes
-- only revert or re-open files that can reasonably be attributed to the stale
-  issue
 - never use a repository-wide rollback as the default recovery step
-- stop and require guidance if attribution is unclear
-
-Recommended recovery sequence:
-
-1. Confirm the issue is stale by ownership metadata, not just process absence.
-2. Inspect the dirty worktree and identify files plausibly owned by the issue.
-3. If attribution is strong, complete the issue or revert only the issue-owned
-   files and return the issue to `open`.
-4. If attribution is weak, leave unrelated work intact and escalate.
+- reclaim only when both PID liveness and claim age confirm staleness
 
 ## Concurrency Model
 

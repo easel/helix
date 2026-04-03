@@ -127,6 +127,40 @@ The loop must distinguish between attempted work and completed work.
   - current open, in-progress, ready-execution, and closed issue counts
   - current focused epic metadata when epic mode is active
 
+### Exponential Backoff
+
+When an issue fails implementation, the wrapper retries with bounded
+exponential backoff before declaring it blocked:
+
+- Formula: `delay = min(5 * 2^(attempt-1), 40)` seconds
+- Attempt 1: 5s, Attempt 2: 10s, Attempt 3: 20s, Attempt 4+: 40s (cap)
+- After 4 failed attempts (75s total backoff), the issue is blocked as
+  intractable and added to the skip list.
+- If the blocked issue is a child of the focused epic, the parent epic is
+  also blocked.
+- The backoff sleep can be overridden with `HELIX_BACKOFF_SLEEP` (useful for
+  testing).
+
+### Summary Mode
+
+The `--summary` (or `-s`) flag routes verbose output to the log file only
+while emitting concise progress lines with log-file line-range pointers:
+
+```
+helix: [14:24:01] cycle 1: hx-42 (5 ready)
+helix: [14:24:35] codex complete (rc=0, 34s, 892 tokens) — log L12–L340 in .helix-logs/helix-...log
+helix: [14:24:36] cycle 1: hx-42 → COMPLETE (1/3 done, 892 tokens)
+```
+
+Implementation uses two output helpers:
+- `summary_line`: writes to fd 3 (original stderr, always visible to the
+  operator)
+- `verbose_line`: writes to the log file only in summary mode, or to stderr
+  in normal mode
+
+Summary mode implies `--quiet` (no agent startup messages or stream-json
+tool-call output).
+
 ## Recovery and Ownership
 
 `helix run` needs a safe recovery model for crashed or orphaned sessions.
@@ -138,36 +172,63 @@ worktree blindly.
 
 - A claimed execution issue is represented by `status: in_progress` and
   `assignee: helix`.
-- The recommended tracker model should also record claim freshness metadata:
-  `claimed_at`, `session_id`, and `lease_expires_at`.
+- The tracker records claim freshness metadata on `--claim`:
+  - `claimed-at`: ISO-8601 UTC timestamp of the claim
+  - `claimed-pid`: OS process ID of the claiming HELIX session
+- The inverse operation `--unclaim` restores the issue to `open`, clears
+  `assignee`, and nulls `claimed-at` and `claimed-pid`.
 - Recovery may only reclaim work when the claim is demonstrably stale or when
   the user explicitly requests recovery.
 - Absence of a currently running process is not sufficient evidence that a
-  claim is orphaned.
+  claim is orphaned — the claim age must also exceed the staleness threshold.
+
+### Recovery Algorithm
+
+Recovery runs at the start of `helix run` and after each failed implementation
+cycle. For each `in_progress` issue with `assignee = helix`:
+
+1. **Skip** if another helix process is actively working on the issue
+   (`pgrep` check).
+2. **Skip** if `claimed-pid` is still alive (`kill -0` check).
+3. **Skip** if the claim age (from `claimed-at`, or `updated` as fallback for
+   legacy issues) is below `HELIX_ORPHAN_THRESHOLD` (default: 7200 seconds /
+   2 hours).
+4. **Reclaim** via `tracker update <id> --unclaim`.
+
+Recovery resets tracker state only — it does not revert worktree changes or
+attribute partial work to files.
 
 ### Recovery Rules
 
 Recovery must be non-destructive by default.
 
-- If the current session owns the claim, resume from the existing worktree
-  state.
-- If the claim is stale and the worktree changes are clearly attributable to
-  the abandoned issue, the wrapper may ask the agent to finish or cleanly
-  revert only the affected files.
 - The wrapper must not perform a broad `git checkout -- .` or otherwise erase
   unrelated local changes.
-- If ownership is ambiguous, the wrapper must stop and surface the blocker
-  rather than guessing.
-- Recovery results should be visible in the issue notes or a follow-on
-  diagnostic issue when cleanup is required.
-- After any implementation failure or timeout, the next retry boundary must
-  verify that the worktree is clean for the issue being retried. If the failed
-  attempt left attributable partial changes behind, the wrapper must either
-  revert only those issue-scoped changes or stop and surface a blocker rather
-  than re-entering the loop with stale state.
-- A failed or timed-out implementation attempt that should be retried fresh
-  must also release the advisory claim by restoring the issue to `open` with an
-  explanatory note, so the next cycle does not inherit stale ownership.
+- After any implementation failure or timeout, the wrapper releases the
+  advisory claim via `--unclaim` so the next cycle does not inherit stale
+  ownership.
+- Recovery results are visible in the run's stderr output and log file.
+
+### Queue Drift Fingerprinting
+
+The wrapper detects concurrent modifications to claimed issues by computing
+a fingerprint before implementation and comparing it after:
+
+- **Fingerprint fields**: `spec-id`, `parent`, `superseded-by`, `replaces`
+- **Computed**: immediately after selection, before claim
+- **Recomputed**: immediately after implementation, before close
+- **On mismatch**: the issue is unclaimed and skipped (queue drift detected)
+
+### BUILD Loop Breaker
+
+When `check` returns `NEXT_ACTION: BUILD` but no execution-eligible issue can
+be selected, the loop tracks consecutive empty BUILD cycles. After 2
+consecutive empty BUILDs:
+
+1. Run orphan recovery to free any stale in-progress issues.
+2. If orphan recovery increased the ready count, reset the counter and
+   continue.
+3. If still no selectable issues, stop the loop with a clear message.
 
 ## Concurrent Interactive Refinement
 
