@@ -68,10 +68,6 @@ if [[ "$*" != *"--dangerously-bypass-approvals-and-sandbox"* ]]; then
   exit 1
 fi
 
-if [[ "$*" != *"--progress-cursor"* ]]; then
-  echo "mock codex expected --progress-cursor" >&2
-  exit 1
-fi
 
 payload="$*"
 mode="${MOCK_BACKFILL_MODE:-complete}"
@@ -537,7 +533,7 @@ test_check_dry_run() {
   root="$(make_workspace)"
   local output
   output="$(run_helix "$root" check --dry-run repo)"
-  assert_contains "$output" "codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor -C" "dry-run should print codex command"
+  assert_contains "$output" "codex --dangerously-bypass-approvals-and-sandbox exec -C" "dry-run should print codex command"
   assert_contains "$output" "actions/check.md" "dry-run should reference check action"
   assert_contains "$output" "BUILD, DESIGN, POLISH, ALIGN, BACKFILL, WAIT, GUIDANCE, or STOP" "check dry-run should advertise the full NEXT_ACTION contract"
   rm -rf "$root"
@@ -1473,21 +1469,6 @@ test_next_no_ready_issues() {
   rm -rf "$root"
 }
 
-test_help_includes_all_commands() {
-  local root
-  root="$(make_workspace)"
-  local output
-  output="$(run_helix "$root" help)"
-  assert_contains "$output" "helix design" "help should list design command"
-  assert_contains "$output" "helix build" "help should list build command"
-  assert_contains "$output" "helix polish" "help should list polish command"
-  assert_contains "$output" "helix next" "help should list next command"
-  assert_contains "$output" "helix review" "help should list review command"
-  assert_contains "$output" "helix experiment" "help should list experiment command"
-  assert_contains "$output" "helix tracker" "help should list tracker command"
-  rm -rf "$root"
-}
-
 test_experiment_dry_run() {
   local root
   root="$(make_workspace)"
@@ -2380,7 +2361,6 @@ run_test "review dry-run" test_review_dry_run
 run_test "review custom scope" test_review_custom_scope
 run_test "next shows ready issue" test_next_shows_ready_issue
 run_test "next no ready issues" test_next_no_ready_issues
-run_test "help includes all commands" test_help_includes_all_commands
 run_test "experiment dry-run" test_experiment_dry_run
 run_test "experiment requires clean worktree" test_experiment_requires_clean_worktree
 run_test "experiment close dry-run" test_experiment_close_dry_run
@@ -3986,5 +3966,146 @@ test_installer_installs_all_skills() {
 }
 
 run_test "installer installs all skills" test_installer_installs_all_skills
+
+# ── commit tests ──────────────────────────────────────────────────────
+
+test_commit_fails_with_nothing_to_commit() {
+  local root
+  root="$(make_workspace)"
+  assert_fails "commit with no changes should fail" \
+    run_helix "$root" commit
+  rm -rf "$root"
+}
+
+test_commit_stages_and_commits() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+
+  # Git needs author identity since HOME is overridden
+  (cd "$root/work" && git config user.email "test@test.com" && git config user.name "Test")
+
+  printf 'new content\n' > "$root/work/test.txt"
+  (cd "$root/work" && git add test.txt)
+
+  local output
+  output="$(run_helix "$root" commit hx-mock-0 2>&1)"
+
+  assert_contains "$output" "committed" "should report successful commit"
+  local status
+  status="$(run_helix "$root" tracker show hx-mock-0 --json | jq -r '.status')"
+  assert_eq "closed" "$status" "commit should close the tracker issue"
+  rm -rf "$root"
+}
+
+test_commit_without_issue_id() {
+  local root
+  root="$(make_workspace)"
+  (cd "$root/work" && git config user.email "test@test.com" && git config user.name "Test")
+
+  printf 'new content\n' > "$root/work/test.txt"
+  (cd "$root/work" && git add test.txt)
+
+  local output
+  output="$(run_helix "$root" commit 2>&1)"
+
+  assert_contains "$output" "committed" "commit without issue should succeed"
+  local msg
+  msg="$(cd "$root/work" && git log -1 --format=%s)"
+  assert_contains "$msg" "test.txt" "commit message should include changed filename"
+  rm -rf "$root"
+}
+
+test_commit_auto_stages_unstaged() {
+  local root
+  root="$(make_workspace)"
+  (cd "$root/work" && git config user.email "test@test.com" && git config user.name "Test")
+
+  (cd "$root/work" && printf 'original\n' > test.txt && git add test.txt && git commit -qm "seed")
+  printf 'modified\n' > "$root/work/test.txt"
+
+  local output
+  output="$(run_helix "$root" commit 2>&1)"
+
+  assert_contains "$output" "staging all modified" "should auto-stage unstaged changes"
+  assert_contains "$output" "committed" "should commit after auto-staging"
+  rm -rf "$root"
+}
+
+run_test "commit fails with nothing to commit" test_commit_fails_with_nothing_to_commit
+run_test "commit stages and commits with issue" test_commit_stages_and_commits
+run_test "commit without issue id" test_commit_without_issue_id
+run_test "commit auto-stages unstaged" test_commit_auto_stages_unstaged
+
+# ── final completeness tests ─────────────────────────────────────────
+
+test_help_includes_all_commands() {
+  local root
+  root="$(make_workspace)"
+  local output
+  output="$(run_helix "$root" help 2>&1)"
+  local missing=0
+  for cmd in run build check align backfill design polish next review \
+             experiment evolve triage commit tracker frame help status; do
+    if [[ "$output" != *"$cmd"* ]]; then
+      printf 'missing command in help: %s\n' "$cmd" >&2
+      missing=$((missing + 1))
+    fi
+  done
+  (( missing == 0 )) || fail "help is missing $missing command(s)"
+  rm -rf "$root"
+}
+
+test_run_prefers_tasks_over_epics() {
+  # The run loop's helix_select_ready_issue prefers non-epic tasks with
+  # execution metadata over epics. Verify via the actual run output.
+  local root
+  root="$(make_workspace)"
+  local work_dir="$root/work"
+  mkdir -p "$work_dir/.helix"
+  # Task listed AFTER epic — run loop should still select the task first
+  {
+    printf '{"id":"hx-epic-p","title":"epic","type":"epic","status":"open","priority":2,"labels":["helix","phase:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"done","deps":[],"assignee":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created":"2099-01-01T00:00:00Z","updated":"2099-01-01T00:00:00Z"}\n'
+    printf '{"id":"hx-task-p","title":"task with meta","type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"SPEC","description":"","design":"","acceptance":"done","deps":[],"assignee":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created":"2099-01-01T00:00:00Z","updated":"2099-01-01T00:00:00Z"}\n'
+  } > "$work_dir/.helix/issues.jsonl"
+
+  printf 'STOP\n' > "$root/state/next-actions"
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"; tail -n +2 "$file" > "$file.tmp" || true; mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    if [[ -f .helix/issues.jsonl ]]; then
+      tmp="$(jq -c 'if .type != "epic" then .status = "closed" else . end' .helix/issues.jsonl)"
+      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *"check action"*) record check; printf 'NEXT_ACTION: %s\n' "$(next_action)" ;;
+  *) record other; echo "mock" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  output="$(run_helix "$root" run --max-cycles 1 --no-auto-review --no-auto-align 2>&1)"
+
+  # The first cycle line should show hx-task-p, not hx-epic-p
+  assert_contains "$output" "issue=hx-task-p" \
+    "run loop should prefer task with metadata over epic"
+  rm -rf "$root"
+}
+
+run_test "help includes all commands" test_help_includes_all_commands
+run_test "run prefers tasks over epics" test_run_prefers_tasks_over_epics
 
 echo "PASS: ${test_count} helix wrapper tests"

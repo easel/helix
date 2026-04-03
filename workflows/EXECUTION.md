@@ -266,16 +266,42 @@ helix design auth
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `HELIX_AGENT` | `codex` | Default agent (`codex` or `claude`) |
-| `HELIX_AGENT_TIMEOUT` | `900` | Agent timeout in seconds |
-| `HELIX_REVIEW_AGENT` | auto | Agent for cross-model reviews |
+| `HELIX_AGENT_TIMEOUT` | `2700` | Agent timeout in seconds (45 minutes) |
+| `HELIX_MODEL` | — | Override AI model name (e.g., `claude-sonnet-4-6`) |
+| `HELIX_EFFORT` | — | Set reasoning effort level for Claude/Codex |
+| `HELIX_REVIEW_AGENT` | auto | Agent for cross-model reviews (defaults to the other agent) |
 | `HELIX_CHECK_MODEL` | — | Cheaper model for queue-drain decisions |
 | `HELIX_POLISH_MODEL` | — | Cheaper model for issue refinement |
 | `HELIX_LIBRARY_ROOT` | `<repo>/workflows` | Override the workflow library root |
 | `HELIX_TRACKER_DIR` | `.helix/` | Override the tracker directory |
+| `HELIX_BEADS_DIR` | `.beads` | Override the beads interop directory |
 | `HELIX_FORCE_EPHEMERAL` | `0` | Force ephemeral sessions (no resume) |
 | `HELIX_AUTO_ALIGN` | `1` | Enable auto-alignment on ALIGN/STOP |
 | `HELIX_ORPHAN_THRESHOLD` | `7200` | Staleness threshold in seconds for orphan recovery |
 | `HELIX_BACKOFF_SLEEP` | — | Override exponential backoff delay (useful for testing) |
+| `HELIX_TRACKER_LOCK_TIMEOUT` | `10` | Lock acquisition timeout in seconds |
+| `HELIX_TRACKER_LOCK_POLL_INTERVAL` | `0.05` | Sleep interval while waiting for tracker lock |
+
+### Run Options
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--review-every N` | `15` | Periodic alignment every N completed cycles |
+| `--max-cycles N` | `0` (unlimited) | Stop after N completed cycles |
+| `--review-threshold N` | `100` | Skip review for changes below N lines |
+| `--no-auto-align` | — | Disable auto-alignment on ALIGN/STOP |
+| `--no-auto-review` | — | Disable post-implementation review |
+| `--summary`, `-s` | — | Concise output with log-file line pointers |
+| `--quiet`, `-q` | — | Suppress agent startup and progress output |
+| `--dry-run` | — | Print agent commands without executing |
+
+### Command Aliases
+
+| Alias | Canonical |
+|-------|-----------|
+| `helix implement` | `helix build` |
+| `helix plan` | `helix design` |
+| `helix tracker migrate` | `helix tracker import` |
 
 ## Orphan Recovery
 
@@ -331,7 +357,7 @@ Run:
 bash tests/helix-cli.sh
 ```
 
-This harness (128 tests):
+This harness (133 tests):
 
 - creates temporary git workspaces
 - stubs `codex` and `claude` binaries via PATH injection

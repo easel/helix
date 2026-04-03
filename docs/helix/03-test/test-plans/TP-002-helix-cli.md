@@ -120,6 +120,19 @@ bash tests/helix-cli.sh
 - orphan recovery is attempted before stopping
 - if recovery frees issues, the loop continues
 
+### Commit
+
+- `commit` fails with nothing to commit
+- `commit <issue-id>` stages, runs build gate, commits with issue title,
+  and closes the tracker issue
+- `commit` without issue ID generates a summary from changed filenames
+- `commit` auto-stages unstaged modifications when nothing is staged
+
+### Issue Selection Priority
+
+- `run` prefers non-epic tasks with execution metadata (spec-id, acceptance,
+  or design) over epics when selecting from the ready queue
+
 ### Utility Commands
 
 - `next` returns the first ready issue or `no ready issues`
@@ -139,7 +152,7 @@ bash tests/helix-cli.sh
 
 ## Test Count
 
-128 deterministic tests verified by `bash tests/helix-cli.sh`.
+133 deterministic tests verified by `bash tests/helix-cli.sh`.
 
 ## Port Safety
 

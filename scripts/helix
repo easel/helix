@@ -153,7 +153,7 @@ Logs:
   in the project root. All stderr output is captured for post-hoc inspection.
 
 Notes:
-  Codex runs as `codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor`.
+  Codex runs as `codex --dangerously-bypass-approvals-and-sandbox exec`.
 EOF
 }
 
@@ -235,7 +235,7 @@ run_agent_prompt() {
       local _codex_effort_flag=""
       [[ -n "$effort_override" ]] && _codex_effort_flag="-c reasoning.effort=$effort_override"
       if (( dry_run )); then
-        printf 'codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor -C %q %s --ephemeral %q\n' "$target_root" "$_codex_model_flag" "$prompt"
+        printf 'codex --dangerously-bypass-approvals-and-sandbox exec -C %q %s --ephemeral %q\n' "$target_root" "$_codex_model_flag" "$prompt"
       else
         local _start_ts _elapsed
         _start_ts="$(date +%s)"
@@ -251,7 +251,7 @@ run_agent_prompt() {
         # Codex does not support feeding new prompts to resumed sessions.
         # Always use --ephemeral for codex to avoid broken resume attempts.
         # shellcheck disable=SC2086
-        codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor \
+        codex --dangerously-bypass-approvals-and-sandbox exec \
           -C "$target_root" $_codex_model_flag $_codex_effort_flag --ephemeral "$prompt" > "$_codex_tmp" 2>&1 &
         _codex_pid=$!
 

@@ -40,8 +40,13 @@ The CLI must expose these top-level commands:
 - `review`
 - `experiment`
 - `triage`
+- `commit`
 - `tracker`
+- `frame`
 - `help`
+
+Command aliases: `implement` → `build`, `plan` → `design`,
+`tracker migrate` → `tracker import`.
 
 ### Execution Model
 
@@ -129,6 +134,15 @@ The CLI must expose these top-level commands:
 - Recovery must preserve unrelated worktree changes — it resets tracker state
   only, it does not revert files.
 
+### Commit
+
+- `commit [issue-id]` must stage all modified files if nothing is staged,
+  run the build gate (lefthook, cargo check, or npm test), commit with the
+  issue title as the summary, push with rebase, and close the tracker issue.
+- `commit` without an issue ID must generate a summary from changed filenames.
+- `commit` must fail if there are no changes to commit.
+- `commit` must fail if the build gate fails.
+
 ### Operator Safeguards
 
 - The experiment flow must require a clean worktree before continuing.
@@ -193,7 +207,7 @@ The CLI must expose these top-level commands:
 - Running `helix backfill <scope>` enforces the required trailers and durable
   report creation contract.
 - Running `bash tests/helix-cli.sh` remains the required deterministic
-  verification path for wrapper behavior changes (128 tests).
+  verification path for wrapper behavior changes (133 tests).
 
 ## Evidence
 
