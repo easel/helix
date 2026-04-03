@@ -23,6 +23,7 @@ source "$script_dir/tracker.sh"
 
 agent="${HELIX_AGENT:-codex}"
 agent_model="${HELIX_MODEL:-}"
+agent_effort="${HELIX_EFFORT:-}"
 check_model="${HELIX_CHECK_MODEL:-}"
 polish_model="${HELIX_POLISH_MODEL:-}"
 review_every=15
@@ -125,6 +126,7 @@ Options:
   --claude          Shorthand for --agent claude
   --codex           Shorthand for --agent codex
   --model           Model to use (e.g., claude-sonnet-4-6, gpt-5.4)
+  --effort          Reasoning effort: low, medium, high, max (defaults vary by action)
   --review-every    Run alignment every N completed implementation cycles
   --max-cycles      Stop after N completed implementation cycles
   --no-auto-align   Do not auto-run alignment when check returns ALIGN
@@ -220,6 +222,7 @@ run_agent_prompt() {
   if [[ -z "$model_override" ]] && [[ "$agent" == "${HELIX_AGENT:-codex}" ]]; then
     model_override="$agent_model"
   fi
+  local effort_override="${3:-$agent_effort}"
   local prompt_bytes
   prompt_bytes="$(printf '%s' "$prompt" | wc -c)"
   local agent_timeout="${HELIX_AGENT_TIMEOUT:-2700}"
@@ -229,6 +232,8 @@ run_agent_prompt() {
       need_cmd codex
       local _codex_model_flag=""
       [[ -n "$model_override" ]] && _codex_model_flag="-m $model_override"
+      local _codex_effort_flag=""
+      [[ -n "$effort_override" ]] && _codex_effort_flag="-c reasoning.effort=$effort_override"
       if (( dry_run )); then
         printf 'codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor -C %q %s --ephemeral %q\n' "$target_root" "$_codex_model_flag" "$prompt"
       else
@@ -247,7 +252,7 @@ run_agent_prompt() {
         # Always use --ephemeral for codex to avoid broken resume attempts.
         # shellcheck disable=SC2086
         codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor \
-          -C "$target_root" $_codex_model_flag --ephemeral "$prompt" > "$_codex_tmp" 2>&1 &
+          -C "$target_root" $_codex_model_flag $_codex_effort_flag --ephemeral "$prompt" > "$_codex_tmp" 2>&1 &
         _codex_pid=$!
 
         # Watchdog: timeout + periodic progress heartbeat
@@ -306,6 +311,8 @@ run_agent_prompt() {
       need_cmd claude
       local _claude_model_flag=""
       [[ -n "$model_override" ]] && _claude_model_flag="--model $model_override"
+      local _claude_effort_flag=""
+      [[ -n "$effort_override" ]] && _claude_effort_flag="--effort $effort_override"
       # Always use --no-session-persistence for claude in the run loop.
       # Session reuse across different operations (review, alignment,
       # implementation) causes rc=2 failures when the session context
@@ -331,6 +338,7 @@ run_agent_prompt() {
             --dangerously-skip-permissions \
             $_claude_session_flag \
             $_claude_model_flag \
+            $_claude_effort_flag \
             --output-format stream-json \
             --verbose \
           | while IFS= read -r line; do
@@ -402,6 +410,7 @@ run_agent_prompt() {
             --dangerously-skip-permissions \
             $_claude_session_flag \
             $_claude_model_flag \
+            $_claude_effort_flag \
             --verbose) &
         fi
         claude_pid=$!
@@ -551,7 +560,7 @@ EOF
 
 run_frame() {
   local scope="${1:-}"
-  run_agent_prompt "$(frame_prompt "$scope")"
+  run_agent_prompt "$(frame_prompt "$scope")" "" "${agent_effort:-high}"
 }
 
 plan_prompt() {
@@ -664,7 +673,7 @@ run_evolve() {
   if (( ! dry_run )); then
     require_tracker
   fi
-  run_agent_prompt "$(evolve_prompt "$requirement" "$scope" "$artifact" "$source")"
+  run_agent_prompt "$(evolve_prompt "$requirement" "$scope" "$artifact" "$source")" "" "${agent_effort:-high}"
 }
 
 extract_agents_md_commands() {
@@ -910,6 +919,10 @@ parse_common_flags() {
         agent_model="$2"
         shift 2
         ;;
+      --effort)
+        agent_effort="$2"
+        shift 2
+        ;;
       --dry-run)
         dry_run=1
         shift
@@ -941,7 +954,7 @@ run_implementation() {
   if (( ! dry_run )); then
     require_tracker
   fi
-  run_agent_prompt "$(implementation_prompt "$selector")"
+  run_agent_prompt "$(implementation_prompt "$selector")" "" "${agent_effort:-medium}"
 }
 
 run_batch_implementation() {
@@ -949,7 +962,7 @@ run_batch_implementation() {
   if (( ! dry_run )); then
     require_tracker
   fi
-  run_agent_prompt "$(batch_implementation_prompt "$issues")"
+  run_agent_prompt "$(batch_implementation_prompt "$issues")" "" "${agent_effort:-medium}"
 }
 
 run_check() {
@@ -957,7 +970,7 @@ run_check() {
   if (( ! dry_run )); then
     require_tracker
   fi
-  run_agent_prompt "$(check_prompt "$scope")" "$check_model"
+  run_agent_prompt "$(check_prompt "$scope")" "$check_model" "${agent_effort:-low}"
 }
 
 run_alignment() {
@@ -965,7 +978,7 @@ run_alignment() {
   if (( ! dry_run )); then
     require_tracker
   fi
-  run_agent_prompt "$(alignment_prompt "$scope")"
+  run_agent_prompt "$(alignment_prompt "$scope")" "" "${agent_effort:-high}"
 }
 
 run_backfill() {
@@ -1065,7 +1078,7 @@ run_plan() {
   local scope="${1:-}"
   local rounds="${2:-5}"
   # Planning does NOT require tracker — it happens before issue creation
-  run_agent_prompt "$(plan_prompt "$scope" "$rounds")"
+  run_agent_prompt "$(plan_prompt "$scope" "$rounds")" "" "${agent_effort:-high}"
 
   # Cross-model critique: if review_agent is configured, alternate agents
   # for additional refinement passes on the written plan
@@ -1101,7 +1114,7 @@ run_polish() {
   if (( ! dry_run )); then
     require_tracker
   fi
-  run_agent_prompt "$(polish_prompt "$scope" "$rounds")" "$polish_model"
+  run_agent_prompt "$(polish_prompt "$scope" "$rounds")" "$polish_model" "${agent_effort:-medium}"
 }
 
 run_review() {
