@@ -213,7 +213,13 @@ reset_session() {
 
 run_agent_prompt() {
   local prompt="$1"
-  local model_override="${2:-$agent_model}"
+  # Only apply agent_model when no explicit override is given AND
+  # the current agent matches the configured primary agent.
+  # This prevents passing claude models to codex during cross-model review.
+  local model_override="${2:-}"
+  if [[ -z "$model_override" ]] && [[ "$agent" == "${HELIX_AGENT:-codex}" ]]; then
+    model_override="$agent_model"
+  fi
   local prompt_bytes
   prompt_bytes="$(printf '%s' "$prompt" | wc -c)"
   local agent_timeout="${HELIX_AGENT_TIMEOUT:-2700}"
