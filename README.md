@@ -131,13 +131,20 @@ issues live in `.helix/issues.jsonl`. Run `helix tracker` to manage issues,
 
 ## Documentation
 
+- [DDx — Document-Driven Development Experience](workflows/DDX.md)
 - [Workflow Contract](workflows/README.md)
 - [Quality Ratchets](workflows/ratchets.md)
 - [Conventions](workflows/conventions.md)
 
-## Origin
+## Document-Driven Development Experience (DDx)
 
-HELIX is the reference implementation of Document-Driven Development (DDx).
+HELIX is the reference implementation of DDx — the tooling and methodology
+layer that keeps governing documents current and uses them to drive AI agents
+through software development.
+
+See [DDx Methodology](workflows/DDX.md) for the artifact graph, authority
+hierarchy, evolution model, and agent context model.
+
 Originally developed in [ddx-library](https://github.com/easel/ddx-library),
-it was extracted to its own repository to reflect the reality that HELIX is
-the primary value and warrants its own identity.
+HELIX was extracted to its own repository because it is the primary value:
+DDx is the methodology, HELIX is the machine that runs it.

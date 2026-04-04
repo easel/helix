@@ -6,7 +6,7 @@ dun:
 
 A test-driven development workflow with AI-assisted collaboration for building high-quality software iteratively.
 
-> **Quick Links**: [Quick Start Guide](QUICKSTART.md) | [Visual Overview](diagrams/workflow-overview.md) | [Reference Card](REFERENCE.md) | [Execution Guide](EXECUTION.md) | [Artifact Flow](diagrams/artifact-flow.md) | [Tracker](TRACKER.md) | [Quality Ratchets](ratchets.md)
+> **Quick Links**: [DDx Methodology](DDX.md) | [Quick Start Guide](QUICKSTART.md) | [Visual Overview](diagrams/workflow-overview.md) | [Reference Card](REFERENCE.md) | [Execution Guide](EXECUTION.md) | [Artifact Flow](diagrams/artifact-flow.md) | [Tracker](TRACKER.md) | [Quality Ratchets](ratchets.md)
 
 ## Overview
 
@@ -31,6 +31,7 @@ execution semantics.
 
 Treat the following files as the canonical HELIX workflow contract:
 
+- [DDX.md](DDX.md) for the DDx methodology, artifact graph, and evolution model
 - [README.md](README.md) for the high-level workflow model and authority order
 - [EXECUTION.md](EXECUTION.md) for operator flow, queue control, and loop behavior
 - [TRACKER.md](TRACKER.md) for built-in tracker mapping, labels, and execution tracking
