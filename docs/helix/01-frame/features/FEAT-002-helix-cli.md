@@ -3,17 +3,26 @@
 **Feature ID**: FEAT-002
 **Status**: backfilled
 **Backfill Date**: 2026-03-25
-**Scope**: wrapper CLI, built-in tracker, local installer, and deterministic harness
+**Scope**: supervisory shell CLI on top of DDx beads and agent service
 
 ## Summary
 
-`helix-cli` is the repository's operator-facing wrapper around HELIX actions.
-It provides one command surface for bounded execution (`run`, `build`,
+`helix-cli` is a ~1,900-line shell orchestrator that sits on top of DDx
+primitives. It delegates work-item storage to `ddx bead` and agent dispatch
+to `ddx agent run`, then adds the supervisory intelligence that makes HELIX
+more than "call agent in a loop": epic focus, exponential backoff, build
+gates, queue drift detection, batching, auto-alignment, auto-review, and
+blocker reporting.
+
+The CLI provides one command surface for bounded execution (`run`, `build`,
 `check`, `align`, `backfill`), supervisory steering (`status`, `evolve`,
 `design`, `polish`, `review`, `triage`, `experiment`), tracker access
-(`tracker`), and helper navigation (`next`). The wrapper must preserve the
-HELIX authority stack, keep execution bounded, and make queue-control
-semantics explicit, observable, and safe.
+(`tracker` — thin wrappers around `ddx bead`), and helper navigation (`next`).
+
+Shell is the right form factor: HELIX is glue code that calls `ddx bead`,
+`ddx agent run`, `git`, and project build tools. The workflow action specs
+(~2,600 lines of markdown under `workflows/actions/`) are loaded and
+interpolated by the shell — no compilation step needed.
 
 ## Users
 
@@ -116,22 +125,22 @@ Command aliases: `implement` → `build`, `plan` → `design`,
 
 ### Tracker Model
 
-- The CLI must expose a built-in tracker at `helix tracker`.
-- Tracker data must live in `.helix/issues.jsonl`.
-- Ready work must be determined from open issues whose dependencies are all
-  closed.
-- Tracker creation paths must enforce the required issue fields at creation
-  time: `helix` label, one phase label, `--spec-id` for tasks, and
-  deterministic `--acceptance` for tasks and epics.
-- Tracker ownership must distinguish active claims from stale or orphaned
-  claims using `claimed-at` (ISO-8601 UTC timestamp) and `claimed-pid`
-  (process ID) metadata recorded on `--claim`.
-- `--unclaim` must restore an issue to `open`, clear `assignee`, and null out
-  `claimed-at` and `claimed-pid`.
-- Orphan recovery must check PID liveness and claim age before reclaiming.
+- The CLI must expose `helix tracker` as thin wrappers around `ddx bead`.
+- `helix tracker create` delegates to `ddx bead create` with HELIX-specific
+  validation enforced via a DDx validation hook at
+  `.ddx/hooks/validate-bead-create`.
+- HELIX validation requires: `helix` label, one phase label, `--spec-id` for
+  tasks, and deterministic `--acceptance` for tasks and epics.
+- Tracker data lives in `.helix/issues.jsonl` (DDx bead configured with
+  `DDX_BEAD_DIR=.helix`, `DDX_BEAD_PREFIX=hx`).
+- Ready work is determined by `ddx bead ready` (open beads with all deps
+  closed). Execution-eligible filtering uses `ddx bead ready --execution`.
+- Claim semantics (`--claim`, `--unclaim`, `claimed-at`, `claimed-pid`) are
+  provided by DDx bead's `Claim`/`Unclaim` operations.
+- Orphan recovery checks PID liveness and claim age before reclaiming.
   The staleness threshold defaults to 7200 seconds (2 hours) and is
   configurable via `HELIX_ORPHAN_THRESHOLD`.
-- Recovery must preserve unrelated worktree changes — it resets tracker state
+- Recovery preserves unrelated worktree changes — it resets tracker state
   only, it does not revert files.
 
 ### Commit
@@ -217,4 +226,4 @@ Command aliases: `implement` → `build`, `plan` → `design`,
 - `docs/helix/03-test/test-plans/TP-002-helix-cli.md`
 - `workflows/README.md`
 - `workflows/EXECUTION.md`
-- `workflows/TRACKER.md`
+- DDx FEAT-004 (beads) and FEAT-006 (agent service)

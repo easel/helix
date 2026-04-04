@@ -316,7 +316,14 @@ verb: `run`, `status`, `evolve`, `review`, `align`, `polish`, `experiment`.
 ### Dependencies
 
 - Workflow contract documents under `workflows/`
-- HELIX tracker contract in `workflows/TRACKER.md` and `scripts/tracker.sh`
+- **DDx bead tracker** (`ddx bead`) as the canonical work-item backend. HELIX
+  configures `bead.id_prefix: hx` and layers HELIX-specific labels/fields via
+  validation hooks. HELIX no longer owns storage directly.
+- **DDx agent service** (`ddx agent run`) for harness dispatch, output capture,
+  token tracking, and session logging. HELIX no longer implements its own
+  agent invocation; it calls DDx.
+- HELIX tracker conventions (labels, spec-id, queue semantics) remain
+  HELIX-owned, enforced via DDx validation hooks, and operate on DDx beads.
 - Skill surfaces under `skills/`
 - CLI execution surface in `scripts/helix`
 - Installers and plugin packaging that preserve the HELIX package layout
