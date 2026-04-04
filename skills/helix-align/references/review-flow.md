@@ -22,7 +22,7 @@ Rules:
 
 ### 1. Bootstrap
 
-- verify `helix tracker` is available
+- verify `ddx bead` is available
 - if tracker access is missing or unhealthy, stop immediately
 - create or reconcile one review epic:
   - `type: epic`
@@ -119,7 +119,7 @@ Only after consolidation:
 
 - create deterministic execution issues for real gaps
 - set the closest governing artifact in `spec-id`
-- add blockers with `helix tracker dep add`
+- add blockers with `ddx bead dep add`
 - create doc/design issues before code issues when upstream artifacts must change first
 
 #### Issue Coverage Verification

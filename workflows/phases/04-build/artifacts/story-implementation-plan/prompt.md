@@ -11,4 +11,4 @@
 Create scoped build issues for one story. Each issue should be a deterministic TDD task that makes a specific set of failing tests pass with minimal files, explicit dependencies, and clear verification steps.
 
 Use mapping guidance at `workflows/phases/04-build/artifacts/story-implementation-plan/template.md`.
-For tracker conventions see `helix tracker --help`.
+For tracker conventions see `ddx bead --help`.

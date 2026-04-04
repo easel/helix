@@ -74,7 +74,7 @@ exit_requirements:
       description: "Next iteration has defined goals"
 
   manual:
-    - "Backlog issues created in tracker (`helix tracker`)"
+    - "Backlog issues created in tracker (`ddx bead`)"
     - "Improvement backlog references issue IDs or tracker queries"
     - "Next iteration plan references selected issue IDs"
     - "Team retrospective completed with all members"

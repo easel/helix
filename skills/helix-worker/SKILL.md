@@ -71,7 +71,7 @@ Check results:
 
 ```bash
 helix status
-helix tracker ready --execution
+ddx bead ready --execution
 ```
 
 If the worker stopped with blockers, the blocker report is in

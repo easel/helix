@@ -124,7 +124,7 @@ durable and appear in the ready queue for subsequent execution cycles.
 For each actionable finding, create a tracker issue:
 
 ```bash
-helix tracker create "<category>: <short description>" \
+ddx bead create "<category>: <short description>" \
   --type task \
   --labels helix,phase:build,review-finding \
   --spec-id <governing-artifact-or-file-path> \

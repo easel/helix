@@ -17,7 +17,7 @@ Reference docs:
 
 Key rules:
 
-- use `helix tracker ready`, not `helix tracker list --ready`
+- use `ddx bead ready`, not `ddx bead list --ready`
 - treat the check as a bounded queue-health probe
 - do not claim work from the check action
 - use it when the implementation loop drains
@@ -59,5 +59,5 @@ Key rules:
 
 - review top-down
 - classify gaps explicitly
-- create a review epic plus review issues in `helix tracker`
+- create a review epic plus review issues in `ddx bead`
 - consolidate findings before creating execution issues

@@ -25,7 +25,7 @@ outputs:
       relationship: "actual test implementation"
     - artifact: build-issue
       phase: "04-build"
-      relationship: "build issues tracked in helix tracker make the tests pass"
+      relationship: "build issues tracked in ddx bead make the tests pass"
 
 completion:
   automated_checks:

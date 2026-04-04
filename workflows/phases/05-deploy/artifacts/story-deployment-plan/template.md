@@ -2,8 +2,8 @@
 
 Story deployment work is stored as deploy issues, not markdown deployment plans.
 
-Use `helix tracker create`, `helix tracker update`, and `helix tracker ready`.
-See `helix tracker --help` for tracker conventions.
+Use `ddx bead create`, `ddx bead update`, and `ddx bead ready`.
+See `ddx bead --help` for tracker conventions.
 
 ## Required Story Deploy Issue Mapping
 
@@ -16,5 +16,5 @@ See `helix tracker --help` for tracker conventions.
 
 ## Queue Check
 
-Use `helix tracker ready` to pick the next deploy issue, then inspect it with
-`helix tracker show <id>` before rollout work.
+Use `ddx bead ready` to pick the next deploy issue, then inspect it with
+`ddx bead show <id>` before rollout work.

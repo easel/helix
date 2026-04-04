@@ -10,7 +10,7 @@ dun:
 
 - [README.md](README.md): high-level model and authority order
 - [EXECUTION.md](EXECUTION.md): queue control and operator loop
-- Tracker conventions: `helix tracker --help` (DDx FEAT-004)
+- Tracker conventions: `ddx bead --help` (DDx FEAT-004)
 - [implementation.md](actions/implementation.md): one bounded execution pass
 - [check.md](actions/check.md): queue-drain decision
 - [reconcile-alignment.md](actions/reconcile-alignment.md): top-down review
@@ -49,7 +49,7 @@ dun:
 ### Bootstrap
 
 ```bash
-helix tracker init
+ddx bead init
 scripts/install-local-skills.sh
 ```
 
@@ -93,18 +93,18 @@ helix experiment --close              # squash-merge and close session
 ### Tracker
 
 ```bash
-helix tracker ready --json
-helix tracker update <id> --claim
-helix tracker show <id>
-helix tracker dep tree <id>
-helix tracker blocked --json
-helix tracker close <id>
-helix tracker status
-helix tracker import --from jsonl --file .ddx/beads.jsonl
-helix tracker export
+ddx bead ready --json
+ddx bead update <id> --claim
+ddx bead show <id>
+ddx bead dep tree <id>
+ddx bead blocked --json
+ddx bead close <id>
+ddx bead status
+ddx bead import --from jsonl --file .ddx/beads.jsonl
+ddx bead export
 ```
 
-See `helix tracker --help` for full tracker conventions and setup guidance.
+See `ddx bead --help` for full tracker conventions and setup guidance.
 
 ## Tracker Labeling
 
@@ -135,7 +135,7 @@ Recommended labels:
 - Work exists but is blocked or already in progress:
   stop and wait.
 - The queue drains:
-  run `check`, not a blind loop and not `helix tracker list --ready`.
+  run `check`, not a blind loop and not `ddx bead list --ready`.
 - After implementing an issue:
   run `helix review` for fresh-eyes quality check.
 

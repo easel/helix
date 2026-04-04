@@ -64,7 +64,7 @@ decision model exactly as specified by the authority stack.
 
 ### Ready Work
 
-When `helix tracker ready --json` reports one or more ready execution issues:
+When `ddx bead ready --json` reports one or more ready execution issues:
 
 1. Select the best ready execution issue using the tracker ranking rules.
 2. Re-read the issue and verify it is still a safe execution target.

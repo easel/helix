@@ -5,9 +5,9 @@
 
 ## CLI Interface
 
-### Command: `helix tracker update`
+### Command: `ddx bead update`
 **Purpose**: Mutate one existing tracker issue through supported field-level operations.  
-**Usage**: `$ helix tracker update <id> [mutation flags]`
+**Usage**: `$ ddx bead update <id> [mutation flags]`
 
 **Supported mutation classes**:
 - workflow state: `--status`, `--claim`, `--assignee`, `--priority`
@@ -27,12 +27,12 @@
 
 **Examples**:
 ```bash
-$ helix tracker update hx-abc123 --description "Clarify failure handling"
-$ helix tracker update hx-abc123 --spec-id workflows/TRACKER.md
-$ helix tracker update hx-abc123 --deps hx-def456,hx-fedcba
+$ ddx bead update hx-abc123 --description "Clarify failure handling"
+$ ddx bead update hx-abc123 --spec-id workflows/TRACKER.md
+$ ddx bead update hx-abc123 --deps hx-def456,hx-fedcba
 ```
 
-### Command: `helix tracker dep add`
+### Command: `ddx bead dep add`
 **Purpose**: Add one dependency edge between tracker issues.
 
 **Safety Requirement**:
@@ -51,7 +51,7 @@ $ helix tracker update hx-abc123 --deps hx-def456,hx-fedcba
   - execution-eligibility changes
   - issue supersession or replacement relationships
   - structural re-parenting and dependency rewrites used by polish/alignment
-  - execution-safe queue reads through `helix tracker ready --execution`
+  - execution-safe queue reads through `ddx bead ready --execution`
 
 ## Library API
 

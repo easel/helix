@@ -86,7 +86,7 @@ Rules:
 - Tests govern build execution but do not override requirements or design.
 - Source code reflects current state but does not redefine the plan.
 - Do not treat open implementation work as proof that the plan is complete.
-- Prefer a real `helix tracker ready` view over status-only heuristics.
+- Prefer a real `ddx bead ready` view over status-only heuristics.
 
 ## PHASE 0 - Bootstrap
 
@@ -94,7 +94,7 @@ Rules:
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
 1. Verify the built-in tracker is available.
-   - If `helix tracker status` fails, stop immediately.
+   - If `ddx bead status` fails, stop immediately.
 2. Determine the scope.
 3. Detect whether canonical HELIX docs exist for the scope.
    - check `docs/helix/`
@@ -106,10 +106,10 @@ Inspect the current execution queue using tracker commands.
 
 At minimum, inspect:
 
-- `helix tracker status` for global queue health
-- `helix tracker ready --json`
-- `helix tracker list --status in_progress --label helix --json` for active claimed work
-- `helix tracker blocked --json` and open HELIX issues for blocked work when relevant
+- `ddx bead status` for global queue health
+- `ddx bead ready --json`
+- `ddx bead list --status in_progress --label helix --json` for active claimed work
+- `ddx bead blocked --json` and open HELIX issues for blocked work when relevant
 
 Do not use review issues as evidence that implementation should continue.
 

@@ -15,7 +15,7 @@ Read these files in order when you need the canonical contract:
 
 1. [README.md](README.md)
 2. [EXECUTION.md](EXECUTION.md)
-3. `helix tracker --help` (tracker conventions; DDx FEAT-004)
+3. `ddx bead --help` (tracker conventions; DDx FEAT-004)
 
 Use the bounded action prompts only when you are doing the corresponding work:
 
@@ -34,13 +34,13 @@ Keep the public layers separate:
 ## Bootstrap A Repo
 
 ```bash
-helix tracker init
+ddx bead init
 scripts/install-local-skills.sh
 ```
 
 Notes:
 
-- `helix tracker init` creates the tracker workspace in `.helix/`.
+- `ddx bead init` creates the tracker workspace in `.helix/`.
 - `scripts/install-local-skills.sh` links the local `helix` wrapper into
   `~/.local/bin/helix`.
 - The repo exposes agent skills named `helix-<command>` at `./.agents/skills`.
@@ -84,7 +84,7 @@ Build, deploy, and iterate execution work should:
 - cite the governing docs with `spec-id` and/or description
 - stay small enough to close independently
 
-See `helix tracker --help` for the mapping and examples.
+See `ddx bead --help` for the mapping and examples.
 
 ## Run The Queue
 
@@ -104,7 +104,7 @@ Execution rules:
 - When the ready queue drains, run `check`.
 - Run alignment only when the plan exists but the next work set is unclear.
 - Run backfill only when the canonical stack is missing or too weak.
-- Do not drive the queue with `helix tracker list --ready`.
+- Do not drive the queue with `ddx bead list --ready`.
 
 ## Minimal Operator Loop
 
@@ -112,7 +112,7 @@ If you are not using `helix run`, use the bounded manual loop from
 [EXECUTION.md](EXECUTION.md):
 
 ```bash
-while [ "$(helix tracker ready --json | jq 'length')" -gt 0 ]; do
+while [ "$(ddx bead ready --json | jq 'length')" -gt 0 ]; do
   helix build
 done
 
@@ -126,7 +126,7 @@ helix check
 - Need queue behavior:
   Read [EXECUTION.md](EXECUTION.md).
 - Need tracker labels or issue examples:
-  Run `helix tracker --help`.
+  Run `ddx bead --help`.
 - Need a top-down audit:
   Run alignment with [reconcile-alignment.md](actions/reconcile-alignment.md).
 - Need missing docs reconstructed:

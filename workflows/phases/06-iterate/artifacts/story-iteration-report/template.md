@@ -9,7 +9,7 @@ dun:
 ## Story Reference
 
 **User Story**: [[US-XXX-[story-name]]]
-**Deploy Issues**: [List related tracker issue IDs or `helix tracker list` query]
+**Deploy Issues**: [List related tracker issue IDs or `ddx bead list` query]
 **Report Period**: [Start Date] - [End Date]
 
 ## Outcome Summary

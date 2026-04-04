@@ -16,7 +16,7 @@ and stop rather than guessing from code alone.
 
 - the user asks for an alignment review, reconciliation, traceability audit, or drift analysis
 - the project uses HELIX artifacts or a similar planning stack
-- the user wants deterministic follow-up work in the tracker (`helix tracker`)
+- the user wants deterministic follow-up work in the tracker (`ddx bead`)
 - the review should produce one durable consolidated report plus ephemeral review/execution issues
 
 ## Startup
@@ -25,14 +25,14 @@ Reference docs:
 
 - `workflows/actions/reconcile-alignment.md`
 - `workflows/templates/alignment-review.md`
-- Tracker conventions: `helix tracker --help` (DDx FEAT-004)
+- Tracker conventions: `ddx bead --help` (DDx FEAT-004)
 
 ## Core Rules
 
 - Review top-down, not code-first.
 - Planning intent comes from canonical artifacts, not from implementation.
 - Use the HELIX authority order from the references.
-- Use the built-in tracker only: `helix tracker` issues, parents, dependencies, `spec-id`, and labels.
+- Use the built-in tracker only: `ddx bead` issues, parents, dependencies, `spec-id`, and labels.
 - Create or reconcile one review epic plus one review issue per functional area.
 - Create execution issues only after the consolidated report exists.
 

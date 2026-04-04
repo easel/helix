@@ -119,15 +119,15 @@ Start with:
 
 - [Workflow Overview](workflows/README.md)
 - [Execution Guide](workflows/EXECUTION.md)
-- Tracker: `helix tracker --help` (conventions in DDx FEAT-004)
+- Tracker: `ddx bead --help` (conventions in DDx FEAT-004)
 - [Reference Card](workflows/REFERENCE.md)
 
 ## Tracker
 
 HELIX uses a built-in file-backed tracker for execution tracking. Canonical
-issues live in `.ddx/beads.jsonl`. Run `helix tracker` to manage issues,
-`helix tracker import` to pull compatible JSONL into the canonical store, and
-`helix tracker export` to write JSONL for interop or recovery.
+issues live in `.ddx/beads.jsonl`. Run `ddx bead` to manage issues,
+`ddx bead import` to pull compatible JSONL into the canonical store, and
+`ddx bead export` to write JSONL for interop or recovery.
 
 ## Documentation
 

@@ -40,7 +40,7 @@ is low, ask the user before finalizing canonical artifacts.
 When this action is launched by `helix backfill`, assume you are running inside
 an active writable session rooted at the target repository.
 
-- use live `helix tracker` commands for tracker state
+- use live `ddx bead` commands for tracker state
 - write directly to `docs/helix/` when evidence supports canonical updates
 - do not claim that you need a different session, different permissions, or a
   separate environment unless a concrete command actually fails
@@ -87,12 +87,12 @@ Low-confidence claims must either:
 
 Use the built-in tracker only. Follow:
 
-- See `helix tracker --help` for tracker conventions
+- See `ddx bead --help` for tracker conventions
 
 Issues are stored in `.ddx/beads.jsonl`.
 
-Use live tracker commands such as `helix tracker ready`, `helix tracker show`,
-`helix tracker list` as needed for queue state. If `helix tracker status`
+Use live tracker commands such as `ddx bead ready`, `ddx bead show`,
+`ddx bead list` as needed for queue state. If `ddx bead status`
 fails, stop immediately.
 
 ### Research Structure
@@ -171,8 +171,8 @@ evidence extraction pass are complete for the relevant scope.
    dropped critical project rules. This step is cheap insurance against drift.
 1. Determine the backfill scope.
 2. Verify the built-in tracker is available.
-   - If `helix tracker status` fails, stop immediately.
-   - Use `helix tracker` output as the authoritative queue source for the run.
+   - If `ddx bead status` fails, stop immediately.
+   - Use `ddx bead` output as the authoritative queue source for the run.
 3. Inventory existing documentation:
    - `docs/helix/`
    - non-HELIX docs
@@ -197,7 +197,7 @@ evidence extraction pass are complete for the relevant scope.
 ## Completion Contract
 
 Do not stop at an analysis-only summary if the repository is writable and live
-`helix tracker` commands succeed.
+`ddx bead` commands succeed.
 
 Before returning, you must do all applicable work that is supported by the
 available evidence:
@@ -418,7 +418,7 @@ Rules:
 - one coherent gap per issue
 - use native upstream types such as `task`, `chore`, or `decision`
 - set `spec-id` to the nearest governing artifact
-- add blockers with `helix tracker dep add`
+- add blockers with `ddx bead dep add`
 - create doc/design issues before code issues where appropriate
 
 ## Evidence Requirements

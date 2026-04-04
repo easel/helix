@@ -142,7 +142,7 @@ demo_body() {
 
   run git init hello-helix
   cd hello-helix
-  run helix tracker init
+  run ddx bead init
 
   # Copy skills into project
   mkdir -p .agents .claude
@@ -234,11 +234,11 @@ Write docs/helix/02-design/technical-designs/TD-001-temperature-conversion.md:
 
 Then create tracker issues for the build phase:
 
-helix tracker create "Write failing tests for temperature conversion" \
+ddx bead create "Write failing tests for temperature conversion" \
   --type task --priority 1 --labels helix,phase:build \
   --spec-id FEAT-001 --acceptance "tests exist and FAIL (Red phase)"
 
-helix tracker create "Implement bin/convert.js per TD-001" \
+ddx bead create "Implement bin/convert.js per TD-001" \
   --type task --priority 1 --labels helix,phase:build \
   --spec-id TD-001 --acceptance "npm test passes, CLI outputs correct values"
 DESIGN_PROMPT
@@ -247,7 +247,7 @@ DESIGN_PROMPT
   show_file docs/helix/02-design/technical-designs/TD-001-temperature-conversion.md
 
   echo "Work queue:"
-  run helix tracker list
+  run ddx bead list
   git add -A && git commit -m "design: TD-001 and build issues" --quiet
   sleep 2
 
@@ -266,8 +266,8 @@ Write failing tests for hello-helix per FEAT-001 and TD-001.
 6. Do NOT create bin/convert.js — tests must FAIL
 
 Then claim and close the test issue:
-helix tracker list --json | jq -r '.[] | select(.title | contains("failing tests")) | .id' | head -1
-Use that ID to: helix tracker update <id> --claim && helix tracker close <id>
+ddx bead list --json | jq -r '.[] | select(.title | contains("failing tests")) | .id' | head -1
+Use that ID to: ddx bead update <id> --claim && ddx bead close <id>
 RED_PROMPT
 
   require_file tests/convert.test.js "tests"
@@ -291,8 +291,8 @@ Implement bin/convert.js per TD-001 to make all tests pass.
 4. Run npm test — all tests must pass
 
 Then claim and close the implementation issue:
-helix tracker list --json | jq -r '.[] | select(.title | contains("Implement")) | .id' | head -1
-Use that ID to: helix tracker update <id> --claim && helix tracker close <id>
+ddx bead list --json | jq -r '.[] | select(.title | contains("Implement")) | .id' | head -1
+Use that ID to: ddx bead update <id> --claim && ddx bead close <id>
 GREEN_PROMPT
 
   require_file bin/convert.js "implementation"
@@ -331,9 +331,9 @@ GREEN_PROMPT
   narrate "Demo Complete!"
 
   echo "Tracker status:"
-  run helix tracker status
+  run ddx bead status
   echo ""
-  run helix tracker list
+  run ddx bead list
 
   echo ""
   echo "What you just saw:"

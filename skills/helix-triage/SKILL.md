@@ -1,13 +1,13 @@
 ---
 name: helix-triage
-description: Create well-structured tracker issues with validated metadata, governing artifact references, and deterministic acceptance criteria.
+description: Create tracker issues with governing artifact references and deterministic acceptance criteria.
 argument-hint: '"Title" [--type task|epic|bug|chore] [options...]'
 ---
 
 # Triage: Create Execution-Ready Issues
 
 Every issue should enter the tracker ready to execute. This skill guides you
-through creating issues with the metadata that `helix run` needs to select,
+through shaping issues with the metadata that `helix run` uses to select,
 build, and close them.
 
 ## When to Use
@@ -19,7 +19,8 @@ build, and close them.
 
 ## Required Metadata
 
-The tracker enforces these structural rules at creation time:
+Use these conventions when creating issues so they remain executable and
+traceable:
 
 | Field | Required For | What To Set |
 |-------|-------------|-------------|
@@ -55,7 +56,7 @@ Additional labels to include when applicable:
 5. **Create the issue.**
 
 ```bash
-helix tracker create "Implement X" \
+ddx bead create "Implement X" \
   --type task \
   --labels helix,phase:build,kind:implementation,area:wal \
   --spec-id SD-017 \
@@ -77,6 +78,6 @@ When an epic or large task needs breakdown:
 
 ## References
 
-- Tracker conventions: `helix tracker --help` (DDx FEAT-004)
+- Tracker conventions: `ddx bead --help` (DDx FEAT-004)
 - Implementation action: `workflows/actions/implementation.md`
-- CLI: `helix tracker create --help`
+- CLI: `ddx bead create --help`

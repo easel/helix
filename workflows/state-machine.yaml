@@ -206,8 +206,8 @@ story_flow:
     user_story: US
     technical_design: TD
     test_plan: TP
-    implementation_issue: "helix tracker issue labeled phase:build"
-    deployment_issue: "helix tracker issue labeled phase:deploy"
+    implementation_issue: "ddx bead issue labeled phase:build"
+    deployment_issue: "ddx bead issue labeled phase:deploy"
     iteration_report: IR
 
   transitions:

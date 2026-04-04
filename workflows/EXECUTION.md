@@ -11,8 +11,9 @@ This guide covers operator-facing HELIX execution flow: how to run bounded work
 passes, how to decide whether more work remains, and how the HELIX wrapper
 controls the queue.
 
-For tracker integration, labels, `spec-id`, and `helix tracker` conventions,
-see `helix tracker --help` (DDx FEAT-004).
+For tracker integration, labels, `spec-id`, and `ddx bead` conventions,
+see `ddx bead --help` (DDx FEAT-004). The wrapper now delegates bead
+commands directly to `ddx bead`.
 
 ## Scope
 
@@ -56,7 +57,7 @@ HELIX supervision is built from bounded actions with distinct roles:
   Performs fresh-eyes review after build before additional execution
   continues when review automation is enabled.
 - `helix triage`
-  Creates validated tracker issues with required steering metadata.
+  Creates tracker issues via the `ddx bead` create command.
 - `helix backfill <scope>`
   Reconstructs missing HELIX docs conservatively from current evidence.
 
@@ -64,7 +65,7 @@ HELIX supervision is built from bounded actions with distinct roles:
 
 Use a supervisory control loop with an explicit queue-drain sub-step:
 
-1. Guard on true ready work with `helix tracker ready`, not `helix tracker list --ready`
+1. Guard on true ready work with `ddx bead ready`, not `ddx bead list --ready`
 2. Route to the least-power bounded subroutine required by user intent and repository state:
    - `evolve` when a requirement change must propagate through canonical artifacts
    - `design` when requested work lacks sufficient design authority
@@ -82,7 +83,7 @@ Use a supervisory control loop with an explicit queue-drain sub-step:
    - `GUIDANCE`: stop and ask for user or stakeholder input
    - `STOP`: stop because no actionable work remains
 
-`helix tracker ready` is blocker-aware. `helix tracker list --ready` is not equivalent and should not
+`ddx bead ready` is blocker-aware. `ddx bead list --ready` is not equivalent and should not
 control an autonomous execution loop.
 
 `design`, `polish`, and `review` participate in supervisory dispatch. `design` and
@@ -107,7 +108,7 @@ These examples assume `jq` is available.
 
 ```bash
 helix_ready_count() {
-  helix tracker ready --json | jq 'length'
+  ddx bead ready --json | jq 'length'
 }
 ```
 
@@ -301,14 +302,12 @@ helix design auth
 |-------|-----------|
 | `helix implement` | `helix build` |
 | `helix plan` | `helix design` |
-| `helix tracker migrate` | `helix tracker import` |
-
 ## Orphan Recovery
 
 At run start and after each failed implementation cycle, `helix run`
 checks for stale in-progress issues and reclaims them automatically.
 
-For each `in_progress` issue with `assignee = helix`:
+For each `in_progress` issue with the `helix` label:
 
 1. **Skip** if another helix process is actively working on the issue.
 2. **Skip** if `claimed-pid` is still alive.
@@ -391,7 +390,7 @@ scope that will produce more than a handful of issues.
 `helix next` prints the recommended next issue without spawning an agent:
 
 ```bash
-helix next          # uses helix tracker ready ranking
+helix next          # uses ddx bead ready ranking
 ```
 
 ## Fresh-Eyes Review
@@ -409,8 +408,8 @@ helix review src/auth/        # review specific files
 Review findings are durable: the review action files each actionable finding
 as a tracker issue with label `review-finding`. The run loop continues after
 review rather than stopping, because the findings are now in the tracker and
-will surface via `helix tracker list --label review-finding` or
-`helix tracker ready` once they are ready for implementation.
+will surface via `ddx bead list --label review-finding` or
+`ddx bead ready` once they are ready for implementation.
 
 Similarly, when acceptance checks fail in the run loop, the specific failures
 are filed as tracker issues with label `acceptance-failure` so they appear in
@@ -419,9 +418,9 @@ the ready queue for the next cycle.
 Operators can query and manage these findings like any other issue:
 
 ```bash
-helix tracker list --label review-finding    # all unresolved review findings
-helix tracker list --label acceptance-failure # all unresolved acceptance failures
-helix tracker close <id>                     # resolve a finding
+ddx bead list --label review-finding    # all unresolved review findings
+ddx bead list --label acceptance-failure # all unresolved acceptance failures
+ddx bead close <id>                     # resolve a finding
 ```
 
 ## Experiment Loop

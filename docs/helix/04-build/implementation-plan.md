@@ -30,7 +30,7 @@ authority stack.
 ## Shared Constraints
 
 - Keep execution tracker-first. Active work must be selected, claimed,
-  revalidated, and closed through `helix tracker`.
+  revalidated, and closed through `ddx bead`.
 - Keep `spec-id` anchored to the nearest governing artifact. Use issue
   descriptions or notes to cite this build plan in addition to upstream
   feature, design, and test references.
@@ -53,7 +53,7 @@ authority stack.
 
 ## Issue Decomposition
 
-Story-level work is tracked via `helix tracker` in `.helix/issues.jsonl`.
+Story-level work is tracked via `ddx bead` in `.helix/issues.jsonl`.
 
 **Per-issue requirements**:
 - Labels must encode HELIX execution semantics, including `helix`,
@@ -62,7 +62,7 @@ Story-level work is tracked via `helix tracker` in `.helix/issues.jsonl`.
   a canonical workflow doc when the issue is documentation-only.
 - `description` should list the full governing stack, including this build plan
   when the issue is an implementation slice covered here.
-- Dependencies must be encoded with `helix tracker dep add`, not implied in
+- Dependencies must be encoded with `ddx bead dep add`, not implied in
   prose alone.
 - Acceptance must name deterministic verification expectations before the issue
   is claimed for execution.

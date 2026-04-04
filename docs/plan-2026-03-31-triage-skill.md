@@ -45,7 +45,7 @@ ensuring every issue enters the tracker execution-ready.
 ### Non-Functional
 
 - Validation must be fast (< 1s) — it runs inline during issue creation.
-- Must work with both `helix tracker create` and programmatic JSONL edits.
+- Must work with both `ddx bead create` and programmatic JSONL edits.
 - Must not break existing workflows — warnings, not hard blocks, for
   advisory checks.
 
@@ -103,7 +103,7 @@ ensuring every issue enters the tracker execution-ready.
 helix triage "Issue title" [--type task|epic|bug|chore] [options...]
 ```
 
-Maps to `helix tracker create` with validation. All `tracker create` flags
+Maps to `ddx bead create` with validation. All `tracker create` flags
 are passed through.
 
 ### Tracker Validation Hooks
@@ -201,7 +201,7 @@ N/A — local issue tracker, no auth surface.
 
 2. **Wire validation into tracker mutations** — Call validation hooks from
    `tracker_create_impl` and `tracker_update_impl`. Respect exit codes.
-   AC: `helix tracker create` with bad inputs fails with clear error.
+   AC: `ddx bead create` with bad inputs fails with clear error.
 
 3. **Skill prompt** — Create `skills/helix-triage/SKILL.md` with agent
    guidance for issue quality. Reference tracker conventions and label
@@ -209,7 +209,7 @@ N/A — local issue tracker, no auth surface.
    AC: skill is installable and passes `tests/validate-skills.sh`.
 
 4. **CLI triage subcommand** — Add `helix triage` that wraps
-   `helix tracker create` with the skill prompt for interactive use.
+   `ddx bead create` with the skill prompt for interactive use.
    AC: `helix triage "title"` creates a valid issue.
 
 5. **Tests** — Add validation test cases to `tests/helix-cli.sh`.
@@ -226,7 +226,7 @@ N/A — local issue tracker, no auth surface.
 ## Observability
 
 - Validation errors logged to stderr with `[triage]` prefix
-- Count of hard errors vs warnings could be added to `helix tracker status`
+- Count of hard errors vs warnings could be added to `ddx bead status`
 
 ## Governing Artifacts
 

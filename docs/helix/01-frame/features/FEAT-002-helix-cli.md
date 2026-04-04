@@ -125,8 +125,8 @@ Command aliases: `implement` → `build`, `plan` → `design`,
 
 ### Tracker Model
 
-- The CLI must expose `helix tracker` as thin wrappers around `ddx bead`.
-- `helix tracker create` delegates to `ddx bead create` with HELIX-specific
+- The CLI must expose `ddx bead` as thin wrappers around `ddx bead`.
+- `ddx bead create` delegates to `ddx bead create` with HELIX-specific
   validation enforced via a DDx validation hook at
   `.ddx/hooks/validate-bead-create`.
 - HELIX validation requires: `helix` label, one phase label, `--spec-id` for
@@ -174,7 +174,7 @@ Command aliases: `implement` → `build`, `plan` → `design`,
 - Running `helix help` shows the command surface and key options.
 - Running `helix status` reports a structured lifecycle snapshot derived from
   persisted run-controller state.
-- Running `helix tracker` subcommands supports create/show/update/close/list,
+- Running `ddx bead` subcommands supports create/show/update/close/list,
   ready/blocked queries, dependency management, and status summaries.
 - Running `helix triage` produces tracker-valid issues with required labels,
   governing artifact reference, and deterministic acceptance criteria.
@@ -209,9 +209,9 @@ Command aliases: `implement` → `build`, `plan` → `design`,
 - Running `helix run` reclaims orphaned issues when PID is dead and claim age
   exceeds threshold.
 - Running `helix run` blocks the parent epic when a child is intractable.
-- Running `helix tracker update <id> --claim` records `claimed-at` and
+- Running `ddx bead update <id> --claim` records `claimed-at` and
   `claimed-pid` metadata.
-- Running `helix tracker update <id> --unclaim` restores `open` status and
+- Running `ddx bead update <id> --unclaim` restores `open` status and
   clears claim metadata.
 - Running `helix backfill <scope>` enforces the required trailers and durable
   report creation contract.

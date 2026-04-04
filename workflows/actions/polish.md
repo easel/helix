@@ -27,7 +27,7 @@ Examples:
 
 Use the built-in tracker only. Follow:
 
-- See `helix tracker --help` for tracker conventions
+- See `ddx bead --help` for tracker conventions
 
 Issues are stored in `.ddx/beads.jsonl`.
 
@@ -37,10 +37,10 @@ Issues are stored in `.ddx/beads.jsonl`.
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
 1. Verify the built-in tracker is available.
-   - If `helix tracker status` fails, stop immediately.
+   - If `ddx bead status` fails, stop immediately.
 2. Load all open issues for the scope.
-   - `helix tracker list --status open --json`
-   - `helix tracker list --status in_progress --json` (if relevant to scope)
+   - `ddx bead list --status open --json`
+   - `ddx bead list --status in_progress --json` (if relevant to scope)
 3. Load the governing plan document if one exists.
    - Check `docs/helix/02-design/plan-*.md` for the scope
    - Check other planning artifacts (PRD, feature specs, architecture docs)

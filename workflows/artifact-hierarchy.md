@@ -28,7 +28,7 @@ traceability. It does not define ready-queue logic, loop control, or how to
 select execution work.
 
 For execution behavior, follow [EXECUTION.md](EXECUTION.md) and the bounded
-action prompts. For tracker conventions, see `helix tracker --help` (DDx FEAT-004).
+action prompts. For tracker conventions, see `ddx bead --help` (DDx FEAT-004).
 
 ## Canonical Authority Order
 
@@ -322,7 +322,7 @@ Use the current HELIX queue controls with this hierarchy:
 
 ```bash
 # Inspect the current queue
-helix tracker ready --json
+ddx bead ready --json
 
 # Execute one ready issue
 helix build

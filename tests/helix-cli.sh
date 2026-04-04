@@ -378,7 +378,6 @@ run_helix() {
     PATH="$root/bin:$PATH" \
     MOCK_STATE_ROOT="$root/state" \
     HELIX_LIBRARY_ROOT="$repo_root/workflows" \
-    HELIX_SKIP_TRIAGE="${HELIX_SKIP_TRIAGE:-0}" \
     HELIX_FORCE_EPHEMERAL=1 \
     HELIX_REVIEW_AGENT="codex" \
     HELIX_AUTO_ALIGN="${HELIX_AUTO_ALIGN:-0}" \
@@ -455,10 +454,10 @@ test_tracker_help() {
   root="$(make_workspace)"
   local output
   output="$(run_helix "$root" tracker help)"
-  assert_contains "$output" "helix tracker create" "tracker help should list create"
-  assert_contains "$output" "helix tracker import" "tracker help should list import"
-  assert_contains "$output" "helix tracker export" "tracker help should list export"
-  assert_contains "$output" "Canonical storage is .ddx/beads.jsonl" "tracker help should describe canonical storage"
+  assert_contains "$output" "Manage beads" "tracker help should come from ddx bead"
+  assert_contains "$output" "ddx bead create" "tracker help should list create"
+  assert_contains "$output" "ddx bead import" "tracker help should list import"
+  assert_contains "$output" "Export beads as JSONL" "tracker help should list export"
   rm -rf "$root"
 }
 
@@ -490,8 +489,8 @@ test_quickstart_demo_script_exists() {
   [[ -x "$demo_script" ]] || [[ "$(head -1 "$demo_script")" == "#!/usr/bin/env bash" ]] || fail "demo script should be executable or have bash shebang"
   local dockerfile="$repo_root/docs/demos/helix-quickstart/Dockerfile"
   [[ -f "$dockerfile" ]] || fail "Dockerfile should exist"
-  assert_file_contains "$demo_script" "helix tracker init" "demo should init the tracker"
-  assert_file_contains "$demo_script" "helix tracker create" "demo should create tracker issues"
+  assert_file_contains "$demo_script" "ddx bead init" "demo should init the tracker"
+  assert_file_contains "$demo_script" "ddx bead create" "demo should create tracker issues"
   assert_file_contains "$demo_script" "product-vision" "demo should create a vision doc"
   assert_file_contains "$demo_script" "prd.md" "demo should create a PRD"
 }
@@ -1461,7 +1460,7 @@ test_build_prompt_references_tracker() {
   root="$(make_workspace)"
   local output
   output="$(run_helix "$root" build --dry-run)"
-  assert_contains "$output" "helix tracker" "build prompt should reference helix tracker"
+  assert_contains "$output" "ddx bead" "build prompt should reference ddx bead"
   assert_contains "$output" "issues.jsonl" "build prompt should reference JSONL file"
   assert_contains "$output" "re-read the selected issue immediately before claim and immediately before close" "build prompt should require pre-claim and pre-close revalidation"
   rm -rf "$root"
@@ -1693,7 +1692,7 @@ test_tracker_create_help_no_side_effect() {
   local root output
   root="$(make_workspace)"
   output="$(run_helix "$root" tracker create --help)"
-  assert_contains "$output" "helix tracker create" "create --help should show usage"
+  assert_contains "$output" "Create a new bead" "create --help should show ddx usage"
   # Must not create an issue
   local count
   count="$(wc -l < "$root/.ddx/beads.jsonl" 2>/dev/null || echo 0)"
@@ -1794,82 +1793,18 @@ run_test "recovery preserves unrelated dirty changes" test_run_recovery_preserve
 # run_test "claude agent timeout kills process" test_claude_agent_timeout_kills_process
 run_test "build prompt references tracker" test_build_prompt_references_tracker
 
-# ── triage validation tests ───────────────────────────────────────────
+# ── triage passthrough tests ──────────────────────────────────────────
 
-test_triage_rejects_task_without_spec_id() {
-  local root
-  root="$(make_workspace)"
-  assert_fails "task without spec-id should fail" \
-    run_helix "$root" tracker create "Missing spec" --labels helix,phase:build --acceptance "test"
-  rm -rf "$root"
-}
-
-test_triage_rejects_task_without_acceptance() {
-  local root
-  root="$(make_workspace)"
-  assert_fails "task without acceptance should fail" \
-    run_helix "$root" tracker create "Missing AC" --labels helix,phase:build --spec-id TEST
-  rm -rf "$root"
-}
-
-test_triage_rejects_missing_helix_label() {
-  local root
-  root="$(make_workspace)"
-  assert_fails "issue without helix label should fail" \
-    run_helix "$root" tracker create "No helix" --labels phase:build --spec-id TEST --acceptance "test"
-  rm -rf "$root"
-}
-
-test_triage_rejects_missing_phase_label() {
-  local root
-  root="$(make_workspace)"
-  assert_fails "issue without phase label should fail" \
-    run_helix "$root" tracker create "No phase" --labels helix --spec-id TEST --acceptance "test"
-  rm -rf "$root"
-}
-
-test_triage_rejects_epic_without_acceptance() {
-  local root
-  root="$(make_workspace)"
-  assert_fails "epic without acceptance should fail" \
-    run_helix "$root" tracker create "Bad epic" --type epic --labels helix,phase:build --spec-id TEST
-  rm -rf "$root"
-}
-
-test_triage_allows_bug_without_spec_id() {
+test_triage_passthrough_creates_issue() {
   local root
   root="$(make_workspace)"
   local id
-  id="$(run_helix "$root" tracker create "Good bug" --type bug --labels helix,phase:build)"
-  assert_contains "$id" "hx-" "bug without spec-id should succeed"
+  id="$(run_helix "$root" triage "Loose issue")"
+  assert_contains "$id" "hx-" "triage should delegate to ddx bead create"
   rm -rf "$root"
 }
 
-test_triage_allows_valid_task() {
-  local root
-  root="$(make_workspace)"
-  local id
-  id="$(run_helix "$root" tracker create "Good task" --labels helix,phase:build,kind:build --spec-id SD-001 --acceptance "tests pass")"
-  assert_contains "$id" "hx-" "valid task should succeed"
-  rm -rf "$root"
-}
-
-test_triage_rejects_nonexistent_dep() {
-  local root
-  root="$(make_workspace)"
-  assert_fails "dep on nonexistent issue should fail" \
-    run_helix "$root" tracker create "Bad dep" --labels helix,phase:build --spec-id TEST --acceptance "test" --deps hx-nonexistent
-  rm -rf "$root"
-}
-
-run_test "triage rejects task without spec-id" test_triage_rejects_task_without_spec_id
-run_test "triage rejects task without acceptance" test_triage_rejects_task_without_acceptance
-run_test "triage rejects missing helix label" test_triage_rejects_missing_helix_label
-run_test "triage rejects missing phase label" test_triage_rejects_missing_phase_label
-run_test "triage rejects epic without acceptance" test_triage_rejects_epic_without_acceptance
-run_test "triage allows bug without spec-id" test_triage_allows_bug_without_spec_id
-run_test "triage allows valid task" test_triage_allows_valid_task
-run_test "triage rejects nonexistent dep" test_triage_rejects_nonexistent_dep
+run_test "triage passthrough creates issue" test_triage_passthrough_creates_issue
 
 # ── evolve tests ──────────────────────────────────────────────────────
 
@@ -1928,7 +1863,6 @@ run_helix_summary() {
     PATH="$root/bin:$PATH" \
     MOCK_STATE_ROOT="$root/state" \
     HELIX_LIBRARY_ROOT="$repo_root/workflows" \
-    HELIX_SKIP_TRIAGE="${HELIX_SKIP_TRIAGE:-0}" \
     HELIX_FORCE_EPHEMERAL=1 \
     HELIX_REVIEW_AGENT="codex" \
     HELIX_AUTO_ALIGN="${HELIX_AUTO_ALIGN:-0}" \

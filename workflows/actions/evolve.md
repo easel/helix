@@ -62,7 +62,7 @@ Search the project's doc tree for governing artifacts in scope:
 
 Use commands like:
 - `find docs/ -name "*.md" | xargs grep -l "keyword"`
-- `helix tracker list --json` to find related open issues
+- `ddx bead list --json` to find related open issues
 
 ## PHASE 3 — Conflict Detection
 
@@ -118,12 +118,12 @@ artifacts:
 
 Search existing open issues for overlap with the new issues:
 
-1. `helix tracker list --status open --json` to get the current queue.
+1. `ddx bead list --status open --json` to get the current queue.
 2. For each new issue, check if existing issues touch the same files,
    subsystems, or acceptance criteria.
-3. Add dependencies with `helix tracker dep add` where ordering matters.
+3. Add dependencies with `ddx bead dep add` where ordering matters.
 4. If the new requirement supersedes an existing issue, mark it with
-   `helix tracker update <id> --superseded-by <new-id>`.
+   `ddx bead update <id> --superseded-by <new-id>`.
 
 ## PHASE 7 — Evolution Report and Commit
 

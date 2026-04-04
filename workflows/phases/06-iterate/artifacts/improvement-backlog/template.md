@@ -1,7 +1,7 @@
 # Improvement Backlog
 
 This document is the canonical index for prioritized backlog issues. Actionable
-work should be tracked in the tracker (`helix tracker`), not embedded here as
+work should be tracked in the tracker (`ddx bead`), not embedded here as
 free-form task lists.
 
 ## Summary

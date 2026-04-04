@@ -2,8 +2,8 @@
 
 Story implementation work is tracked as build issues, not markdown plans.
 
-Use `helix tracker create`, `helix tracker update`, and `helix tracker ready`.
-See `helix tracker --help` for tracker conventions.
+Use `ddx bead create`, `ddx bead update`, and `ddx bead ready`.
+See `ddx bead --help` for tracker conventions.
 
 ## Required Issue Fields
 
@@ -20,7 +20,7 @@ See `helix tracker --help` for tracker conventions.
 
 ## Queue Check
 
-Use `helix tracker ready` to pick the next executable issue. Confirm labels, then inspect with `helix tracker show <id>` before implementing.
+Use `ddx bead ready` to pick the next executable issue. Confirm labels, then inspect with `ddx bead show <id>` before implementing.
 
 ## Sizing Rule
 

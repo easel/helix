@@ -1,7 +1,7 @@
 # HELIX Action: Implementation
 
 You are performing one bounded HELIX execution pass against the built-in
-tracker (`helix tracker`).
+tracker (`ddx bead`).
 
 Your goal is to choose one ready execution issue, implement it completely
 without drifting from the authoritative planning stack, satisfy all applicable
@@ -60,7 +60,7 @@ Rules:
 
 Use the built-in tracker only. Follow:
 
-- See `helix tracker --help` for tracker conventions
+- See `ddx bead --help` for tracker conventions
 
 Issues are stored in `.ddx/beads.jsonl`.
 
@@ -95,7 +95,7 @@ rest, and close the issue.
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
 1. Verify the built-in tracker is available.
-   - If `helix tracker status` fails, stop immediately.
+   - If `ddx bead status` fails, stop immediately.
 2. Inspect the current git worktree.
    - Do not revert unrelated changes.
    - If unrelated changes create commit risk, isolate your issue changes rather
@@ -120,9 +120,9 @@ Determine the candidate set:
 
 Use tracker commands such as:
 
-- `helix tracker ready`
-- `helix tracker show <id>`
-- `helix tracker dep tree <id>`
+- `ddx bead ready`
+- `ddx bead show <id>`
+- `ddx bead dep tree <id>`
 
 ## PHASE 2 - Candidate Ranking
 
@@ -161,13 +161,13 @@ the queue-health check.
 For the selected issue:
 
 1. re-read the selected issue immediately before claim:
-   - `helix tracker show <id> --json`
+   - `ddx bead show <id> --json`
    - verify the issue is still ready, still executable, and has not drifted
      materially in `spec-id`, dependencies, parentage, or other governing
      metadata
    - if it drifted materially, do not claim it from stale assumptions; return
      to candidate selection or stop with the blocker
-2. claim it with `helix tracker update <id> --claim`
+2. claim it with `ddx bead update <id> --claim`
 3. inspect:
    - issue fields and labels
    - `spec-id`
@@ -268,7 +268,7 @@ When creating follow-on issues:
 - make them atomic and deterministic
 - set `spec-id` to the nearest governing artifact
 - add the correct HELIX labels
-- encode blockers with `helix tracker dep add`
+- encode blockers with `ddx bead dep add`
 
 ## PHASE 7 - Verification
 
@@ -326,7 +326,7 @@ If issues are found, fix them before proceeding to Phase 8.
 If the issue is complete:
 
 1. re-read the selected issue immediately before close:
-   - `helix tracker show <id> --json`
+   - `ddx bead show <id> --json`
    - verify it has not been superseded or materially drifted while execution
      was in progress
    - if it drifted materially, do not close it from stale assumptions; stop,
@@ -357,7 +357,7 @@ If the issue is complete:
      full-workspace gate catches cross-crate and cross-module breakage
      that scoped checks miss (e.g., trait/impl mismatches across files).
 7. push to remote: `git pull --rebase && git push`
-8. close the issue with `helix tracker close <id>`
+8. close the issue with `ddx bead close <id>`
 
 If the worktree contains unrelated changes, commit only the files that belong to
 the issue. Never revert unrelated work just to simplify the commit.

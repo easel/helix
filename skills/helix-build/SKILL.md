@@ -13,10 +13,10 @@ If a specific issue or scope is given, use: $ARGUMENTS
 
 ## Steps
 
-1. **Identify the next issue** — run `helix tracker ready`. Pick the
+1. **Identify the next issue** — run `ddx bead ready`. Pick the
    highest-priority actionable issue with clear governing artifacts.
 
-2. **Claim it** — `helix tracker update <id> --claim`.
+2. **Claim it** — `ddx bead update <id> --claim`.
 
 3. **Load context** — read the governing artifacts referenced by the issue's
    spec-id and description. Understand what "done" means from the acceptance
@@ -36,7 +36,7 @@ If a specific issue or scope is given, use: $ARGUMENTS
    - Concise summary of what was done
    - Reference to governing artifacts
 
-7. **Close** — `helix tracker close <id>`.
+7. **Close** — `ddx bead close <id>`.
 
 8. **Capture follow-on work** — if build execution revealed additional work,
    create new issues for it. Do not silently absorb extra scope.

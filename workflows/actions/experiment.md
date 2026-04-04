@@ -1,7 +1,7 @@
 # HELIX Action: Experiment
 
 You are performing one bounded experiment iteration within a metric-optimization
-session against the built-in tracker (`helix tracker`).
+session against the built-in tracker (`ddx bead`).
 
 Your goal is to hypothesize a change, implement it within scoped files, verify
 correctness, benchmark the result, make a keep/discard decision, log everything,
@@ -58,7 +58,7 @@ Rules:
 
 Use the built-in tracker only. Follow:
 
-- See `helix tracker --help` for tracker conventions
+- See `ddx bead --help` for tracker conventions
 
 Issues are stored in `.ddx/beads.jsonl`.
 
@@ -74,7 +74,7 @@ issues during execution, and closes the issue at session close.
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
 1. Verify the built-in tracker is available.
-   - If `helix tracker status` fails, stop immediately.
+   - If `ddx bead status` fails, stop immediately.
 2. Load ratchet floor fixtures if the project has adopted quality ratchets
    (see `workflows/ratchets.md`). Note the current floors so Phase 3
    can compare against them for auto-bump decisions.
@@ -115,7 +115,7 @@ If no eligible issue exists, report the reason and exit cleanly.
 
 ### 1.2 Claim Issue
 
-Claim the selected issue with `helix tracker update <id> --claim`.
+Claim the selected issue with `ddx bead update <id> --claim`.
 
 ### 1.3 Authority Check
 
@@ -430,7 +430,7 @@ git branch -d experiment/<goal>-<date>
 
 ### 3.6 Close Issue
 
-Close the issue with `helix tracker close <id>` and a comprehensive close comment
+Close the issue with `ddx bead close <id>` and a comprehensive close comment
 recording execution evidence:
 
 - Goal and optimization target

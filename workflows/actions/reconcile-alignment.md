@@ -6,7 +6,7 @@ project.
 Your goal is to re-align the implementation with the authoritative planning
 stack, identify explicit divergence, determine whether additional execution
 work remains for the reviewed scope, and produce deterministic next steps using
-the built-in tracker (`helix tracker`).
+the built-in tracker (`ddx bead`).
 
 This action is read-only with respect to product code unless explicitly told to
 make fixes. It may create or update:
@@ -51,7 +51,7 @@ Rules:
 
 Use the built-in tracker only. Follow:
 
-- See `helix tracker --help` for tracker conventions
+- See `ddx bead --help` for tracker conventions
 
 Issues are stored in `.ddx/beads.jsonl`.
 
@@ -79,7 +79,7 @@ HELIX labels appropriate to the work phase.
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
 1. Verify the built-in tracker is available.
-   - If `helix tracker status` fails, stop immediately.
+   - If `ddx bead status` fails, stop immediately.
 2. Determine the review scope.
 3. Break the scope into functional areas.
 4. Reconcile any existing review epic and review issues for the same scope.
@@ -241,7 +241,7 @@ Execution issue rules:
 - assign HELIX phase/kind labels that match the actual work
 - set `spec-id` to the nearest governing canonical artifact
 - link to the source review issue using description, parenting, or `discovered-from` dependencies
-- add explicit blockers with `helix tracker dep add`
+- add explicit blockers with `ddx bead dep add`
 - if canonical docs must change before implementation, create the doc/design issue before the code issue
 - do not create duplicate issues for the same gap
 

@@ -170,7 +170,7 @@ The tracker is the primary steering interface. Users typically interact with
 the tracker via an agent conversation while `helix run` grinds in the
 background. Structured commands ensure artifact consistency:
 
-- `helix tracker` — raw CRUD for issues (create, show, update, close, list,
+- `ddx bead` — raw CRUD for issues (create, show, update, close, list,
   ready, blocked, dep, status)
 - `helix evolve` — thread a requirement change through the artifact stack;
   updates governing docs and creates/modifies tracker issues

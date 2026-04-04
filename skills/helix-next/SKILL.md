@@ -12,4 +12,4 @@ Show the recommended next issue from the HELIX tracker.
 
 1. Run `helix next`.
 2. Present the recommended issue and why it is the next best work.
-3. If no issue is ready, say so plainly and point to `helix check` or `helix tracker ready`.
+3. If no issue is ready, say so plainly and point to `helix check` or `ddx bead ready`.

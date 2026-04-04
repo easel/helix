@@ -15,7 +15,7 @@ the individual skill directories.
 ## Use This Skill When
 
 - the user wants `helix run` behavior from inside the agent
-- the repo uses `helix tracker` for execution tracking
+- the repo uses `ddx bead` for execution tracking
 - the user wants ready HELIX work executed until the bounded loop stops
 - the user wants queue-drain decisions honored instead of a blind loop
 - the user wants HELIX to keep moving across requirements, designs, issues,
@@ -53,13 +53,13 @@ design.
 
 ## Execution Layer
 
-HELIX uses the built-in tracker (`helix tracker`) for execution tracking.
+HELIX uses the built-in tracker (`ddx bead`) for execution tracking.
 Issues are stored in `.ddx/beads.jsonl`.
 
-- Use `helix tracker` issues, dependencies, parents, `spec-id`, and labels.
+- Use `ddx bead` issues, dependencies, parents, `spec-id`, and labels.
 - Do not invent custom issue files or custom status taxonomies.
 - Recommended labels: `helix`, plus phase/kind/traceability labels as needed.
-- See `helix tracker --help` for tracker command mapping.
+- See `ddx bead --help` for tracker command mapping.
 
 Reference docs (read as needed):
 
@@ -89,7 +89,7 @@ confirmation. Start doing real work right now.
 Run this command:
 
 ```bash
-helix tracker ready --json
+ddx bead ready --json
 ```
 
 If no ready issues exist, skip to Step 6 (Queue Drain).
@@ -100,14 +100,14 @@ Pick the best ready issue (smallest unblocked issue with clear governing
 artifacts). Inspect it:
 
 ```bash
-helix tracker show <id>
-helix tracker dep tree <id>
+ddx bead show <id>
+ddx bead dep tree <id>
 ```
 
 Then claim it:
 
 ```bash
-helix tracker update <id> --claim
+ddx bead update <id> --claim
 ```
 
 ### Step 3 — Load context and build
@@ -128,7 +128,7 @@ verification fails, fix within scope or leave the issue open with a status note.
 ### Step 5 — Commit and close
 
 1. Commit with the issue ID in the message.
-2. Close the issue: `helix tracker close <id>`
+2. Close the issue: `ddx bead close <id>`
 3. Go back to Step 1 for the next ready issue.
 
 ### Step 6 — Queue drain

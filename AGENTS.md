@@ -12,12 +12,12 @@ the source of truth for the workflow contract.
 ## Quick Reference
 
 ```bash
-helix tracker ready           # Find available tracked work
-helix tracker ready --execution # Find execution-safe work for helix run
-helix tracker show <id>       # View issue details
-helix tracker update <id> --claim  # Claim work
-helix tracker close <id>      # Complete work
-helix tracker status          # Check tracker health
+ddx bead ready           # Find available tracked work
+ddx bead ready --execution # Find execution-safe work for helix run
+ddx bead show <id>       # View issue details
+ddx bead update <id> --claim  # Claim work
+ddx bead close <id>      # Complete work
+ddx bead status          # Check tracker health
 bash tests/helix-cli.sh       # Deterministic HELIX wrapper tests
 bash tests/validate-skills.sh # Deterministic HELIX skill package validation
 just test                     # Run all tests (CLI + skills)
@@ -67,13 +67,13 @@ mode will stay on one epic and batch its children:
 
 ```bash
 # Create epic
-epic=$(helix tracker create "Epic: ..." --type epic ...)
+epic=$(ddx bead create "Epic: ..." --type epic ...)
 # Wire children
-helix tracker update hx-child1 --parent $epic
-helix tracker update hx-child2 --parent $epic
+ddx bead update hx-child1 --parent $epic
+ddx bead update hx-child2 --parent $epic
 # Supersede duplicates
-helix tracker update hx-old --superseded-by hx-new
-helix tracker close hx-old
+ddx bead update hx-old --superseded-by hx-new
+ddx bead close hx-old
 ```
 
 ### Known operational gotchas
@@ -84,8 +84,8 @@ helix tracker close hx-old
 - **Skill YAML front matter** — quote values containing colons or pipes,
   otherwise codex's skill loader silently rejects them.
 - **Stale in-progress claims** — after a crashed run, unclaim manually:
-  `helix tracker list --status in_progress --json | jq -r '.[].id'`
-  then `helix tracker update <id> --status open --assignee ""`
+  `ddx bead list --status in_progress --json | jq -r '.[].id'`
+  then `ddx bead update <id> --status open --assignee ""`
 
 ## HELIX Workflow Notes
 
@@ -93,14 +93,14 @@ When working on HELIX itself in this repo:
 
 - top-level overview: `workflows/README.md`
 - operator loop and automation: `workflows/EXECUTION.md`
-- tracker conventions: `helix tracker --help` (DDx FEAT-004)
+- tracker conventions: `ddx bead --help` (DDx FEAT-004)
 - command summary: `workflows/REFERENCE.md`
 
 Key rules:
 
-- Use the built-in tracker (`helix tracker`); do not use external issue trackers.
-- For general ready-work detection, use `helix tracker ready`, not manual JSONL parsing.
-- For execution selection or `helix run` reasoning, use `helix tracker ready --execution`.
+- Use the built-in tracker (`ddx bead`); do not use external issue trackers.
+- For general ready-work detection, use `ddx bead ready`, not manual JSONL parsing.
+- For execution selection or `helix run` reasoning, use `ddx bead ready --execution`.
 - Keep `implementation` single-shot and bounded to one issue per run.
 - Use `check` when the ready queue drains to decide whether to build,
   design, polish, align, backfill, wait, ask for guidance, or stop.
@@ -167,10 +167,10 @@ helix next                            # show recommended next issue
 helix review                          # fresh-eyes review of last commit
 helix experiment hx-abc123            # one experiment iteration
 helix experiment --close              # squash-merge and close session
-helix tracker create "Title" --type task --labels helix,phase:build
-helix tracker ready --json            # machine-readable ready queue
-helix tracker ready --json --execution # machine-readable execution-safe queue
-helix tracker status                  # tracker health summary
+ddx bead create "Title" --type task --labels helix,phase:build
+ddx bead ready --json            # machine-readable ready queue
+ddx bead ready --json --execution # machine-readable execution-safe queue
+ddx bead status                  # tracker health summary
 ```
 
 `helix run` is the preferred operator loop. It:
@@ -287,7 +287,7 @@ For performance tuning, bundle size reduction, or other measurable optimization:
 
 Experiments are operator-invoked. `helix check` does not auto-dispatch them.
 
-## Issue Tracking with helix tracker
+## Issue Tracking with ddx bead
 
 **IMPORTANT**: This project uses the **built-in HELIX tracker** for ALL issue tracking. Do NOT use markdown TODOs, task lists, or external trackers.
 
@@ -296,28 +296,28 @@ Experiments are operator-invoked. `helix check` does not auto-dispatch them.
 **Check for ready work:**
 
 ```bash
-helix tracker ready --json
-helix tracker ready --json --execution
+ddx bead ready --json
+ddx bead ready --json --execution
 ```
 
 **Create new issues:**
 
 ```bash
-helix tracker create "Issue title" --type task --description "Detailed context" --priority 1
-helix tracker create "Issue title" --labels helix,phase:build --spec-id TP-036
+ddx bead create "Issue title" --type task --description "Detailed context" --priority 1
+ddx bead create "Issue title" --labels helix,phase:build --spec-id TP-036
 ```
 
 **Claim and update:**
 
 ```bash
-helix tracker update <id> --claim
-helix tracker update <id> --priority 1
+ddx bead update <id> --claim
+ddx bead update <id> --priority 1
 ```
 
 **Complete work:**
 
 ```bash
-helix tracker close <id>
+ddx bead close <id>
 ```
 
 ### Issue Types
@@ -338,17 +338,17 @@ helix tracker close <id>
 
 ### Workflow for AI Agents
 
-1. **Check ready work**: `helix tracker ready` shows unblocked issues
-2. **Claim your task**: `helix tracker update <id> --claim`
+1. **Check ready work**: `ddx bead ready` shows unblocked issues
+2. **Claim your task**: `ddx bead update <id> --claim`
 3. **Work on it**: Implement, test, document
 4. **Discover new work?** Create linked issue and add dependency
-5. **Complete**: `helix tracker close <id>`
+5. **Complete**: `ddx bead close <id>`
 
 ### Important Rules
 
-- Use `helix tracker` for ALL task tracking
+- Use `ddx bead` for ALL task tracking
 - Use `--json` flag for programmatic use
-- Check `helix tracker ready` before asking "what should I work on?"
+- Check `ddx bead ready` before asking "what should I work on?"
 - Do NOT create markdown TODO lists
 - Do NOT use external issue trackers
 - Do NOT duplicate tracking systems

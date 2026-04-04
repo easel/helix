@@ -39,7 +39,7 @@ Technical execution strategy:
 - **Build Issue Strategy**: How story-level execution is decomposed into tracker issues
 
 ### Story Build Issues
-**Output Location**: `.ddx/issues.jsonl` queried through `helix tracker`
+**Output Location**: `.ddx/issues.jsonl` queried through `ddx bead`
 
 Story-level implementation work is tracked as build issues rather than
 per-story markdown plans. Build issues:

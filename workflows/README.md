@@ -185,9 +185,9 @@ When HELIX artifacts disagree, resolve the conflict using this authority order:
 ## Tracker
 
 The built-in tracker is HELIX's execution layer. Issues are stored in
-`.ddx/beads.jsonl` and managed via `helix tracker` subcommands.
+`.ddx/beads.jsonl` and managed via `ddx bead` subcommands.
 
-- HELIX tracker guide: `helix tracker --help` (DDx FEAT-004)
+- HELIX tracker guide: `ddx bead --help` (DDx FEAT-004)
 
 - Issues are governed by the HELIX authority stack.
 - Issues must cite the canonical artifacts that authorize the work.
@@ -227,7 +227,7 @@ actions:
   blockers, and next recommended action
 - `evolve`: update governing artifacts and tracker issues when requirements
   change
-- `triage`: create validated tracker issues with required steering metadata
+- `triage`: create tracker issues via `ddx bead create`
 - `backfill-helix-docs`: reconstruct missing HELIX docs conservatively from
   current evidence
 

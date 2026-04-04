@@ -20,7 +20,7 @@ When conventions and execution guidance disagree, follow:
 
 1. [README.md](README.md)
 2. [EXECUTION.md](EXECUTION.md)
-3. `helix tracker --help` (tracker conventions; DDx FEAT-004)
+3. `ddx bead --help` (tracker conventions; DDx FEAT-004)
 4. the bounded action prompts under `workflows/actions/`
 
 ## Skill Resource Boundary
@@ -155,7 +155,7 @@ The parking lot is a project-level registry for deferred and future work:
 Issues capture scoped work that can be opened, updated, split, blocked, and
 closed without changing the canonical authority stack.
 
-HELIX uses a built-in JSONL tracker. See `helix tracker --help` for
+HELIX uses a built-in JSONL tracker. See `ddx bead --help` for
 conventions and command patterns (DDx FEAT-004).
 
 ### When to Use Issues
@@ -191,7 +191,7 @@ Every issue should:
 - Add a phase label when applicable: `phase:frame`, `phase:design`, `phase:test`, `phase:build`, `phase:deploy`, `phase:iterate`, or `phase:review`
 - Add `kind:build`, `kind:deploy`, `kind:backlog`, or `kind:review` when helpful
 - Add traceability labels such as `story:US-XXX`, `feature:FEAT-XXX`, `source:metrics`, or `area:auth`
-- Use `helix tracker ready`, `helix tracker blocked`, and `helix tracker dep tree` instead of relying on custom HELIX status fields
+- Use `ddx bead ready`, `ddx bead blocked`, and `ddx bead dep tree` instead of relying on custom HELIX status fields
 
 ### HELIX Integration
 
