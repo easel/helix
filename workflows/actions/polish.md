@@ -29,7 +29,7 @@ Use the built-in tracker only. Follow:
 
 - See `helix tracker --help` for tracker conventions
 
-Issues are stored in `.helix/beads.jsonl`.
+Issues are stored in `.helix/issues.jsonl`.
 
 ## PHASE 0 - Load Current State
 

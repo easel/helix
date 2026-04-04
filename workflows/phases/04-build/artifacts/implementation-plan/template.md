@@ -26,7 +26,7 @@ dun:
 
 ## Issue Decomposition
 
-Story-level work is tracked via `helix tracker` in `.ddx/beads.jsonl`.
+Story-level work is tracked via `helix tracker` in `.ddx/issues.jsonl`.
 
 **Per-issue requirements**:
 - Labels: `helix`, `phase:build`, `kind:build`, `story:US-{story-id}`

@@ -354,16 +354,16 @@ seed_tracker() {
   local i
   for ((i = 0; i < count; i++)); do
     printf '{"id":"hx-mock-%d","title":"mock issue %d","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n' "$i" "$i"
-  done > "$work_dir/.ddx/beads.jsonl"
+  done > "$work_dir/.ddx/issues.jsonl"
 }
 
 # Close all tracker issues (simulates agent completing work)
 close_all_issues() {
   local work_dir="$1/work"
-  if [[ -f "$work_dir/.ddx/beads.jsonl" ]]; then
+  if [[ -f "$work_dir/.ddx/issues.jsonl" ]]; then
     local tmp
-    tmp="$(jq -c '.status = "closed"' "$work_dir/.ddx/beads.jsonl")"
-    printf '%s\n' "$tmp" > "$work_dir/.ddx/beads.jsonl"
+    tmp="$(jq -c '.status = "closed"' "$work_dir/.ddx/issues.jsonl")"
+    printf '%s\n' "$tmp" > "$work_dir/.ddx/issues.jsonl"
   fi
 }
 
@@ -524,7 +524,7 @@ test_tracker_help() {
   assert_contains "$output" "helix tracker create" "tracker help should list create"
   assert_contains "$output" "helix tracker import" "tracker help should list import"
   assert_contains "$output" "helix tracker export" "tracker help should list export"
-  assert_contains "$output" "Canonical storage is .ddx/beads.jsonl" "tracker help should describe canonical storage"
+  assert_contains "$output" "Canonical storage is .ddx/issues.jsonl" "tracker help should describe canonical storage"
   rm -rf "$root"
 }
 
@@ -591,9 +591,9 @@ case "$payload" in
   *"implementation action"*)
     record implement
     # Close all open issues to simulate completing work
-    if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
-      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    if [[ -f .ddx/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/issues.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/issues.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -648,11 +648,11 @@ case "$payload" in
   *"implementation action"*)
     record implement
     # Close first open issue
-    if [[ -f .ddx/beads.jsonl ]]; then
-      first_open="$(jq -r 'select(.status == "open") | .id' .ddx/beads.jsonl | head -1)"
+    if [[ -f .ddx/issues.jsonl ]]; then
+      first_open="$(jq -r 'select(.status == "open") | .id' .ddx/issues.jsonl | head -1)"
       if [[ -n "$first_open" ]]; then
-        tmp="$(jq -c "if .id == \"$first_open\" then .status = \"closed\" else . end" .ddx/beads.jsonl)"
-        printf '%s\n' "$tmp" > .ddx/beads.jsonl
+        tmp="$(jq -c "if .id == \"$first_open\" then .status = \"closed\" else . end" .ddx/issues.jsonl)"
+        printf '%s\n' "$tmp" > .ddx/issues.jsonl
       fi
     fi
     echo "implementation complete"
@@ -723,7 +723,7 @@ case "$payload" in
   *"plan action"*)
     record plan
     mkdir -p .helix
-    cat > .ddx/beads.jsonl <<'EOF'
+    cat > .ddx/issues.jsonl <<'EOF'
 {"id":"hx-planned","title":"planned issue","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"SD-001","description":"","design":"","acceptance":"","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}
 EOF
     echo "PLAN_STATUS: CONVERGED"
@@ -731,8 +731,8 @@ EOF
     ;;
   *"implementation action"*"Implementation target: hx-planned"*)
     record implement
-    tmp="$(jq -c 'if .id == "hx-planned" then .status = "closed" else . end' .ddx/beads.jsonl)"
-    printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    tmp="$(jq -c 'if .id == "hx-planned" then .status = "closed" else . end' .ddx/issues.jsonl)"
+    printf '%s\n' "$tmp" > .ddx/issues.jsonl
     echo "implementation complete"
     ;;
   *"implementation action"*)
@@ -765,7 +765,7 @@ test_run_dispatches_polish_after_queue_drain() {
   local root
   root="$(make_workspace)"
   mkdir -p "$root/work/.ddx"
-  cat >"$root/work/.ddx/beads.jsonl" <<'EOF'
+  cat >"$root/work/.ddx/issues.jsonl" <<'EOF'
 {"id":"hx-refine","title":"refine queue","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:design"],"parent":"","spec-id":"SD-001","description":"","design":"","acceptance":"","dependencies":[],"owner":"","notes":"","execution-eligible":false,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}
 EOF
   printf 'POLISH\nBUILD\nSTOP\n' > "$root/state/next-actions"
@@ -791,7 +791,7 @@ case "$payload" in
     ;;
   *"polish action"*)
     record polish
-    cat > .ddx/beads.jsonl <<'EOF'
+    cat > .ddx/issues.jsonl <<'EOF'
 {"id":"hx-polished","title":"polished issue","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"SD-001","description":"","design":"","acceptance":"","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}
 EOF
     echo "POLISH_STATUS: CONVERGED"
@@ -799,8 +799,8 @@ EOF
     ;;
   *"implementation action"*"Implementation target: hx-polished"*)
     record implement
-    tmp="$(jq -c 'if .id == "hx-polished" then .status = "closed" else . end' .ddx/beads.jsonl)"
-    printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    tmp="$(jq -c 'if .id == "hx-polished" then .status = "closed" else . end' .ddx/issues.jsonl)"
+    printf '%s\n' "$tmp" > .ddx/issues.jsonl
     echo "implementation complete"
     ;;
   *"implementation action"*)
@@ -844,9 +844,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
-      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    if [[ -f .ddx/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/issues.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/issues.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -882,9 +882,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.["spec-id"] = "TP-DRIFT" | .status = "closed"' .ddx/beads.jsonl)"
-      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    if [[ -f .ddx/issues.jsonl ]]; then
+      tmp="$(jq -c '.["spec-id"] = "TP-DRIFT" | .status = "closed"' .ddx/issues.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/issues.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -925,9 +925,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.["spec-id"] = "TP-DRIFT"' .ddx/beads.jsonl)"
-      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    if [[ -f .ddx/issues.jsonl ]]; then
+      tmp="$(jq -c '.["spec-id"] = "TP-DRIFT"' .ddx/issues.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/issues.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -955,7 +955,7 @@ test_run_skips_execution_ineligible_ready_work() {
   local root
   root="$(make_workspace)"
   mkdir -p "$root/work/.ddx"
-  cat >"$root/work/.ddx/beads.jsonl" <<'EOF'
+  cat >"$root/work/.ddx/issues.jsonl" <<'EOF'
 {"id":"hx-refine","title":"refinement","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:design"],"parent":"","spec-id":"","description":"","design":"","acceptance":"","dependencies":[],"owner":"","notes":"","execution-eligible":false,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}
 {"id":"hx-build","title":"build","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}
 EOF
@@ -977,8 +977,8 @@ payload="$*"
 case "$payload" in
   *"implementation action"*"Implementation target: hx-build"*)
     record implement
-    tmp="$(jq -c 'if .id == "hx-build" then .status = "closed" else . end' .ddx/beads.jsonl)"
-    printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    tmp="$(jq -c 'if .id == "hx-build" then .status = "closed" else . end' .ddx/issues.jsonl)"
+    printf '%s\n' "$tmp" > .ddx/issues.jsonl
     echo "implementation complete"
     ;;
   *"implementation action"*)
@@ -1023,8 +1023,8 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    tmp="$(jq -c '.["superseded-by"] = "hx-replacement" | .status = "closed"' .ddx/beads.jsonl)"
-    printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    tmp="$(jq -c '.["superseded-by"] = "hx-replacement" | .status = "closed"' .ddx/issues.jsonl)"
+    printf '%s\n' "$tmp" > .ddx/issues.jsonl
     echo "implementation complete"
     ;;
   *"check action"*)
@@ -1137,9 +1137,9 @@ next_action() {
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
-      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    if [[ -f .ddx/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/issues.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/issues.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -1239,9 +1239,9 @@ case "$payload" in
     record implement
     attempts=$((attempts + 1))
     printf '%s\n' "$attempts" > "$attempt_file"
-    if (( attempts >= 2 )) && [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
-      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    if (( attempts >= 2 )) && [[ -f .ddx/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/issues.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/issues.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -1302,9 +1302,9 @@ case "$payload" in
       echo "mock implementation failure" >&2
       exit 1
     fi
-    if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
-      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    if [[ -f .ddx/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/issues.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/issues.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -1528,7 +1528,7 @@ test_build_prompt_references_tracker() {
   local output
   output="$(run_helix "$root" build --dry-run)"
   assert_contains "$output" "helix tracker" "build prompt should reference helix tracker"
-  assert_contains "$output" "beads.jsonl" "build prompt should reference JSONL file"
+  assert_contains "$output" "issues.jsonl" "build prompt should reference JSONL file"
   assert_contains "$output" "re-read the selected issue immediately before claim and immediately before close" "build prompt should require pre-claim and pre-close revalidation"
   rm -rf "$root"
 }
@@ -1558,9 +1558,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
-      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    if [[ -f .ddx/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/issues.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/issues.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -1620,9 +1620,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
-      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    if [[ -f .ddx/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/issues.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/issues.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -1659,9 +1659,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
-      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    if [[ -f .ddx/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/issues.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/issues.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -1711,9 +1711,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
-      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    if [[ -f .ddx/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/issues.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/issues.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -1762,7 +1762,7 @@ test_tracker_create_help_no_side_effect() {
   assert_contains "$output" "helix tracker create" "create --help should show usage"
   # Must not create an issue
   local count
-  count="$(wc -l < "$root/.ddx/beads.jsonl" 2>/dev/null || echo 0)"
+  count="$(wc -l < "$root/.ddx/issues.jsonl" 2>/dev/null || echo 0)"
   [[ "$count" -eq 0 ]] || fail "create --help must not create an issue (found $count)"
   rm -rf "$root"
 }
@@ -2069,7 +2069,7 @@ test_tracker_list_fails_on_malformed_jsonl() {
   root="$(make_workspace)"
 
   mkdir -p "$root/work/.ddx"
-  printf '{"id":"hx-good","title":"ok"}\n{"id":"hx-bad"\n' > "$root/work/.ddx/beads.jsonl"
+  printf '{"id":"hx-good","title":"ok"}\n{"id":"hx-bad"\n' > "$root/work/.ddx/issues.jsonl"
 
   assert_fails "list should fail on malformed tracker state" run_helix "$root" tracker list --json 2>/dev/null
   assert_fails "status should fail on malformed tracker state" run_helix "$root" tracker status --json 2>/dev/null
@@ -2081,13 +2081,13 @@ test_tracker_mutation_fails_on_malformed_jsonl() {
   root="$(make_workspace)"
 
   mkdir -p "$root/work/.ddx"
-  printf '{"id":"hx-good","title":"ok"}\n{"id":"hx-bad"\n' > "$root/work/.ddx/beads.jsonl"
+  printf '{"id":"hx-good","title":"ok"}\n{"id":"hx-bad"\n' > "$root/work/.ddx/issues.jsonl"
 
   assert_fails "create should fail on malformed tracker state" run_helix "$root" tracker create "Should fail" 2>/dev/null
   assert_fails "update should fail on malformed tracker state" run_helix "$root" tracker update hx-good --title "new" 2>/dev/null
 
   local line_count
-  line_count="$(wc -l < "$root/work/.ddx/beads.jsonl" | tr -d ' ')"
+  line_count="$(wc -l < "$root/work/.ddx/issues.jsonl" | tr -d ' ')"
   assert_eq "2" "$line_count" "failed mutation should not rewrite malformed tracker state"
   rm -rf "$root"
 }
@@ -2267,7 +2267,7 @@ test_tracker_export_stdout_roundtrip() {
 
   mkdir -p "$root/work/tmp"
   run_helix "$root" tracker export --stdout > "$root/work/tmp/export.jsonl"
-  rm -f "$root/work/.ddx/beads.jsonl"
+  rm -f "$root/work/.ddx/issues.jsonl"
 
   run_helix "$root" tracker import --from jsonl --file tmp/export.jsonl >/dev/null
 
@@ -2553,9 +2553,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
-      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    if [[ -f .ddx/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/issues.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/issues.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -2607,9 +2607,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
-      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    if [[ -f .ddx/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/issues.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/issues.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -2658,9 +2658,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
-      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    if [[ -f .ddx/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/issues.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/issues.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -2711,7 +2711,7 @@ seed_stale_claimed() {
   local i
   for ((i = 0; i < count; i++)); do
     printf '{"id":"hx-stale-%d","title":"stale issue %d","issue_type":"task","status":"in_progress","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"mock acceptance","dependencies":[],"owner":"helix","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2024-01-01T00:00:00Z","updated_at":"2024-01-01T00:00:00Z","claimed-at":"%s","claimed-pid":%d}\n' "$i" "$i" "$stale_ts" "$dead_pid"
-  done > "$work_dir/.ddx/beads.jsonl"
+  done > "$work_dir/.ddx/issues.jsonl"
 }
 
 test_orphan_recovery_reclaims_stale() {
@@ -2750,7 +2750,7 @@ test_orphan_recovery_skips_fresh() {
   local fresh_ts
   fresh_ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   printf '{"id":"hx-fresh-0","title":"fresh issue","issue_type":"task","status":"in_progress","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"","dependencies":[],"owner":"helix","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"%s","updated_at":"%s","claimed-at":"%s","claimed-pid":%d}\n' \
-    "$fresh_ts" "$fresh_ts" "$fresh_ts" "$$" > "$work_dir/.ddx/beads.jsonl"
+    "$fresh_ts" "$fresh_ts" "$fresh_ts" "$$" > "$work_dir/.ddx/issues.jsonl"
 
   printf 'STOP\n' > "$root/state/next-actions"
   make_mock_bin "$root"
@@ -2771,7 +2771,7 @@ test_build_loop_stops_after_empty_builds() {
   local work_dir="$root/work"
   mkdir -p "$work_dir/.ddx"
   printf '{"id":"hx-epic-0","title":"umbrella epic","issue_type":"epic","status":"open","priority":2,"labels":["helix","phase:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"","dependencies":[],"owner":"","notes":"","execution-eligible":false,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n' \
-    > "$work_dir/.ddx/beads.jsonl"
+    > "$work_dir/.ddx/issues.jsonl"
 
   # Mock: check always returns BUILD
   cat >"$root/bin/codex" <<'MOCK'
@@ -2813,7 +2813,7 @@ test_build_loop_recovers_orphans_and_continues() {
   # Start with only a stale in-progress issue (no open execution-eligible work)
   local stale_ts="2024-01-01T00:00:00Z"
   printf '{"id":"hx-stale-0","title":"stale issue","issue_type":"task","status":"in_progress","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"mock acceptance","dependencies":[],"owner":"helix","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2024-01-01T00:00:00Z","updated_at":"2024-01-01T00:00:00Z","claimed-at":"%s","claimed-pid":99999}\n' \
-    "$stale_ts" > "$work_dir/.ddx/beads.jsonl"
+    "$stale_ts" > "$work_dir/.ddx/issues.jsonl"
 
   printf 'STOP\n' > "$root/state/next-actions"
   cat >"$root/bin/codex" <<'MOCK'
@@ -2832,9 +2832,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
-      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    if [[ -f .ddx/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/issues.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/issues.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -2939,9 +2939,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
-      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    if [[ -f .ddx/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/issues.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/issues.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -2982,9 +2982,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
-      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    if [[ -f .ddx/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/issues.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/issues.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -3015,7 +3015,7 @@ test_epic_focus_selects_children() {
   {
     printf '{"id":"hx-epic-1","title":"test epic","issue_type":"epic","status":"open","priority":2,"labels":["helix","phase:build"],"parent":"","spec-id":"SPEC-1","description":"","design":"","acceptance":"all children done","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n'
     printf '{"id":"hx-child-1","title":"child 1","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"hx-epic-1","spec-id":"SPEC-1","description":"","design":"","acceptance":"test passes","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n'
-  } > "$work_dir/.ddx/beads.jsonl"
+  } > "$work_dir/.ddx/issues.jsonl"
 
   printf 'STOP\n' > "$root/state/next-actions"
 
@@ -3034,9 +3034,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c 'if .issue_type != "epic" then .status = "closed" else . end' .ddx/beads.jsonl)"
-      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    if [[ -f .ddx/issues.jsonl ]]; then
+      tmp="$(jq -c 'if .issue_type != "epic" then .status = "closed" else . end' .ddx/issues.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/issues.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -3055,7 +3055,7 @@ MOCK
 
   # Epic should be closed after child completes
   local epic_status
-  epic_status="$(jq -r 'select(.id == "hx-epic-1") | .status' "$work_dir/.ddx/beads.jsonl")"
+  epic_status="$(jq -r 'select(.id == "hx-epic-1") | .status' "$work_dir/.ddx/issues.jsonl")"
   assert_eq "closed" "$epic_status" "epic should be closed after all children complete"
   rm -rf "$root"
 }
@@ -3072,7 +3072,7 @@ test_batch_falls_back_to_area_labels() {
     printf '{"id":"hx-area-1","title":"area issue 1","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build","area:auth"],"parent":"","spec-id":"SPEC-A","description":"","design":"","acceptance":"done","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n'
     printf '{"id":"hx-area-2","title":"area issue 2","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build","area:auth"],"parent":"","spec-id":"SPEC-B","description":"","design":"","acceptance":"done","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n'
     printf '{"id":"hx-area-3","title":"unrelated issue","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build","area:storage"],"parent":"","spec-id":"SPEC-C","description":"","design":"","acceptance":"done","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n'
-  } > "$work_dir/.ddx/beads.jsonl"
+  } > "$work_dir/.ddx/issues.jsonl"
 
   # Use dry-run — the batch prompt should mention both area:auth siblings
   printf 'STOP\n' > "$root/state/next-actions"
@@ -3109,9 +3109,9 @@ case "$payload" in
   *"implementation action"*)
     record implement
     # Simulate governance drift: change the parent field mid-execution
-    if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.parent = "hx-new-parent"' .ddx/beads.jsonl)"
-      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    if [[ -f .ddx/issues.jsonl ]]; then
+      tmp="$(jq -c '.parent = "hx-new-parent"' .ddx/issues.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/issues.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -3166,9 +3166,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c 'if .status == "open" then .status = "closed" else . end' .ddx/beads.jsonl)"
-      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    if [[ -f .ddx/issues.jsonl ]]; then
+      tmp="$(jq -c 'if .status == "open" then .status = "closed" else . end' .ddx/issues.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/issues.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -3330,9 +3330,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
-      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    if [[ -f .ddx/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/issues.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/issues.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -3509,7 +3509,7 @@ test_context_refreshed_on_epic_switch() {
   {
     printf '{"id":"hx-epic-r","title":"refresh epic","issue_type":"epic","status":"open","priority":2,"labels":["helix","phase:build"],"parent":"","spec-id":"SPEC-R","description":"","design":"","acceptance":"done","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n'
     printf '{"id":"hx-child-r","title":"refresh child","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"hx-epic-r","spec-id":"SPEC-R","description":"","design":"","acceptance":"done","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n'
-  } > "$work_dir/.ddx/beads.jsonl"
+  } > "$work_dir/.ddx/issues.jsonl"
 
   printf 'STOP\n' > "$root/state/next-actions"
   cat >"$root/bin/codex" <<'MOCK'
@@ -3526,9 +3526,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c 'if .issue_type != "epic" then .status = "closed" else . end' .ddx/beads.jsonl)"
-      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    if [[ -f .ddx/issues.jsonl ]]; then
+      tmp="$(jq -c 'if .issue_type != "epic" then .status = "closed" else . end' .ddx/issues.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/issues.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -3570,12 +3570,12 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .ddx/beads.jsonl ]]; then
+    if [[ -f .ddx/issues.jsonl ]]; then
       # Close the first open issue only
-      first="$(jq -r 'select(.status == "open") | .id' .ddx/beads.jsonl | head -1)"
+      first="$(jq -r 'select(.status == "open") | .id' .ddx/issues.jsonl | head -1)"
       if [[ -n "$first" ]]; then
-        tmp="$(jq -c "if .id == \"$first\" then .status = \"closed\" else . end" .ddx/beads.jsonl)"
-        printf '%s\n' "$tmp" > .ddx/beads.jsonl
+        tmp="$(jq -c "if .id == \"$first\" then .status = \"closed\" else . end" .ddx/issues.jsonl)"
+        printf '%s\n' "$tmp" > .ddx/issues.jsonl
       fi
     fi
     # Record context.md hash after each implementation
@@ -3630,9 +3630,9 @@ case "$payload" in
   *"implementation action"*)
     record implement
     # Simulate governance drift: set superseded-by during execution
-    if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.["superseded-by"] = "hx-replacement"' .ddx/beads.jsonl)"
-      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    if [[ -f .ddx/issues.jsonl ]]; then
+      tmp="$(jq -c '.["superseded-by"] = "hx-replacement"' .ddx/issues.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/issues.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -3670,9 +3670,9 @@ case "$payload" in
   *"implementation action"*)
     record implement
     # Simulate governance drift: change spec-id during execution
-    if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.["spec-id"] = "CHANGED-SPEC"' .ddx/beads.jsonl)"
-      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    if [[ -f .ddx/issues.jsonl ]]; then
+      tmp="$(jq -c '.["spec-id"] = "CHANGED-SPEC"' .ddx/issues.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/issues.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -3712,9 +3712,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
-      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    if [[ -f .ddx/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/issues.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/issues.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -3762,9 +3762,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
-      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    if [[ -f .ddx/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/issues.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/issues.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -3806,9 +3806,9 @@ state_root="${MOCK_STATE_ROOT:?}"
 record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
 # claude is used for implementation
 record "claude-call"
-if [[ -f .ddx/beads.jsonl ]]; then
-  tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
-  printf '%s\n' "$tmp" > .ddx/beads.jsonl
+if [[ -f .ddx/issues.jsonl ]]; then
+  tmp="$(jq -c '.status = "closed"' .ddx/issues.jsonl)"
+  printf '%s\n' "$tmp" > .ddx/issues.jsonl
 fi
 echo "implementation complete"
 MOCK
@@ -3867,7 +3867,7 @@ test_epic_blocked_when_child_intractable() {
   {
     printf '{"id":"hx-epic-b","title":"blocked epic","issue_type":"epic","status":"open","priority":2,"labels":["helix","phase:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"done","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n'
     printf '{"id":"hx-fail-c","title":"failing child","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"hx-epic-b","spec-id":"","description":"","design":"","acceptance":"done","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n'
-  } > "$work_dir/.ddx/beads.jsonl"
+  } > "$work_dir/.ddx/issues.jsonl"
 
   printf 'STOP\n' > "$root/state/next-actions"
   cat >"$root/bin/codex" <<'MOCK'
@@ -4072,7 +4072,7 @@ test_run_prefers_tasks_over_epics() {
   {
     printf '{"id":"hx-epic-p","title":"epic","issue_type":"epic","status":"open","priority":2,"labels":["helix","phase:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"done","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n'
     printf '{"id":"hx-task-p","title":"task with meta","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"SPEC","description":"","design":"","acceptance":"done","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n'
-  } > "$work_dir/.ddx/beads.jsonl"
+  } > "$work_dir/.ddx/issues.jsonl"
 
   printf 'STOP\n' > "$root/state/next-actions"
   cat >"$root/bin/codex" <<'MOCK'
@@ -4089,9 +4089,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c 'if .issue_type != "epic" then .status = "closed" else . end' .ddx/beads.jsonl)"
-      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    if [[ -f .ddx/issues.jsonl ]]; then
+      tmp="$(jq -c 'if .issue_type != "epic" then .status = "closed" else . end' .ddx/issues.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/issues.jsonl
     fi
     echo "implementation complete"
     ;;

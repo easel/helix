@@ -9,7 +9,7 @@
 
 # ── ddx bead configuration ────────────────────────────────────────────
 tracker_dir="${HELIX_TRACKER_DIR:-${target_root:-.}/.ddx}"
-tracker_file="${tracker_dir}/beads.jsonl"  # ddx bead canonical file
+tracker_file="${tracker_dir}/issues.jsonl"  # ddx bead canonical file
 export DDX_BEAD_DIR="$tracker_dir"
 # Per-project prefix: defaults to "hx", configurable via .helix/config or env
 export DDX_BEAD_PREFIX="${HELIX_BEAD_PREFIX:-hx}"
@@ -448,7 +448,7 @@ tracker_dispatch() {
     help|-h|--help|"")
       echo "Usage: helix tracker <command>"
       echo ""
-      echo "Canonical storage is .ddx/beads.jsonl (delegated to ddx bead)"
+      echo "Canonical storage is .ddx/issues.jsonl (delegated to ddx bead)"
       echo ""
       echo "Commands:"
       echo "  helix tracker init                    Initialize tracker"

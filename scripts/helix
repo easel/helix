@@ -1798,6 +1798,24 @@ run_loop() {
           fi
         fi
 
+        # Epic promotion: if the agent decomposed a task into children,
+        # promote the parent to an epic so epic focus mode kicks in.
+        local _child_count
+        _child_count="$(tracker_list --json 2>/dev/null | jq --arg parent "$selected_issue" '[.[] | select(.parent == $parent)] | length' 2>/dev/null)" || _child_count=0
+        if (( _child_count > 1 )); then
+          local _current_type
+          _current_type="$(tracker_show "$selected_issue" --json 2>/dev/null | jq -r '.issue_type // ""')" || _current_type=""
+          if [[ "$_current_type" != "epic" ]]; then
+            verbose_line "promoting %s to epic (agent created %s children)" "$selected_issue" "$_child_count"
+            tracker_update "$selected_issue" --set "issue_type=epic" 2>/dev/null || true
+            if [[ -z "$focused_epic" ]]; then
+              focused_epic="$selected_issue"
+              verbose_line "entering epic focus mode for promoted %s" "$focused_epic"
+              generate_run_context "$focused_epic" || true
+            fi
+          fi
+        fi
+
         # Acceptance gate: run project acceptance scripts if they exist.
         # Failures are filed as tracker issues (label: acceptance-failure)
         # so they appear in the ready queue for the next cycle.
