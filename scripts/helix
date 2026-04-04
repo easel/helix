@@ -17,9 +17,13 @@ library_root="$(cd "$script_dir/.." && pwd)"
 helix_docs_root="${HELIX_LIBRARY_ROOT:-$library_root/workflows}"
 target_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 
-# Source built-in tracker
-# shellcheck source=tracker.sh
-source "$script_dir/tracker.sh"
+# DDx bead-backed tracker settings
+tracker_dir="${DDX_BEAD_DIR:-${HELIX_TRACKER_DIR:-${target_root}/.ddx}}"
+tracker_file="${tracker_dir}/beads.jsonl"
+tracker_hook_src="${script_dir}/helix-triage-hook.sh"
+tracker_hook_dest="${tracker_dir}/hooks/validate-bead-create"
+export DDX_BEAD_DIR="$tracker_dir"
+export DDX_BEAD_PREFIX="${DDX_BEAD_PREFIX:-hx}"
 
 agent="${HELIX_AGENT:-codex}"
 agent_model="${HELIX_MODEL:-}"
@@ -165,9 +169,414 @@ need_cmd() {
   fi
 }
 
-require_tracker() {
+tracker_ensure_hook() {
+  [[ -f "$tracker_hook_src" ]] || return 0
+  mkdir -p "${tracker_dir}/hooks"
+  cp -f "$tracker_hook_src" "$tracker_hook_dest"
+}
+
+tracker_init() {
+  ddx bead init >/dev/null
+}
+
+tracker_ensure() {
   need_cmd jq
+  need_cmd ddx
+
+  if [[ ! -f "$tracker_file" ]]; then
+    tracker_init
+  fi
+
+  tracker_ensure_hook
+}
+
+require_tracker() {
   tracker_ensure
+}
+
+tracker_create() {
+  local title="" type="task" labels="" deps="" parent="" spec_id=""
+  local description="" design="" acceptance="" priority=2 execution_eligible=""
+  local superseded_by="" replaces="" silent=0
+  local -a cmd=(ddx bead create)
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --type)       type="$2"; shift 2 ;;
+      --labels)     labels="$2"; shift 2 ;;
+      --deps)       deps="$2"; shift 2 ;;
+      --parent)     parent="$2"; shift 2 ;;
+      --spec-id)    spec_id="$2"; shift 2 ;;
+      --description) description="$2"; shift 2 ;;
+      --design)     design="$2"; shift 2 ;;
+      --acceptance) acceptance="$2"; shift 2 ;;
+      --priority)   priority="$2"; shift 2 ;;
+      --execution-eligible) execution_eligible="$2"; shift 2 ;;
+      --superseded-by) superseded_by="$2"; shift 2 ;;
+      --replaces)   replaces="$2"; shift 2 ;;
+      --silent)     silent=1; shift ;;
+      -h|--help|help)
+        echo "Usage: helix tracker create <title> [options]"
+        echo ""
+        echo "Options:"
+        echo "  --type TYPE            Issue type (task, epic, bug, chore)"
+        echo "  --labels L1,L2         Comma-separated labels"
+        echo "  --deps ID1,ID2         Comma-separated dependency IDs"
+        echo "  --parent ID            Parent issue ID"
+        echo "  --spec-id ID           Governing artifact reference"
+        echo "  --description TEXT      Issue description"
+        echo "  --acceptance TEXT       Acceptance criteria"
+        echo "  --priority N           Priority (0=highest, 4=lowest, default 2)"
+        echo "  --execution-eligible T  true or false"
+        echo "  --superseded-by ID     Replacement issue ID"
+        echo "  --replaces ID          Issue this replaces"
+        return 0
+        ;;
+      --set) shift 2 ;;
+      *) title="$1"; shift ;;
+    esac
+  done
+
+  if [[ -z "$title" ]]; then
+    echo "tracker: title required" >&2
+    return 1
+  fi
+
+  if [[ "${HELIX_SKIP_TRIAGE:-0}" != "1" ]]; then
+    if [[ ! -x "$tracker_hook_dest" ]]; then
+      printf 'tracker: missing triage hook %s\n' "$tracker_hook_dest" >&2
+      return 1
+    fi
+
+    local hook_json deps_json labels_json
+    if [[ -n "$deps" ]]; then
+      deps_json="$(printf '%s' "$deps" | jq -R 'split(",") | map(select(length > 0))')"
+    else
+      deps_json='[]'
+    fi
+    if [[ -n "$labels" ]]; then
+      labels_json="$(printf '%s' "$labels" | jq -R 'split(",") | map(select(length > 0))')"
+    else
+      labels_json='[]'
+    fi
+    hook_json="$(
+      jq -nc \
+        --arg title "$title" \
+        --arg issue_type "$type" \
+        --arg spec_id "$spec_id" \
+        --arg acceptance "$acceptance" \
+        --argjson labels "$labels_json" \
+        --argjson deps "$deps_json" \
+        '{
+          title: $title,
+          issue_type: $issue_type,
+          "spec-id": $spec_id,
+          acceptance: $acceptance,
+          labels: $labels,
+          dependencies: $deps
+        }'
+    )"
+    if ! printf '%s' "$hook_json" | "$tracker_hook_dest" >/dev/null; then
+      return 1
+    fi
+  fi
+
+  cmd+=( "$title" --type "$type" --priority "$priority" )
+  [[ -n "$labels" ]]      && cmd+=(--labels "$labels")
+  [[ -n "$parent" ]]      && cmd+=(--parent "$parent")
+  [[ -n "$description" ]] && cmd+=(--description "$description")
+  [[ -n "$acceptance" ]]  && cmd+=(--acceptance "$acceptance")
+
+  [[ -n "$spec_id" ]]     && cmd+=(--set "spec-id=$spec_id")
+  [[ -n "$design" ]]      && cmd+=(--set "design=$design")
+  [[ -n "$superseded_by" ]] && cmd+=(--set "superseded-by=$superseded_by")
+  [[ -n "$replaces" ]]    && cmd+=(--set "replaces=$replaces")
+
+  if [[ -z "$execution_eligible" ]]; then
+    case ",${labels}," in
+      *,phase:build,*|*,phase:deploy,*|*,phase:iterate,*)
+        execution_eligible="true" ;;
+      *)
+        execution_eligible="false" ;;
+    esac
+  fi
+  [[ -n "$execution_eligible" ]] && cmd+=(--set "execution-eligible=$execution_eligible")
+
+  local id
+  id="$("${cmd[@]}")" || return 1
+
+  if [[ -n "$deps" ]]; then
+    local dep
+    for dep in ${deps//,/ }; do
+      ddx bead dep add "$id" "$dep" >/dev/null || return 1
+    done
+  fi
+
+  printf '%s\n' "$id"
+}
+
+tracker_show() {
+  local id="$1"
+  local json_flag=0
+  [[ "${2:-}" == "--json" ]] && json_flag=1
+
+  local raw
+  raw="$(ddx bead show "$id" --json 2>&1)" || { echo "$raw" | head -n 1 | sed "s/^/tracker: /" >&2; return 1; }
+
+  if (( json_flag )); then
+    printf '%s' "$raw"
+  else
+    printf '%s\n' "$raw" | jq -r '
+      "[" + .status + "] " + .id + " (" + .issue_type + ") — " + .title,
+      (if .description != "" then "  Description: " + .description else empty end),
+      (if .acceptance != "" then "  Acceptance: " + .acceptance else empty end),
+      (if (.labels | length) > 0 then "  Labels: " + (.labels | join(", ")) else empty end),
+      (if (.dependencies | length) > 0 then "  Deps: " + ([.dependencies[].depends_on_id] | join(", ")) else empty end),
+      (if .parent != "" then "  Parent: " + .parent else empty end),
+      (if .["execution-eligible"] then "  Execution Eligible: true" else empty end),
+      (if .["spec-id"] != "" then "  Spec: " + .["spec-id"] else empty end)
+    '
+  fi
+}
+
+tracker_update() {
+  local id="$1"
+  shift
+
+  local -a cmd=(ddx bead update "$id")
+  local claim=0 unclaim=0 deps_to_add=""
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --title)      cmd+=(--title "$2"); shift 2 ;;
+      --status)     cmd+=(--status "$2"); shift 2 ;;
+      --priority)   cmd+=(--priority "$2"); shift 2 ;;
+      --labels)     cmd+=(--labels "$2"); shift 2 ;;
+      --acceptance) cmd+=(--acceptance "$2"); shift 2 ;;
+      --assignee)   cmd+=(--assignee "$2"); shift 2 ;;
+      --notes)      cmd+=(--set "notes=$2"); shift 2 ;;
+      --claim)      claim=1; shift ;;
+      --unclaim)    unclaim=1; shift ;;
+      --set)        cmd+=(--set "$2"); shift 2 ;;
+      --spec-id)    cmd+=(--set "spec-id=$2"); shift 2 ;;
+      --design)     cmd+=(--set "design=$2"); shift 2 ;;
+      --deps)       deps_to_add="$2"; shift 2 ;;
+      --execution-eligible) cmd+=(--set "execution-eligible=$2"); shift 2 ;;
+      --superseded-by)      cmd+=(--set "superseded-by=$2"); shift 2 ;;
+      --replaces)           cmd+=(--set "replaces=$2"); shift 2 ;;
+      --parent)     cmd+=(--parent "$2"); shift 2 ;;
+      *)            shift ;;
+    esac
+  done
+
+  if (( claim )); then
+    ddx bead update "$id" --status in_progress --assignee helix --set "claimed-at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" --set "claimed-pid=$$" 2>/dev/null
+    return $?
+  fi
+
+  if (( unclaim )); then
+    ddx bead update "$id" --unclaim 2>/dev/null
+    return $?
+  fi
+
+  if ! "${cmd[@]}"; then
+    return 1
+  fi
+
+  if [[ -n "$deps_to_add" ]]; then
+    local dep
+    for dep in ${deps_to_add//,/ }; do
+      ddx bead dep add "$id" "$dep" >/dev/null || true
+    done
+  fi
+}
+
+tracker_close() {
+  ddx bead close "$1" >/dev/null
+}
+
+tracker_list() {
+  local -a cmd=(ddx bead list)
+  local json_flag=0
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --status) cmd+=(--status "$2"); shift 2 ;;
+      --label)  cmd+=(--label "$2"); shift 2 ;;
+      --json)   json_flag=1; cmd+=(--json); shift ;;
+      *)        shift ;;
+    esac
+  done
+
+  local output
+  output="$("${cmd[@]}" 2>/dev/null)" || return $?
+
+  if (( json_flag )); then
+    printf '%s' "$output"
+  else
+    printf '%s\n' "$output"
+  fi
+}
+
+tracker_ready() {
+  local -a cmd=(ddx bead ready)
+  local json_flag=0 execution=0
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --json)      json_flag=1; shift ;;
+      --execution) execution=1; shift ;;
+      *)           shift ;;
+    esac
+  done
+
+  (( execution )) && cmd+=(--execution)
+  cmd+=(--json)
+
+  local output
+  output="$("${cmd[@]}" 2>/dev/null)" || return $?
+
+  if (( json_flag )); then
+    printf '%s' "$output"
+  else
+    local count
+    count="$(printf '%s' "$output" | jq 'length')"
+    if (( count == 0 )); then
+      return 1
+    fi
+    printf '%s' "$output" | jq -r '.[] | .id + "  " + .title'
+  fi
+}
+
+tracker_blocked() {
+  local -a cmd=(ddx bead blocked --json)
+  local json_flag=0
+  [[ "${1:-}" == "--json" ]] && json_flag=1
+
+  local output
+  output="$("${cmd[@]}" 2>/dev/null)" || return $?
+
+  if (( json_flag )); then
+    printf '%s' "$output"
+  else
+    printf '%s' "$output" | jq -r '.[] | .id + "  " + .title + "  deps: " + ([.dependencies[].depends_on_id] | join(", "))'
+  fi
+}
+
+tracker_dep() {
+  local subcmd="$1"
+  shift
+
+  case "$subcmd" in
+    add)    ddx bead dep add "$@" 2>/dev/null ;;
+    remove) ddx bead dep remove "$@" 2>/dev/null ;;
+    tree)   ddx bead dep tree "$@" 2>/dev/null ;;
+    *)      echo "tracker: dep $subcmd: unknown subcommand" >&2; return 1 ;;
+  esac
+}
+
+tracker_status() {
+  local json_flag=0
+  [[ "${1:-}" == "--json" ]] && json_flag=1
+
+  if (( json_flag )); then
+    ddx bead status --json
+  else
+    ddx bead status
+  fi
+}
+
+tracker_import() {
+  local from="auto" file_path=""
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --from) from="$2"; shift 2 ;;
+      --file) file_path="$2"; shift 2 ;;
+      *)      file_path="$1"; shift ;;
+    esac
+  done
+
+  local existing_count
+  existing_count="$(ddx bead list --json 2>/dev/null | jq 'length' 2>/dev/null || echo 0)"
+  if (( existing_count > 0 )); then
+    printf 'WARNING: tracker already has %d issues; import will merge (not replace)\n' "$existing_count" >&2
+  fi
+
+  local -a cmd=(ddx bead import --from "$from")
+  [[ -n "$file_path" ]] && cmd+=("$file_path")
+  "${cmd[@]}" 2>&1
+}
+
+tracker_export() {
+  local file_path="" stdout=0
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --stdout) stdout=1; shift ;;
+      --file)   file_path="$2"; shift 2 ;;
+      *)        file_path="$1"; shift ;;
+    esac
+  done
+
+  if (( stdout )); then
+    ddx bead export --stdout 2>/dev/null
+  elif [[ -n "$file_path" ]]; then
+    ddx bead export "$file_path" 2>/dev/null
+  else
+    ddx bead export --stdout 2>/dev/null
+  fi
+}
+
+tracker_migrate() {
+  tracker_import "$@"
+}
+
+tracker_read_all() {
+  ddx bead list --json 2>/dev/null
+}
+
+tracker_dispatch() {
+  local subcmd="${1:-}"
+  require_tracker
+  shift || true
+
+  case "$subcmd" in
+    init)     tracker_init ;;
+    create)   tracker_create "$@" ;;
+    show)     tracker_show "$@" ;;
+    update)   tracker_update "$@" ;;
+    close)    tracker_close "$@" ;;
+    list)     tracker_list "$@" ;;
+    ready)    tracker_ready "$@" ;;
+    blocked)  tracker_blocked "$@" ;;
+    dep)      tracker_dep "$@" ;;
+    status)   tracker_status "$@" ;;
+    import)   tracker_import "$@" ;;
+    export)   tracker_export "$@" ;;
+    migrate)  tracker_migrate "$@" ;;
+    help|-h|--help|"")
+      echo "Usage: helix tracker <command>"
+      echo ""
+      echo "Canonical storage is .ddx/beads.jsonl (delegated to ddx bead)"
+      echo ""
+      echo "Commands:"
+      echo "  helix tracker init                    Initialize tracker"
+      echo "  helix tracker create <title> [opts]   Create issue"
+      echo "  helix tracker show <id> [--json]      Show issue"
+      echo "  helix tracker update <id> [opts]      Update issue"
+      echo "  helix tracker close <id>              Close issue"
+      echo "  helix tracker list [--status S]       List issues"
+      echo "  helix tracker ready [--execution]     Ready queue"
+      echo "  helix tracker blocked                 Blocked issues"
+      echo "  helix tracker dep add|remove|tree     Dependencies"
+      echo "  helix tracker status [--json]         Queue health"
+      echo "  helix tracker import [--from S]       Import beads"
+      echo "  helix tracker export [file]           Export beads"
+      ;;
+    *)
+      echo "tracker: unknown command: $subcmd" >&2
+      return 1
+      ;;
+  esac
 }
 
 extract_codex_tokens() {
@@ -460,7 +869,7 @@ Execute the following HELIX implementation action.
 $(inline_action "${helix_docs_root}/actions/implementation.md")
 Use supporting references at ${helix_docs_root}/README.md and ${helix_docs_root}/phases/04-build/enforcer.md as needed.
 Execute in the current repository rooted at ${target_root}.
-Issue tracker: built-in JSONL at ${tracker_file}. Use \`helix tracker ready --json\`, \`helix tracker show <id>\`, \`helix tracker update <id> --claim\`, \`helix tracker close <id>\`.
+Issue tracker: built-in JSONL at ${tracker_file} (legacy: .ddx/issues.jsonl). Use \`helix tracker ready --json\`, \`helix tracker show <id>\`, \`helix tracker update <id> --claim\`, \`helix tracker close <id>\`.
 Concurrency rule: re-read the selected issue immediately before claim and immediately before close. If tracker metadata drifted materially, do not claim or close from stale assumptions; re-check instead.
 ${selector:+Implementation target: ${selector}.}
 CRITICAL: If tests fail after your changes, fix them. 99% of test failures are caused by your changes, not by pre-existing breakage. Do not blame external causes, do not skip tests, do not commit with failing tests. Fix the code or fix the test. Retry up to 3 times before giving up. Never commit broken work.
@@ -484,7 +893,7 @@ Execute the following HELIX implementation action for ${issue_count} related iss
 $(inline_action "${helix_docs_root}/actions/implementation.md")
 Use supporting references at ${helix_docs_root}/README.md and ${helix_docs_root}/phases/04-build/enforcer.md as needed.
 Execute in the current repository rooted at ${target_root}.
-Issue tracker: built-in JSONL at ${tracker_file}. Use \`helix tracker\` subcommands.
+Issue tracker: built-in JSONL at ${tracker_file} (legacy: .ddx/issues.jsonl). Use \`helix tracker\` subcommands.
 
 BATCH MODE: Implement these ${issue_count} related issues sequentially in this session:
 $(printf '%s\n' "$issues" | while read -r id; do
@@ -511,7 +920,7 @@ Execute the following HELIX check action.
 $(inline_action "${helix_docs_root}/actions/check.md")
 Use supporting references at ${helix_docs_root}/README.md as needed.
 Execute in the current repository rooted at ${target_root}.
-Issue tracker: built-in JSONL at ${tracker_file}. Use \`helix tracker ready --json\`, \`helix tracker list --json\`, \`helix tracker blocked --json\`.
+Issue tracker: built-in JSONL at ${tracker_file} (legacy: .ddx/issues.jsonl). Use \`helix tracker ready --json\`, \`helix tracker list --json\`, \`helix tracker blocked --json\`.
 Review scope: ${scope}.
 CRITICAL: Your output MUST contain the line "NEXT_ACTION: CODE" where CODE is one of BUILD, DESIGN, POLISH, ALIGN, BACKFILL, WAIT, GUIDANCE, or STOP. This line must appear on its own, not inside a code block or backticks. Without this line the automation cannot continue. Output this line FIRST, before any other analysis.
 Follow the action exactly. Do the work — do not just describe what you would do.
@@ -525,7 +934,7 @@ Execute the following HELIX alignment action.
 $(inline_action "${helix_docs_root}/actions/reconcile-alignment.md")
 Use supporting references at ${helix_docs_root}/README.md and ${helix_docs_root}/templates/alignment-review.md as needed.
 Execute in the current repository rooted at ${target_root}.
-Issue tracker: built-in JSONL at ${tracker_file}. Use \`helix tracker\` subcommands.
+Issue tracker: built-in JSONL at ${tracker_file} (legacy: .ddx/issues.jsonl). Use \`helix tracker\` subcommands.
 Review scope: ${scope}.
 Follow the action exactly. Do the work — do not just describe what you would do.
 EOF
@@ -538,7 +947,7 @@ Execute the following HELIX backfill action.
 $(inline_action "${helix_docs_root}/actions/backfill-helix-docs.md")
 Use supporting references at ${helix_docs_root}/README.md and ${helix_docs_root}/templates/backfill-report.md as needed.
 Execute in the current repository rooted at ${target_root}.
-Issue tracker: built-in JSONL at ${tracker_file}. Use \`helix tracker\` subcommands.
+Issue tracker: built-in JSONL at ${tracker_file} (legacy: .ddx/issues.jsonl). Use \`helix tracker\` subcommands.
 This is a writable live session: run real tracker commands, update docs/helix/, and do not claim that you need another session unless a concrete command actually fails.
 Backfill scope: ${scope}.
 Return the required BACKFILL_STATUS, BACKFILL_REPORT, and RESEARCH_EPIC trailer lines exactly.
@@ -553,7 +962,7 @@ Execute the following HELIX frame action.
 $(inline_action "${helix_docs_root}/actions/frame.md")
 Use artifact templates at ${helix_docs_root}/phases/00-discover/artifacts/ and ${helix_docs_root}/phases/01-frame/artifacts/ as needed.
 Execute in the current repository rooted at ${target_root}.
-Issue tracker: built-in JSONL at ${tracker_file}. Use \`helix tracker\` subcommands.
+Issue tracker: built-in JSONL at ${tracker_file} (legacy: .ddx/issues.jsonl). Use \`helix tracker\` subcommands.
 Frame scope: ${scope:-repo}.
 Follow the action exactly. Do the work — do not just describe what you would do.
 EOF
@@ -586,7 +995,7 @@ Execute the following HELIX polish action.
 $(inline_action "${helix_docs_root}/actions/polish.md")
 Use supporting references at ${helix_docs_root}/README.md as needed.
 Execute in the current repository rooted at ${target_root}.
-Issue tracker: built-in JSONL at ${tracker_file}. Use \`helix tracker\` subcommands.
+Issue tracker: built-in JSONL at ${tracker_file} (legacy: .ddx/issues.jsonl). Use \`helix tracker\` subcommands.
 Polish scope: ${scope:-all open issues}.
 Maximum refinement rounds: ${rounds}.
 Follow the action exactly. Do the work — do not just describe what you would do.
@@ -600,7 +1009,7 @@ review_prompt() {
 Execute the following HELIX fresh-eyes review action.
 $(inline_action "${helix_docs_root}/actions/fresh-eyes-review.md")
 Execute in the current repository rooted at ${target_root}.
-Issue tracker: built-in JSONL at ${tracker_file}. Use \`helix tracker\` subcommands.
+Issue tracker: built-in JSONL at ${tracker_file} (legacy: .ddx/issues.jsonl). Use \`helix tracker\` subcommands.
 Review scope: ${scope}.
 ${in_loop:+This review is running inside the automated helix run loop after an implementation cycle.}
 IMPORTANT: File each actionable finding (critical, high, medium severity) as a tracker issue with label \`review-finding\` so findings are durable and queryable via \`helix tracker list --label review-finding\`. See the "Filing Findings as Tracker Issues" section in the action for the exact command pattern.
@@ -616,7 +1025,7 @@ Execute the following HELIX experiment action.
 $(inline_action "${helix_docs_root}/actions/experiment.md")
 Use supporting references at ${helix_docs_root}/README.md and ${helix_docs_root}/ratchets.md as needed.
 Execute in the current repository rooted at ${target_root}.
-Issue tracker: built-in JSONL at ${tracker_file}. Use \`helix tracker\` subcommands.
+Issue tracker: built-in JSONL at ${tracker_file} (legacy: .ddx/issues.jsonl). Use \`helix tracker\` subcommands.
 Experiment target: ${target:-auto-select from ready phase:iterate issues}.
 $([ "${close}" = "1" ] && echo 'CLOSE SESSION: Execute Phase 3 (Session Close) — squash-merge the experiment branch, update ratchet floors, and close the issue. Do not run another iteration.')
 Follow the action exactly. Do the work — do not just describe what you would do.
@@ -652,7 +1061,7 @@ Execute the following HELIX evolve action.
 $(inline_action "${helix_docs_root}/actions/evolve.md")
 Use supporting references at ${helix_docs_root}/README.md as needed.
 Execute in the current repository rooted at ${target_root}.
-Issue tracker: built-in JSONL at ${tracker_file}. Use \`helix tracker\` subcommands.
+Issue tracker: built-in JSONL at ${tracker_file} (legacy: .ddx/issues.jsonl). Use \`helix tracker\` subcommands.
 Requirement: ${requirement}
 ${scope:+Scope: ${scope}.}
 ${artifact:+Target artifact: ${artifact}.}
@@ -1329,7 +1738,7 @@ or revert it cleanly.
 
 Read and follow the action at ${helix_docs_root}/actions/implementation.md.
 Execute in the current repository rooted at ${target_root}.
-Issue tracker: built-in JSONL at ${tracker_file}. Use \`helix tracker\` subcommands.
+Issue tracker: built-in JSONL at ${tracker_file} (legacy: .ddx/issues.jsonl). Use \`helix tracker\` subcommands.
 
 ISSUE STATE:
 ${issue_info}
