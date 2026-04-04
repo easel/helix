@@ -12,7 +12,7 @@ passes, how to decide whether more work remains, and how the HELIX wrapper
 controls the queue.
 
 For tracker integration, labels, `spec-id`, and `helix tracker` conventions,
-see [TRACKER.md](TRACKER.md).
+see `helix tracker --help` (DDx FEAT-004).
 
 ## Scope
 

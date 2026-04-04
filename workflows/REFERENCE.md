@@ -10,7 +10,7 @@ dun:
 
 - [README.md](README.md): high-level model and authority order
 - [EXECUTION.md](EXECUTION.md): queue control and operator loop
-- [TRACKER.md](TRACKER.md): built-in tracker mapping, backend contract, and labels
+- Tracker conventions: `helix tracker --help` (DDx FEAT-004)
 - [implementation.md](actions/implementation.md): one bounded execution pass
 - [check.md](actions/check.md): queue-drain decision
 - [reconcile-alignment.md](actions/reconcile-alignment.md): top-down review
@@ -104,7 +104,7 @@ helix tracker import --from jsonl --file .beads/issues.jsonl
 helix tracker export
 ```
 
-See [TRACKER.md](TRACKER.md) for full tracker conventions and setup guidance.
+See `helix tracker --help` for full tracker conventions and setup guidance.
 
 ## Tracker Labeling
 

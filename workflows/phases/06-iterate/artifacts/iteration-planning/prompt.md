@@ -16,7 +16,7 @@ Plan the next iteration by selecting a small coherent set of backlog issues.
 Keep the plan focused on scope, goals, sequencing, required canonical updates, risks, and measurable success criteria. Express in-scope work as issue IDs, not prose task lists.
 
 Use the template at `workflows/phases/06-iterate/artifacts/iteration-planning/template.md`.
-Use HELIX tracker guidance at `workflows/TRACKER.md`.
+For tracker conventions see `helix tracker --help`.
 
 ## Completion Criteria
 - [ ] Scope is well-defined

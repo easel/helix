@@ -93,7 +93,7 @@ When working on HELIX itself in this repo:
 
 - top-level overview: `workflows/README.md`
 - operator loop and automation: `workflows/EXECUTION.md`
-- tracker conventions: `workflows/TRACKER.md`
+- tracker conventions: `helix tracker --help` (DDx FEAT-004)
 - command summary: `workflows/REFERENCE.md`
 
 Key rules:

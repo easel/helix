@@ -16,6 +16,6 @@ claude -p \
 
 - when updating the HELIX operator flow, also check:
   - `workflows/EXECUTION.md`
-  - `workflows/TRACKER.md`
+  - `helix tracker --help` (tracker conventions now in DDx FEAT-004)
   - `workflows/ratchets.md`
   - `tests/helix-cli.sh`

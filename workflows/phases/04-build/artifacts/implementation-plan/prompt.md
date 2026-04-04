@@ -23,4 +23,4 @@ Create the canonical build plan for the Build phase. Keep it short, but preserve
 ## Template
 
 `workflows/phases/04-build/artifacts/implementation-plan/template.md`
-Tracker guidance: `workflows/TRACKER.md`
+For tracker conventions see `helix tracker --help`.

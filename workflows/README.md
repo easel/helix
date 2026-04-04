@@ -6,7 +6,7 @@ dun:
 
 A test-driven development workflow with AI-assisted collaboration for building high-quality software iteratively.
 
-> **Quick Links**: [DDx Methodology](DDX.md) | [Quick Start Guide](QUICKSTART.md) | [Visual Overview](diagrams/workflow-overview.md) | [Reference Card](REFERENCE.md) | [Execution Guide](EXECUTION.md) | [Artifact Flow](diagrams/artifact-flow.md) | [Tracker](TRACKER.md) | [Quality Ratchets](ratchets.md)
+> **Quick Links**: [DDx Methodology](DDX.md) | [Quick Start Guide](QUICKSTART.md) | [Visual Overview](diagrams/workflow-overview.md) | [Reference Card](REFERENCE.md) | [Execution Guide](EXECUTION.md) | [Artifact Flow](diagrams/artifact-flow.md) | [Quality Ratchets](ratchets.md)
 
 ## Overview
 
@@ -34,7 +34,7 @@ Treat the following files as the canonical HELIX workflow contract:
 - [DDX.md](DDX.md) for the DDx methodology, artifact graph, and evolution model
 - [README.md](README.md) for the high-level workflow model and authority order
 - [EXECUTION.md](EXECUTION.md) for operator flow, queue control, and loop behavior
-- [TRACKER.md](TRACKER.md) for built-in tracker mapping, labels, and execution tracking
+- DDx FEAT-004 (beads) for work-item storage, CRUD, and dependency management
 - [check.md](actions/check.md) for queue-drain decisions
 - [implementation.md](actions/implementation.md) for bounded execution work
 - [reconcile-alignment.md](actions/reconcile-alignment.md) for top-down reconciliation
@@ -187,7 +187,7 @@ When HELIX artifacts disagree, resolve the conflict using this authority order:
 The built-in tracker is HELIX's execution layer. Issues are stored in
 `.helix/issues.jsonl` and managed via `helix tracker` subcommands.
 
-- HELIX tracker guide: [TRACKER.md](TRACKER.md)
+- HELIX tracker guide: `helix tracker --help` (DDx FEAT-004)
 
 - Issues are governed by the HELIX authority stack.
 - Issues must cite the canonical artifacts that authorize the work.

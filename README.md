@@ -119,7 +119,7 @@ Start with:
 
 - [Workflow Overview](workflows/README.md)
 - [Execution Guide](workflows/EXECUTION.md)
-- [Tracker Guide](workflows/TRACKER.md)
+- Tracker: `helix tracker --help` (conventions in DDx FEAT-004)
 - [Reference Card](workflows/REFERENCE.md)
 
 ## Tracker

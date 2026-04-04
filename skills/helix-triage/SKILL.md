@@ -77,7 +77,6 @@ When an epic or large task needs breakdown:
 
 ## References
 
-- Tracker conventions: `workflows/TRACKER.md`
-- Label taxonomy: `workflows/TRACKER.md` (Labels section)
+- Tracker conventions: `helix tracker --help` (DDx FEAT-004)
 - Implementation action: `workflows/actions/implementation.md`
 - CLI: `helix tracker create --help`

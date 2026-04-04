@@ -15,7 +15,7 @@ Read these files in order when you need the canonical contract:
 
 1. [README.md](README.md)
 2. [EXECUTION.md](EXECUTION.md)
-3. [TRACKER.md](TRACKER.md)
+3. `helix tracker --help` (tracker conventions; DDx FEAT-004)
 
 Use the bounded action prompts only when you are doing the corresponding work:
 
@@ -84,7 +84,7 @@ Build, deploy, and iterate execution work should:
 - cite the governing docs with `spec-id` and/or description
 - stay small enough to close independently
 
-See [TRACKER.md](TRACKER.md) for the mapping and examples.
+See `helix tracker --help` for the mapping and examples.
 
 ## Run The Queue
 
@@ -126,7 +126,7 @@ helix check
 - Need queue behavior:
   Read [EXECUTION.md](EXECUTION.md).
 - Need tracker labels or issue examples:
-  Read [TRACKER.md](TRACKER.md).
+  Run `helix tracker --help`.
 - Need a top-down audit:
   Run alignment with [reconcile-alignment.md](actions/reconcile-alignment.md).
 - Need missing docs reconstructed:

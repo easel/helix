@@ -20,7 +20,7 @@ When conventions and execution guidance disagree, follow:
 
 1. [README.md](README.md)
 2. [EXECUTION.md](EXECUTION.md)
-3. [TRACKER.md](TRACKER.md)
+3. `helix tracker --help` (tracker conventions; DDx FEAT-004)
 4. the bounded action prompts under `workflows/actions/`
 
 ## Skill Resource Boundary
@@ -155,8 +155,8 @@ The parking lot is a project-level registry for deferred and future work:
 Issues capture scoped work that can be opened, updated, split, blocked, and
 closed without changing the canonical authority stack.
 
-HELIX uses a built-in JSONL tracker. See [TRACKER.md](TRACKER.md) for full
-conventions and command patterns.
+HELIX uses a built-in JSONL tracker. See `helix tracker --help` for
+conventions and command patterns (DDx FEAT-004).
 
 ### When to Use Issues
 

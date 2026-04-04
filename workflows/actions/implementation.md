@@ -60,7 +60,7 @@ Rules:
 
 Use the built-in tracker only. Follow:
 
-- `workflows/TRACKER.md`
+- See `helix tracker --help` for tracker conventions
 
 Issues are stored in `.helix/issues.jsonl`.
 

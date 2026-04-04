@@ -3,7 +3,7 @@
 Story deployment work is stored as deploy issues, not markdown deployment plans.
 
 Use `helix tracker create`, `helix tracker update`, and `helix tracker ready`.
-See `workflows/TRACKER.md`.
+See `helix tracker --help` for tracker conventions.
 
 ## Required Story Deploy Issue Mapping
 

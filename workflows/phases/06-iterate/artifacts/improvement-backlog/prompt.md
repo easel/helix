@@ -20,8 +20,7 @@ In the index, prioritize the issues and note which ones need canonical artifact 
 Use the index template at:
 `workflows/phases/06-iterate/artifacts/improvement-backlog/template.md`
 
-Use tracker guidance at:
-`workflows/TRACKER.md`
+For tracker conventions see `helix tracker --help`.
 
 ## Completion Criteria
 - [ ] All improvement sources reviewed

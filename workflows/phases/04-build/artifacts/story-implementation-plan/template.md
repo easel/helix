@@ -3,7 +3,7 @@
 Story implementation work is tracked as build issues, not markdown plans.
 
 Use `helix tracker create`, `helix tracker update`, and `helix tracker ready`.
-See `workflows/TRACKER.md`.
+See `helix tracker --help` for tracker conventions.
 
 ## Required Issue Fields
 

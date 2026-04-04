@@ -25,7 +25,7 @@ Reference docs:
 
 - `workflows/actions/reconcile-alignment.md`
 - `workflows/templates/alignment-review.md`
-- `workflows/TRACKER.md`
+- Tracker conventions: `helix tracker --help` (DDx FEAT-004)
 
 ## Core Rules
 

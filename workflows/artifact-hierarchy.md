@@ -28,7 +28,7 @@ traceability. It does not define ready-queue logic, loop control, or how to
 select execution work.
 
 For execution behavior, follow [EXECUTION.md](EXECUTION.md) and the bounded
-action prompts. For tracker conventions, follow [TRACKER.md](TRACKER.md).
+action prompts. For tracker conventions, see `helix tracker --help` (DDx FEAT-004).
 
 ## Canonical Authority Order
 

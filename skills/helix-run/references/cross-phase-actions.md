@@ -14,7 +14,6 @@ Use when:
 Reference docs:
 
 - `workflows/actions/check.md`
-- `workflows/TRACKER.md`
 
 Key rules:
 
@@ -36,8 +35,6 @@ Reference docs:
 
 - `workflows/actions/backfill-helix-docs.md`
 - `workflows/templates/backfill-report.md`
-- `workflows/TRACKER.md`
-
 Key rules:
 
 - research first
@@ -58,8 +55,6 @@ Reference docs:
 
 - `workflows/actions/reconcile-alignment.md`
 - `workflows/templates/alignment-review.md`
-- `workflows/TRACKER.md`
-
 Key rules:
 
 - review top-down

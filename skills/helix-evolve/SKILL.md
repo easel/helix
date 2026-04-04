@@ -65,4 +65,4 @@ helix evolve "Defer SD-026 bridge adapters to post-V1"
 - Action prompt: `workflows/actions/evolve.md`
 - Authority order: `workflows/actions/implementation.md` (Authority Order section)
 - Triage validation: `scripts/tracker.sh` (tracker_validate_create)
-- Tracker conventions: `workflows/TRACKER.md`
+- Tracker conventions: see `helix tracker --help` (DDx FEAT-004)

@@ -59,12 +59,11 @@ Issues are stored in `.helix/issues.jsonl`.
 - Use `helix tracker` issues, dependencies, parents, `spec-id`, and labels.
 - Do not invent custom issue files or custom status taxonomies.
 - Recommended labels: `helix`, plus phase/kind/traceability labels as needed.
-- See `workflows/TRACKER.md` for helix tracker command mapping.
+- See `helix tracker --help` for tracker command mapping.
 
 Reference docs (read as needed):
 
 - `workflows/README.md`
-- `workflows/TRACKER.md`
 - `workflows/actions/check.md` when the user wants queue health or the next action
 - `workflows/actions/implementation.md` when the user wants ready build work executed
 - relevant phase README and artifact prompts/templates
