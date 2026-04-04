@@ -4,69 +4,69 @@ dun:
   depends_on:
     - helix.workflow
 ---
-# HELIX Workflow Principles
+# HELIX Design Principles
 
 ## Purpose
-These principles define the immutable rules that govern the HELIX workflow, ensuring consistent, high-quality AI-assisted development.
 
-## Core Principles
+These principles guide judgment calls during design, implementation, and review.
+They are defaults — a project should override them with its own principles file
+at `docs/helix/01-frame/principles.md`. When no project file exists, HELIX loads
+these defaults.
 
-### Principle 1: Specification Completeness
-**No implementation shall begin with ambiguous specifications.**
-- All requirements must be clear and testable
-- Ambiguities must be marked with [NEEDS CLARIFICATION]
-- These markers must be resolved before proceeding to Design
+Principles guide decisions; they are not workflow rules. Process enforcement
+belongs in phase enforcers and ratchets.
 
-### Principle 2: Test-First Development
-**Tests must be written and confirmed failing before implementation code.**
-- Contract tests define external behavior
-- Integration tests verify component interaction  
-- Unit tests validate internal logic
-- Implementation only begins after tests are failing
+## Principles
 
-### Principle 3: Simplicity First
-**Start with the minimal viable solution.**
-- Initial implementations use ≤3 major components
-- Additional complexity requires documented justification
-- Avoid premature optimization and over-engineering
+### Design for Change
 
-### Principle 4: Observable Interfaces
-**Every component must expose testable interfaces.**
-- All functionality must be verifiable
-- No hidden state that affects behavior
-- Prefer explicit over implicit
+Build for modification, not perfection. Prefer structures that are easy to
+replace or extend over structures that are clever but rigid. When a design
+choice makes future changes harder, that cost should be explicit and justified.
 
-### Principle 5: Continuous Validation
-**Validation happens continuously, not just at phase gates.**
-- Specifications checked for consistency
-- Implementation checked against specifications
-- Tests checked for coverage and quality
+### Design for Simplicity
 
-### Principle 6: Feedback Integration
-**Production experience flows back into specifications.**
-- Metrics inform requirement updates
-- Incidents become test cases
-- Learnings improve next iteration
+Start with the minimal structure that could work. Additional components,
+layers, or abstractions require documented justification. Complexity that
+serves no current requirement is waste — remove it.
 
-## Enforcement
+### Validate Your Work
 
-These principles are enforced through:
-1. **Input Gates**: Check compliance before phase entry
-2. **Templates**: Include principle checklists
-3. **Prompts**: Reference principles in AI guidance
-4. **Actions**: Validate adherence during execution
+Decisions should be testable. If you cannot describe how you would know whether
+a design choice is working, the choice is not complete. Prefer designs that
+surface their own health.
 
-## Exceptions
+### Make Intent Explicit
 
-When principles must be violated:
-1. Document the specific reason
-2. Identify the principle being excepted
-3. Define when the exception can be removed
-4. Track in phase documentation
+Code, configs, and documents should say what they mean. Avoid implicit
+conventions, magic values, and behavior that depends on undocumented ordering.
+When intent is ambiguous, name it.
 
-## Evolution
+### Prefer Reversible Decisions
 
-These principles are versioned with the workflow. Changes require:
-- Clear rationale for the change
-- Analysis of impact on existing projects
-- Version bump of the workflow
+When two options are otherwise equivalent, choose the one that is easier to
+undo. Commit to irreversible choices deliberately, with documented rationale.
+Reversibility buys options; irreversibility spends them.
+
+## Tension Resolution
+
+These principles can conflict. When they do, apply the principle whose
+violation would cause the worse outcome in context. Document the tension
+in the commit message or design note so future reviewers understand the
+trade-off.
+
+Common tensions:
+
+- **Simplicity vs. Validate Your Work**: the simplest design may not expose
+  good observability. Prefer validation unless the observability cost is
+  genuinely disproportionate.
+- **Design for Change vs. Simplicity**: extensibility points add structure.
+  Add them only when the change direction is known; do not extend for
+  hypothetical futures.
+
+## Size Guidance
+
+A principles document longer than ~12 items is likely a policy document, not a
+decision guide. At 8 items, consider whether all of them change decisions. At
+12, consider consolidating. At 15 or more, prune to the principles that
+actually changed your last five decisions.

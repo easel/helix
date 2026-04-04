@@ -15,14 +15,15 @@ justification.
 
 Ratchets operationalize three existing HELIX commitments:
 
-- **Principle 5 (Continuous Validation)**: "Tests checked for coverage and
-  quality" — ratchets make this check quantitative and persistent.
+- **Continuous Validation**: "Tests checked for coverage and quality" — ratchets
+  make this check quantitative and persistent. (Enforced by the Build phase
+  enforcer exit gate.)
 - **Build Phase Exit Gate**: "Coverage targets met" and "Performance targets
   met" — ratchets define *how* those targets are tracked and prevented from
   regressing.
-- **Principle 6 (Feedback Integration)**: "Metrics inform requirement
-  updates" — ratchet trends are iterate-phase inputs that feed back into the
-  next cycle.
+- **Feedback Integration**: "Metrics inform requirement updates" — ratchet
+  trends are iterate-phase inputs that feed back into the next cycle. (Enforced
+  by the Iterate phase enforcer.)
 
 ## Scope Boundary
 
@@ -207,7 +208,7 @@ Ratchet floor trends are iterate-phase metrics. The iterate phase should:
 - include floor deltas in iteration reports
 - use ratchet trends to prioritize next-cycle work (e.g., a stagnant coverage
   floor suggests the test strategy needs attention)
-- feed ratchet observations back into requirements updates per Principle 6
+- feed ratchet observations back into requirements updates (feedback integration)
 
 ## Override Protocol
 

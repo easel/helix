@@ -160,7 +160,7 @@ defines `autoresearch.checks.sh`, use that instead.
 
 The correctness check is mandatory. Tests MUST pass after every iteration. If
 tests fail, the experiment is discarded regardless of metric improvement. This
-is non-negotiable per Principle 2 (Test-First Development).
+is non-negotiable — tests must pass at every step.
 
 ### 1.6 Branch and Session Files
 
@@ -269,7 +269,7 @@ Apply the decision rules:
 - Do not delete untracked files created by the experiment; only revert
   tracked scoped files.
 
-**Simplicity preference** (Principle 3 — Simplicity First):
+**Simplicity preference**:
 - A change that removes code or reduces complexity for equal or better
   performance is always a keep.
 - A change that adds significant complexity for marginal improvement (below
