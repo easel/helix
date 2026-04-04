@@ -11,8 +11,9 @@ The Design phase transforms requirements from Frame into technical architecture,
 1. **Requirements First**: All designs must trace back to Frame requirements
 2. **Contract-Driven**: Define interfaces before implementations
 3. **Simplicity by Default**: Start with ≤3 major components, justify complexity
-4. **Document Extension**: Extend existing architecture docs when possible
-5. **No Implementation**: Design decisions only, no actual code
+4. **Observable Interfaces**: Design APIs and components to expose their own state and health; prefer testable surfaces over opaque internals
+5. **Document Extension**: Extend existing architecture docs when possible
+6. **No Implementation**: Design decisions only, no actual code
 
 ## Document Management Rules
 
@@ -106,7 +107,11 @@ Before creating new design docs:
 **Violation**: "This component might be useful"
 **Correction**: "Every component must trace to a Frame requirement."
 
-### 5. Implementation Details
+### 5. Opaque Interfaces
+**Violation**: "The component will return an error somehow if it fails"
+**Correction**: "Define the exact error contract: status codes, error types, observable failure modes. If you can't describe how to test it, the design is incomplete."
+
+### 6. Implementation Details
 **Violation**: "Here's the code for the validation logic"
 **Correction**: "Document validation rules and constraints. Code comes in Build."
 
