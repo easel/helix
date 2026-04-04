@@ -1,20 +1,21 @@
 #!/usr/bin/env bash
-# Built-in HELIX bead tracker.
-# Stores canonical issues in .helix/issues.jsonl — one JSON object per line.
-# Requires: jq
+# HELIX tracker — thin delegation layer over ddx bead.
+#
+# Provides tracker_* shell functions that scripts/helix calls.
+# Storage, locking, deps, import/export are all handled by ddx bead.
+# HELIX adds: triage validation, execution-eligible derivation, field mapping.
+#
+# Requires: ddx (on PATH), jq
 
-# ── paths ──────────────────────────────────────────────────────────────
+# ── ddx bead configuration ────────────────────────────────────────────
 tracker_dir="${HELIX_TRACKER_DIR:-${target_root:-.}/.helix}"
-tracker_file="${tracker_dir}/issues.jsonl"
-beads_dir="${HELIX_BEADS_DIR:-${target_root:-.}/.beads}"
-beads_file="${beads_dir}/issues.jsonl"
-tracker_lock_dir="${tracker_dir}/issues.lock"
-tracker_lock_timeout="${HELIX_TRACKER_LOCK_TIMEOUT:-10}"
-tracker_lock_poll_interval="${HELIX_TRACKER_LOCK_POLL_INTERVAL:-0.05}"
+tracker_file="${tracker_dir}/beads.jsonl"  # ddx bead canonical file
+export DDX_BEAD_DIR="$tracker_dir"
+# Per-project prefix: defaults to "hx", configurable via .helix/config or env
+export DDX_BEAD_PREFIX="${HELIX_BEAD_PREFIX:-hx}"
 
 tracker_init() {
-  mkdir -p "$tracker_dir"
-  touch "$tracker_file"
+  ddx bead init 2>/dev/null
 }
 
 tracker_ensure() {
@@ -23,150 +24,61 @@ tracker_ensure() {
   fi
 }
 
-tracker_acquire_lock() {
-  tracker_ensure
-
-  local start now owner
-  start="$(date +%s)"
-
-  while ! mkdir "$tracker_lock_dir" 2>/dev/null; do
-    now="$(date +%s)"
-    if (( now - start >= tracker_lock_timeout )); then
-      owner="unknown"
-      if [[ -f "${tracker_lock_dir}/pid" ]]; then
-        owner="$(cat "${tracker_lock_dir}/pid" 2>/dev/null || echo unknown)"
-      fi
-      echo "tracker: timed out waiting for tracker lock (owner: ${owner})" >&2
-      return 1
-    fi
-    sleep "$tracker_lock_poll_interval"
-  done
-
-  printf '%s\n' "$$" > "${tracker_lock_dir}/pid"
-  printf '%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "${tracker_lock_dir}/acquired_at"
-
-  if [[ -n "${HELIX_TRACKER_TEST_HOLD_LOCK_SEC:-}" ]]; then
-    sleep "${HELIX_TRACKER_TEST_HOLD_LOCK_SEC}"
-  fi
-}
-
-tracker_release_lock() {
-  if [[ -d "$tracker_lock_dir" ]]; then
-    rm -rf "$tracker_lock_dir"
-  fi
-}
-
-tracker_with_lock() {
-  tracker_acquire_lock || return 1
-  local status=0
-  "$@" || status=$?
-  tracker_release_lock
-  return "$status"
-}
-
-# ── ID generation ──────────────────────────────────────────────────────
-# Short hex hash: 8 chars from /dev/urandom
+# ── ID generation (delegate to ddx) ──────────────────────────────────
 tracker_gen_id() {
   local prefix="${1:-hx}"
   printf '%s-%s' "$prefix" "$(head -c4 /dev/urandom | od -An -tx1 | tr -d ' \n')"
 }
 
-# ── low-level read/write ──────────────────────────────────────────────
-# Read all issues as a JSON array
-tracker_read_all() {
-  tracker_ensure
-  if [[ ! -s "$tracker_file" ]]; then
-    printf '[]\n'
-  else
-    if ! jq -s '.' "$tracker_file"; then
-      echo "tracker: malformed tracker state: $tracker_file" >&2
-      return 1
-    fi
-  fi
-}
-
-# Write a JSON array back as JSONL (one object per line, sorted by id)
-tracker_write_all() {
-  local json="$1"
-  local tmp
-  tmp="$(mktemp "${tracker_dir}/issues.jsonl.tmp.XXXXXX")"
-  if ! printf '%s' "$json" | jq -e 'type == "array"' >/dev/null; then
-    rm -f "$tmp"
-    echo "tracker: refusing to write malformed tracker array" >&2
-    return 1
-  fi
-  if ! printf '%s' "$json" | jq -c '.[] | .' > "$tmp"; then
-    rm -f "$tmp"
-    echo "tracker: failed to serialize tracker state" >&2
-    return 1
-  fi
-  mv -f "$tmp" "$tracker_file"
-}
-
-tracker_write_jsonl_file() {
-  local json="$1"
-  local output_file="$2"
-  local output_dir
-  output_dir="$(dirname "$output_file")"
-  mkdir -p "$output_dir"
-  local tmp
-  tmp="$(mktemp "${output_dir}/issues.jsonl.tmp.XXXXXX")"
-  if ! printf '%s' "$json" | jq -e 'type == "array"' >/dev/null; then
-    rm -f "$tmp"
-    echo "tracker: refusing to export malformed tracker array" >&2
-    return 1
-  fi
-  if ! printf '%s' "$json" | jq -c '.[] | .' > "$tmp"; then
-    rm -f "$tmp"
-    echo "tracker: failed to serialize tracker export" >&2
-    return 1
-  fi
-  mv -f "$tmp" "$output_file"
-}
-
-tracker_normalize_issue_array() {
-  local issues_json="$1"
-  local now
-  now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-
-  printf '%s' "$issues_json" | jq --arg now "$now" '
-    def default_execution_eligible:
-      if (.labels | type) != "array" then false
-      else
-        ((.labels | index("phase:build")) != null) or
-        ((.labels | index("phase:deploy")) != null) or
-        ((.labels | index("phase:iterate")) != null)
-      end;
-    map({
-      id:          (.id // "hx-unknown"),
-      title:       (.title // "untitled"),
-      type:        (.type // "task"),
-      status:      (.status // "open"),
+# ── field mapping: ddx bead → HELIX tracker ──────────────────────────
+# DDx uses bd-compatible field names. HELIX code expects legacy names.
+# This jq filter converts ddx output to HELIX format.
+_ddx_to_helix_jq='
+  def to_helix:
+    {
+      id:          .id,
+      title:       .title,
+      type:        (.issue_type // "task"),
+      status:      .status,
       priority:    (.priority // 2),
-      labels:      (if (.labels | type) == "array" then .labels else [] end),
+      labels:      (.labels // []),
       parent:      (.parent // ""),
       "spec-id":   (.["spec-id"] // ""),
       description: (.description // ""),
       design:      (.design // ""),
       acceptance:  (.acceptance // ""),
-      deps:        (if (.deps | type) == "array" then .deps else [] end),
-      assignee:    (.assignee // ""),
+      deps:        ([(.dependencies // [])[] | .depends_on_id] // []),
+      assignee:    (.owner // ""),
       notes:       (.notes // ""),
-      "execution-eligible":
-                   (if .["execution-eligible"] == null then default_execution_eligible else .["execution-eligible"] end),
+      "execution-eligible": (.["execution-eligible"] // false),
       "superseded-by": (.["superseded-by"] // ""),
       replaces:    (.replaces // ""),
-      created:     (.created // $now),
-      updated:     (.updated // $now)
-    })
-  '
+      created:     (.created_at // ""),
+      updated:     (.updated_at // "")
+    }
+    # Preserve any extra fields not in the mapping
+    + (to_entries | map(select(
+        .key != "id" and .key != "title" and .key != "issue_type" and
+        .key != "status" and .key != "priority" and .key != "labels" and
+        .key != "parent" and .key != "description" and .key != "acceptance" and
+        .key != "notes" and .key != "owner" and .key != "dependencies" and
+        .key != "created_at" and .key != "updated_at" and .key != "created_by" and
+        .key != "design" and
+        # Skip fields already mapped above
+        .key != "spec-id" and .key != "execution-eligible" and
+        .key != "superseded-by" and .key != "replaces"
+      )) | from_entries);
+'
+
+_map_one() {
+  jq "$_ddx_to_helix_jq to_helix"
 }
 
-# ── triage validation ──────────────────────────────────────────────────
+_map_array() {
+  jq "$_ddx_to_helix_jq [.[] | to_helix]"
+}
 
-# Validate issue fields before creation.
-# Returns: 0=ok, 1=hard error (blocks creation), 2=warning (proceeds).
-# Errors/warnings printed to stderr with [triage] prefix.
+# ── triage validation (HELIX-specific) ────────────────────────────────
 tracker_validate_create() {
   local type="$1" labels="$2" spec_id="$3" acceptance="$4" deps="$5"
   local rc=0
@@ -184,20 +96,20 @@ tracker_validate_create() {
   case ",${labels}," in
     *,phase:frame,*|*,phase:design,*|*,phase:test,*|*,phase:build,*|*,phase:deploy,*|*,phase:iterate,*|*,phase:review,*) ;;
     *)
-      printf '[triage] error: missing phase label (phase:frame, phase:design, phase:test, phase:build, phase:deploy, phase:iterate, or phase:review)\n' >&2
+      printf '[triage] error: missing phase label\n' >&2
       rc=1
       ;;
   esac
 
   # Hard: spec-id required for tasks
   if [[ "$type" == "task" ]] && [[ -z "$spec_id" ]]; then
-    printf '[triage] error: tasks require --spec-id pointing to governing artifact\n' >&2
+    printf '[triage] error: tasks require --spec-id\n' >&2
     rc=1
   fi
 
   # Hard: acceptance required for tasks and epics
   if [[ "$type" == "task" || "$type" == "epic" ]] && [[ -z "$acceptance" ]]; then
-    printf '[triage] error: %s issues require --acceptance criteria\n' "$type" >&2
+    printf '[triage] error: %s issues require --acceptance\n' "$type" >&2
     rc=1
   fi
 
@@ -205,7 +117,7 @@ tracker_validate_create() {
   if [[ -n "$deps" ]]; then
     local dep
     for dep in ${deps//,/ }; do
-      if ! tracker_show "$dep" --json >/dev/null 2>&1; then
+      if ! ddx bead show "$dep" --json >/dev/null 2>&1; then
         printf '[triage] error: dependency %s does not exist\n' "$dep" >&2
         rc=1
       fi
@@ -217,7 +129,7 @@ tracker_validate_create() {
     case ",${labels}," in
       *,kind:*) ;;
       *)
-        printf '[triage] warning: consider adding a kind label (kind:build, kind:implementation, etc.)\n' >&2
+        printf '[triage] warning: consider adding a kind label\n' >&2
         (( rc == 0 )) && rc=2
         ;;
     esac
@@ -226,57 +138,12 @@ tracker_validate_create() {
   return "$rc"
 }
 
-# Validate issue fields before update.
-# Only checks fields that are being changed.
-tracker_validate_update() {
-  local id="$1"
-  shift
-  local labels="" deps=""
-  while [[ $# -gt 0 ]]; do
-    case "$1" in
-      --labels)  labels="$2"; shift 2 ;;
-      --deps)    deps="$2"; shift 2 ;;
-      *)         shift 2 2>/dev/null || shift ;;
-    esac
-  done
-
-  local rc=0
-
-  # If labels are being changed, validate helix label is present
-  if [[ -n "$labels" ]]; then
-    case ",${labels}," in
-      *,helix,*) ;;
-      *)
-        printf '[triage] error: cannot remove required "helix" label\n' >&2
-        rc=1
-        ;;
-    esac
-  fi
-
-  # Validate dep references if deps are being changed
-  if [[ -n "$deps" ]]; then
-    local dep
-    for dep in ${deps//,/ }; do
-      if [[ "$dep" == "$id" ]]; then
-        printf '[triage] error: circular dependency: %s depends on itself\n' "$id" >&2
-        rc=1
-      elif ! tracker_show "$dep" --json >/dev/null 2>&1; then
-        printf '[triage] error: dependency %s does not exist\n' "$dep" >&2
-        rc=1
-      fi
-    done
-  fi
-
-  return "$rc"
-}
-
-# ── create ─────────────────────────────────────────────────────────────
-tracker_create_impl() {
-  tracker_ensure
-  need_cmd jq
-
-  local title="" type="task" labels="" deps="" parent="" spec_id="" description="" design="" acceptance="" priority=2
+# ── create ────────────────────────────────────────────────────────────
+tracker_create() {
+  local title="" type="task" labels="" deps="" parent="" spec_id=""
+  local description="" design="" acceptance="" priority=2
   local execution_eligible="" superseded_by="" replaces=""
+
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --type)       type="$2"; shift 2 ;;
@@ -291,7 +158,7 @@ tracker_create_impl() {
       --execution-eligible) execution_eligible="$2"; shift 2 ;;
       --superseded-by) superseded_by="$2"; shift 2 ;;
       --replaces)   replaces="$2"; shift 2 ;;
-      --silent)     shift ;; # compat: just suppress extra output
+      --silent)     shift ;;
       -h|--help|help) tracker_usage; return 0 ;;
       *)            title="$1"; shift ;;
     esac
@@ -302,7 +169,7 @@ tracker_create_impl() {
     return 1
   fi
 
-  # Triage validation (skip with HELIX_SKIP_TRIAGE=1 for internal ops)
+  # Triage validation
   if [[ "${HELIX_SKIP_TRIAGE:-0}" != "1" ]]; then
     local _triage_rc=0
     tracker_validate_create "$type" "$labels" "$spec_id" "$acceptance" "$deps" || _triage_rc=$?
@@ -310,442 +177,225 @@ tracker_create_impl() {
       printf '[triage] issue not created — fix the errors above\n' >&2
       return 1
     fi
-    # rc=2 is advisory warning, proceed with creation
   fi
 
-  local id
-  id="$(tracker_gen_id hx)"
-
-  local labels_json
-  if [[ -n "$labels" ]]; then
-    labels_json="$(printf '%s' "$labels" | jq -R 'split(",")')"
-  else
-    labels_json='[]'
-  fi
-
-  local deps_json
-  if [[ -n "$deps" ]]; then
-    deps_json="$(printf '%s' "$deps" | jq -R 'split(",")')"
-  else
-    deps_json='[]'
-  fi
-
+  # Derive execution-eligible from phase labels if not set
   if [[ -z "$execution_eligible" ]]; then
     case ",${labels}," in
       *,phase:build,*|*,phase:deploy,*|*,phase:iterate,*)
-        execution_eligible="true"
-        ;;
+        execution_eligible="true" ;;
       *)
-        execution_eligible="false"
-        ;;
+        execution_eligible="false" ;;
     esac
   fi
 
-  case "$execution_eligible" in
-    true|false)
-      ;;
-    *)
-      echo "tracker: --execution-eligible must be true or false" >&2
-      return 1
-      ;;
-  esac
+  # Build ddx bead create command
+  local -a cmd=(ddx bead create "$title" --type "$type" --priority "$priority")
+  [[ -n "$labels" ]]      && cmd+=(--labels "$labels")
+  [[ -n "$parent" ]]      && cmd+=(--parent "$parent")
+  [[ -n "$description" ]] && cmd+=(--description "$description")
+  [[ -n "$acceptance" ]]  && cmd+=(--acceptance "$acceptance")
 
-  local now
-  now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  # HELIX-specific fields go into --set
+  [[ -n "$spec_id" ]]     && cmd+=(--set "spec-id=$spec_id")
+  [[ -n "$design" ]]      && cmd+=(--set "design=$design")
+  [[ -n "$execution_eligible" ]] && cmd+=(--set "execution-eligible=$execution_eligible")
+  [[ -n "$superseded_by" ]] && cmd+=(--set "superseded-by=$superseded_by")
+  [[ -n "$replaces" ]]    && cmd+=(--set "replaces=$replaces")
 
-  local obj
-  obj="$(jq -n \
-    --arg id "$id" \
-    --arg title "$title" \
-    --arg type "$type" \
-    --arg status "open" \
-    --argjson priority "$priority" \
-    --argjson labels "$labels_json" \
-    --argjson deps "$deps_json" \
-    --arg parent "$parent" \
-    --arg spec_id "$spec_id" \
-    --arg description "$description" \
-    --arg design "$design" \
-    --arg acceptance "$acceptance" \
-    --argjson execution_eligible "$execution_eligible" \
-    --arg superseded_by "$superseded_by" \
-    --arg replaces "$replaces" \
-    --arg created "$now" \
-    --arg updated "$now" \
-    '{
-      id: $id,
-      title: $title,
-      type: $type,
-      status: $status,
-      priority: $priority,
-      labels: $labels,
-      deps: $deps,
-      parent: $parent,
-      "spec-id": $spec_id,
-      description: $description,
-      design: $design,
-      acceptance: $acceptance,
-      assignee: "",
-      notes: "",
-      "execution-eligible": $execution_eligible,
-      "superseded-by": $superseded_by,
-      replaces: $replaces,
-      created: $created,
-      updated: $updated
-    }'
-  )"
+  # Add deps
+  local id
+  id="$("${cmd[@]}" 2>/dev/null)" || return 1
 
-  local all updated
-  all="$(tracker_read_all)" || return 1
-  updated="$(printf '%s' "$all" | jq --argjson obj "$obj" '. + [$obj]')"
-  tracker_write_all "$updated"
+  # Wire dependencies
+  if [[ -n "$deps" ]]; then
+    local dep
+    for dep in ${deps//,/ }; do
+      ddx bead dep add "$id" "$dep" 2>/dev/null || true
+    done
+  fi
+
   printf '%s\n' "$id"
 }
 
-tracker_create() {
-  tracker_with_lock tracker_create_impl "$@"
-}
-
-# ── show ───────────────────────────────────────────────────────────────
+# ── show ──────────────────────────────────────────────────────────────
 tracker_show() {
   local id="$1"
   local json_flag=0
   [[ "${2:-}" == "--json" ]] && json_flag=1
 
-  tracker_ensure
-  local issue
-  issue="$(jq -c "select(.id == \"$id\")" "$tracker_file" | head -1)"
-
-  if [[ -z "$issue" ]]; then
+  local raw
+  raw="$(ddx bead show "$id" --json 2>/dev/null)" || {
     echo "tracker: issue not found: $id" >&2
     return 1
-  fi
+  }
 
   if (( json_flag )); then
-    printf '%s\n' "$issue" | jq '.'
+    printf '%s' "$raw" | _map_one
   else
-    printf '%s\n' "$issue" | jq -r '
-      "[\(.status)] \(.id) (\(.type)) — \(.title)\n" +
-      (if .description != "" then "  Description: \(.description)\n" else "" end) +
-      (if .design != "" then "  Design: \(.design)\n" else "" end) +
-      (if .acceptance != "" then "  Acceptance: \(.acceptance)\n" else "" end) +
-      (if (.labels | length) > 0 then "  Labels: \(.labels | join(", "))\n" else "" end) +
-      (if (.deps | length) > 0 then "  Deps: \(.deps | join(", "))\n" else "" end) +
-      (if .parent != "" then "  Parent: \(.parent)\n" else "" end) +
-      (if .["execution-eligible"] != null then "  Execution Eligible: \(.["execution-eligible"])\n" else "" end) +
-      (if .["superseded-by"] != "" then "  Superseded By: \(.["superseded-by"])\n" else "" end) +
-      (if .replaces != "" then "  Replaces: \(.replaces)\n" else "" end) +
-      (if .assignee != "" then "  Assignee: \(.assignee)\n" else "" end) +
-      (if .["spec-id"] != "" then "  Spec: \(.["spec-id"])\n" else "" end)
+    local mapped
+    mapped="$(printf '%s' "$raw" | _map_one)"
+    printf '%s\n' "$mapped" | jq -r '
+      "[" + .status + "] " + .id + " (" + .type + ") — " + .title,
+      (if .description != "" then "  Description: " + .description else empty end),
+      (if .acceptance != "" then "  Acceptance: " + .acceptance else empty end),
+      (if (.labels | length) > 0 then "  Labels: " + (.labels | join(", ")) else empty end),
+      (if (.deps | length) > 0 then "  Deps: " + (.deps | join(", ")) else empty end),
+      (if .parent != "" then "  Parent: " + .parent else empty end),
+      (if .["execution-eligible"] then "  Execution Eligible: true" else empty end),
+      (if .["spec-id"] != "" then "  Spec: " + .["spec-id"] else empty end)
     '
   fi
 }
 
-# ── update ─────────────────────────────────────────────────────────────
-tracker_update_impl() {
-  tracker_ensure
-  need_cmd jq
+# ── update ────────────────────────────────────────────────────────────
+tracker_update() {
+  local id="$1"
+  shift
 
-  local id="$1"; shift
-  local updates=()
-  local claim=0
+  local -a cmd=(ddx bead update "$id")
+  local claim=0 unclaim=0
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --status)      updates+=(".status = \"$2\""); shift 2 ;;
-      --title)       updates+=(".title = \"$2\""); shift 2 ;;
-      --assignee)    updates+=(".assignee = \"$2\""); shift 2 ;;
-      --spec-id)     updates+=(".[\"spec-id\"] = \"$2\""); shift 2 ;;
-      --parent)      updates+=(".parent = \"$2\""); shift 2 ;;
-      --description) updates+=(".description = \"$2\""); shift 2 ;;
-      --design)      updates+=(".design = \"$2\""); shift 2 ;;
-      --acceptance)  updates+=(".acceptance = \"$2\""); shift 2 ;;
-      --notes)       updates+=(".notes = \"$2\""); shift 2 ;;
-      --priority)    updates+=(".priority = $2"); shift 2 ;;
-      --execution-eligible)
-        case "$2" in
-          true|false)
-            updates+=(".[\"execution-eligible\"] = $2")
-            ;;
-          *)
-            echo "tracker: --execution-eligible must be true or false" >&2
-            return 1
-            ;;
-        esac
-        shift 2
-        ;;
-      --superseded-by) updates+=(".[\"superseded-by\"] = \"$2\""); shift 2 ;;
-      --replaces)    updates+=(".replaces = \"$2\""); shift 2 ;;
-      --labels)
-        local lj
-        lj="$(jq -Rn --arg v "$2" '$v | if length == 0 then [] else split(",") end')"
-        updates+=(".labels = $lj")
-        shift 2
-        ;;
-      --deps)
-        local dj
-        dj="$(jq -Rn --arg v "$2" '$v | if length == 0 then [] else split(",") end')"
-        updates+=(".deps = $dj")
-        shift 2
-        ;;
-      --claim)
-        updates+=(".status = \"in_progress\"" ".assignee = \"helix\""
-                  ".[\"claimed-at\"] = \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\""
-                  ".[\"claimed-pid\"] = $$")
-        shift
-        ;;
-      --unclaim)
-        updates+=(".status = \"open\"" ".assignee = \"\""
-                  ".[\"claimed-at\"] = null" ".[\"claimed-pid\"] = null")
-        shift
-        ;;
-      -h|--help|help) tracker_usage; return 0 ;;
-      *)
-        echo "tracker: unknown update flag: $1" >&2
-        return 1
-        ;;
+      --title)      cmd+=(--title "$2"); shift 2 ;;
+      --status)     cmd+=(--status "$2"); shift 2 ;;
+      --priority)   cmd+=(--priority "$2"); shift 2 ;;
+      --labels)     cmd+=(--labels "$2"); shift 2 ;;
+      --acceptance) cmd+=(--acceptance "$2"); shift 2 ;;
+      --assignee)   cmd+=(--assignee "$2"); shift 2 ;;
+      --notes)      cmd+=(--set "notes=$2"); shift 2 ;;
+      --claim)      claim=1; shift ;;
+      --unclaim)    unclaim=1; shift ;;
+      --spec-id)    cmd+=(--set "spec-id=$2"); shift 2 ;;
+      --design)     cmd+=(--set "design=$2"); shift 2 ;;
+      --deps)       cmd+=(--set "deps=$2"); shift 2 ;; # legacy compat
+      --execution-eligible) cmd+=(--set "execution-eligible=$2"); shift 2 ;;
+      --superseded-by)      cmd+=(--set "superseded-by=$2"); shift 2 ;;
+      --replaces)           cmd+=(--set "replaces=$2"); shift 2 ;;
+      --parent)     cmd+=(--set "parent=$2"); shift 2 ;;
+      *)            shift ;;
     esac
   done
 
-  if [[ ${#updates[@]} -eq 0 ]]; then
-    echo "tracker: nothing to update" >&2
-    return 1
+  if (( claim )); then
+    # HELIX uses assignee="helix"; ddx --claim defaults to "ddx"
+    ddx bead update "$id" --status in_progress --assignee helix --set "claimed-at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" --set "claimed-pid=$$" 2>/dev/null
+    return $?
   fi
 
-  local now
-  now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-  updates+=(".updated = \"$now\"")
-
-  # Build the jq update expression
-  local expr
-  expr="$(IFS='|'; echo "${updates[*]}")"
-
-  local all
-  all="$(tracker_read_all)" || return 1
-  local found
-  found="$(printf '%s' "$all" | jq "[.[] | select(.id == \"$id\")] | length")"
-
-  if [[ "$found" == "0" ]]; then
-    echo "tracker: issue not found: $id" >&2
-    return 1
+  if (( unclaim )); then
+    ddx bead update "$id" --unclaim 2>/dev/null
+    return $?
   fi
 
-  local updated
-  if ! updated="$(printf '%s' "$all" | jq "[.[] | if .id == \"$id\" then $expr else . end]")"; then
-    echo "tracker: failed to update issue: $id" >&2
-    return 1
-  fi
-  tracker_write_all "$updated"
+  "${cmd[@]}" 2>/dev/null
 }
 
-tracker_update() {
-  tracker_with_lock tracker_update_impl "$@"
-}
-
-# ── close ──────────────────────────────────────────────────────────────
+# ── close ─────────────────────────────────────────────────────────────
 tracker_close() {
-  local id="$1"
-  tracker_with_lock tracker_update_impl "$id" --status closed
+  ddx bead close "$1" 2>/dev/null
 }
 
-# ── list ───────────────────────────────────────────────────────────────
+# ── list ──────────────────────────────────────────────────────────────
 tracker_list() {
-  tracker_ensure
-  need_cmd jq
+  local -a cmd=(ddx bead list)
+  local json_flag=0
 
-  local status_filter="" label_filter="" json_flag=0
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --status) status_filter="$2"; shift 2 ;;
-      --label)  label_filter="$2"; shift 2 ;;
-      --json)   json_flag=1; shift ;;
+      --status) cmd+=(--status "$2"); shift 2 ;;
+      --label)  cmd+=(--label "$2"); shift 2 ;;
+      --json)   json_flag=1; cmd+=(--json); shift ;;
       *)        shift ;;
     esac
   done
 
-  local all
-  all="$(tracker_read_all)" || return 1
-
-  local filtered="$all"
-  if [[ -n "$status_filter" ]]; then
-    filtered="$(printf '%s' "$filtered" | jq "[.[] | select(.status == \"$status_filter\")]")"
-  fi
-  if [[ -n "$label_filter" ]]; then
-    filtered="$(printf '%s' "$filtered" | jq "[.[] | select(.labels | index(\"$label_filter\"))]")"
-  fi
+  local output
+  output="$("${cmd[@]}" 2>/dev/null)" || return $?
 
   if (( json_flag )); then
-    printf '%s\n' "$filtered" | jq '.'
+    printf '%s' "$output" | _map_array
   else
-    printf '%s\n' "$filtered" | jq -r '.[] | "[\(.status)] \(.id) — \(.title)"'
+    printf '%s\n' "$output"
   fi
 }
 
-# ── ready ──────────────────────────────────────────────────────────────
-# Returns issues that are open and have all deps satisfied (all deps closed)
+# ── ready ─────────────────────────────────────────────────────────────
 tracker_ready() {
-  tracker_ensure
-  need_cmd jq
+  local -a cmd=(ddx bead ready)
+  local json_flag=0 execution=0
 
-  local json_flag=0
-  local execution_only=0
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --json) json_flag=1; shift ;;
-      --execution) execution_only=1; shift ;;
-      *) shift ;;
+      --json)      json_flag=1; shift ;;
+      --execution) execution=1; shift ;;
+      *)           shift ;;
     esac
   done
 
-  local all
-  all="$(tracker_read_all)" || return 1
+  (( execution )) && cmd+=(--execution)
+  cmd+=(--json)
 
-  local ready
-  ready="$(printf '%s' "$all" | jq '
-    def default_execution_eligible:
-      if (.labels | type) != "array" then false
-      else
-        ((.labels | index("phase:build")) != null) or
-        ((.labels | index("phase:deploy")) != null) or
-        ((.labels | index("phase:iterate")) != null)
-      end;
-    . as $all |
-    [.[] | select(
-      .status == "open" and
-      '"$(if (( execution_only )); then printf '((if .["execution-eligible"] == null then default_execution_eligible else .["execution-eligible"] end) == true) and ((.["superseded-by"] // "") == "") and'; else printf 'true and'; fi)"'
-      (
-        (.deps | length) == 0 or
-        (
-          .deps as $deps |
-          [$all[] | select(.id == ($deps[])) | .status] |
-          all(. == "closed")
-        )
-      )
-    )]
-  ')"
+  local output
+  output="$("${cmd[@]}" 2>/dev/null)" || return $?
 
   if (( json_flag )); then
-    printf '%s\n' "$ready"
+    printf '%s' "$output" | _map_array
   else
-    printf '%s\n' "$ready" | jq -r '.[] | "[\(.status)] \(.id) — \(.title)"'
+    # Exit 0 if items, 1 if empty (used by run loop)
+    local count
+    count="$(printf '%s' "$output" | jq 'length')"
+    if (( count == 0 )); then
+      return 1
+    fi
+    printf '%s' "$output" | _map_array | jq -r '.[] | .id + "  " + .title'
   fi
 }
 
-# ── blocked ────────────────────────────────────────────────────────────
+# ── blocked ───────────────────────────────────────────────────────────
 tracker_blocked() {
-  tracker_ensure
-  need_cmd jq
-
+  local -a cmd=(ddx bead blocked --json)
   local json_flag=0
   [[ "${1:-}" == "--json" ]] && json_flag=1
 
-  local all
-  all="$(tracker_read_all)" || return 1
-
-  local blocked
-  blocked="$(printf '%s' "$all" | jq '
-    . as $all |
-    [.[] | select(
-      .status == "open" and
-      (.deps | length) > 0 and
-      (
-        .deps as $deps |
-        [$all[] | select(.id == ($deps[])) | .status] |
-        any(. != "closed")
-      )
-    )]
-  ')"
+  local output
+  output="$("${cmd[@]}" 2>/dev/null)" || return $?
 
   if (( json_flag )); then
-    printf '%s\n' "$blocked"
+    printf '%s' "$output" | _map_array
   else
-    printf '%s\n' "$blocked" | jq -r '.[] | "[\(.status)] \(.id) — \(.title)"'
+    printf '%s' "$output" | _map_array | jq -r '.[] | .id + "  " + .title + "  deps: " + (.deps | join(", "))'
   fi
 }
 
-# ── dep ────────────────────────────────────────────────────────────────
-tracker_dep_impl() {
-  local subcmd="$1"; shift
+# ── dep ───────────────────────────────────────────────────────────────
+tracker_dep() {
+  local subcmd="$1"
+  shift
 
   case "$subcmd" in
-    add)
-      local child="$1" parent="$2"
-      local all
-      all="$(tracker_read_all)" || return 1
-      local updated
-      updated="$(printf '%s' "$all" | jq "[.[] | if .id == \"$child\" then .deps += [\"$parent\"] | .deps |= unique else . end]")"
-      tracker_write_all "$updated"
-      ;;
-    remove)
-      local child="$1" parent="$2"
-      local all
-      all="$(tracker_read_all)" || return 1
-      local updated
-      updated="$(printf '%s' "$all" | jq "[.[] | if .id == \"$child\" then .deps -= [\"$parent\"] else . end]")"
-      tracker_write_all "$updated"
-      ;;
-    tree)
-      local id="$1"
-      tracker_ensure
-      local all
-      all="$(tracker_read_all)" || return 1
-      printf '%s\n' "$all" | jq -r --arg id "$id" '
-        . as $all |
-        .[] | select(.id == $id) |
-        "\(.id) — \(.title)",
-        (.deps[] as $d | $all[] | select(.id == $d) | "  └─ [\(.status)] \(.id) — \(.title)")
-      '
-      ;;
-    *)
-      echo "tracker: unknown dep subcommand: $subcmd" >&2
-      return 1
-      ;;
+    add)    ddx bead dep add "$@" 2>/dev/null ;;
+    remove) ddx bead dep remove "$@" 2>/dev/null ;;
+    tree)   ddx bead dep tree "$@" 2>/dev/null ;;
+    *)      echo "tracker: dep $subcmd: unknown subcommand" >&2; return 1 ;;
   esac
 }
 
-tracker_dep() {
-  case "${1:-}" in
-    add|remove)
-      tracker_with_lock tracker_dep_impl "$@"
-      ;;
-    *)
-      tracker_dep_impl "$@"
-      ;;
-  esac
-}
-
-# ── status (health check) ─────────────────────────────────────────────
+# ── status ────────────────────────────────────────────────────────────
 tracker_status() {
-  tracker_ensure
-  need_cmd jq
-
   local json_flag=0
   [[ "${1:-}" == "--json" ]] && json_flag=1
 
-  local all
-  all="$(tracker_read_all)" || return 1
-
   if (( json_flag )); then
-    printf '%s' "$all" | jq '{
-      total: length,
-      open: [.[] | select(.status == "open")] | length,
-      in_progress: [.[] | select(.status == "in_progress")] | length,
-      closed: [.[] | select(.status == "closed")] | length
-    }'
+    ddx bead status --json 2>/dev/null
   else
-    local total open ip closed
-    total="$(printf '%s' "$all" | jq 'length')"
-    open="$(printf '%s' "$all" | jq '[.[] | select(.status == "open")] | length')"
-    ip="$(printf '%s' "$all" | jq '[.[] | select(.status == "in_progress")] | length')"
-    closed="$(printf '%s' "$all" | jq '[.[] | select(.status == "closed")] | length')"
-    printf 'tracker: %s issues (%s open, %s in-progress, %s closed)\n' "$total" "$open" "$ip" "$closed"
+    ddx bead status 2>/dev/null
   fi
 }
 
-# ── import/export ──────────────────────────────────────────────────────
-tracker_import_impl() {
-  need_cmd jq
-
+# ── import / export / migrate ─────────────────────────────────────────
+tracker_import() {
   local from="auto" file_path=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -755,191 +405,53 @@ tracker_import_impl() {
     esac
   done
 
-  local source="" source_label=""
-  local issues="[]"
-
-  case "$from" in
-    auto)
-      if command -v bd >/dev/null 2>&1 && [[ -d "$beads_dir" ]]; then
-        if issues="$(bd list --json 2>/dev/null)" && [[ -n "$issues" ]] && [[ "$(printf '%s' "$issues" | jq 'length')" -gt 0 ]]; then
-          source="bd"
-          source_label="bd (live Dolt database)"
-        fi
-      fi
-
-      if [[ -z "$source" ]] && command -v br >/dev/null 2>&1; then
-        if issues="$(br list --json 2>/dev/null)" && [[ -n "$issues" ]] && [[ "$(printf '%s' "$issues" | jq 'length')" -gt 0 ]]; then
-          source="br"
-          source_label="br (live SQLite database)"
-        fi
-      fi
-
-      if [[ -z "$source" ]]; then
-        local import_jsonl="${file_path:-$beads_file}"
-        if [[ -f "$import_jsonl" ]] && [[ -s "$import_jsonl" ]]; then
-          issues="$(jq -s '.' "$import_jsonl" 2>/dev/null || echo '[]')"
-          if [[ "$(printf '%s' "$issues" | jq 'length')" -gt 0 ]]; then
-            source="jsonl"
-            source_label="${import_jsonl} (beads JSONL)"
-          fi
-        fi
-      fi
-      ;;
-    bd)
-      if ! command -v bd >/dev/null 2>&1; then
-        echo "tracker: bd is not installed" >&2
-        return 1
-      fi
-      issues="$(bd list --json 2>/dev/null || echo '[]')"
-      source="bd"
-      source_label="bd (live Dolt database)"
-      ;;
-    br)
-      if ! command -v br >/dev/null 2>&1; then
-        echo "tracker: br is not installed" >&2
-        return 1
-      fi
-      issues="$(br list --json 2>/dev/null || echo '[]')"
-      source="br"
-      source_label="br (live SQLite database)"
-      ;;
-    jsonl|beads-jsonl)
-      local import_jsonl="${file_path:-$beads_file}"
-      if [[ ! -f "$import_jsonl" ]] || [[ ! -s "$import_jsonl" ]]; then
-        echo "tracker: no beads JSONL found at ${import_jsonl}" >&2
-        return 1
-      fi
-      issues="$(jq -s '.' "$import_jsonl" 2>/dev/null || echo '[]')"
-      source="jsonl"
-      source_label="${import_jsonl} (beads JSONL)"
-      ;;
-    *)
-      echo "tracker: unknown import source: $from" >&2
-      return 1
-      ;;
-  esac
-
-  if [[ -z "$source" ]]; then
-    echo "tracker: no beads data found (tried bd, br, ${beads_file})" >&2
-    return 1
-  fi
-
-  local count
-  count="$(printf '%s' "$issues" | jq 'length')"
-  printf 'tracker: found %s issues from %s\n' "$count" "$source_label" >&2
-
-  # Check for existing tracker data
-  tracker_ensure
-  local existing
-  existing="$(tracker_read_all)" || return 1
-  local existing_count
-  existing_count="$(printf '%s' "$existing" | jq 'length')"
-
-  if (( existing_count > 0 )); then
-    printf 'tracker: WARNING — .helix/issues.jsonl already has %s issues\n' "$existing_count" >&2
-    printf 'tracker: migration will APPEND, not replace. Duplicates may result.\n' >&2
-    printf 'tracker: to start fresh, remove .helix/issues.jsonl first.\n' >&2
-  fi
-
-  local normalized
-  normalized="$(tracker_normalize_issue_array "$issues")"
-
-  local merged
-  merged="$({
-    printf '%s\n' "$existing"
-    printf '%s\n' "$normalized"
-  } | jq -s '.[0] + .[1]')"
-  tracker_write_all "$merged"
-
-  local migrated
-  migrated="$(printf '%s' "$normalized" | jq 'length')"
-  printf 'tracker: imported %s beads to .helix/issues.jsonl\n' "$migrated" >&2
-  printf 'tracker: source: %s\n' "$source_label" >&2
-  printf 'tracker: verify with: helix tracker status\n' >&2
+  local -a cmd=(ddx bead import --from "$from")
+  [[ -n "$file_path" ]] && cmd+=("$file_path")
+  "${cmd[@]}" 2>/dev/null
 }
 
-tracker_import() {
-  tracker_with_lock tracker_import_impl "$@"
-}
-
-tracker_export_impl() {
-  tracker_ensure
-  need_cmd jq
-
-  local to="jsonl" file_path="" stdout_flag=0
+tracker_export() {
+  local file_path="" stdout=0
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --to)     to="$2"; shift 2 ;;
+      --stdout) stdout=1; shift ;;
       --file)   file_path="$2"; shift 2 ;;
-      --stdout) stdout_flag=1; shift ;;
       *)        file_path="$1"; shift ;;
     esac
   done
 
-  case "$to" in
-    jsonl|beads-jsonl|auto)
-      ;;
-    *)
-      echo "tracker: unsupported export target in simple file-backed mode: $to" >&2
-      echo "tracker: export beads as JSONL and import them into bd/br separately" >&2
-      return 1
-      ;;
-  esac
-
-  local all
-  all="$(tracker_read_all)" || return 1
-
-  if (( stdout_flag )); then
-    printf '%s\n' "$all" | jq -c '.[]'
-    return 0
+  if (( stdout )); then
+    ddx bead export --stdout 2>/dev/null
+  elif [[ -n "$file_path" ]]; then
+    ddx bead export "$file_path" 2>/dev/null
+  else
+    ddx bead export --stdout 2>/dev/null
   fi
-
-  local output_jsonl="${file_path:-$beads_file}"
-  tracker_write_jsonl_file "$all" "$output_jsonl"
-  printf '%s\n' "$output_jsonl"
-}
-
-tracker_export() {
-  tracker_with_lock tracker_export_impl "$@"
 }
 
 tracker_migrate() {
   tracker_import "$@"
 }
 
-tracker_usage() {
-  cat <<EOF
-Usage:
-  helix tracker init
-  helix tracker create "Title" [--type TYPE] [--labels a,b] [--deps id1,id2] [--parent ID] [--spec-id REF] [--description TEXT] [--design TEXT] [--acceptance TEXT] [--execution-eligible true|false] [--superseded-by ID] [--replaces ID]
-  helix tracker show <id> [--json]
-  helix tracker update <id> [--status S] [--title T] [--assignee A] [--priority N] [--labels a,b] [--description TEXT] [--design TEXT] [--acceptance TEXT] [--notes TEXT] [--claim] [--execution-eligible true|false] [--superseded-by ID] [--replaces ID]
-  helix tracker close <id>
-  helix tracker list [--status S] [--label L] [--json]
-  helix tracker ready [--json] [--execution]
-  helix tracker blocked [--json]
-  helix tracker dep add <child> <parent>
-  helix tracker dep remove <child> <parent>
-  helix tracker dep tree <id>
-  helix tracker status [--json]
-  helix tracker import [--from auto|bd|br|jsonl] [--file PATH]
-  helix tracker export [--to jsonl] [--file PATH] [--stdout]
-  helix tracker migrate [args...]
-  helix tracker help
-
-Notes:
-  Canonical storage is .helix/issues.jsonl.
-  Export writes bead-compatible JSONL.
-  Migrate is a compatibility alias for import.
-EOF
+# ── read/write (low-level, for fingerprinting) ────────────────────────
+tracker_read_all() {
+  ddx bead list --json 2>/dev/null | _map_array
 }
 
-# ── CLI dispatch (when called as `helix tracker <cmd>`) ────────────────
-tracker_dispatch() {
-  local cmd="${1:-status}"; shift || true
+# ── fingerprint (used by run loop for drift detection) ────────────────
+tracker_issue_fingerprint() {
+  local id="$1"
+  tracker_show "$id" --json 2>/dev/null | jq -r '
+    [.title, .status, (.labels | sort | join(",")), .parent, .["spec-id"]] | join("|")
+  ' | md5sum | cut -d' ' -f1
+}
 
-  case "$cmd" in
-    help|--help|-h) tracker_usage ;;
+# ── dispatch (called by helix CLI main) ───────────────────────────────
+tracker_dispatch() {
+  local subcmd="${1:-}"
+  shift 2>/dev/null || true
+
+  case "$subcmd" in
     init)     tracker_init ;;
     create)   tracker_create "$@" ;;
     show)     tracker_show "$@" ;;
@@ -953,10 +465,30 @@ tracker_dispatch() {
     import)   tracker_import "$@" ;;
     export)   tracker_export "$@" ;;
     migrate)  tracker_migrate "$@" ;;
+    help|-h|--help|"")
+      echo "Usage: helix tracker <command>"
+      echo ""
+      echo "Commands:"
+      echo "  helix tracker init                    Initialize tracker"
+      echo "  helix tracker create <title> [opts]   Create issue"
+      echo "  helix tracker show <id> [--json]      Show issue"
+      echo "  helix tracker update <id> [opts]      Update issue"
+      echo "  helix tracker close <id>              Close issue"
+      echo "  helix tracker list [--status S]       List issues"
+      echo "  helix tracker ready [--execution]     Ready queue"
+      echo "  helix tracker blocked                 Blocked issues"
+      echo "  helix tracker dep add|remove|tree     Dependencies"
+      echo "  helix tracker status [--json]         Queue health"
+      echo "  helix tracker import [--from S]       Import beads"
+      echo "  helix tracker export [file]           Export beads"
+      ;;
     *)
-      echo "tracker: unknown command: $cmd" >&2
-      tracker_usage >&2
+      echo "tracker: unknown command: $subcmd" >&2
       return 1
       ;;
   esac
+}
+
+tracker_usage() {
+  tracker_dispatch help
 }
