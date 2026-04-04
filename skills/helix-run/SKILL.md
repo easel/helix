@@ -71,47 +71,14 @@ Reference docs (read as needed):
 Shared HELIX resources resolve from `workflows/`. If those resources are
 missing, stop and report an incomplete HELIX package instead of improvising.
 
-## CLI Mode (preferred for long-running work)
+## Background Mode
 
-When managing a helix run from an outer agent (e.g., Claude Code conversation),
-**prefer launching the CLI as a background process with `--summary`** over
-executing inline. This dramatically reduces token consumption by routing verbose
-output to a log file while emitting concise progress lines.
+For long-running work, use the `helix-worker` skill instead. It launches
+`helix run` as a background CLI process with `--summary` mode and monitors
+progress via log files. This skill (`helix-run`) executes inline — use it
+when you need live adjustments between cycles or for short runs.
 
-### Launch
-
-```bash
-cd <target-repo> && helix run --agent claude --summary 2>&1
-```
-
-Run this as a background process. The `--summary` flag produces one-liner
-progress like:
-
-```
-helix: [14:24:01] cycle 1: hx-42 (5 ready)
-helix: [14:24:35] codex complete (rc=0, 34s, 892 tokens) — log L12–L340 in .helix-logs/helix-...log
-helix: [14:24:36] cycle 1: hx-42 → COMPLETE (1/3 done, 892 tokens)
-helix: ═══ run complete: 3 attempted, 2 completed, 1 skipped, 2400 tokens ═══
-```
-
-### Monitor and diagnose
-
-Summary output includes log file line-range pointers. When a cycle fails or
-blocks, read the referenced log range to diagnose:
-
-```bash
-# Summary says: "log L500–L800 in .helix-logs/helix-20260402-142401.log"
-# Read lines 500-800 of that file to see full agent output, tool calls, errors
-```
-
-### When to use inline mode instead
-
-Use the inline steps below (Step 1–6) only when:
-- You need to make live adjustments to helix itself between cycles
-- The run is short (1-2 issues) and CLI overhead isn't worth it
-- The user explicitly asks to run inline or from the skill
-
-## On Invocation (inline mode)
+## On Invocation
 
 When this skill is invoked inline, **execute work immediately** — do not just
 report status, do not just describe what you would do, do not ask for
