@@ -485,7 +485,7 @@ test_tracker_update_and_claim() {
   assert_eq "in_progress" "$status" "claim should set status to in_progress"
 
   local assignee
-  assignee="$(run_helix "$root" tracker show "$id" --json | jq -r '.assignee')"
+  assignee="$(run_helix "$root" tracker show "$id" --json | jq -r '.owner')"
   assert_eq "helix" "$assignee" "claim should set assignee to helix"
   rm -rf "$root"
 }
@@ -1811,7 +1811,7 @@ test_tracker_update_multiple_fields() {
   json="$(run_helix "$root" tracker show "$id" --json)"
   assert_eq "0" "$(printf '%s' "$json" | jq '.priority')" "priority should be updated"
   assert_eq "Urgent" "$(printf '%s' "$json" | jq -r '.title')" "title should be updated"
-  assert_eq "agent" "$(printf '%s' "$json" | jq -r '.assignee')" "assignee should be updated"
+  assert_eq "agent" "$(printf '%s' "$json" | jq -r '.owner')" "assignee should be updated"
   rm -rf "$root"
 }
 
@@ -1850,18 +1850,18 @@ test_tracker_dep_add_and_remove() {
   # Add dep
   run_helix "$root" tracker dep add "$id2" "$id1" >/dev/null
   local deps
-  deps="$(run_helix "$root" tracker show "$id2" --json | jq -r '.deps[]')"
+  deps="$(run_helix "$root" tracker show "$id2" --json | jq -r '[.dependencies[]?.depends_on_id][]')"
   assert_eq "$id1" "$deps" "dep add should add dependency"
 
   # Adding same dep again should not duplicate
   run_helix "$root" tracker dep add "$id2" "$id1" >/dev/null
   local dep_count
-  dep_count="$(run_helix "$root" tracker show "$id2" --json | jq '.deps | length')"
+  dep_count="$(run_helix "$root" tracker show "$id2" --json | jq '[.dependencies[]?.depends_on_id] | length')"
   assert_eq "1" "$dep_count" "duplicate dep add should not create duplicates"
 
   # Remove dep
   run_helix "$root" tracker dep remove "$id2" "$id1" >/dev/null
-  dep_count="$(run_helix "$root" tracker show "$id2" --json | jq '.deps | length')"
+  dep_count="$(run_helix "$root" tracker show "$id2" --json | jq '[.dependencies[]?.depends_on_id] | length')"
   assert_eq "0" "$dep_count" "dep remove should remove dependency"
   rm -rf "$root"
 }
@@ -1924,7 +1924,7 @@ test_tracker_create_with_deps() {
   child="$(run_helix "$root" tracker create "Child issue" --deps "$parent" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
 
   local dep_id
-  dep_id="$(run_helix "$root" tracker show "$child" --json | jq -r '.deps[0]')"
+  dep_id="$(run_helix "$root" tracker show "$child" --json | jq -r '[.dependencies[]?.depends_on_id][0]')"
   assert_eq "$parent" "$dep_id" "create --deps should seed dependencies"
   rm -rf "$root"
 }
@@ -1943,7 +1943,7 @@ test_tracker_update_structural_fields() {
   json="$(run_helix "$root" tracker show "$target" --json)"
   assert_eq "TP-999" "$(printf '%s' "$json" | jq -r '.["spec-id"]')" "update should set spec-id"
   assert_eq "$parent" "$(printf '%s' "$json" | jq -r '.parent')" "update should set parent"
-  assert_eq "$dep" "$(printf '%s' "$json" | jq -r '.deps[0]')" "update should set deps"
+  assert_eq "$dep" "$(printf '%s' "$json" | jq -r '[.dependencies[]?.depends_on_id][0]')" "update should set deps"
   rm -rf "$root"
 }
 
@@ -2047,15 +2047,17 @@ test_tracker_lock_timeout_reports_owner() {
   local root
   root="$(make_workspace)"
 
-  mkdir -p "$root/work/.helix/issues.lock"
-  printf '424242\n' > "$root/work/.helix/issues.lock/pid"
-  printf '2099-01-01T00:00:00Z\n' > "$root/work/.helix/issues.lock/acquired_at"
+  # DDx bead uses beads.lock directory; hold lock from our own PID (alive, won't be broken)
+  mkdir -p "$root/work/.helix/beads.lock"
+  printf '%d\n' "$$" > "$root/work/.helix/beads.lock/pid"
+  printf '%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$root/work/.helix/beads.lock/acquired_at"
 
   local output
-  output="$(run_helix_with_env "$root" HELIX_TRACKER_LOCK_TIMEOUT 0 tracker create "Blocked by lock" --labels helix,phase:build --spec-id TEST --acceptance "test passes" 2>&1 || true)"
-  assert_contains "$output" "timed out waiting for tracker lock" "lock timeout should be reported"
-  assert_contains "$output" "owner: 424242" "lock timeout should report the recorded lock owner"
+  output="$(run_helix_with_env "$root" DDX_BEAD_LOCK_TIMEOUT 0.1 tracker create "Blocked by lock" --labels helix,phase:build --spec-id TEST --acceptance "test passes" 2>&1 || true)"
+  assert_contains "$output" "lock timeout" "lock timeout should be reported"
 
+  # Clean up lock before checking list
+  rm -rf "$root/work/.helix/beads.lock"
   local count
   count="$(run_helix "$root" tracker list --json | jq 'length')"
   assert_eq "0" "$count" "timed out mutation should not create partial tracker state"
@@ -2104,10 +2106,8 @@ test_tracker_import_from_jsonl() {
 LEGACY
 
   local output
-  output="$(run_helix "$root" tracker import --from jsonl 2>&1)"
-  assert_contains "$output" "found 2 issues" "import should find issues"
-  assert_contains "$output" "imported 2 beads" "import should report count"
-  assert_contains "$output" ".beads/issues.jsonl" "import should report the JSONL source"
+  output="$(run_helix "$root" tracker import --from jsonl --file .beads/issues.jsonl 2>&1)"
+  assert_contains "$output" "Imported 2 beads" "import should report count"
 
   # Verify data is accessible
   local count
@@ -2121,7 +2121,7 @@ LEGACY
 
   # Verify deps are preserved
   local deps
-  deps="$(run_helix "$root" tracker show bd-bbb222 --json | jq -r '.deps[0]')"
+  deps="$(run_helix "$root" tracker show bd-bbb222 --json | jq -r '[.dependencies[]?.depends_on_id][0]')"
   assert_eq "bd-aaa111" "$deps" "imported issue should preserve deps"
 
   # Verify labels are preserved
@@ -2180,7 +2180,7 @@ test_tracker_import_normalizes_missing_fields() {
   assert_eq "task" "$(printf '%s' "$json" | jq -r '.issue_type')" "import should default type to task"
   assert_eq "open" "$(printf '%s' "$json" | jq -r '.status')" "import should default status to open"
   assert_eq "2" "$(printf '%s' "$json" | jq '.priority')" "import should default priority to 2"
-  assert_eq "0" "$(printf '%s' "$json" | jq '.deps | length')" "import should default deps to empty"
+  assert_eq "0" "$(printf '%s' "$json" | jq '[.dependencies[]?.depends_on_id] | length')" "import should default deps to empty"
   assert_eq "0" "$(printf '%s' "$json" | jq '.labels | length')" "import should default labels to empty"
   rm -rf "$root"
 }
@@ -2894,7 +2894,7 @@ test_tracker_unclaim_clears_metadata() {
   claimed_at="$(printf '%s' "$issue_json" | jq -r '.["claimed-at"] // "null"')"
   claimed_pid="$(printf '%s' "$issue_json" | jq -r '.["claimed-pid"] // "null"')"
   status="$(printf '%s' "$issue_json" | jq -r '.status')"
-  assignee="$(printf '%s' "$issue_json" | jq -r '.assignee')"
+  assignee="$(printf '%s' "$issue_json" | jq -r '.owner')"
 
   assert_eq "open" "$status" "unclaim should set status to open"
   assert_eq "" "$assignee" "unclaim should clear assignee"

@@ -30,54 +30,6 @@ tracker_gen_id() {
   printf '%s-%s' "$prefix" "$(head -c4 /dev/urandom | od -An -tx1 | tr -d ' \n')"
 }
 
-# ── field mapping: ddx bead → HELIX tracker ──────────────────────────
-# DDx uses bd-compatible field names. HELIX code expects legacy names.
-# This jq filter converts ddx output to HELIX format.
-_ddx_to_helix_jq='
-  def to_helix:
-    {
-      id:          .id,
-      title:       .title,
-      type:        (.issue_type // "task"),
-      status:      .status,
-      priority:    (.priority // 2),
-      labels:      (.labels // []),
-      parent:      (.parent // ""),
-      "spec-id":   (.["spec-id"] // ""),
-      description: (.description // ""),
-      design:      (.design // ""),
-      acceptance:  (.acceptance // ""),
-      deps:        ([(.dependencies // [])[] | .depends_on_id] // []),
-      assignee:    (.owner // ""),
-      notes:       (.notes // ""),
-      "execution-eligible": (.["execution-eligible"] // false),
-      "superseded-by": (.["superseded-by"] // ""),
-      replaces:    (.replaces // ""),
-      created:     (.created_at // ""),
-      updated:     (.updated_at // "")
-    }
-    # Preserve any extra fields not in the mapping
-    + (to_entries | map(select(
-        .key != "id" and .key != "title" and .key != "issue_type" and
-        .key != "status" and .key != "priority" and .key != "labels" and
-        .key != "parent" and .key != "description" and .key != "acceptance" and
-        .key != "notes" and .key != "owner" and .key != "dependencies" and
-        .key != "created_at" and .key != "updated_at" and .key != "created_by" and
-        .key != "design" and
-        # Skip fields already mapped above
-        .key != "spec-id" and .key != "execution-eligible" and
-        .key != "superseded-by" and .key != "replaces"
-      )) | from_entries);
-'
-
-_map_one() {
-  jq "$_ddx_to_helix_jq to_helix"
-}
-
-_map_array() {
-  jq "$_ddx_to_helix_jq [.[] | to_helix]"
-}
-
 # ── triage validation (HELIX-specific) ────────────────────────────────
 tracker_validate_create() {
   local type="$1" labels="$2" spec_id="$3" acceptance="$4" deps="$5"
@@ -205,7 +157,7 @@ tracker_create() {
 
   # Add deps
   local id
-  id="$("${cmd[@]}" 2>/dev/null)" || return 1
+  id="$("${cmd[@]}" 2>&1)" || { echo "$id" >&2; return 1; }
 
   # Wire dependencies
   if [[ -n "$deps" ]]; then
@@ -231,16 +183,14 @@ tracker_show() {
   }
 
   if (( json_flag )); then
-    printf '%s' "$raw" | _map_one
+    printf '%s' "$raw"
   else
-    local mapped
-    mapped="$(printf '%s' "$raw" | _map_one)"
-    printf '%s\n' "$mapped" | jq -r '
-      "[" + .status + "] " + .id + " (" + .type + ") — " + .title,
+    printf '%s\n' "$raw" | jq -r '
+      "[" + .status + "] " + .id + " (" + .issue_type + ") — " + .title,
       (if .description != "" then "  Description: " + .description else empty end),
       (if .acceptance != "" then "  Acceptance: " + .acceptance else empty end),
       (if (.labels | length) > 0 then "  Labels: " + (.labels | join(", ")) else empty end),
-      (if (.deps | length) > 0 then "  Deps: " + (.deps | join(", ")) else empty end),
+      (if (.dependencies | length) > 0 then "  Deps: " + ([.dependencies[].depends_on_id] | join(", ")) else empty end),
       (if .parent != "" then "  Parent: " + .parent else empty end),
       (if .["execution-eligible"] then "  Execution Eligible: true" else empty end),
       (if .["spec-id"] != "" then "  Spec: " + .["spec-id"] else empty end)
@@ -254,7 +204,7 @@ tracker_update() {
   shift
 
   local -a cmd=(ddx bead update "$id")
-  local claim=0 unclaim=0
+  local claim=0 unclaim=0 deps_to_add=""
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -269,17 +219,16 @@ tracker_update() {
       --unclaim)    unclaim=1; shift ;;
       --spec-id)    cmd+=(--set "spec-id=$2"); shift 2 ;;
       --design)     cmd+=(--set "design=$2"); shift 2 ;;
-      --deps)       cmd+=(--set "deps=$2"); shift 2 ;; # legacy compat
+      --deps)       deps_to_add="$2"; shift 2 ;;
       --execution-eligible) cmd+=(--set "execution-eligible=$2"); shift 2 ;;
       --superseded-by)      cmd+=(--set "superseded-by=$2"); shift 2 ;;
       --replaces)           cmd+=(--set "replaces=$2"); shift 2 ;;
-      --parent)     cmd+=(--set "parent=$2"); shift 2 ;;
+      --parent)     cmd+=(--parent "$2"); shift 2 ;;
       *)            shift ;;
     esac
   done
 
   if (( claim )); then
-    # HELIX uses assignee="helix"; ddx --claim defaults to "ddx"
     ddx bead update "$id" --status in_progress --assignee helix --set "claimed-at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" --set "claimed-pid=$$" 2>/dev/null
     return $?
   fi
@@ -289,7 +238,15 @@ tracker_update() {
     return $?
   fi
 
-  "${cmd[@]}" 2>/dev/null
+  "${cmd[@]}" 2>/dev/null || return $?
+
+  # Wire deps after the main update
+  if [[ -n "$deps_to_add" ]]; then
+    local dep
+    for dep in ${deps_to_add//,/ }; do
+      ddx bead dep add "$id" "$dep" 2>/dev/null || true
+    done
+  fi
 }
 
 # ── close ─────────────────────────────────────────────────────────────
@@ -315,7 +272,7 @@ tracker_list() {
   output="$("${cmd[@]}" 2>/dev/null)" || return $?
 
   if (( json_flag )); then
-    printf '%s' "$output" | _map_array
+    printf '%s' "$output"
   else
     printf '%s\n' "$output"
   fi
@@ -341,7 +298,7 @@ tracker_ready() {
   output="$("${cmd[@]}" 2>/dev/null)" || return $?
 
   if (( json_flag )); then
-    printf '%s' "$output" | _map_array
+    printf '%s' "$output"
   else
     # Exit 0 if items, 1 if empty (used by run loop)
     local count
@@ -349,7 +306,7 @@ tracker_ready() {
     if (( count == 0 )); then
       return 1
     fi
-    printf '%s' "$output" | _map_array | jq -r '.[] | .id + "  " + .title'
+    printf '%s' "$output" | jq -r '.[] | .id + "  " + .title'
   fi
 }
 
@@ -363,9 +320,9 @@ tracker_blocked() {
   output="$("${cmd[@]}" 2>/dev/null)" || return $?
 
   if (( json_flag )); then
-    printf '%s' "$output" | _map_array
+    printf '%s' "$output"
   else
-    printf '%s' "$output" | _map_array | jq -r '.[] | .id + "  " + .title + "  deps: " + (.deps | join(", "))'
+    printf '%s' "$output" | jq -r '.[] | .id + "  " + .title + "  deps: " + ([.dependencies[].depends_on_id] | join(", "))'
   fi
 }
 
@@ -435,7 +392,7 @@ tracker_migrate() {
 
 # ── read/write (low-level, for fingerprinting) ────────────────────────
 tracker_read_all() {
-  ddx bead list --json 2>/dev/null | _map_array
+  ddx bead list --json 2>/dev/null
 }
 
 # ── fingerprint (used by run loop for drift detection) ────────────────
