@@ -88,8 +88,10 @@ resolve_model() {
 # Adversarial agent rotation: reasoning stages use the primary agent,
 # mechanical stages (build, polish, check) use the alternate agent.
 # This ensures different models review each other's work.
-if [[ -n "${HELIX_ALT_AGENT:-}" ]]; then
+# Set HELIX_ALT_AGENT=none to explicitly disable auto-detection.
+if [[ "${HELIX_ALT_AGENT:-auto}" != "auto" ]]; then
   alt_agent="${HELIX_ALT_AGENT}"
+  [[ "$alt_agent" == "none" ]] && alt_agent=""
 elif [[ "${agent}" == "codex" ]] && command -v claude >/dev/null 2>&1; then
   alt_agent="claude"
 elif [[ "${agent}" == "claude" ]] && command -v codex >/dev/null 2>&1; then

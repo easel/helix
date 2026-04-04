@@ -390,7 +390,7 @@ run_helix() {
     HELIX_LIBRARY_ROOT="$repo_root/workflows" \
     HELIX_FORCE_EPHEMERAL=1 \
     HELIX_REVIEW_AGENT="codex" \
-    HELIX_ALT_AGENT="codex" \
+    HELIX_ALT_AGENT="none" \
     HELIX_AUTO_ALIGN="${HELIX_AUTO_ALIGN:-0}" \
     bash "$repo_root/scripts/helix" "$cmd" --quiet "$@"
   )
@@ -1792,8 +1792,10 @@ test_tracker_create_help_no_side_effect() {
   output="$(run_bead "$root" create --help)"
   assert_contains "$output" "Create a new bead" "create --help should show ddx usage"
   # Must not create an issue
-  local count
-  count="$(wc -l < "$root/.ddx/beads.jsonl" 2>/dev/null || echo 0)"
+  local count=0
+  if [[ -f "$root/.ddx/beads.jsonl" ]]; then
+    count="$(wc -l < "$root/.ddx/beads.jsonl")"
+  fi
   [[ "$count" -eq 0 ]] || fail "create --help must not create an issue (found $count)"
   rm -rf "$root"
 }
@@ -1965,7 +1967,7 @@ run_helix_summary() {
     HELIX_LIBRARY_ROOT="$repo_root/workflows" \
     HELIX_FORCE_EPHEMERAL=1 \
     HELIX_REVIEW_AGENT="codex" \
-    HELIX_ALT_AGENT="codex" \
+    HELIX_ALT_AGENT="none" \
     HELIX_AUTO_ALIGN="${HELIX_AUTO_ALIGN:-0}" \
     bash "$repo_root/scripts/helix" "$cmd" --summary "$@"
   )
