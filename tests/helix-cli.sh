@@ -29,6 +29,16 @@ assert_contains() {
   fi
 }
 
+assert_not_contains() {
+  local haystack="$1"
+  local needle="$2"
+  local message="$3"
+  if [[ "$haystack" == *"$needle"* ]]; then
+    printf 'unexpected substring: %s\nin:\n%s\n' "$needle" "$haystack" >&2
+    fail "$message"
+  fi
+}
+
 assert_file_exists() {
   local path="$1"
   local message="$2"
@@ -385,6 +395,20 @@ run_helix() {
   )
 }
 
+run_bead() {
+  local root="$1"
+  shift
+  (
+    cd "$root/work"
+    HOME="$root/home" \
+    PATH="$root/bin:$PATH" \
+    MOCK_STATE_ROOT="$root/state" \
+    HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+    HELIX_FORCE_EPHEMERAL=1 \
+    ddx bead "$@"
+  )
+}
+
 run_helix_with_env() {
   local root="$1"
   local env_name="$2"
@@ -445,19 +469,19 @@ test_help() {
   output="$(run_helix "$root" help)"
   assert_contains "$output" "helix run" "help should list run command"
   assert_contains "$output" "--review-every" "help should list review option"
-  assert_contains "$output" "tracker" "help should list tracker command"
+  assert_not_contains "$output" $'\n  tracker ' "help should not list tracker command"
   rm -rf "$root"
 }
 
-test_tracker_help() {
+test_bead_help() {
   local root
   root="$(make_workspace)"
   local output
-  output="$(run_helix "$root" tracker help)"
-  assert_contains "$output" "Manage beads" "tracker help should come from ddx bead"
-  assert_contains "$output" "ddx bead create" "tracker help should list create"
-  assert_contains "$output" "ddx bead import" "tracker help should list import"
-  assert_contains "$output" "Export beads as JSONL" "tracker help should list export"
+  output="$(run_bead "$root" --help)"
+  assert_contains "$output" "Manage beads" "bead help should come from ddx bead"
+  assert_contains "$output" "ddx bead create" "bead help should list create"
+  assert_contains "$output" "ddx bead import" "bead help should list import"
+  assert_contains "$output" "Export beads as JSONL" "bead help should list export"
   rm -rf "$root"
 }
 
@@ -554,6 +578,62 @@ MOCK
   calls="$(cat "$root/state/calls.log")"
   assert_eq $'implement\ncheck' "$calls" "run should implement until drained, then check"
   assert_contains "$output" "helix: stopping after check returned STOP" "run should report why it stopped"
+  rm -rf "$root"
+}
+
+test_run_stops_on_queue_drain_check_failure() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+  printf '1\n' > "$root/state/check-fails"
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"
+  tail -n +2 "$file" > "$file.tmp" || true
+  mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *"check action"*)
+    record check
+    if [[ -f "$state_root/check-fails" ]]; then
+      echo "mock check failure" >&2
+      exit 1
+    fi
+    action="$(next_action)"
+    printf 'NEXT_ACTION: %s\n' "$action"
+    ;;
+  *) record other; echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output rc=0
+  output="$(run_helix "$root" run --no-auto-review --no-auto-align 2>&1)" || rc=$?
+  [[ "$rc" -ne 0 ]] || fail "run should fail when queue-drain check fails"
+  assert_contains "$output" "helix: check failed after queue drain" \
+    "run should surface the queue-drain check failure"
+  assert_not_contains "$output" "unbound variable" \
+    "run should not trip a set -u unbound-variable error"
+
+  local calls
+  calls="$(cat "$root/state/calls.log")"
+  assert_eq $'implement\ncheck' "$calls" "run should implement then fail on queue-drain check"
   rm -rf "$root"
 }
 
@@ -836,7 +916,7 @@ MOCK
   assert_contains "$output" "after queue drift" "run should skip drifted issue and continue"
 
   local status
-  status="$(run_helix "$root" tracker show hx-mock-0 --json | jq -r '.status')"
+  status="$(run_bead "$root" show hx-mock-0 --json | jq -r '.status')"
   assert_eq "open" "$status" "run should reopen a drifted issue instead of leaving it closed"
 
   assert_contains "$output" "BLOCKERS" "run should report blockers at the end"
@@ -879,7 +959,7 @@ MOCK
   assert_contains "$output" "after queue drift" "run should skip drifted issue and continue"
 
   local status
-  status="$(run_helix "$root" tracker show hx-mock-0 --json | jq -r '.status')"
+  status="$(run_bead "$root" show hx-mock-0 --json | jq -r '.status')"
   assert_eq "open" "$status" "run should leave the issue open for re-check"
   rm -rf "$root"
 }
@@ -935,8 +1015,8 @@ MOCK
   assert_eq $'implement\ncheck' "$calls" "run should implement the eligible issue then check"
 
   local refine_status build_status
-  refine_status="$(run_helix "$root" tracker show hx-refine --json | jq -r '.status')"
-  build_status="$(run_helix "$root" tracker show hx-build --json | jq -r '.status')"
+  refine_status="$(run_bead "$root" show hx-refine --json | jq -r '.status')"
+  build_status="$(run_bead "$root" show hx-build --json | jq -r '.status')"
   assert_eq "open" "$refine_status" "run should not claim refinement work"
   assert_eq "closed" "$build_status" "run should execute the eligible build issue"
   rm -rf "$root"
@@ -975,8 +1055,8 @@ MOCK
   assert_contains "$output" "after queue drift" "run should skip superseded issue"
 
   local status superseded_by
-  status="$(run_helix "$root" tracker show hx-mock-0 --json | jq -r '.status')"
-  superseded_by="$(run_helix "$root" tracker show hx-mock-0 --json | jq -r '.["superseded-by"]')"
+  status="$(run_bead "$root" show hx-mock-0 --json | jq -r '.status')"
+  superseded_by="$(run_bead "$root" show hx-mock-0 --json | jq -r '.["superseded-by"]')"
   assert_eq "open" "$status" "run should refuse stale close after supersession"
   assert_eq "hx-replacement" "$superseded_by" "supersession metadata should remain visible"
   rm -rf "$root"
@@ -1146,8 +1226,25 @@ test_run_dispatches_backfill() {
 
   local calls
   calls="$(cat "$root/state/calls.log")"
-  assert_eq "check" "$calls" "run should stop after BACKFILL (no auto-dispatch)"
-  assert_contains "$output" "run \`helix backfill <scope>\` to reconstruct missing docs" "run should print backfill handoff"
+  assert_eq $'check\nbackfill\ncheck' "$calls" "run should dispatch backfill inline and then re-check"
+  assert_contains "$output" "BACKFILL_STATUS: COMPLETE" "run should print backfill completion output"
+  assert_contains "$output" "stopping after check returned STOP" "run should continue after backfill and stop on the follow-up check"
+  assert_not_contains "$output" "run \`helix backfill <scope>\` to reconstruct missing docs" "run should not print the old backfill handoff"
+  rm -rf "$root"
+}
+
+test_run_stops_after_repeated_backfill() {
+  local root
+  root="$(make_workspace)"
+  printf 'BACKFILL\nBACKFILL\n' > "$root/state/next-actions"
+
+  local output
+  output="$(run_helix "$root" run --no-auto-review 2>&1)"
+
+  local calls
+  calls="$(cat "$root/state/calls.log")"
+  assert_eq $'check\nbackfill\ncheck' "$calls" "run should refuse to loop on repeated BACKFILL results"
+  assert_contains "$output" "stopping after check returned BACKFILL" "run should stop when backfill is already drained once"
   rm -rf "$root"
 }
 
@@ -1269,8 +1366,8 @@ test_run_recovery_preserves_unrelated_dirty_changes() {
   local root
   root="$(make_workspace)"
   local issue_id
-  issue_id="$(run_helix "$root" tracker create "Claimed task" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
-  run_helix "$root" tracker update "$issue_id" --claim >/dev/null
+  issue_id="$(run_bead "$root" create "Claimed task" --labels helix,phase:build --set spec-id=TEST --acceptance "test passes")"
+  run_bead "$root" update "$issue_id" --claim >/dev/null
 
   (
     cd "$root/work"
@@ -1285,7 +1382,7 @@ test_run_recovery_preserves_unrelated_dirty_changes() {
   output="$(run_helix "$root" run --no-auto-review 2>&1)"
 
   local status
-  status="$(run_helix "$root" tracker show "$issue_id" --json | jq -r '.status')"
+  status="$(run_bead "$root" show "$issue_id" --json | jq -r '.status')"
   assert_eq "in_progress" "$status" "fresh claims should remain claimed"
   assert_file_contains "$root/work/keep.txt" "tracked but dirty" "recovery should not revert unrelated dirty worktree changes"
   assert_contains "$output" "too fresh to reclaim" "run should report that claim is too fresh"
@@ -1684,14 +1781,14 @@ MOCK
 test_tracker_create_requires_title() {
   local root
   root="$(make_workspace)"
-  assert_fails "create without title should fail" run_helix "$root" tracker create 2>/dev/null
+  assert_fails "create without title should fail" run_bead "$root" create 2>/dev/null
   rm -rf "$root"
 }
 
 test_tracker_create_help_no_side_effect() {
   local root output
   root="$(make_workspace)"
-  output="$(run_helix "$root" tracker create --help)"
+  output="$(run_bead "$root" create --help)"
   assert_contains "$output" "Create a new bead" "create --help should show ddx usage"
   # Must not create an issue
   local count
@@ -1751,11 +1848,12 @@ run_test "run continues after unparseable review output" test_run_fails_on_unpar
 
 # CLI integration tests
 run_test "help" test_help
-run_test "tracker help" test_tracker_help
+run_test "bead help" test_bead_help
 run_test "check dry-run" test_check_dry_run
 run_test "backfill dry-run" test_backfill_dry_run
 run_test "quickstart demo script exists" test_quickstart_demo_script_exists
 run_test "run stops after drain" test_run_stops_after_queue_drains
+run_test "run stops on queue-drain check failure" test_run_stops_on_queue_drain_check_failure
 run_test "periodic alignment" test_run_periodic_alignment
 run_test "auto-align" test_run_auto_aligns_once
 run_test "queue-drain plan dispatch" test_run_dispatches_plan_after_queue_drain
@@ -1773,6 +1871,7 @@ run_test "claude auto-align" test_claude_run_auto_aligns
 run_test "claude check dry-run" test_claude_check_dry_run
 run_test "run stops on WAIT" test_run_stops_on_wait
 run_test "run dispatches backfill" test_run_dispatches_backfill
+run_test "run stops after repeated BACKFILL" test_run_stops_after_repeated_backfill
 run_test "max cycles count completed work only" test_run_max_cycles_counts_completed_cycles_only
 run_test "periodic alignment ignores failed attempts" test_run_periodic_alignment_ignores_failed_attempts
 run_test "extract NEXT_ACTION from claude output" test_extract_next_action_from_claude_output
@@ -2074,7 +2173,7 @@ test_orphan_recovery_reclaims_stale() {
 
   # Verify they're in_progress before recovery
   local before
-  before="$(run_helix "$root" tracker list --status in_progress --json | jq 'length')"
+  before="$(run_bead "$root" list --status in_progress --json | jq 'length')"
   assert_eq "2" "$before" "should have 2 in-progress issues before recovery"
 
   # Run helix with a mock that returns STOP immediately — recovery happens at startup
@@ -2086,7 +2185,7 @@ test_orphan_recovery_reclaims_stale() {
 
   # Verify issues were reclaimed (back to open)
   local after
-  after="$(run_helix "$root" tracker list --status in_progress --json | jq 'length')"
+  after="$(run_bead "$root" list --status in_progress --json | jq 'length')"
   assert_eq "0" "$after" "orphan recovery should reclaim stale issues"
   assert_contains "$output" "reclaiming orphaned" "should report reclaiming"
   assert_contains "$output" "recovered 2 orphaned" "should report recovery count"
@@ -2111,7 +2210,7 @@ test_orphan_recovery_skips_fresh() {
 
   # Issue should still be in_progress (not reclaimed)
   local status
-  status="$(run_helix "$root" tracker show hx-fresh-0 --json | jq -r '.status')"
+  status="$(run_bead "$root" show hx-fresh-0 --json | jq -r '.status')"
   assert_eq "in_progress" "$status" "fresh claimed issue should not be reclaimed"
   rm -rf "$root"
 }
@@ -2218,11 +2317,11 @@ test_tracker_claim_records_metadata() {
   seed_tracker "$root" 1
 
   # Claim the issue
-  run_helix "$root" tracker update hx-mock-0 --claim >/dev/null
+  run_bead "$root" update hx-mock-0 --claim >/dev/null
 
   # Check claimed-at and claimed-pid are set
   local issue_json
-  issue_json="$(run_helix "$root" tracker show hx-mock-0 --json)"
+  issue_json="$(run_bead "$root" show hx-mock-0 --json)"
 
   local claimed_at claimed_pid status
   claimed_at="$(printf '%s' "$issue_json" | jq -r '.["claimed-at"] // ""')"
@@ -2241,11 +2340,11 @@ test_tracker_unclaim_clears_metadata() {
   seed_tracker "$root" 1
 
   # Claim then unclaim
-  run_helix "$root" tracker update hx-mock-0 --claim >/dev/null
-  run_helix "$root" tracker update hx-mock-0 --unclaim >/dev/null
+  run_bead "$root" update hx-mock-0 --claim >/dev/null
+  run_bead "$root" update hx-mock-0 --unclaim >/dev/null
 
   local issue_json
-  issue_json="$(run_helix "$root" tracker show hx-mock-0 --json)"
+  issue_json="$(run_bead "$root" show hx-mock-0 --json)"
 
   local claimed_at claimed_pid status assignee
   claimed_at="$(printf '%s' "$issue_json" | jq -r '.["claimed-at"] // "null"')"
@@ -2412,6 +2511,73 @@ MOCK
   rm -rf "$root"
 }
 
+test_task_promotes_to_epic_after_decomposition() {
+  local root
+  root="$(make_workspace)"
+  local work_dir="$root/work"
+  mkdir -p "$work_dir/.ddx"
+  {
+    printf '{"id":"hx-task-r","title":"promotion parent","issue_type":"task","status":"open","priority":1,"labels":["helix","phase:build"],"parent":"","spec-id":"SPEC-R","description":"","design":"","acceptance":"done","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n'
+    printf '{"id":"hx-task-child-1","title":"existing child","issue_type":"task","status":"closed","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"hx-task-r","spec-id":"SPEC-R","description":"","design":"","acceptance":"done","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n'
+  } > "$work_dir/.ddx/beads.jsonl"
+
+  printf 'STOP\n' > "$root/state/next-actions"
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"; tail -n +2 "$file" > "$file.tmp" || true; mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    if [[ -f .ddx/beads.jsonl ]]; then
+      if [[ ! -f "$state_root/promotion-seen" ]]; then
+        cat >> .ddx/beads.jsonl <<'EOF'
+{"id":"hx-task-child-2","title":"new child","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"hx-task-r","spec-id":"SPEC-R","description":"","design":"","acceptance":"done","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}
+EOF
+        : > "$state_root/promotion-seen"
+      else
+        tmp="$(jq -c 'if .id == "hx-task-child-2" then .status = "closed" else . end' .ddx/beads.jsonl)"
+        printf '%s\n' "$tmp" > .ddx/beads.jsonl
+      fi
+    fi
+    echo "implementation complete"
+    ;;
+  *"check action"*)
+    record check
+    printf 'NEXT_ACTION: %s\n' "$(next_action)"
+    ;;
+  *) record other; echo "mock" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  output="$(run_helix "$root" run --max-cycles 2 --no-auto-review --no-auto-align 2>&1)" || true
+
+  assert_contains "$output" "promoting hx-task-r to epic" \
+    "should promote decomposed task to epic"
+  assert_contains "$output" "epic focus: hx-task-r → child hx-task-child-2" \
+    "should continue execution under epic focus after promotion"
+  local parent_type
+  parent_type="$(jq -r 'select(.id == "hx-task-r") | .issue_type' "$work_dir/.ddx/beads.jsonl")"
+  assert_eq "epic" "$parent_type" "parent task should be promoted to epic"
+  local parent_labels parent_spec parent_priority
+  parent_labels="$(jq -r 'select(.id == "hx-task-r") | .labels | join(",")' "$work_dir/.ddx/beads.jsonl")"
+  parent_spec="$(jq -r 'select(.id == "hx-task-r") | .["spec-id"]' "$work_dir/.ddx/beads.jsonl")"
+  parent_priority="$(jq -r 'select(.id == "hx-task-r") | .priority' "$work_dir/.ddx/beads.jsonl")"
+  assert_eq "helix,phase:build" "$parent_labels" "parent labels should be preserved"
+  assert_eq "SPEC-R" "$parent_spec" "parent spec-id should be preserved"
+  assert_eq "1" "$parent_priority" "parent priority should be preserved"
+  rm -rf "$root"
+}
+
 # --- Area-label batching ---
 
 test_batch_falls_back_to_area_labels() {
@@ -2536,12 +2702,12 @@ MOCK
 
   # Should have filed an acceptance failure issue
   local ac_issues
-  ac_issues="$(run_helix "$root" tracker list --label acceptance-failure --json | jq 'length')"
+  ac_issues="$(run_bead "$root" list --label acceptance-failure --json | jq 'length')"
   (( ac_issues > 0 )) || fail "acceptance failure should be filed as tracker issue"
 
   # Verify the filed issue has correct metadata
   local ac_title
-  ac_title="$(run_helix "$root" tracker list --label acceptance-failure --json | jq -r '.[0].title')"
+  ac_title="$(run_bead "$root" list --label acceptance-failure --json | jq -r '.[0].title')"
   assert_contains "$ac_title" "Acceptance failure" "filed issue should have descriptive title"
   rm -rf "$root"
 }
@@ -2799,7 +2965,7 @@ MOCK
 
   # Blocked issue should have "blocked" label in tracker
   local labels
-  labels="$(run_helix "$root" tracker show hx-mock-0 --json | jq -r '.labels | join(",")')"
+  labels="$(run_bead "$root" show hx-mock-0 --json | jq -r '.labels | join(",")')"
   assert_contains "$labels" "blocked" "blocked issue should have 'blocked' label in tracker"
   rm -rf "$root"
 }
@@ -3249,6 +3415,7 @@ MOCK
 }
 
 run_test "context refreshed on epic switch" test_context_refreshed_on_epic_switch
+run_test "task promotes to epic after decomposition" test_task_promotes_to_epic_after_decomposition
 run_test "context refreshed every 5 cycles" test_context_refreshed_every_5_cycles
 run_test "drift on supersession skips close" test_drift_on_supersession_skips_close
 run_test "drift on spec-id change skips close" test_drift_on_spec_id_change_skips_close
@@ -3347,7 +3514,7 @@ test_commit_stages_and_commits() {
 
   assert_contains "$output" "committed" "should report successful commit"
   local status
-  status="$(run_helix "$root" tracker show hx-mock-0 --json | jq -r '.status')"
+  status="$(run_bead "$root" show hx-mock-0 --json | jq -r '.status')"
   assert_eq "closed" "$status" "commit should close the tracker issue"
   rm -rf "$root"
 }

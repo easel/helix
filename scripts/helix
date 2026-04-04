@@ -103,7 +103,7 @@ Usage:
   helix review [--agent codex|claude] [scope]
   helix experiment [--agent codex|claude] [--close] [issue-id|goal]
   helix evolve [--agent codex|claude] [--scope S] [--artifact ID] [--from source] "requirement"
-  helix triage "Title" [--type task|epic|bug|chore] [tracker create options...]
+  helix triage "Title" [--type task|epic|bug|chore] [ddx bead create options...]
   ddx bead <command> [args...]
   helix help
 
@@ -121,8 +121,7 @@ Commands:
   experiment  Run one experiment iteration for metric-driven optimization
   evolve      Thread a new requirement through the artifact stack
   commit      Commit with HELIX format, run build gate, push, close issue
-  triage      Create a tracker issue via ddx bead create
-  tracker     Bead tracker delegate (init, create, show, update, close, list, ready, blocked, dep, status, import, export)
+  triage      Create a bead via ddx bead create
 
 Options:
   --agent           Agent to use: codex or claude (default: ${agent})
@@ -2008,7 +2007,15 @@ run_loop() {
           _current_type="$(tracker_show "$selected_issue" --json 2>/dev/null | jq -r '.issue_type // ""')" || _current_type=""
           if [[ "$_current_type" != "epic" ]]; then
             verbose_line "promoting %s to epic (agent created %s children)" "$selected_issue" "$_child_count"
-            tracker_update "$selected_issue" --set "issue_type=epic" 2>/dev/null || true
+            if ! tracker_update "$selected_issue" --set "issue_type=epic" 2>/dev/null; then
+              echo "helix: failed to promote $selected_issue to epic" >&2
+              finish_loop 1; return $?
+            fi
+            _current_type="$(tracker_show "$selected_issue" --json 2>/dev/null | jq -r '.issue_type // ""')" || _current_type=""
+            if [[ "$_current_type" != "epic" ]]; then
+              echo "helix: promotion of $selected_issue did not stick" >&2
+              finish_loop 1; return $?
+            fi
             if [[ -z "$focused_epic" ]]; then
               focused_epic="$selected_issue"
               verbose_line "entering epic focus mode for promoted %s" "$focused_epic"
@@ -2210,8 +2217,17 @@ Output: ${_ac_output:0:500}" \
         finish_loop 0; return $?
         ;;
       BACKFILL)
-        printf 'helix: run `helix backfill <scope>` to reconstruct missing docs\n' >&2
-        finish_loop 0; return $?
+        if (( post_drain_backfill_ran )); then
+          printf 'helix: stopping after check returned BACKFILL\n' >&2
+          finish_loop 0; return $?
+        fi
+        verbose_line "queue drained, running backfill"
+        if ! run_backfill repo; then
+          echo "helix: backfill failed after queue drain" >&2
+          finish_loop 1; return $?
+        fi
+        post_drain_backfill_ran=1
+        continue
         ;;
       STOP)
         if (( auto_align )) && (( post_drain_alignment_ran == 0 )); then
@@ -2396,12 +2412,6 @@ main() {
       set -- "${REMAINING_ARGS[@]}"
       require_tracker
       tracker_create "$@"
-      ;;
-    tracker)
-      parse_common_flags "$@"
-      set -- "${REMAINING_ARGS[@]}"
-      require_tracker
-      tracker_dispatch "$@"
       ;;
     *)
       echo "unknown command: $command" >&2
