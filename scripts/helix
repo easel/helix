@@ -96,6 +96,7 @@ Usage:
   helix backfill [--agent codex|claude] [scope]
   helix design [--agent codex|claude] [--rounds N] [scope]
   helix polish [--agent codex|claude] [--rounds N] [scope]
+  helix status [--json]
   helix next
   helix review [--agent codex|claude] [scope]
   helix experiment [--agent codex|claude] [--close] [issue-id|goal]
@@ -755,7 +756,7 @@ helix_select_ready_issue() {
 
     # Prefer leaf tasks (non-epic) with execution metadata over epics.
     # Epics waste cycles on decomposition instead of implementation.
-    [ $candidates[] | select(.type != "epic") | select(
+    [ $candidates[] | select(.issue_type != "epic") | select(
         (.["spec-id"] // "") != "" or
         (.acceptance // "") != "" or
         (.design // "") != ""
@@ -763,7 +764,7 @@ helix_select_ready_issue() {
     if ($leaf_with_meta | length) > 0 then $leaf_with_meta
     else
       # Fall back: any non-epic task
-      [ $candidates[] | select(.type != "epic") ] as $leaf_any |
+      [ $candidates[] | select(.issue_type != "epic") ] as $leaf_any |
       if ($leaf_any | length) > 0 then $leaf_any
       else
         # Last resort: epics (when only epics remain)
@@ -800,7 +801,7 @@ helix_select_batch() {
     --argjson max "$max_batch" --argjson areas "$primary_areas" '
     [.[] | select(
       .id != $primary and
-      .type != "epic" and
+      .issue_type != "epic" and
       (.id as $id | $skip | index($id) | not) and
       (
         ($parent != "" and .parent == $parent) or
@@ -1179,6 +1180,75 @@ run_next() {
   tracker_ready --json --execution | jq -r '.[0].id // "no ready issues"'
 }
 
+run_status() {
+  require_tracker
+  local json_flag=0
+  [[ "${1:-}" == "--json" ]] && json_flag=1
+
+  local state_file="${tracker_dir}/run-state.json"
+
+  # Get live tracker counts
+  local tracker_json
+  tracker_json="$(tracker_status --json 2>/dev/null || echo '{}')"
+
+  # Get run state if available
+  local run_state='{}'
+  if [[ -f "$state_file" ]]; then
+    run_state="$(cat "$state_file")"
+  fi
+
+  # Get claimed issues
+  local claimed
+  claimed="$(tracker_list --status in_progress --json 2>/dev/null | jq -c '[.[] | {id, title}]' 2>/dev/null || echo '[]')"
+
+  if (( json_flag )); then
+    jq -n \
+      --argjson tracker "$tracker_json" \
+      --argjson run "$run_state" \
+      --argjson claimed "$claimed" \
+      '{tracker: $tracker, run: $run, claimed: $claimed}'
+  else
+    printf 'HELIX Status\n'
+    printf '============\n\n'
+
+    # Tracker health
+    printf 'Tracker:\n'
+    printf '%s' "$tracker_json" | jq -r '
+      "  Total:   \(.total // 0)",
+      "  Open:    \(.open // 0)",
+      "  Closed:  \(.closed // 0)",
+      "  Ready:   \(.ready // 0)",
+      "  Blocked: \(.blocked // 0)"
+    ' 2>/dev/null
+
+    # Claimed work
+    local claimed_count
+    claimed_count="$(printf '%s' "$claimed" | jq 'length')"
+    if (( claimed_count > 0 )); then
+      printf '\nClaimed:\n'
+      printf '%s' "$claimed" | jq -r '.[] | "  \(.id)  \(.title)"'
+    fi
+
+    # Run state
+    if [[ -f "$state_file" ]]; then
+      printf '\nLast Run:\n'
+      printf '%s' "$run_state" | jq -r '
+        "  Agent:       \(.agent // "unknown")",
+        "  Completed:   \(.completed_cycles // 0) cycles",
+        "  Attempted:   \(.attempted_cycles // 0) cycles",
+        "  Tokens:      \(.total_tokens // 0)",
+        "  Stop reason: \(.stop_reason // "unknown")",
+        "  Timestamp:   \(.last_run // "unknown")"
+      ' 2>/dev/null
+      if [[ "$(printf '%s' "$run_state" | jq -r '.focused_epic // ""')" != "" ]]; then
+        printf '  Epic focus:  %s\n' "$(printf '%s' "$run_state" | jq -r '.focused_epic')"
+      fi
+    else
+      printf '\nNo run state found. Run `helix run` to generate.\n'
+    fi
+  fi
+}
+
 run_commit() {
   local issue_id="${1:-}"
 
@@ -1338,7 +1408,7 @@ recover_orphaned_issues() {
       claim_epoch="$(date -d "$claimed_at" +%s 2>/dev/null || echo 0)"
     else
       local updated
-      updated="$(printf '%s' "$in_progress" | jq -r ".[$i].updated // \"\"" 2>/dev/null)"
+      updated="$(printf '%s' "$in_progress" | jq -r ".[$i].updated_at // \"\"" 2>/dev/null)"
       [[ -n "$updated" && "$updated" != "null" ]] && claim_epoch="$(date -d "$updated" +%s 2>/dev/null || echo 0)"
     fi
 
@@ -1431,7 +1501,40 @@ run_loop() {
   finish_loop() {
     local rc="${1:-0}"
     write_blocker_report
+    persist_run_state "$rc"
     return "$rc"
+  }
+
+  persist_run_state() {
+    local exit_rc="${1:-0}"
+    local state_file="${tracker_dir}/run-state.json"
+    local stop_reason="completed"
+    (( exit_rc != 0 )) && stop_reason="error"
+    (( ${#skipped_issues[@]} > 0 )) && stop_reason="blocked"
+
+    local skip_count="${#skipped_issues[@]}"
+
+    jq -n \
+      --arg current_issue "${current_issue_id:-}" \
+      --arg focused_epic "${epic_id:-}" \
+      --argjson completed_cycles "$completed_cycles" \
+      --argjson attempted_cycles "$attempted_cycles" \
+      --argjson skipped_count "$skip_count" \
+      --argjson total_tokens "$total_tokens" \
+      --arg stop_reason "$stop_reason" \
+      --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+      --arg agent "${HELIX_AGENT:-claude}" \
+      '{
+        current_issue: $current_issue,
+        focused_epic: $focused_epic,
+        completed_cycles: $completed_cycles,
+        attempted_cycles: $attempted_cycles,
+        skipped_count: $skipped_count,
+        total_tokens: $total_tokens,
+        stop_reason: $stop_reason,
+        last_run: $timestamp,
+        agent: $agent
+      }' > "$state_file" 2>/dev/null || true
   }
 
   # Backoff delay for a given attempt count (exponential: 5s, 10s, 20s, 40s cap)
@@ -1447,7 +1550,7 @@ run_loop() {
   epic_next_child() {
     local epic_id="$1"
     local epic_type
-    epic_type="$(tracker_show "$epic_id" --json 2>/dev/null | jq -r '.type // ""')" || true
+    epic_type="$(tracker_show "$epic_id" --json 2>/dev/null | jq -r '.issue_type // ""')" || true
     if [[ "$epic_type" != "epic" ]]; then
       return
     fi
@@ -1556,7 +1659,7 @@ run_loop() {
 
       # Check if this is an epic — if so, enter epic focus mode
       local issue_type
-      issue_type="$(tracker_show "$selected_issue" --json 2>/dev/null | jq -r '.type // ""')" || true
+      issue_type="$(tracker_show "$selected_issue" --json 2>/dev/null | jq -r '.issue_type // ""')" || true
       if [[ "$issue_type" == "epic" ]] && [[ -z "$focused_epic" ]]; then
         focused_epic="$selected_issue"
         verbose_line "entering epic focus mode for %s" "$focused_epic"
@@ -2022,6 +2125,11 @@ main() {
         esac
       done
       run_polish "${1:-}" "$polish_rounds"
+      ;;
+    status)
+      parse_common_flags "$@"
+      set -- "${REMAINING_ARGS[@]}"
+      run_status "$@"
       ;;
     next)
       parse_common_flags "$@"
