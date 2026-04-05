@@ -3031,8 +3031,60 @@ run_test "extract codex tokens from output" test_extract_codex_tokens_from_outpu
 run_test "extract codex tokens missing" test_extract_codex_tokens_missing
 run_test "run stops on GUIDANCE" test_run_stops_on_guidance
 run_test "review dry-run uses review agent" test_review_dry_run_uses_review_agent
+test_blocker_notes_stable_across_retries() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+  printf 'STOP\n' > "$root/state/next-actions"
+
+  # Mock: both agents always fail implementation (triggers blocker notes)
+  cat >"$root/bin/mock-fail" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"; tail -n +2 "$file" > "$file.tmp" || true; mv "$file.tmp" "$file"
+}
+stdin_payload=""
+if ! [[ -t 0 ]]; then stdin_payload="$(cat)"; fi
+payload="$* $stdin_payload"
+case "$payload" in
+  *"implementation action"*) record implement; exit 1 ;;
+  *"check action"*) record check; printf 'NEXT_ACTION: %s\n' "$(next_action)" ;;
+  *) record other; echo "mock" ;;
+esac
+MOCK
+  cp "$root/bin/mock-fail" "$root/bin/codex"
+  cp "$root/bin/mock-fail" "$root/bin/claude"
+  chmod +x "$root/bin/codex" "$root/bin/claude"
+
+  # First run: triggers blocker notes
+  run_helix "$root" run --no-auto-review --no-auto-align 2>&1 >/dev/null || true
+
+  local notes_after_first
+  notes_after_first="$(run_bead "$root" show hx-mock-0 --json | jq -r '.notes // ""')"
+  [[ -n "$notes_after_first" ]] || fail "first run should set blocker notes"
+
+  # Reset next-actions for the second run
+  printf 'STOP\n' > "$root/state/next-actions"
+  : > "$root/state/calls.log"
+
+  # Second run: same failure, same reason — notes should be stable
+  run_helix "$root" run --no-auto-review --no-auto-align 2>&1 >/dev/null || true
+
+  local notes_after_second
+  notes_after_second="$(run_bead "$root" show hx-mock-0 --json | jq -r '.notes // ""')"
+  assert_eq "$notes_after_first" "$notes_after_second" \
+    "blocker notes should remain stable across identical retries"
+  rm -rf "$root"
+}
+
 run_test "blocker report written to file" test_blocker_report_written_to_file
 run_test "blocker report marks tracker" test_blocker_report_marks_tracker
+run_test "blocker notes stable across retries" test_blocker_notes_stable_across_retries
 
 # --- Context refresh on epic switch and every 5 cycles ---
 
