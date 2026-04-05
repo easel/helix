@@ -46,7 +46,16 @@ artifacts unless the scope explicitly asks you to revise them.
    - `workflows/phases/00-discover/artifacts/product-vision/`
    - `workflows/phases/01-frame/artifacts/prd/`
    - `workflows/phases/01-frame/artifacts/feature-specification/`
-3. Identify what exists, what's missing, and what needs updating for the
+3. Load numbering rules and determine the next artifact ID:
+   - Read `workflows/phases/01-frame/artifacts/feature-specification/meta.yml`
+     to understand the ID format (`FEAT-{number}`), naming pattern, and reuse
+     policy.
+   - List all files matching `docs/helix/01-frame/features/FEAT-*.md`.
+   - Extract the numeric portion from each filename, find the maximum N, and
+     set **next FEAT ID = N + 1** (use `001` if no files exist yet).
+   - Record this value; it is authoritative for every feature spec created in
+     this session. Do not guess or reuse an existing number.
+4. Identify what exists, what's missing, and what needs updating for the
    requested scope.
 
 ## PHASE 2 — Draft
@@ -83,7 +92,20 @@ assumptions, risks, success criteria.
 
 ### Feature Specs
 
-For each major capability, create `docs/helix/01-frame/features/FEAT-NNN-<name>.md`.
+For each major capability, create
+`docs/helix/01-frame/features/FEAT-NNN-<name>.md` using the **next FEAT ID**
+determined in Phase 1 (incrementing by one for each additional spec created
+in the same session). Do not pick an ID by guessing — only use the scanned
+value.
+
+Before writing each feature spec, validate any `depends_on` entries in its
+dun frontmatter:
+- Each dependency ID must resolve to an existing artifact on disk (e.g.,
+  `prd.md` for a spec that depends on the PRD).
+- If a target does not exist, either remove the dependency or stop and
+  request guidance before writing the file. Never write an artifact whose
+  `depends_on` references a non-existent target.
+
 Key sections: overview, problem statement, functional requirements, user
 stories with acceptance criteria, non-functional requirements, constraints.
 

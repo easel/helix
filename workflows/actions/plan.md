@@ -54,6 +54,23 @@ when they exist.
 2. Read the current implementation state relevant to the scope.
 3. Read the current issue queue state if the tracker is initialized.
 4. Identify gaps: what questions does the existing planning stack leave open?
+5. **Load design artifact numbering rules** (required before creating any SD or
+   TD artifact):
+   - Read `workflows/phases/02-design/artifacts/solution-design/meta.yml` to
+     understand the SD-{number} format, naming pattern, and no-reuse policy.
+   - Read `workflows/phases/02-design/artifacts/technical-design/meta.yml` to
+     understand the TD-{number} format.
+   - Scan `docs/helix/02-design/solution-designs/SD-*.md` to find the maximum
+     existing SD number; **next SD ID = max + 1** (use `001` if none exist).
+   - Scan `docs/helix/02-design/technical-designs/TD-*.md` to find the maximum
+     existing TD number; **next TD ID = max + 1** (use `001` if none exist).
+   - Record both values. Use them exclusively when assigning IDs to new SD or
+     TD artifacts in this session; increment by one for each additional artifact
+     created. Never guess or reuse an existing number.
+   - Before writing any SD or TD artifact, validate each `depends_on` entry in
+     its dun frontmatter: every referenced ID (e.g., `FEAT-XXX`) must resolve
+     to an existing artifact on disk. If a target does not exist, stop and
+     request guidance before writing the file.
 
 ## PHASE 1 - First Draft
 

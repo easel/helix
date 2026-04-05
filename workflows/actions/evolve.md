@@ -66,6 +66,23 @@ Search the project's doc tree for governing artifacts in scope:
 3. Build an ordered list of artifacts to review, highest authority first.
 4. For each artifact, note its current state and the section(s) that will
    need updating.
+5. **If the evolution will create new numbered artifacts**, load the relevant
+   meta.yml files and determine the next available IDs now — before writing
+   anything:
+   - **New feature spec (FEAT-NNN)**: read
+     `workflows/phases/01-frame/artifacts/feature-specification/meta.yml`,
+     scan `docs/helix/01-frame/features/FEAT-*.md`, set next FEAT ID = max + 1
+     (use `001` if none exist).
+   - **New solution design (SD-NNN)**: read
+     `workflows/phases/02-design/artifacts/solution-design/meta.yml`,
+     scan `docs/helix/02-design/solution-designs/SD-*.md`, set next SD ID =
+     max + 1.
+   - **New technical design (TD-NNN)**: read
+     `workflows/phases/02-design/artifacts/technical-design/meta.yml`,
+     scan `docs/helix/02-design/technical-designs/TD-*.md`, set next TD ID =
+     max + 1.
+   - Record these values. Use them exclusively when assigning IDs; never guess
+     or reuse an existing number.
 
 Use commands like:
 - `find docs/ -name "*.md" | xargs grep -l "keyword"`
@@ -96,10 +113,17 @@ For each non-conflicting artifact, in authority order (highest first):
 2. Draft the amendment — add, modify, or extend the relevant sections.
 3. Validate the amendment does not contradict any higher-authority artifact
    that was already updated in this session.
-4. Write the update.
-5. If the project uses acceptance manifests (`.acceptance.toml`), update
+4. For any **new** artifact being written (not an update to an existing file):
+   - Confirm the ID was assigned from the scanned-next-ID computed in Phase 2,
+     not guessed.
+   - Inspect the dun frontmatter `depends_on` list. For each referenced ID,
+     verify the target artifact exists on disk before writing. If a target is
+     missing, either remove the dependency or stop and request guidance. Never
+     write an artifact with a broken `depends_on` reference.
+5. Write the update.
+6. If the project uses acceptance manifests (`.acceptance.toml`), update
    those too with new or modified acceptance criteria.
-6. If the update touches acceptance artifacts, set
+7. If the update touches acceptance artifacts, set
    `NIFLHEIM_ACCEPTANCE_CHANGE=1` before committing.
 
 Keep amendments minimal and scoped. Do not rewrite sections that aren't
