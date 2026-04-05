@@ -52,6 +52,28 @@ at their Phase 0 or Bootstrap step.
 **Not injected**: `check.md` (mechanical queue evaluation), `backfill-helix-docs.md`
 (reconstructs what exists, does not make design choices).
 
+## Selective Injection Guide
+
+For high-frequency mechanical skills, injecting only the most relevant
+principles reduces overhead while preserving alignment. Use this guide when
+the principles document exceeds 8 items or when per-run token cost accumulates.
+
+Full-doc injection is the **default** and produces explicit, auditable alignment.
+Selective injection is appropriate when:
+- The skill runs many times per session (e.g., sub-steps in a pipeline)
+- The principles document is large (>8 items)
+- Explicit principle naming matters less than alignment direction
+
+| Skill type | Most relevant principles |
+|------------|--------------------------|
+| Design / architecture | Design for Change, Design for Simplicity |
+| Build / implementation | Design for Simplicity, Validate Your Work |
+| Review | All — full-doc preferred |
+| Polish / refinement | Make Intent Explicit, Prefer Reversible Decisions |
+| Frame / requirements | Design for Change, Make Intent Explicit |
+
+*Evidence*: See `docs/helix/06-iterate/research-principles-injection-2026-04-05.md`
+
 ## Bootstrap in helix frame
 
 When `helix frame` runs and no `docs/helix/01-frame/principles.md` exists:
