@@ -25,3 +25,8 @@ experiments/
 # Hugo build output
 website/public/
 website/resources/
+
+# Playwright test output
+website/test-results/
+website/playwright-report/
+website/node_modules/
