@@ -522,118 +522,6 @@ extract_codex_tokens() {
   printf '0'
 }
 
-condense_codex_output() {
-  # Aggressively filter codex exec output to show only progress-relevant
-  # lines.  Full raw output is already preserved in $helix_log for debugging.
-  #
-  # Keep:
-  #   - helix: progress lines
-  #   - Tool call summaries ($ command ... and first line of result)
-  #   - Error/warning lines
-  #   - Lines containing issue IDs, commit SHAs, or status keywords
-  #   - Markdown headings and table rows (structured output)
-  #
-  # Drop:
-  #   - Raw file diffs (lines starting with +, -, @@, diff --, index)
-  #   - "Commands run:" summary and "tokens used" footer
-  #   - Blank lines (re-added between kept sections)
-  #   - Bulk file content (long runs of non-matching lines)
-  local skipping_tokens=0
-  local skipping_diff=0
-  local blank_run=0
-  local last_was_kept=0
-  local keep_next_result=0
-
-  while IFS= read -r line; do
-    # Always skip codex boilerplate
-    if [[ "$line" == "Commands run:"* ]]; then
-      continue
-    fi
-    if [[ "$line" == "tokens used" ]]; then
-      skipping_tokens=1
-      continue
-    fi
-    if (( skipping_tokens )); then
-      skipping_tokens=0
-      continue
-    fi
-
-    # Skip diff hunks
-    case "$line" in
-      "diff --git "*|index\ *|"--- a/"*|"+++ b/"*|"@@ "*)
-        skipping_diff=1
-        continue
-        ;;
-    esac
-    if (( skipping_diff )); then
-      case "$line" in
-        "diff --git "*|index\ *|"--- a/"*|"+++ b/"*|"@@ "*)
-          continue
-          ;;
-        +*|-*)
-          continue
-          ;;
-        " "*)
-          continue
-          ;;
-        *)
-          skipping_diff=0
-          ;;
-      esac
-    fi
-
-    # Track blank lines — emit at most one between kept sections
-    if [[ -z "$line" ]]; then
-      blank_run=$((blank_run + 1))
-      continue
-    fi
-
-    # Decide whether to keep this line
-    local keep=0
-    if (( keep_next_result )); then
-      keep=1
-      keep_next_result=0
-    fi
-
-    case "$line" in
-      helix:*)
-        keep=1
-        ;;
-      '$ '*)
-        keep=1
-        keep_next_result=1
-        ;;
-      *error*|*Error*|*ERROR*|*warning*|*Warning*|*WARN*|*FAIL*|*fail*|*panic*)
-        keep=1
-        ;;
-      *hx-*|*helix-*|*FEAT-*|*US-*|*COMPLETE*|*BLOCKED*|*CLOSED*|*closed*|*"commit "*)
-        keep=1
-        ;;
-      [A-Z0-9_]*:*)
-        keep=1
-        ;;
-    esac
-
-    if [[ "$line" == \#* || "$line" == \|* || "$line" == ' '*\|* || "$line" == '**'* ]]; then
-      keep=1
-    fi
-    if [[ "$line" == Phase* || "$line" == Step* || "$line" == ---* ]]; then
-      keep=1
-    fi
-
-    if (( keep )); then
-      # Emit a separator blank line if there was a gap
-      if (( last_was_kept && blank_run > 0 )); then
-        printf '\n'
-      fi
-      blank_run=0
-      last_was_kept=1
-      printf -- '%s\n' "$line"
-    fi
-  done | sed -e '/./,$!d' -e :a -e '/^\n*$/{$d;N;ba;}'
-  # sed trims leading and trailing blank lines
-}
-
 reset_session() {
   session_active=0
   if (( ! quiet )); then
@@ -730,8 +618,8 @@ run_agent_prompt() {
             "$(date +%H:%M:%S)" "$_codex_rc" "$_elapsed" "$_cycle_tokens" "$total_tokens" >&2
         fi
 
-        # Emit condensed output (strips command lists and token counts)
-        printf -- '%s\n' "$_codex_raw" | condense_codex_output
+        # Emit condensed output via DDx (strips diffs, boilerplate, and bulk verbose content).
+        printf -- '%s\n' "$_codex_raw" | ddx agent condense
         return "$_codex_rc"
       fi
       ;;

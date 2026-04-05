@@ -3007,33 +3007,6 @@ MOCK
   rm -rf "$root"
 }
 
-# --- Condense codex output ---
-
-test_condense_strips_boilerplate() {
-  local result
-  result="$(printf 'real output\nCommands run:\ncargo test\ncargo build\ntokens used\n500\nmore real output\n' | \
-    bash -c '
-      condense_codex_output() {
-        local skipping_tokens=0
-        while IFS= read -r line; do
-          if [[ "$line" =~ ^Commands\ run: ]]; then continue; fi
-          if [[ "$line" =~ ^tokens\ used$ ]]; then skipping_tokens=1; continue; fi
-          if (( skipping_tokens )); then skipping_tokens=0; continue; fi
-          printf -- "%s\n" "$line"
-        done | sed -e "/./,\$!d" -e :a -e "/^\n*\$/{$d;N;ba;}"
-      }
-      condense_codex_output
-    ')"
-  assert_contains "$result" "real output" "should preserve real output"
-  assert_contains "$result" "more real output" "should preserve trailing output"
-  if [[ "$result" == *"Commands run:"* ]]; then
-    fail "should strip Commands run: line"
-  fi
-  if [[ "$result" == *"tokens used"* ]]; then
-    fail "should strip tokens used footer"
-  fi
-}
-
 run_test "context generated at run start" test_context_generated_at_run_start
 run_test "context contains issue counts" test_context_contains_issue_counts
 run_test "epic focus selects children" test_epic_focus_selects_children
@@ -3048,7 +3021,6 @@ run_test "run stops on GUIDANCE" test_run_stops_on_guidance
 run_test "review dry-run uses review agent" test_review_dry_run_uses_review_agent
 run_test "blocker report written to file" test_blocker_report_written_to_file
 run_test "blocker report marks tracker" test_blocker_report_marks_tracker
-run_test "condense strips boilerplate" test_condense_strips_boilerplate
 
 # --- Context refresh on epic switch and every 5 cycles ---
 
