@@ -36,6 +36,9 @@ Issues are stored in `.ddx/beads.jsonl`.
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
+0a. **Load active design principles** following `workflows/references/principles-resolution.md`.
+   Use them as refinement guidance — flag issues whose scope or criteria
+   conflict with the active principles.
 1. Verify the built-in tracker is available.
    - If `ddx bead status` fails, stop immediately.
 2. Load all open issues for the scope.

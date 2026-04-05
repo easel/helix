@@ -10,6 +10,17 @@ HELIX combines collaborative planning with bounded autonomous execution so
 human attention stays focused on judgment, tradeoffs, and approvals rather
 than routine orchestration.
 
+## Positioning
+
+For software teams using AI agents for day-to-day development who lose too
+much operator effort deciding what the agent should do next and keeping
+planning artifacts aligned with implementation, HELIX is a supervisory
+autopilot that continuously advances work across specs, designs, tests,
+implementation, review, and metrics until human judgment is actually needed.
+Unlike ad hoc prompting with manual agent steering, HELIX maintains a durable
+control loop where requirements govern code, the tracker steers agents, and
+every action traces back to governing intent.
+
 ## Vision
 
 HELIX becomes the default control system for spec-driven agent software
@@ -20,14 +31,26 @@ carrying software from intent to production.
 
 **North Star**: A team should be able to express intent once, collaborate where judgment matters, and let HELIX carry the rest of the workflow forward safely.
 
+## User Experience
+
+A developer opens their terminal with a backlog of work tracked in the repo.
+They run `helix run`. HELIX picks the highest-leverage ready issue, dispatches
+an agent to implement it, verifies the result against acceptance criteria, and
+commits. When it finishes, it picks the next one. The developer checks in
+periodically — reviewing diffs, approving gates, making product calls when
+HELIX surfaces a genuine ambiguity. When they want to work on something
+directly, they do — editing a spec, writing a test, closing an issue — and
+HELIX picks up the rest. The mental model is a autopilot you can always grab
+the wheel from.
+
 ## Target Market
 
-| Attribute | Primary Segment | Secondary Segment |
-|-----------|-----------------|-------------------|
-| Who | Small to medium software teams using AI agents for day-to-day development | Individual technical founders and advanced solo developers using AI as a primary implementation partner |
-| Size | Teams with enough complexity that specs, plans, tests, and implementation drift without active coordination | Individuals shipping products quickly who need stronger guardrails than ad hoc prompting |
-| Pain | Too much operator effort is spent deciding what the agent should do next and keeping planning artifacts aligned with implementation | AI can generate output quickly, but the user still has to manually orchestrate design, testing, implementation, and cleanup |
-| Current Solution | Informal prompting, scattered TODOs, weak issue hygiene, and manual agent steering | Direct chat with a coding agent plus personal notes and memory |
+| Attribute | Description |
+|-----------|-------------|
+| Who | Small to medium software teams using AI agents for day-to-day development |
+| Pain | Too much operator effort deciding what the agent should do next and keeping planning artifacts aligned with implementation |
+| Current Solution | Informal prompting, scattered TODOs, weak issue hygiene, and manual agent steering |
+| Why They Switch | As codebases grow, ad hoc prompting breaks down — specs drift from code, agents loop without progress, and the human becomes a full-time dispatcher instead of a decision-maker |
 
 ## Key Value Propositions
 
@@ -92,22 +115,20 @@ carrying software from intent to production.
 
 ## Success Definition
 
-| Metric | Target | Timeline |
-|--------|--------|----------|
-| Autonomous forward progress | From an established vision and PRD, `helix-run` can advance the repo through downstream refinement and bounded execution until input is required | Year 1 |
-| Reduced orchestration overhead | Users spend materially less time telling the agent what phase to enter next | Year 1 |
-| Artifact alignment | Specs, issues, tests, implementation, and follow-on work remain traceable and mutually consistent after iterative changes | Year 2 |
-| Safe escalation | HELIX asks for user input primarily at real judgment boundaries, not because the workflow contract is underspecified | Year 2 |
+| Metric | Target |
+|--------|--------|
+| Autonomous forward progress | From an established vision and PRD, `helix run` advances the repo through downstream refinement and bounded execution until input is required |
+| Reduced orchestration overhead | Users spend materially less time telling the agent what phase to enter next |
+| Artifact alignment | Specs, issues, tests, implementation, and follow-on work remain traceable and mutually consistent after iterative changes |
+| Safe escalation | HELIX asks for user input primarily at real judgment boundaries, not because the workflow contract is underspecified |
 
-## Strategic Fit
+## Why Now
 
-- **Company Strategy Alignment**: HELIX turns AI-assisted development from ad
-  hoc prompting into a durable operating system for software delivery.
-- **Resource Availability**: The repo already contains the workflow method,
-  tracker, CLI, and skill surfaces needed to make the control loop explicit.
-- **Timing**: AI coding tools are already useful, but teams still lack a
-  reliable supervisory layer that keeps complex software work coherent over
-  time.
+AI coding tools are already useful, but teams still lack a reliable supervisory
+layer that keeps complex software work coherent over time. The repo already
+contains the workflow method, tracker, CLI, and skill surfaces needed to make
+the control loop explicit — the gap is connecting them into a single autopilot
+that humans can trust and steer.
 
 ## Explicit Non-Goals
 

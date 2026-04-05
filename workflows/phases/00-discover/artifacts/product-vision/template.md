@@ -4,20 +4,30 @@
 
 [One to two sentences: What we do + for whom + why it matters]
 
+## Positioning
+
+For [target customer] who [need or problem],
+[product name] is a [category] that [key benefit].
+Unlike [current alternative], [product name] [primary differentiator].
+
 ## Vision
 
 [What does the world look like when this product succeeds? Describe the desired end state — not when it happens, but what changes for users and the market.]
 
 **North Star**: [Single sentence describing ultimate success state]
 
+## User Experience
+
+[Describe what a typical session looks like when this product works as intended. Walk through a concrete scenario from the user's perspective — what do they do, what happens, how does it feel?]
+
 ## Target Market
 
-| Attribute | Primary Segment | Secondary Segment |
-|-----------|-----------------|-------------------|
-| Who | [Specific customer type] | [Specific customer type] |
-| Size | [Market size] | [Market size] |
-| Pain | [Primary pain point] | [Primary pain point] |
-| Current Solution | [What they use today] | [What they use today] |
+| Attribute | Description |
+|-----------|-------------|
+| Who | [Specific customer type] |
+| Pain | [Primary pain point] |
+| Current Solution | [What they use today] |
+| Why They Switch | [What makes the status quo untenable] |
 
 ## Key Value Propositions
 
@@ -28,13 +38,11 @@
 
 ## Success Definition
 
-| Metric | Target | Timeline |
-|--------|--------|----------|
-| Primary KPI | [Specific target] | [When] |
-| [Supporting metric] | [Target] | [When] |
+| Metric | Target |
+|--------|--------|
+| Primary KPI | [Specific measurable outcome] |
+| [Supporting metric] | [Specific measurable outcome] |
 
-## Strategic Fit
+## Why Now
 
-- **Company Strategy Alignment**: [How this supports broader goals]
-- **Resource Availability**: [Team, budget, technology readiness]
-- **Timing**: [Why now is the right time]
+[One paragraph: What has changed — in the market, technology, or user behavior — that makes this the right time to build this? Why would waiting be costly?]

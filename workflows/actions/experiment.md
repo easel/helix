@@ -73,6 +73,8 @@ issues during execution, and closes the issue at session close.
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
+0a. **Load active design principles** following `workflows/references/principles-resolution.md`.
+   Use them to inform metric selection and experiment design decisions.
 1. Verify the built-in tracker is available.
    - If `ddx bead status` fails, stop immediately.
 2. Load ratchet floor fixtures if the project has adopted quality ratchets

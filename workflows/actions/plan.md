@@ -45,6 +45,8 @@ when they exist.
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
+0a. **Load active design principles** following `workflows/references/principles-resolution.md`.
+   These principles guide architectural and design judgment throughout the plan.
 1. Read all existing planning artifacts for the scope:
    - product vision, PRD, feature specs, user stories
    - architecture docs, ADRs, technical designs

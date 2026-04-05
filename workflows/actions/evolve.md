@@ -36,6 +36,13 @@ When artifacts disagree, use this precedence:
 Update higher-authority documents FIRST, then propagate downward. Never
 update a lower-authority artifact in a way that contradicts a higher one.
 
+## PHASE 0 — Bootstrap
+
+0. **Load active design principles** following `workflows/references/principles-resolution.md`.
+   Use these as scoping guidance when evaluating which artifacts need updates
+   and how to resolve judgment calls. Note: `helix evolve` reads principles
+   but never modifies the principles file — only `helix frame` may write it.
+
 ## PHASE 1 — Requirement Analysis
 
 Parse the input requirement:

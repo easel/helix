@@ -27,6 +27,8 @@ Examples:
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
+0a. **Load active design principles** following `workflows/references/principles-resolution.md`.
+   Apply them as review criteria — flag changes that violate the active principles.
 1. Determine what was just implemented:
    - If `last-commit` or no argument: `git diff HEAD~1`
    - If issue ID: load the issue, find associated commits via issue ID in commit

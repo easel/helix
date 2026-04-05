@@ -30,6 +30,12 @@ Frame-phase artifacts sit at authority levels 1-3:
 These govern all downstream work. Do not contradict existing higher-level
 artifacts unless the scope explicitly asks you to revise them.
 
+## PHASE 0 — Bootstrap
+
+0. **Load active design principles** following `workflows/references/principles-resolution.md`.
+   Use them to shape requirements priorities. If no project principles file
+   exists, note that you will bootstrap one as part of this frame action.
+
 ## PHASE 1 — Discovery
 
 1. Read existing Frame-phase artifacts:
@@ -58,8 +64,9 @@ For each missing or outdated artifact:
 ### Product Vision
 
 Follow the template at `workflows/phases/00-discover/artifacts/product-vision/`.
-Key sections: mission statement, vision, target market, value propositions,
-product principles, success metrics, non-goals.
+Key sections: mission statement, positioning, vision, user experience, target
+market, value propositions, product principles, success metrics, why now,
+non-goals.
 
 ### PRD
 
@@ -83,6 +90,21 @@ For each drafted artifact, perform 3-5 rounds of self-critique:
 4. Ensure success metrics are measurable
 5. Check that feature specs cover the PRD requirements
 6. Verify user stories have deterministic acceptance criteria
+
+## PHASE 3.5 — Principles Bootstrap (if needed)
+
+If no `docs/helix/01-frame/principles.md` exists for this project:
+
+1. Present the HELIX defaults from `workflows/principles.md` to the user.
+2. Ask:
+   - "What does your project value most?"
+   - "What trade-offs do you consistently lean toward?"
+   - "What past mistakes should these principles help you avoid?"
+3. Synthesize user input and defaults into a project principles document.
+4. Check for tensions between principles (see `workflows/references/principles-resolution.md`).
+5. Write `docs/helix/01-frame/principles.md`.
+
+Skip this phase if the principles file already exists.
 
 ## PHASE 4 — Issue Creation
 

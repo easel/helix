@@ -106,6 +106,11 @@ rest, and close the issue.
    - Load ratchet floor fixtures if the project has adopted quality ratchets
      (see `workflows/ratchets.md`). Note the current floors so Phase 7
      can compare against them.
+4. Load active design principles.
+   - Follow the resolution pattern in `workflows/references/principles-resolution.md`.
+   - If `docs/helix/01-frame/principles.md` exists and has content, load it.
+   - Otherwise load `workflows/principles.md` (HELIX defaults).
+   - Apply these principles when making judgment calls throughout this task.
 
 ## PHASE 1 - Candidate Discovery
 
