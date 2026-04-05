@@ -13,7 +13,7 @@ autoresearch.sh
 autoresearch.jsonl
 experiments/
 
-# DDx runtime state (agent logs, execution runs)
+# DDx runtime state (tracked data like beads.jsonl is NOT ignored)
 .ddx/agent-logs/
 .ddx/exec-runs.d/
 .ddx/exec-runs.jsonl
