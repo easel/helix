@@ -4,7 +4,7 @@ A supervisory autopilot for AI-assisted software delivery. Specification-first,
 test-first discipline through structured phases where tests are written before
 implementation. Humans and AI agents collaborate throughout.
 
-**[Documentation](https://easel.github.io/helix/)** · **[Demo Reels](https://easel.github.io/helix/docs/demos/)** · **[Getting Started](https://easel.github.io/helix/docs/getting-started/)**
+**[Documentation](https://documentdrivendx.github.io/helix/)** · **[Demo Reels](https://documentdrivendx.github.io/helix/docs/demos/)** · **[Getting Started](https://documentdrivendx.github.io/helix/docs/getting-started/)**
 
 ![HELIX Quickstart Demo](docs/demos/helix-quickstart/recordings/helix-quickstart.gif)
 
@@ -12,7 +12,7 @@ implementation. Humans and AI agents collaborate throughout.
 
 ```bash
 # Clone and install (skills + CLI)
-git clone https://github.com/easel/helix.git
+git clone https://github.com/DocumentDrivenDX/helix.git
 cd helix && scripts/install-local-skills.sh
 ```
 
