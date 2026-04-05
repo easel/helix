@@ -88,12 +88,12 @@ graph TD
 
 ## Concern Alignment
 
-If the project has an active concerns (`docs/helix/01-frame/concerns.md`), confirm
-this design is consistent with it:
+If the project has active concerns (`docs/helix/01-frame/concerns.md`), confirm
+this design is consistent with them:
 
-- **Concern components used**: [Which stack selections does this design rely on?]
-- **Concern constraints honored**: [Any stack constraints that shaped this design?]
-- **ADRs referenced**: [Stack-related ADRs that govern design choices here]
+- **Concerns used**: [Which active concerns does this design rely on?]
+- **Constraints honored**: [Any concern constraints that shaped this design?]
+- **ADRs referenced**: [Concern-related ADRs that govern design choices here]
 - **Departures**: [Any design choices that depart from concern practices? If so,
   an ADR should justify the departure.]
 

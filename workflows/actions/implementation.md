@@ -113,14 +113,14 @@ rest, and close the issue.
    - Apply these principles when making judgment calls throughout this task.
 5. Load active concerns and practices.
    - Follow the resolution pattern in `workflows/references/concern-resolution.md`.
-   - If `docs/helix/01-frame/concerns.md` exists, load the declared concernss and
+   - If `docs/helix/01-frame/concerns.md` exists, load the declared concerns and
      merged practices.
-   - Use the declared concerns's tools, conventions, and patterns throughout
+   - Use the declared concern tools, conventions, and patterns throughout
      implementation. Do not substitute alternative tools without an explicit
      project override or ADR.
 6. Read the bead's context digest if present.
    - If the bead description starts with `<context-digest>`, parse it and use
-     the summarized principles, stack, practices, ADRs, and governing context
+     the summarized principles, concerns, practices, ADRs, and governing context
      as your working authority.
    - If no digest exists (legacy bead), rely on steps 4-5 above plus the
      bead's `spec-id` to reconstruct context.

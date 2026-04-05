@@ -48,7 +48,7 @@ when they exist.
 0a. **Load active design principles** following `workflows/references/principles-resolution.md`.
    These principles guide architectural and design judgment throughout the plan.
 0b. **Load active concerns and practices** following `workflows/references/concern-resolution.md`.
-   The stack constrains architecture decisions — design within the declared
+   The declared concerns constrain architecture decisions — design within the declared
    technology selections. Reference ADRs that justify concern choices when the
    design depends on them.
 1. Read all existing planning artifacts for the scope:

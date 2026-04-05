@@ -33,7 +33,7 @@ Examples:
    Flag implementation that uses tools or conventions inconsistent with the
    declared concerns (e.g., wrong test framework, wrong formatter, wrong import style).
 0c. **Read the bead's context digest** if the reviewed issue has one.
-   Use it as the authoritative summary of what principles, stack, practices,
+   Use it as the authoritative summary of what principles, concerns, practices,
    and ADRs govern this work.
 1. Determine what was just implemented:
    - If `last-commit` or no argument: `git diff HEAD~1`

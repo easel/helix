@@ -24,19 +24,35 @@ cross-cutting context beyond principles.
 
 ### Area Filtering
 
-Each concern declares an `areas` field in its `concern.md`:
+Each concern declares an `areas` field in its `concern.md`. The canonical
+area taxonomy is:
 
-- `all` — applies to every bead
-- `ui`, `frontend` — applies to UI work
-- `api`, `backend` — applies to API/service work
-- `data` — applies to data-layer work
-- `infra` — applies to infrastructure work
-- Comma-separated list for multiple areas
+| Area value | Matches bead labels | Typical concerns |
+|------------|-------------------|------------------|
+| `all` | Every bead | Tech stacks, security |
+| `ui` | `area:ui`, `area:frontend` | a11y, i18n, design system |
+| `api` | `area:api`, `area:backend` | o11y, rate limiting |
+| `data` | `area:data` | Data modeling, migration |
+| `infra` | `area:infra` | Deployment, monitoring |
+| `cli` | `area:cli` | CLI conventions |
 
-When assembling context for a bead, match the bead's `area:*` labels against
-each concern's `areas` field. Only include concerns that match.
+Concerns use comma-separated lists for multiple areas (e.g., `ui, api`).
 
-If a bead has no `area:*` labels, only concerns with `areas: all` are included.
+The area taxonomy is **extensible per-project**. Projects declare their area
+labels in `docs/helix/01-frame/concerns.md` under `## Area Labels`. The
+defaults above cover most projects; add custom areas when needed.
+
+**Matching rules**:
+- `areas: all` matches every bead regardless of labels.
+- `areas: ui` matches beads with `area:ui` or `area:frontend`.
+- `areas: api` matches beads with `area:api` or `area:backend`.
+- A bead with multiple area labels matches any concern that declares any of
+  those areas.
+- A bead with **no** `area:*` labels matches only concerns with `areas: all`.
+
+**Triage/evolve/polish must assign area labels** before assembling the
+context digest. If a bead's area is ambiguous, prefer the more inclusive
+label or assign multiple labels.
 
 ### Practices
 

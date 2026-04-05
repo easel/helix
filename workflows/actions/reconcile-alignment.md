@@ -82,7 +82,7 @@ HELIX labels appropriate to the work phase.
    Use them as alignment criteria — flag artifacts whose design choices deviate
    from the active principles.
 0b. **Load active concerns and practices** following `workflows/references/concern-resolution.md`.
-   Stack drift is an alignment concern — flag implementation that uses tools or
+   Concern drift is an alignment finding — flag implementation that uses tools or
    conventions inconsistent with the declared concerns. Flag ADRs that contradict
    current concern selections.
 0c. **Verify context digest freshness**: For beads in scope, check whether

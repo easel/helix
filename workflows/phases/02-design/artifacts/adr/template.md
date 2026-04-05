@@ -55,10 +55,10 @@ We will [decision statement].
 
 ## Concern Impact
 
-If this decision affects the project's technology stack or overrides a
+If this decision affects the project's active concerns or overrides a
 library practice, note the impact here:
 
-- **Stack selection**: [Does this ADR select, change, or constrain a concern?]
+- **Concern selection**: [Does this ADR select, change, or constrain a concern?]
 - **Practice override**: [Does this ADR override a library concern practice? If so,
   update `docs/helix/01-frame/concerns.md` Project Overrides with this ADR ref.]
 - **No concern impact**: [Delete this section if the ADR has no concern relevance.]

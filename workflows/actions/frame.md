@@ -38,8 +38,8 @@ artifacts unless the scope explicitly asks you to revise them.
 0a. **Load or initialize active concerns** following `workflows/references/concern-resolution.md`.
    If `docs/helix/01-frame/concerns.md` does not exist, include concern selection
    as part of the framing conversation — ask the user about their technology
-   choices and create the stack document alongside other Frame artifacts.
-   Stack selections inform feasibility, constraints, and deployment sections
+   choices and create the concerns document alongside other Frame artifacts.
+   Concern selections inform feasibility, constraints, and deployment sections
    of the PRD and feature specs.
 
 ## PHASE 1 — Discovery
@@ -48,10 +48,12 @@ artifacts unless the scope explicitly asks you to revise them.
    - `docs/helix/00-discover/product-vision.md`
    - `docs/helix/01-frame/prd.md`
    - `docs/helix/01-frame/features/FEAT-*.md`
+   - `docs/helix/01-frame/concerns.md` (if it exists)
 2. Read the artifact templates:
    - `workflows/phases/00-discover/artifacts/product-vision/`
    - `workflows/phases/01-frame/artifacts/prd/`
    - `workflows/phases/01-frame/artifacts/feature-specification/`
+   - `workflows/phases/01-frame/artifacts/concerns/` (template, prompt, meta.yml)
 3. Load numbering rules and determine the next artifact ID:
    - Read `workflows/phases/01-frame/artifacts/feature-specification/meta.yml`
      to understand the ID format (`FEAT-{number}`), naming pattern, and reuse

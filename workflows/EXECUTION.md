@@ -385,6 +385,24 @@ and `helix run`.
 These steps are optional for small changes but strongly recommended for any
 scope that will produce more than a handful of issues.
 
+## Cross-Cutting Context in Beads
+
+`helix triage` and `helix evolve` assemble a **context digest** into every
+bead they create. The digest is a compact ~1000-1500 token summary of active
+principles, area-matched concerns, merged practices, relevant ADRs, and
+governing spec context. It is prepended to the bead description as a
+`<context-digest>` XML block.
+
+`helix polish` refreshes stale digests against current upstream state.
+
+`helix build` and `helix review` read the digest from the bead and use it
+as working authority — they do not redundantly read the upstream files that
+the digest summarizes.
+
+See `workflows/references/context-digest.md` for the assembly algorithm,
+`workflows/references/concern-resolution.md` for concern loading, and
+`workflows/references/principles-resolution.md` for principles loading.
+
 ## Next Issue
 
 `helix next` prints the recommended next issue without spawning an agent:

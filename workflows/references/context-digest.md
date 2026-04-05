@@ -34,17 +34,21 @@ summarizes all cross-cutting concerns and governing context into
    `workflows/references/principles-resolution.md`. Include the full list
    as a compact single line (separator: ` · `).
 
-2. **Stack**: Load active concerns per
-   `workflows/references/concern-resolution.md`. Summarize selected
-   components as `name | name | name`.
+2. **Concerns**: Load active concerns per
+   `workflows/references/concern-resolution.md`. Filter by bead area scope.
+   Summarize matched concern names as `name | name | name`.
 
-3. **Practices**: Load merged practices (library + project overrides).
-   Summarize as key conventions (separator: ` · `). Prioritize:
-   linter, formatter, testing, and language-config practices.
+3. **Practices**: Load merged practices from area-matched concerns (library
+   + project overrides). Summarize as key conventions (separator: ` · `).
+   Prioritize: linter, formatter, testing, and language-config practices.
 
-4. **ADRs**: Find ADRs relevant to the bead's scope:
-   - Match ADR `Related` field against the bead's `spec-id` chain
-   - Match ADR topic against the bead's `area:*` labels
+4. **ADRs**: Discover relevant ADRs using two paths (in priority order):
+   a. **Primary — concern references**: Collect ADR references from each
+      area-matched concern's `## ADR References` section, plus any ADRs
+      cited in the project overrides section of `concerns.md`.
+   b. **Secondary — spec/topic match**: Match ADR `Related` field against
+      the bead's `spec-id` chain, and match ADR topic against the bead's
+      `area:*` labels. This catches ADRs not yet wired into concerns.
    - For each relevant ADR: extract the decision statement and one-line
      rationale. Do not include alternatives or exploration.
 
@@ -64,7 +68,7 @@ summarizes all cross-cutting concerns and governing context into
 ```xml
 <context-digest>
 <principles>Principle 1 · Principle 2 · Principle 3</principles>
-<concerns>Component 1 | Component 2 | Component 3</concerns>
+<concerns>Concern 1 | Concern 2 | Concern 3</concerns>
 <practices>Practice 1 · Practice 2 · Practice 3</practices>
 <adrs>ADR-NNN decision summary · ADR-NNN decision summary</adrs>
 <governing>FEAT-NNN §X.Y — key requirement or constraint</governing>
@@ -73,22 +77,22 @@ summarizes all cross-cutting concerns and governing context into
 
 Each XML element is optional — omit it if there is no relevant content
 (e.g., omit `<adrs>` if no ADRs are relevant, omit `<concerns>` if no
-stack is declared).
+concerns are declared).
 
 ## Token Budget
 
 | Section | Target | Notes |
 |---------|--------|-------|
 | Principles | ~100 tokens | Full list, compact format |
-| Stack | ~50 tokens | Component names only |
+| Concerns | ~50 tokens | Matched concern names only |
 | Practices | ~200 tokens | Key conventions, not exhaustive |
 | ADRs | ~200 tokens per ADR | Decision + rationale only |
 | Governing | ~300 tokens | Specific clause, not full spec |
 | **Total** | **~1000-1500 tokens** | Less than one upstream file read |
 
-If the total exceeds 2000 tokens (many ADRs, many stacks), prioritize:
-principles first, then stack/practices, then governing, then ADRs by
-relevance. Truncate ADR summaries before dropping them entirely.
+If the total exceeds 2000 tokens (many ADRs, many concerns), prioritize:
+principles first, then concerns/practices, then ADRs by relevance, then
+governing spec context. Truncate ADR summaries before dropping them.
 
 ## Refresh at Polish Time
 
