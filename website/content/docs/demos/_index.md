@@ -134,3 +134,44 @@ Requires: git, jq, node, npm, ddx, helix CLI.
 {{< /tab >}}
 
 {{< /tabs >}}
+
+---
+
+## Experiment: Metric-Driven Optimization
+
+Demonstrates how `helix experiment` optimizes code through measured iteration. A deliberately slow string processing function is improved through hypothesis-driven changes, with correctness tests enforced at every step.
+
+{{< asciinema src="helix-experiment" >}}
+
+| Act | Phase | What Happens |
+|-----|-------|-------------|
+| 1 | Setup | Project with slow function, correctness tests, and benchmark |
+| 2 | Iterate | Agent hypothesizes, edits, tests, benchmarks (iteration 1) |
+| 3 | Iterate | Agent finds next bottleneck, optimizes further (iteration 2) |
+| 4 | Results | Final benchmark shows improvement, all tests still passing |
+
+{{< tabs >}}
+
+{{< tab name="Docker" >}}
+```bash
+docker build -t helix-experiment-demo docs/demos/helix-experiment/
+docker run --rm \
+  -v ~/.claude.json:/root/.claude.json:ro \
+  -v ~/.claude:/root/.claude \
+  -v $(pwd):/helix:ro \
+  -v $(pwd)/../ddx/ddx:/usr/local/bin/ddx:ro \
+  -v $(pwd)/docs/demos/helix-experiment/recordings:/recordings \
+  helix-experiment-demo
+```
+{{< /tab >}}
+
+{{< tab name="Local" >}}
+```bash
+cd /tmp
+bash /path/to/helix/docs/demos/helix-experiment/demo.sh
+```
+
+Requires: git, jq, node, npm, ddx, helix CLI.
+{{< /tab >}}
+
+{{< /tabs >}}

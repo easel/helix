@@ -88,7 +88,7 @@ Each demo reel must:
 | **Quickstart** | Full lifecycle: install → frame → design → build → review | Done |
 | **Concerns** | Concern selection during frame, drift detection during review | Done |
 | **Evolve** | Threading a requirement change through the artifact stack | Done |
-| **Experiment** | Metric-driven optimization loop | Planned |
+| **Experiment** | Metric-driven optimization loop | Done |
 
 ### FR-4: Technology Stack
 

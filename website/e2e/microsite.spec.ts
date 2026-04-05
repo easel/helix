@@ -192,6 +192,7 @@ test.describe('Demos', () => {
       await expect(article(page).getByText('Quickstart: Full Lifecycle')).toBeVisible()
       await expect(article(page).getByText('Concerns: Preventing Technology Drift')).toBeVisible()
       await expect(article(page).getByText('Evolve: Threading Requirements')).toBeVisible()
+      await expect(article(page).getByText('Experiment: Metric-Driven Optimization')).toBeVisible()
     })
 
     await test.step('capture screenshot', async () => {
