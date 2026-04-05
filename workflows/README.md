@@ -241,6 +241,11 @@ Execution principles:
   review automation is enabled
 - continuous useful work: absorb small adjacent work, stay within scope, and
   finish with blocker reports instead of silent stops
+- follow-up beads before close: any HELIX action that produces follow-up
+  suggestions (review findings, alignment gaps, check recommendations,
+  discovered work) must file those suggestions as tracker beads before the
+  action closes. Prose suggestions without corresponding beads are lost
+  between sessions — the ready queue is the only durable hand-off mechanism
 
 For operator flow, queue control, and bounded HELIX execution semantics, see
 [EXECUTION.md](EXECUTION.md).

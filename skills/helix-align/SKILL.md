@@ -36,6 +36,17 @@ Reference docs:
 - Create or reconcile one review epic plus one review issue per functional area.
 - Create execution issues only after the consolidated report exists.
 
+## Follow-Up Bead Policy
+
+Before the alignment review closes, **every gap that is not classified
+ALIGNED** must have at least one corresponding execution bead in the tracker.
+Do not close the review with prose recommendations that have no corresponding
+bead — the ready queue is the only durable hand-off mechanism between review
+and execution.
+
+See Phase 7 (Execution Issues) and Issue Coverage Verification in
+`workflows/actions/reconcile-alignment.md` for the exact rules and format.
+
 ## Output Model
 
 Produce:
@@ -43,7 +54,7 @@ Produce:
 1. Review epic in the tracker
 2. Review issues in the tracker
 3. Durable report at `docs/helix/06-iterate/alignment-reviews/AR-YYYY-MM-DD[-scope].md`
-4. Execution issues only for approved gaps
+4. Execution issues for every non-ALIGNED gap (filed before the review closes)
 
 ## Required Evidence
 

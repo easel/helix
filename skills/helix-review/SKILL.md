@@ -16,8 +16,20 @@ Execute the HELIX fresh-eyes review action.
 3. Focus on bugs, regressions, missing tests, and follow-on work.
 4. Report concrete findings first. If the work is clean, say so briefly.
 
+## Follow-Up Bead Policy
+
+Before the review closes, **every actionable follow-up** (severity critical,
+high, or medium) must be filed as a tracker bead via `ddx bead create`. Do not
+close the review with prose suggestions that have no corresponding bead — the
+ready queue is the only durable hand-off mechanism between review and
+execution.
+
+See the "Filing Findings as Tracker Issues" section in
+`workflows/actions/fresh-eyes-review.md` for the exact bead format.
+
 ## Output
 
 - findings first
 - concrete evidence
-- recommended fixes or follow-on issues when needed
+- filed beads for actionable follow-ups (critical/high/medium)
+- trailer lines: REVIEW_STATUS, ISSUES_COUNT, FINDINGS_FILED, AGENTS_MD_UPDATED, LEARNINGS_FILED

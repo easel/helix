@@ -21,3 +21,7 @@ Execute the HELIX `check` action and return the required decision markers.
 - Do not guess past missing evidence.
 - Prefer `WAIT` or `GUIDANCE` over unsafe execution.
 - Do not dispatch implementation, alignment, or backfill silently.
+- If the check reveals work that should be tracked (e.g., stale artifacts,
+  missing designs, untracked blockers), file beads via `ddx bead create`
+  before returning the NEXT_ACTION code. The ready queue is the durable
+  hand-off — prose suggestions without beads are lost between sessions.
