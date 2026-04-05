@@ -11,18 +11,10 @@ implementation. Humans and AI agents collaborate throughout.
 ## Install
 
 ```bash
-# Clone and install (skills + CLI)
-git clone https://github.com/DocumentDrivenDX/helix.git
-cd helix && scripts/install-local-skills.sh
+ddx install helix
 ```
 
-Or load as a Claude Code plugin (no install step):
-
-```bash
-claude --plugin-dir /path/to/helix
-```
-
-**Requirements:** bash, jq, git, [ddx](https://github.com/DocumentDrivenDX/ddx), and `claude` or `codex` CLI.
+**Requirements:** [ddx](https://github.com/DocumentDrivenDX/ddx), `claude` or `codex` CLI, bash, jq, git.
 
 ## Quick Start
 
