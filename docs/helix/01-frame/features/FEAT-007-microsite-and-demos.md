@@ -86,9 +86,9 @@ Each demo reel must:
 | Demo | Scope | Status |
 |------|-------|--------|
 | **Quickstart** | Full lifecycle: install → frame → design → build → review | Done |
-| **Concerns** | Concern selection during frame, drift detection during review | Planned |
+| **Concerns** | Concern selection during frame, drift detection during review | Done |
+| **Evolve** | Threading a requirement change through the artifact stack | Done |
 | **Experiment** | Metric-driven optimization loop | Planned |
-| **Evolve** | Threading a requirement change through the artifact stack | Planned |
 
 ### FR-4: Technology Stack
 
@@ -98,7 +98,7 @@ The microsite uses:
 - **Hextra** theme via Go Module for layout, search, navigation, dark mode
 - **Asciinema-player** (v3.7.1) via CDN for terminal recording playback
 - **GitHub Pages** for deployment via GitHub Actions
-- **Playwright** for e2e testing with screenshot snapshots (planned)
+- **Playwright** for e2e testing with screenshot snapshots, video recording
 
 These choices are declared in the `hugo-hextra` and `demo-asciinema`
 concerns and must not drift without an ADR.
