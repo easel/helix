@@ -1,34 +1,46 @@
 # HELIX
 
-HELIX has two public layers:
+A supervisory autopilot for AI-assisted software delivery. Specification-first,
+test-first discipline through structured phases where tests are written before
+implementation. Humans and AI agents collaborate throughout.
 
-- a portable Agent Skills package surface published at `./.agents/skills`
-- a stricter HELIX workflow and CLI contract for planning, execution, and
-  tracker-driven delivery
-
-The workflow layer enforces specification-first, test-first discipline through
-a structured phase approach where tests are written before implementation.
-Humans and AI agents collaborate throughout, with tests serving as the
-contract between design and implementation.
-
-## Demo
+**[Documentation](https://easel.github.io/helix/)** · **[Demo Reels](https://easel.github.io/helix/docs/demos/)** · **[Getting Started](https://easel.github.io/helix/docs/getting-started/)**
 
 ![HELIX Quickstart Demo](docs/demos/helix-quickstart/recordings/helix-quickstart.gif)
+
+## Install
+
+```bash
+# Clone and install (skills + CLI)
+git clone https://github.com/easel/helix.git
+cd helix && scripts/install-local-skills.sh
+```
+
+Or load as a Claude Code plugin (no install step):
+
+```bash
+claude --plugin-dir /path/to/helix
+```
+
+**Requirements:** bash, jq, git, [ddx](https://github.com/DocumentDrivenDX/ddx), and `claude` or `codex` CLI.
 
 ## Quick Start
 
 ```bash
-# Install skills and CLI
-scripts/install-local-skills.sh
+cd your-project
+ddx init                    # Set up document library and tracker
+helix frame                 # Create vision, PRD, feature specs
+helix run                   # Autopilot: build → review → check → repeat
+```
 
-# Run the bounded execution loop
-helix run
+Or run individual commands:
 
-# Or run individual commands
-helix build
-helix check
-helix design auth
-helix experiment --close
+```bash
+helix build                 # One bounded build pass
+helix check                 # What should happen next?
+helix design auth           # Design a subsystem
+helix review                # Fresh-eyes review
+helix status                # Queue health and lifecycle snapshot
 ```
 
 ## Phases

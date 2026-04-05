@@ -196,7 +196,8 @@ test.describe('Demos', () => {
     })
 
     await test.step('capture screenshot', async () => {
-      await expect(page).toHaveScreenshot('demos.png', { fullPage: true })
+      // Asciinema players load async and cause size jitter — allow 3% pixel diff
+      await expect(page).toHaveScreenshot('demos.png', { fullPage: true, maxDiffPixelRatio: 0.03 })
     })
   })
 })
