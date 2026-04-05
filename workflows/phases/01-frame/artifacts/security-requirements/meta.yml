@@ -29,12 +29,9 @@ dependencies:
       required: true
 
   enables:
-    - output: Security Architecture
+    - output: Solution Design (security sections)
       type: artifact
-      path: security-architecture
-      phase: design
-    - output: Security Design Constraints
-      type: artifact
+      path: solution-design
       phase: design
     - output: Security Testing Strategy
       type: artifact
@@ -111,12 +108,11 @@ workflow:
 
 relationships:
   informs:
-    - security-architecture
+    - solution-design
     - threat-model
     - compliance-requirements
   referenced_by:
-    - security-test-plan
-    - security-monitoring
+    - test-plan
 
 tags:
   - security

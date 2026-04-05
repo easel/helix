@@ -12,10 +12,8 @@ id_format:
   pattern: "TP-[0-9]{3}"
   example: TP-001
   description: |
-    Sequential three-digit number. Project-level test plans use TP-XXX
-    identifiers. Story-level test plans (story-test-plan artifact type) share
-    the same TP-XXX namespace. Each test plan number is unique across the
-    project and is never reused.
+    Sequential three-digit number. Test plans use TP-XXX identifiers.
+    Each test plan number is unique across the project and is never reused.
 
 description: |
   The project-level test plan defines the testing strategy for the full
@@ -56,9 +54,7 @@ output:
 reuse_policy: |
   One project-level test plan per project. It is updated in place as the
   project evolves. Each update should preserve prior decisions unless they
-  are explicitly superseded. Story-level test plans (TP-XXX-*.md) are
-  separate artifacts in the story-test-plan artifact type and are not
-  stored here.
+  are explicitly superseded.
 
 validation:
   required_sections:
@@ -120,12 +116,10 @@ relationships:
     - user-stories
 
   informs:
-    - story-test-plan
-    - build-issues
+    - implementation-plan
 
   referenced_by:
     - prd
-    - deployment-checklist
 
 tags:
   - test

@@ -134,12 +134,10 @@ relationships:
 
   informs:
     - technical-design
-    - story-test-plan
+    - test-plan
 
   references:
     - architecture
-    - contracts
-    - data-design
 
 feature_progression:
   previous: FEAT-XXX (Frame)

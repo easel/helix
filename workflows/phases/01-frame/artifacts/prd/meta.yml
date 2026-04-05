@@ -126,7 +126,6 @@ relationships:
   referenced_by:
     - solution-design
     - test-plan
-    - deployment-checklist
 
 tags:
   - business

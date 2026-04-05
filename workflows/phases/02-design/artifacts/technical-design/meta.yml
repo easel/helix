@@ -158,13 +158,11 @@ relationships:
     - feature-specification
 
   informs:
-    - story-test-plan
-    - story-build-issue
+    - test-plan
+    - implementation-plan
 
   references:
-    - contracts
     - architecture
-    - data-design
 
 story_progression:
   previous: US-XXX (Frame)

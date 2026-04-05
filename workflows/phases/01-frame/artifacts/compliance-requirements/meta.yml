@@ -117,11 +117,9 @@ workflow:
 
 relationships:
   informs:
-    - security-architecture
-    - data-protection-design
+    - solution-design
   referenced_by:
-    - audit-checklist
-    - compliance-monitoring
+    - test-plan
 
 tags:
   - compliance

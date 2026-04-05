@@ -114,11 +114,10 @@ workflow:
 
 relationships:
   informs:
-    - security-architecture
-    - security-test-plan
+    - solution-design
+    - test-plan
   referenced_by:
-    - security-design
-    - penetration-test-plan
+    - adr
 
 tags:
   - security
