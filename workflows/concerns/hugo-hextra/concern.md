@@ -1,0 +1,165 @@
+# Concern: Microsite (Hugo + Hextra)
+
+## Category
+microsite
+
+## Areas
+all
+
+## Components
+
+- **Static site generator**: Hugo (extended edition)
+- **Theme**: Hextra (`github.com/imfing/hextra`), imported as a Hugo Module
+- **Content format**: Markdown with YAML frontmatter
+- **Deployment**: GitHub Pages via GitHub Actions
+- **E2E testing**: Playwright with screenshot snapshots
+
+## Constraints
+
+- All site content lives under `website/` in the project root
+- Hugo Module system for theme management — not git submodules, not manual copy
+- Hextra theme provides layout, navigation, search, and responsive design — do
+  not duplicate what the theme already does
+- `go.mod` and `go.sum` in `website/` pin the theme version
+- No custom CSS unless Hextra genuinely cannot achieve the design goal
+- Markdown content must render correctly without the theme (readable on GitHub)
+- `enableGitInfo: true` — Hugo uses git metadata for last-modified dates;
+  CI must checkout with `fetch-depth: 0`
+- `goldmark.renderer.unsafe: true` — allows raw HTML in markdown for shortcodes
+- Hugo version pinned in CI workflow — do not rely on ambient `hugo` from PATH
+
+## Content Guidelines
+
+Every microsite must include at minimum:
+
+| Page | Path | Purpose |
+|------|------|---------|
+| Home | `content/_index.md` | Hero, value prop, feature grid, CTA |
+| Getting Started | `content/docs/getting-started.md` | Install, first-run, quickstart |
+| Core Concepts | `content/docs/<topic>/_index.md` | One section per major concept |
+| CLI Reference | `content/docs/cli/_index.md` | Complete command reference |
+| Demo | `content/docs/demos/_index.md` | Embedded terminal recordings |
+
+### Home page pattern
+
+Use `layout: hextra-home` and Hextra shortcodes:
+
+```markdown
+---
+title: Project Name
+layout: hextra-home
+---
+
+{{</* hextra/hero-badge */>}}v0.x.y{{</* /hextra/hero-badge */>}}
+{{</* hextra/hero-headline */>}}Tagline{{</* /hextra/hero-headline */>}}
+{{</* hextra/hero-subtitle */>}}One-sentence description{{</* /hextra/hero-subtitle */>}}
+{{</* hextra/hero-button text="Get Started" link="docs/getting-started" */>}}
+
+{{</* hextra/feature-grid */>}}
+  {{</* hextra/feature-card title="Feature" */>}}Description{{</* /hextra/feature-card */>}}
+{{</* /hextra/feature-grid */>}}
+```
+
+### Documentation page pattern
+
+```markdown
+---
+title: Page Title
+weight: 1
+prev: /docs
+next: /docs/next-section
+---
+```
+
+Use `weight` for sidebar ordering, `prev`/`next` for sequential navigation.
+
+### Shortcode preference
+
+Use Hextra built-in shortcodes before creating custom ones:
+
+- `hextra/hero-*` — landing page components
+- `hextra/feature-grid` / `hextra/feature-card` — feature showcase
+- `cards` / `card` — documentation index grids
+- `tabs` / `tab` — tabbed content blocks
+- `icon` — inline SVG icons
+
+Only create a custom shortcode in `layouts/shortcodes/` when no Hextra
+component covers the need (e.g., `asciinema.html` for terminal recordings).
+
+## Hugo Configuration Pattern
+
+```yaml
+baseURL: https://<org>.github.io/<project>/
+languageCode: en-us
+title: <PROJECT> — <tagline>
+
+module:
+  imports:
+    - path: github.com/imfing/hextra
+
+enableRobotsTXT: true
+enableGitInfo: true
+
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+  highlight:
+    noClasses: false
+
+params:
+  navbar:
+    displayTitle: true
+    displayLogo: false
+  page:
+    width: wide
+  footer:
+    displayCopyright: true
+    displayPoweredBy: false
+  editURL:
+    enable: true
+    base: https://github.com/<org>/<project>/edit/main/website/content
+```
+
+## E2E Testing Pattern
+
+Playwright tests live at `website/e2e/` with `website/package.json`:
+
+```json
+{
+  "name": "<project>-website-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:screenshots": "playwright test --update-snapshots"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1"
+  }
+}
+```
+
+Tests should verify:
+- Homepage loads with hero content and feature cards
+- Each documentation page loads and has expected headings
+- Navigation links work
+- Screenshot snapshots for visual regression
+
+## CI/CD Pattern
+
+GitHub Actions workflow for GitHub Pages deployment:
+
+1. Trigger: successful test workflow on main + version tags + manual dispatch
+2. Install Hugo (extended, pinned version) and Go
+3. Checkout with `fetch-depth: 0` (required for `enableGitInfo`)
+4. Build: `hugo --gc --minify` in `website/` directory
+5. Deploy to GitHub Pages
+
+## When to use
+
+Any project that needs a public-facing documentation site. The Hugo + Hextra
+pattern provides search, responsive design, dark mode, and navigation with
+minimal configuration.
+
+## ADR References
