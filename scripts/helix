@@ -1857,11 +1857,22 @@ run_loop() {
       local reason="${skip_reasons[$id]:-unknown}"
       printf 'helix:   %s — %s\n' "$id" "$reason" >&2
       printf 'helix:     %s\n' "$title" >&2
-      # Mark blocked in tracker with structured notes for human triage
-      tracker_update "$id" \
-        --labels "helix,blocked" \
-        --notes "BLOCKED [$(date -Iseconds)]: $reason" \
-        >/dev/null 2>&1 || true
+      # Mark blocked in tracker — deduplicate notes to avoid bloat on retries.
+      # Only append a BLOCKED note if the existing notes don't already contain
+      # the same reason text (ignoring the timestamp).
+      local existing_notes
+      existing_notes="$(tracker_show "$id" --json 2>/dev/null | jq -r '.notes // ""')" || existing_notes=""
+      if [[ "$existing_notes" != *"$reason"* ]]; then
+        tracker_update "$id" \
+          --labels "helix,blocked" \
+          --notes "BLOCKED [$(date -Iseconds)]: $reason" \
+          >/dev/null 2>&1 || true
+      else
+        # Reason already recorded — just ensure blocked label is set
+        tracker_update "$id" \
+          --labels "helix,blocked" \
+          >/dev/null 2>&1 || true
+      fi
     done
 
     # Write structured report file
