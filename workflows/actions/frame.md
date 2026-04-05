@@ -35,6 +35,12 @@ artifacts unless the scope explicitly asks you to revise them.
 0. **Load active design principles** following `workflows/references/principles-resolution.md`.
    Use them to shape requirements priorities. If no project principles file
    exists, note that you will bootstrap one as part of this frame action.
+0a. **Load or initialize active stack** following `workflows/references/stack-resolution.md`.
+   If `docs/helix/01-frame/stack.md` does not exist, include stack selection
+   as part of the framing conversation — ask the user about their technology
+   choices and create the stack document alongside other Frame artifacts.
+   Stack selections inform feasibility, constraints, and deployment sections
+   of the PRD and feature specs.
 
 ## PHASE 1 — Discovery
 

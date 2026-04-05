@@ -245,6 +245,36 @@ Execution principles:
 For operator flow, queue control, and bounded HELIX execution semantics, see
 [EXECUTION.md](EXECUTION.md).
 
+## Cross-Cutting Context
+
+HELIX injects three layers of cross-cutting context into every judgment-making
+action prompt:
+
+| Layer | Reference | Project File | Fallback |
+|-------|-----------|-------------|----------|
+| **Principles** | `references/principles-resolution.md` | `docs/helix/01-frame/principles.md` | `workflows/principles.md` (defaults) |
+| **Stacks & Practices** | `references/stack-resolution.md` | `docs/helix/01-frame/stack.md` | None (no default stack) |
+| **Context Digest** | `references/context-digest.md` | Assembled into bead descriptions | Fall back to upstream reads |
+
+**Principles** are values that guide judgment (design + engineering). They
+apply universally — "design for simplicity", "tests first", "local-first UX".
+
+**Stacks** are composable technology selections from a library
+(`workflows/stacks/`). Projects select stacks and override practices in their
+stack file. Each stack ships associated **practices** — conventions that follow
+from the technology choices.
+
+**Context digests** are compact ~1000-1500 token summaries assembled into beads
+at triage/polish time. They include active principles, stack, practices,
+relevant ADRs, and governing spec context — making beads self-contained
+execution units that rarely require upstream file reads.
+
+Stacks interact with spikes, ADRs, and POCs:
+- Spikes/POCs investigate technology questions
+- ADRs record decisions with rationale
+- Stack selections reference the governing ADRs
+- Context digests carry the ADR rationale into implementation beads
+
 ## Human-AI Collaboration
 
 Throughout the workflow, responsibilities are shared:

@@ -86,6 +86,17 @@ graph TD
 ### Gaps
 - [ ] [Requirement not fully addressed]: [Mitigation]
 
+## Stack Alignment
+
+If the project has an active stack (`docs/helix/01-frame/stack.md`), confirm
+this design is consistent with it:
+
+- **Stack components used**: [Which stack selections does this design rely on?]
+- **Stack constraints honored**: [Any stack constraints that shaped this design?]
+- **ADRs referenced**: [Stack-related ADRs that govern design choices here]
+- **Departures**: [Any design choices that depart from stack practices? If so,
+  an ADR should justify the departure.]
+
 ## Constraints & Assumptions
 
 - **Constraints**: [Technical constraints and their design impact]

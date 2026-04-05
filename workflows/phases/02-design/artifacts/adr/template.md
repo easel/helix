@@ -53,6 +53,16 @@ We will [decision statement].
 |----------------|----------------|
 | [Metric 1] | [Condition for reconsideration] |
 
+## Stack Impact
+
+If this decision affects the project's technology stack or overrides a
+library practice, note the impact here:
+
+- **Stack selection**: [Does this ADR select, change, or constrain a stack?]
+- **Practice override**: [Does this ADR override a library practice? If so,
+  update `docs/helix/01-frame/stack.md` Project Overrides with this ADR ref.]
+- **No stack impact**: [Delete this section if the ADR has no stack relevance.]
+
 ## References
 
 - [PRD section link]

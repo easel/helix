@@ -146,6 +146,12 @@ Deferred items tracked in `docs/helix/parking-lot.md`.
     that skills, the CLI, and shared workflow resources are discovered
     automatically via the plugin manifest — no manual symlink installation
     required. See [[FEAT-004]].
+12. Stacks, practices, and context digests: HELIX ships a library of
+    composable technology stacks with associated best practices. Beads
+    created by triage and evolve must carry a compact context digest
+    (~1000-1500 tokens) summarizing active principles, stack, practices,
+    relevant ADRs, and governing spec context — making beads self-contained
+    execution units that rarely require upstream file reads. See [[FEAT-006]].
 
 ### Nice to Have (P2)
 

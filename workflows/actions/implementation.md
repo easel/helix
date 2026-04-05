@@ -111,6 +111,19 @@ rest, and close the issue.
    - If `docs/helix/01-frame/principles.md` exists and has content, load it.
    - Otherwise load `workflows/principles.md` (HELIX defaults).
    - Apply these principles when making judgment calls throughout this task.
+5. Load active stack and practices.
+   - Follow the resolution pattern in `workflows/references/stack-resolution.md`.
+   - If `docs/helix/01-frame/stack.md` exists, load the declared stacks and
+     merged practices.
+   - Use the declared stack's tools, conventions, and patterns throughout
+     implementation. Do not substitute alternative tools without an explicit
+     project override or ADR.
+6. Read the bead's context digest if present.
+   - If the bead description starts with `<context-digest>`, parse it and use
+     the summarized principles, stack, practices, ADRs, and governing context
+     as your working authority.
+   - If no digest exists (legacy bead), rely on steps 4-5 above plus the
+     bead's `spec-id` to reconstruct context.
 
 ## PHASE 1 - Candidate Discovery
 

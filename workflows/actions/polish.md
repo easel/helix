@@ -39,6 +39,13 @@ Issues are stored in `.ddx/beads.jsonl`.
 0a. **Load active design principles** following `workflows/references/principles-resolution.md`.
    Use them as refinement guidance — flag issues whose scope or criteria
    conflict with the active principles.
+0b. **Load active stack and practices** following `workflows/references/stack-resolution.md`.
+   Verify issue descriptions and acceptance criteria reference the correct
+   stack tools and conventions.
+0c. **Refresh context digests**: For each bead in scope that has an existing
+   `<context-digest>`, re-assemble per `workflows/references/context-digest.md`
+   and update if material changes exist. For beads without a digest, assemble
+   one and prepend it.
 1. Verify the built-in tracker is available.
    - If `ddx bead status` fails, stop immediately.
 2. Load all open issues for the scope.

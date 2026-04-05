@@ -61,14 +61,28 @@ Additional labels to include when applicable:
 4. **Set parent and dependencies.** If this is part of an epic, set `--parent`.
    If it depends on other issues completing first, use `--deps`.
 
-5. **Create the issue.**
+5. **Assemble context digest.** Follow
+   `workflows/references/context-digest.md` to build a compact summary of
+   active principles, stack, practices, relevant ADRs, and governing spec
+   context. Prepend the `<context-digest>` XML block to the description so
+   the implementing agent can work from the bead alone.
+
+6. **Create the issue.**
 
 ```bash
 ddx bead create "Implement X" \
   --type task \
   --labels helix,phase:build,kind:implementation,area:wal \
   --spec-id SD-017 \
-  --description "Implement the Y component per SD-017 Section 3.2. Governing: SD-017, TP-SD-017, ADR-050." \
+  --description "<context-digest>
+<principles>Design for simplicity · Tests first · Fake data</principles>
+<stack>TypeScript strict + Bun | Postgres 16</stack>
+<practices>ESLint strict · Biome · bun:test</practices>
+<adrs>ADR-050 event sourcing for audit</adrs>
+<governing>SD-017 §3.2 — Y component must handle partial writes</governing>
+</context-digest>
+
+Implement the Y component per SD-017 Section 3.2. Governing: SD-017, TP-SD-017, ADR-050." \
   --acceptance "cargo test -p niflheim-wal test_y passes; AC-SD17-005 promoted to active" \
   --parent hx-epic-id \
   --deps hx-dependency-id

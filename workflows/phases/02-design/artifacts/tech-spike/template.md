@@ -62,3 +62,6 @@
 **RECOMMENDATION**: [Specific, actionable recommendation]
 - **Rationale**: [Why, based on evidence]
 - **Next Steps**: [What needs to happen]
+- **Stack Impact**: [Does this recommend adopting, rejecting, or modifying a
+  stack? If so, an ADR should ratify the decision and the project stack
+  document should be updated accordingly.]

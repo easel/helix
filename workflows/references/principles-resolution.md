@@ -32,6 +32,19 @@ When two options are both valid, prefer the one that better aligns
 with the principles above.
 ```
 
+## Related References
+
+Principles are one of three cross-cutting concerns injected into HELIX
+action prompts:
+
+- **Principles** (this document) — values that guide judgment
+- **Stacks and Practices** (`workflows/references/stack-resolution.md`) —
+  technology selections and conventions
+- **Context Digest** (`workflows/references/context-digest.md`) — compact
+  summary assembled into beads at triage/polish time
+
+All three are loaded at Phase 0 of judgment-making actions.
+
 ## When to Apply
 
 Action prompts that involve judgment — design choices, prioritization,
