@@ -158,13 +158,29 @@ Demo scripts should use `ddx agent run` as the harness rather than invoking
 ```bash
 ddx agent run \
   --harness claude \
-  --permissions unrestricted \
   --text "$prompt"
 ```
 
 This routes through DDx's agent abstraction, which provides output capture,
-token tracking, and session logging. The `--permissions unrestricted` flag
-is required for demos that create files and run commands.
+token tracking, and session logging.
+
+### Permissions
+
+Demos need file and command permissions. Do **not** use `--permissions
+unrestricted` — it is unreliable across DDx versions. Instead, the demo
+script should create `.claude/settings.json` with pre-approved permissions
+in the demo project directory before any agent calls:
+
+```json
+{
+  "permissions": {
+    "allow": ["Bash(*)", "Read(*)", "Write(*)", "Edit(*)"]
+  }
+}
+```
+
+This grants the Claude CLI all necessary permissions via its settings
+file, which is the supported mechanism.
 
 ## Microsite Embedding
 

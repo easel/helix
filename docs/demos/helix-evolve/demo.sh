@@ -81,7 +81,6 @@ agent_run() {
   for attempt in $(seq 1 "$MAX_RETRIES"); do
     output=$(ddx agent run \
       --harness claude \
-      --permissions unrestricted \
       --text "$prompt" 2>/dev/null) || true
 
     if [[ -n "$output" && "$output" != "Execution error" ]]; then
