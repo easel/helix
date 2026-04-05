@@ -922,7 +922,7 @@ MOCK
 
   local status
   status="$(run_bead "$root" show hx-mock-0 --json | jq -r '.status')"
-  assert_eq "open" "$status" "run should reopen a drifted issue instead of leaving it closed"
+  assert_eq "closed" "$status" "run should leave a closed bead closed when drift is non-supersession governance change"
 
   assert_contains "$output" "BLOCKERS" "run should report blockers at the end"
   assert_contains "$output" "hx-mock-0" "blocker report should name the drifted issue"
