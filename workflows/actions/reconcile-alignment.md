@@ -99,6 +99,14 @@ HELIX labels appropriate to the work phase.
    - one review epic for the run
    - one review issue per functional area
 6. Record the epic ID and review issue IDs in the alignment report.
+7. **Note deduplication rule**: Before appending notes to any review issue
+   (existing or new), read the issue's current `notes` field. If the new
+   note is substantively identical to an existing note (same proof lane,
+   same scope, same verification outcome), **do not append** — the existing
+   note already records the evidence. Only append when the verification
+   state has materially changed (new test results, different artifact state,
+   changed finding). This prevents repeated alignment reruns from bloating
+   tracker records with duplicate evidence paragraphs.
 
 ## PHASE 1 - Reconstruct Intent
 
