@@ -95,4 +95,48 @@ Each demo lives in `docs/demos/<name>/` with a Dockerfile and `demo.sh`.
 Recordings are `.cast` files (asciinema format). The latest recording for
 each demo is copied to `website/static/demos/<name>.cast` for the microsite.
 
-See `docs/demos/helix-quickstart/README.md` for the Docker recording process.
+### Virtual agent replay (no API keys)
+
+Demos use the DDX virtual agent for deterministic replay. Each demo stores
+pre-recorded agent responses in `agent-dictionary/` and project fixtures in
+`fixtures/`. To replay without API keys:
+
+```bash
+cd /tmp && mkdir demo && cd demo
+DEMO_HARNESS=virtual HELIX_DEMO_RECORDING=1 \
+  bash docs/demos/helix-quickstart/demo.sh
+```
+
+### Re-recording with real Claude
+
+When demo scripts change, re-record golden responses:
+
+```bash
+cd /tmp && mkdir demo && cd demo
+DEMO_RECORD=1 HELIX_DEMO_RECORDING=1 \
+  bash docs/demos/helix-quickstart/demo.sh
+```
+
+This saves new `agent-dictionary/` and `fixtures/` back to the demo source
+directory. Zero the `delay_ms` fields before committing (use python, not
+`ddx jq`):
+
+```bash
+python3 -c "
+import json, glob
+for f in glob.glob('docs/demos/helix-*/agent-dictionary/*.json'):
+    with open(f, 'r') as fh: data = json.load(fh)
+    data['delay_ms'] = 0
+    with open(f, 'w') as fh: json.dump(data, fh, indent=2, ensure_ascii=False)
+"
+```
+
+### Docker recording
+
+For reproducible full-container recordings, see
+`docs/demos/helix-quickstart/README.md`.
+
+### CI
+
+The GitHub Actions pages workflow records all demos using the virtual agent
+and builds the Hugo site automatically. No API keys or Docker required.

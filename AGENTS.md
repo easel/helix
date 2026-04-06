@@ -161,7 +161,8 @@ argument such as a scope, selector, issue ID, or goal.
 
 ## HELIX CLI
 
-This repo ships a HELIX wrapper CLI and plugin manifest.
+This repo ships a HELIX CLI (`scripts/helix`) and a Claude Code plugin
+manifest (`.claude-plugin/plugin.json`).
 
 ### Primary installation (plugin mode)
 
@@ -187,26 +188,35 @@ ddx install helix
 ```
 
 This creates:
-- `~/.ddx/plugins/helix` symlink to the repo (resolves `.ddx/plugins/helix/workflows/...` paths)
+- `~/.ddx/plugins/helix` — plugin files
 - Skills into `~/.agents/skills` and `~/.claude/skills`
-- `~/.local/bin/helix` launcher (file copy; skipped if target is a symlink)
 
-For development, symlink the launcher to your git checkout instead:
+### Development install
+
+For working on HELIX itself, use `--local` to create symlinks instead of
+copies:
+
 ```bash
-ln -s ~/Projects/helix/scripts/helix ~/.local/bin/helix
+git clone https://github.com/DocumentDrivenDX/helix.git
+cd helix
+ddx install helix --local . --force
+ln -s "$(pwd)/scripts/helix" ~/.local/bin/helix
+helix doctor --fix
 ```
 
-`ddx install` will not overwrite the symlink. `ddx doctor` reports
-whether the launcher is a symlink (developer mode) or a managed copy.
+This symlinks the plugin and skills so edits to your checkout are
+immediately reflected.
 
 After installation, verify with `helix doctor`. Use `helix doctor --fix` to
 repair stale symlinks.
 
 Key paths:
+- CLI implementation: `scripts/helix` (single file, no wrapper)
 - canonical project skill path: `.agents/skills`, `.claude/skills` (symlinks to `skills/`)
-- script source: `scripts/helix`
 - plugin symlink: `~/.ddx/plugins/helix`
 - user skill paths: `~/.agents/skills`, `~/.claude/skills`
+- `HELIX_ROOT` env var: if set, `scripts/helix` uses it as the repo root
+  instead of resolving from its own location
 
 Useful commands:
 
@@ -242,6 +252,44 @@ ddx bead status                  # tracker health summary
 - can run periodic alignment reviews
 
 Do not replace this with an unconditional `while true` loop.
+
+## Demo Recording
+
+Demos live in `docs/demos/helix-*/` and produce asciinema `.cast` files for
+the microsite. Each demo supports two modes:
+
+| Mode | Env Vars | Description |
+|------|----------|-------------|
+| **Record** | `DEMO_RECORD=1 DEMO_HARNESS=claude` | Runs with real Claude, saves agent responses + project fixtures |
+| **Replay** | `DEMO_HARNESS=virtual` | Replays recorded responses via DDX virtual agent — no API keys |
+
+```bash
+# Record golden responses (requires Claude API key)
+cd /tmp && mkdir demo && cd demo
+DEMO_RECORD=1 HELIX_DEMO_RECORDING=1 bash /path/to/helix/docs/demos/helix-quickstart/demo.sh
+
+# Replay without API keys
+cd /tmp && mkdir replay && cd replay
+DEMO_HARNESS=virtual HELIX_DEMO_RECORDING=1 bash /path/to/helix/docs/demos/helix-quickstart/demo.sh
+```
+
+Each demo stores:
+- `agent-dictionary/*.json` — recorded prompt→response pairs (DDX virtual agent format)
+- `fixtures/` — project files the agent would create, applied during virtual replay
+
+After recording, zero the `delay_ms` fields so replay is instant. Use python
+(NOT `ddx jq` — it corrupts multi-byte UTF-8):
+
+```python
+import json, glob
+for f in glob.glob('docs/demos/helix-*/agent-dictionary/*.json'):
+    with open(f, 'r') as fh: data = json.load(fh)
+    data['delay_ms'] = 0
+    with open(f, 'w') as fh: json.dump(data, fh, indent=2, ensure_ascii=False)
+```
+
+The GitHub Actions pages workflow (`pages.yml`) records all 4 demos using the
+virtual agent and builds the Hugo site — no API keys or Docker needed in CI.
 
 ## Testing Requirements for HELIX Changes
 
@@ -306,6 +354,10 @@ cp -rf source dest          # NOT: cp -r source dest
 - `ssh` - use `-o BatchMode=yes` to fail instead of prompting
 - `apt-get` - use `-y` flag
 - `brew` - use `HOMEBREW_NO_AUTO_UPDATE=1` env var
+
+**`ddx jq` UTF-8 warning:** `ddx jq` corrupts multi-byte UTF-8 characters
+(e.g., em-dash `—`) when rewriting JSON files. Use python for JSON
+manipulation of files that may contain non-ASCII text.
 
 ## Destructive Command Guard
 
