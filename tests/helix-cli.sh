@@ -344,6 +344,7 @@ EOF
 }
 
 make_workspace() {
+  cd "$repo_root" 2>/dev/null || true
   local root
   root="$(mktemp -d)"
   mkdir -p "$root/work"
