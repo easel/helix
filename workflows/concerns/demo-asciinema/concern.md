@@ -80,7 +80,112 @@ as narration.
 - Configuration that distracts from the main workflow
 - Pauses longer than 3 seconds without visible activity
 
-## Dockerfile Pattern
+## Interactive Session Demos (tmux pattern)
+
+The default demo format shows an **interactive Claude Code session**, not
+bare CLI commands. Viewers should see the experience they'll actually have:
+opening Claude, describing what they want, and watching HELIX work.
+
+This requires automating an interactive terminal application. The pattern
+uses **tmux + tmux send-keys** to script keystrokes into an interactive
+session while asciinema records the outer terminal.
+
+### How it works
+
+```
+asciinema rec (captures the tmux pane output)
+  └─ tmux session
+       └─ claude (interactive Claude Code session)
+            ← tmux send-keys types prompts and commands
+```
+
+1. `demo.sh` starts a tmux session and launches `claude` inside it
+2. `asciinema rec` records the tmux pane output
+3. `tmux send-keys` types user prompts into the Claude session
+4. `sleep` controls pacing between interactions
+5. The recording captures the full interactive experience — Claude's
+   responses, tool calls, and file changes are all visible
+
+### demo.sh interactive pattern
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+SESSION="helix-demo"
+RECORDING="/recordings/demo-$(date +%Y%m%d-%H%M%S).cast"
+
+# Start tmux session with claude
+tmux new-session -d -s "$SESSION" -x 100 -y 30
+tmux send-keys -t "$SESSION" "cd /workspace/demo-project" Enter
+sleep 1
+
+# Start asciinema recording of the tmux pane
+asciinema rec --cols 100 --rows 30 --command "tmux attach -t $SESSION" "$RECORDING" &
+ASCIINEMA_PID=$!
+sleep 1
+
+# ACT 1: Open Claude and describe the project
+tmux send-keys -t "$SESSION" "claude" Enter
+sleep 3  # wait for Claude to initialize
+
+tmux send-keys -t "$SESSION" "I want to build a CLI that converts temperatures. Use /helix-frame to get started." Enter
+sleep 30  # wait for Claude to complete framing
+
+# ACT 2: Run the autopilot
+tmux send-keys -t "$SESSION" "/helix-run" Enter
+sleep 60  # wait for build cycle
+
+# ACT 3: Verify
+tmux send-keys -t "$SESSION" "Show me the test results and the final code." Enter
+sleep 15
+
+# Exit Claude and stop recording
+tmux send-keys -t "$SESSION" "/exit" Enter
+sleep 2
+tmux kill-session -t "$SESSION"
+wait "$ASCIINEMA_PID" || true
+```
+
+### Key conventions for interactive demos
+
+- **Type at human speed**: Use `tmux send-keys -l` with delays or break
+  long prompts into chunks with short sleeps. A wall of text appearing
+  instantly looks robotic.
+- **Wait for completion**: Each Claude response takes time. Use generous
+  `sleep` values (30-60s for framing, 60-120s for build cycles). Check
+  for completion markers if possible.
+- **Show the conversation**: The viewer should see both the human prompt
+  and Claude's response. This is the natural tmux capture behavior.
+- **Use slash commands**: Show `/helix-run`, `/helix-review`, etc. as the
+  primary interaction — this is how users will actually invoke HELIX.
+- **Natural language too**: Show at least one natural-language prompt
+  ("add OAuth support") to demonstrate that Claude understands context
+  without slash commands.
+
+### When to use interactive vs. CLI demos
+
+| Demo type | Use when |
+|-----------|----------|
+| **Interactive (tmux)** | Showing the user experience, onboarding, new features |
+| **CLI (direct)** | Showing automation, CI integration, scripting patterns |
+
+Interactive demos are the **default**. CLI demos are for the automation
+section of the docs.
+
+## Dockerfile Pattern (interactive)
+
+The interactive demo Dockerfile adds tmux to the base image:
+
+```dockerfile
+FROM ubuntu:24.04
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git curl ca-certificates jq tmux <project-deps> \
+    && rm -rf /var/lib/apt/lists/*
+```
+
+## Dockerfile Pattern (CLI)
 
 ```dockerfile
 FROM ubuntu:24.04

@@ -32,29 +32,61 @@ Then install HELIX:
 ddx install helix
 ```
 
-You'll also need an AI agent CLI — either `claude` (Claude Code) or `codex`
-(OpenAI Codex) — plus `bash`, `jq`, and `git`.
+You'll also need [Claude Code](https://claude.ai/claude-code) (or another
+agent CLI like `codex`), plus `bash`, `jq`, and `git`.
 
 ## Quick Start
 
-```bash
-cd your-project
-ddx init                    # Set up document library and tracker
-helix frame                 # Create vision, PRD, feature specs
-helix run                   # Autopilot: build → review → check → repeat
+Open Claude Code in your project and tell it what you want to build:
+
+```
+> I want to build a REST API for managing bookmarks. Use /helix-frame to get started.
 ```
 
-Or run individual commands:
+Claude loads the HELIX skills automatically and begins the structured
+workflow — creating a product vision, PRD, and feature specs. From there:
+
+```
+> /helix-run
+```
+
+HELIX takes over: it designs the solution, writes failing tests, implements
+the code, reviews the work, and iterates — stopping only when human judgment
+is needed or the queue is empty.
+
+### Interactive commands
+
+Inside a Claude Code session, HELIX skills are available as slash commands:
+
+| Command | What it does |
+|---------|-------------|
+| `/helix-run` | Autopilot: build → review → check → repeat |
+| `/helix-frame` | Create vision, PRD, and feature specs |
+| `/helix-build` | Execute one ready issue end-to-end |
+| `/helix-design auth` | Design a subsystem through iterative refinement |
+| `/helix-review` | Fresh-eyes review of recent work |
+| `/helix-evolve "add OAuth"` | Thread a new requirement through the artifact stack |
+| `/helix-check` | What should happen next? |
+| `/helix-align` | Top-down reconciliation review |
+| `/helix-triage "Fix login bug"` | Create a well-structured tracker issue |
+| `/helix-status` | Queue health and lifecycle snapshot |
+
+### CLI (automation and scripting)
+
+For background execution, CI integration, or scripting, the same commands
+are available as a shell CLI:
 
 ```bash
-helix build                 # One bounded build pass
-helix check                 # What should happen next?
-helix design auth           # Design a subsystem
-helix review                # Fresh-eyes review
-helix status                # Queue health and lifecycle snapshot
+helix run --agent claude --summary    # Background autopilot
+helix start                           # Daemon mode with PID file
+helix status                          # Check progress
+helix stop                            # Stop the daemon
 ```
 
 ## Phases
+
+HELIX guides work through six phases. Each phase produces governing
+artifacts that drive the next:
 
 0. **Discover** (optional) — Validate the opportunity
 1. **Frame** — Define the problem and establish context
@@ -64,107 +96,35 @@ helix status                # Queue health and lifecycle snapshot
 5. **Deploy** — Release to production with monitoring
 6. **Iterate** — Learn and improve for the next cycle
 
-## CLI Commands
+## How it works
 
-| Command | Purpose |
-|---------|---------|
-| `helix run` | Loop: implement ready issues, check, decide, repeat |
-| `helix build [issue]` | Execute one ready issue end-to-end |
-| `helix check [scope]` | Decide next action (BUILD/DESIGN/ALIGN/BACKFILL/WAIT/STOP) |
-| `helix align [scope]` | Top-down reconciliation review |
-| `helix backfill [scope]` | Reconstruct missing HELIX docs |
-| `helix design [scope]` | Create design document through iterative refinement |
-| `helix status` | Show tracker health and queue summary |
-| `helix evolve [requirement]` | Thread requirement through the artifact stack |
-| `helix triage [title]` | Create well-structured tracker issues |
-| `helix polish [scope]` | Refine issues before implementation |
-| `helix next` | Show recommended next issue |
-| `helix review [scope]` | Fresh-eyes post-implementation review |
-| `helix experiment [issue]` | One metric-optimization iteration |
+1. You describe what you want to build in a Claude Code session
+2. HELIX creates governing artifacts (vision → requirements → design → tests)
+3. The tracker breaks work into issues with acceptance criteria
+4. Agents claim issues, implement them, and verify against the tests
+5. Reviews catch bugs that implementation blindness misses
+6. The loop continues until the queue drains or human input is needed
 
-## Skills
-
-HELIX publishes its portable skill surface from the repo at
-`./.agents/skills` and installs those same skills into the canonical user path
-`~/.agents/skills`.
-
-Temporary compatibility mirror:
-- `~/.claude/skills`
-
-Installed skill set:
-
-- `helix-run` <-> `helix run`
-- `helix-build` <-> `helix build`
-- `helix-check` <-> `helix check`
-- `helix-align` <-> `helix align`
-- `helix-backfill` <-> `helix backfill`
-- `helix-design` <-> `helix design`
-- `helix-polish` <-> `helix polish`
-- `helix-next` <-> `helix next`
-- `helix-review` <-> `helix review`
-- `helix-experiment` <-> `helix experiment`
-- `helix-evolve` <-> `helix evolve`
-- `helix-triage` <-> `helix triage`
-
-The contract is strict: public skill names are `helix-<command>` and must
-mirror the CLI subcommand exactly.
-
-The `skills/` tree remains the implementation source for skill content and
-shared references. The project-level package surface that agent clients should
-consume is `./.agents/skills`.
-
-Required skill metadata:
-
-- every published `SKILL.md` must declare `name` and `description`
-- skills whose mirrored CLI command accepts a trailing scope, selector, or goal
-  must also declare `argument-hint`
-- `name` must match the skill directory basename exactly
-
-Deterministic validation:
-
-```bash
-bash tests/validate-skills.sh
-```
-
-This validator checks directory-name to skill-name alignment, required
-frontmatter, and the canonical `.agents/skills -> skills/` symlink contract.
+The key insight: **documents drive the agents**. Requirements define what to
+build. Designs define how. Tests define done. The tracker sequences the work.
+HELIX orchestrates the agents to follow this chain — and stops them when they
+drift.
 
 ## Workflow Contract
 
-The HELIX-specific operating contract lives in `workflows/` and covers:
+The HELIX methodology lives in `workflows/` and covers:
 
-- authority order and canonical documentation
-- bounded actions such as `implement`, `check`, `align`, and `backfill`
-- the built-in tracker and queue-control rules
-- the `helix` wrapper CLI used to run those actions consistently
-
-Start with:
-
-- [Workflow Overview](workflows/README.md)
-- [Execution Guide](workflows/EXECUTION.md)
-- Tracker: `ddx bead --help` (conventions in DDx FEAT-004)
-- [Reference Card](workflows/REFERENCE.md)
-
-## Tracker
-
-HELIX uses a built-in file-backed tracker for execution tracking. Canonical
-issues live in `.ddx/beads.jsonl`. Run `ddx bead` to manage issues,
-`ddx bead import` to pull compatible JSONL into the canonical store, and
-`ddx bead export` to write JSONL for interop or recovery.
-
-## Documentation
-
-- [DDx — Document-Driven Development Experience](workflows/DDX.md)
-- [Workflow Contract](workflows/README.md)
-- [Quality Ratchets](workflows/ratchets.md)
-- [Conventions](workflows/conventions.md)
+- [Workflow Overview](workflows/README.md) — phases, authority order, execution model
+- [Execution Guide](workflows/EXECUTION.md) — operator flow, queue control, loop behavior
+- [Reference Card](workflows/REFERENCE.md) — quick lookup for actions and concepts
+- Tracker: `ddx bead --help` — issue management conventions
 
 ## DDx Platform
 
-HELIX is built on [DDx](https://documentdrivendx.github.io/ddx/) — the
-platform for AI-assisted development. DDx provides the document
-library, work tracker, agent harness, and execution engine. HELIX provides the
-methodology, phases, authority order, and supervisory skills.
+HELIX is built on [DDx](https://documentdrivendx.github.io/ddx/) — a
+platform for AI-assisted development. DDx provides the document library, work
+tracker, agent harness, and execution engine. HELIX provides the methodology,
+phases, authority order, and supervisory skills.
 
 See [DDx Methodology](workflows/DDX.md) for the artifact graph, authority
 hierarchy, evolution model, and agent context model.

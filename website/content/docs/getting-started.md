@@ -37,70 +37,82 @@ Then install HELIX:
 ddx install helix
 ```
 
-You'll also need an AI agent CLI — either `claude` (Claude Code) or `codex`
-(OpenAI Codex) — plus `bash`, `jq`, and `git`.
+You'll also need [Claude Code](https://claude.ai/claude-code) (or another
+agent CLI like `codex`), plus `bash`, `jq`, and `git`.
 
-## Initialize a Project
+## Start Building
 
-```bash
-cd your-project
-ddx init                    # Set up DDx document library
-helix frame                 # Create vision, PRD, feature specs
+Open Claude Code in your project directory and describe what you want to build:
+
+```
+> I want to build a REST API for managing bookmarks. Use /helix-frame to get started.
 ```
 
-HELIX uses DDx for document management and issue tracking. `helix frame`
-starts the planning process by creating the governing artifacts that drive
-everything downstream.
+Claude loads the HELIX skills automatically and begins the structured
+workflow — creating a product vision, PRD, and feature specs based on your
+description. The governing artifacts it creates will drive everything
+downstream.
 
-## Run the Autopilot
+Once framing is complete, start the autopilot:
 
-```bash
-helix run
+```
+> /helix-run
 ```
 
-`helix run` is HELIX's supervisory autopilot. It reads the tracker, selects
-the highest-leverage next action, executes it, and repeats until human input
-is needed or no work remains.
+HELIX takes over from here. It reads the governing artifacts, designs the
+solution, writes failing tests, implements the code to make them pass, reviews
+the work for bugs, and iterates — stopping only when human judgment is needed
+or the work queue is empty.
 
-Key flags:
+## Interactive Commands
 
-```bash
-helix run --agent claude        # Use Claude as the agent
-helix run --summary             # Concise output for background monitoring
-helix run --max-cycles 10       # Stop after 10 completed build cycles
-helix run --review-every 5      # Periodic alignment review
+Inside a Claude Code session, HELIX skills are available as slash commands.
+You can invoke them at any time to steer the work:
+
+| Command | What it does |
+|---------|-------------|
+| `/helix-run` | Autopilot: build → review → check → repeat |
+| `/helix-frame` | Create vision, PRD, and feature specs |
+| `/helix-build` | Execute one ready issue end-to-end |
+| `/helix-design auth` | Design a subsystem through iterative refinement |
+| `/helix-review` | Fresh-eyes review of recent work |
+| `/helix-evolve "add OAuth"` | Thread a new requirement through the artifact stack |
+| `/helix-check` | What should happen next? |
+| `/helix-align` | Top-down reconciliation review |
+| `/helix-triage "Fix login bug"` | Create a well-structured tracker issue |
+| `/helix-status` | Queue health and lifecycle snapshot |
+| `/helix-experiment` | Metric-driven optimization loop |
+| `/helix-polish` | Refine issues before implementation |
+
+You can also just describe what you want in natural language — Claude
+understands HELIX context and will invoke the right skills:
+
+```
+> The auth module needs OAuth support. Thread that through the specs and design.
+> Review the last commit for security issues.
+> What should we work on next?
 ```
 
-## Run Individual Commands
+## Background Execution (CLI)
 
-You can also drive HELIX interactively:
+For long-running work, CI integration, or scripting, the same commands are
+available as a shell CLI:
 
 ```bash
-helix design auth               # Design the auth system
-helix build                     # One bounded build pass
-helix review                    # Fresh-eyes review of recent work
-helix check                     # What should happen next?
-helix align                     # Top-down reconciliation audit
-helix evolve "add OAuth"        # Thread a requirement through the stack
-helix triage "Fix login bug"    # Create a well-structured tracker issue
-helix status                    # Lifecycle snapshot
+helix start                           # Daemon mode with PID file
+helix status                          # Check progress
+helix stop                            # Stop the daemon
 ```
 
-## Monitor a Background Run
+Or run directly:
 
 ```bash
-# Launch in the background
-helix run --agent claude --summary --max-cycles 10 &
-
-# Check progress
-helix status
-
-# Read failure details
-cat .helix-logs/helix-*.log | tail -50
+helix run --agent claude --summary    # Background autopilot with concise output
+helix run --max-cycles 10             # Stop after 10 completed build cycles
 ```
 
 ## Next Steps
 
 - Read about the [HELIX workflow](../workflow) and how phases work
-- See the full [CLI reference](../cli)
-- Watch the [demo](../demos) of a complete HELIX lifecycle
+- See the full [CLI reference](../cli) for automation and scripting
+- Watch the [demo reels](../demos) of HELIX in action
