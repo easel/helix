@@ -1,4 +1,4 @@
-# Feature: Slider Autonomy Control
+# FEAT-011: Slider Autonomy Control
 
 **Status**: Planning  
 **Priority**: P1  
