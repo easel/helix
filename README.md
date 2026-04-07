@@ -33,7 +33,7 @@ ddx install helix
 ```
 
 You'll also need [Claude Code](https://claude.ai/claude-code) (or another
-agent CLI like `codex`), plus `bash`, `jq`, and `git`.
+agent CLI like `codex`), plus `bash` and `git`.
 
 ## Quick Start
 

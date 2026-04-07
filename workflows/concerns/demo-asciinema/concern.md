@@ -218,7 +218,7 @@ ENTRYPOINT ["/usr/local/bin/demo.sh"]
 
 ## Agent Credential Mounting
 
-Demo containers that invoke AI agents (via `ddx agent run` or `claude -p`)
+Demo containers that invoke AI agents (via `ddx agent run`)
 need the user's Claude CLI credentials mounted into the container. The Claude
 CLI stores authentication in two locations:
 
@@ -257,8 +257,7 @@ session is reused.
 
 ### Agent harness
 
-Demo scripts should use `ddx agent run` as the harness rather than invoking
-`claude -p` directly:
+Demo scripts must use `ddx agent run` as the harness:
 
 ```bash
 ddx agent run \

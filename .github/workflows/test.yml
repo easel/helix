@@ -12,9 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install jq
-        run: sudo apt-get install -y jq
-
       - name: Install ddx
         run: curl -fsSL https://raw.githubusercontent.com/DocumentDrivenDX/ddx/main/install.sh | bash
         env:

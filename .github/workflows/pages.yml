@@ -49,10 +49,7 @@ jobs:
           DDX_INSTALL_DIR: /usr/local/bin
 
       - name: Install demo dependencies
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq jq
-          pipx install asciinema
+        run: pipx install asciinema
 
       - name: Install Node.js
         uses: actions/setup-node@v4
