@@ -69,7 +69,7 @@ Implement code to make tests pass. This is the **Green** phase of TDD.
 |---|---|
 | **Purpose** | Write the minimum code needed to satisfy the tests |
 | **Location** | `docs/helix/04-build/`, source code |
-| **Key artifacts** | Implementation Plan, Build Procedures, Secure Coding guidelines |
+| **Key artifacts** | Implementation Plan |
 | **Command** | `helix build [issue-id]` |
 | **Output** | Passing tests, committed code, closed tracker issues |
 
@@ -83,7 +83,7 @@ Release to production with monitoring.
 |---|---|
 | **Purpose** | Safely deliver the built software to users |
 | **Location** | `docs/helix/05-deploy/` |
-| **Key artifacts** | Deployment Checklist, Launch Checklist, Runbook, Release Notes, Monitoring Setup |
+| **Key artifacts** | Project-specific checklists and runbooks as needed |
 | **Output** | Running production system with observability |
 
 Deploy cannot start until all tests pass (Green phase complete).
@@ -96,7 +96,7 @@ Learn and improve for the next cycle.
 |---|---|
 | **Purpose** | Review what was built, capture learnings, plan the next cycle |
 | **Location** | `docs/helix/06-iterate/` |
-| **Key artifacts** | Alignment Reviews, Feedback Analysis, Improvement Backlog, Lessons Learned, Metrics Dashboard |
+| **Key artifacts** | Alignment Reviews, Backfill Reports, Metric Definitions |
 | **Commands** | `helix align`, `helix review`, `helix experiment` |
 | **Output** | Actionable follow-up work feeding back into Frame |
 

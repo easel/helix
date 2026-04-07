@@ -70,161 +70,14 @@ graph TD
 
 ## Work Items
 
-### Artifacts (Template-Based Outputs)
+### Artifacts
 
-All artifacts for this phase are located in the `artifacts/` directory. Each artifact includes:
-- **Templates**: Structure for capturing and organizing learnings
-- **Prompts**: AI assistance for analysis and insight generation
-- **Examples**: Reference implementations demonstrating best practices
+#### Metric Definition
+**Artifact Location**: `artifacts/metric-definition/`
+**Output Location**: `docs/helix/06-iterate/metrics/*.yaml`
 
-#### 1. Metrics Dashboard
-**Artifact Location**: `artifacts/metrics-dashboard/`
-**Output Location**: `docs/helix/06-iterate/metrics-dashboard.md`
-
-Real-time KPI tracking with AI anomaly detection:
-- Business metrics vs. targets
-- Technical performance indicators
-- User engagement analytics
-- Cost and efficiency metrics
-- Anomaly detection and alerts
-- Trend analysis and predictions
-
-**AI Capabilities**:
-- Automatic anomaly detection
-- Correlation analysis between metrics
-- Predictive trend forecasting
-- Alert threshold optimization
-
-#### 2. Feedback Analysis
-**Artifact Location**: `artifacts/feedback-analysis/`
-**Output Location**: `docs/helix/06-iterate/feedback-analysis.md`
-
-Synthesized user feedback with sentiment analysis:
-- User feedback aggregation
-- Sentiment scoring and trends
-- Feature request patterns
-- Pain point identification
-- User journey insights
-- Competitive feedback analysis
-
-**AI Capabilities**:
-- Natural language processing for feedback
-- Sentiment trend analysis
-- Topic clustering and categorization
-- Priority scoring based on impact
-
-#### 3. Performance Insights
-**Artifact Location**: `artifacts/performance-insights/`
-**Output Location**: `docs/helix/06-iterate/performance-insights.md`
-
-System performance analysis and optimization opportunities:
-- Response time analysis
-- Resource utilization patterns
-- Scalability bottlenecks
-- Database query performance
-- API endpoint analysis
-- Infrastructure cost optimization
-
-**AI Capabilities**:
-- Performance regression detection
-- Capacity planning predictions
-- Optimization recommendations
-- Cost-performance trade-off analysis
-
-#### 4. Lessons Learned
-**Artifact Location**: `artifacts/lessons-learned/`
-**Output Location**: `docs/helix/06-iterate/lessons-learned.md`
-
-Knowledge capture and pattern recognition:
-- What worked well
-- What didn't work
-- Unexpected discoveries
-- Process improvements
-- Technical debt identified
-- Team skill gaps discovered
-
-**AI Capabilities**:
-- Pattern recognition across iterations
-- Success factor analysis
-- Risk prediction for future work
-- Knowledge graph construction
-
-#### 5. Improvement Backlog
-**Artifact Location**: `artifacts/improvement-backlog/`
-**Output Location**: `docs/helix/06-iterate/improvement-backlog.md` and tracker issues in `.ddx/issues.jsonl`
-
-Prioritized list of improvements with impact analysis:
-- Feature enhancements
-- Bug fixes and issues
-- Technical debt items
-- Process improvements
-- Infrastructure upgrades
-- Documentation updates
-
-**AI Capabilities**:
-- Impact vs. effort analysis
-- Dependency identification
-- Risk assessment
-- ROI prediction
-
-The backlog document is the canonical index and prioritization view. Actionable
-items themselves should be stored as tracker issues labeled for HELIX
-iterate/backlog work.
-
-#### 6. Retrospective
-**Artifact Location**: `artifacts/retrospective/`
-**Output Location**: `docs/helix/06-iterate/retrospective.md`
-
-Team reflection and process improvement:
-- Sprint/iteration review
-- Team health metrics
-- Process effectiveness
-- Communication assessment
-- Tool and technology review
-- Candidate backlog issues for improvement
-
-**AI Capabilities**:
-- Meeting transcript analysis
-- Sentiment tracking over time
-- Action item tracking
-- Team dynamics insights
-
-#### 7. Incident Review
-**Artifact Location**: `artifacts/incident-review/`
-**Output Location**: `docs/helix/06-iterate/incidents/INC-XXX-[title].md`
-
-Post-incident analysis and prevention:
-- Incident timeline
-- Root cause analysis (5 Whys)
-- Impact assessment
-- Response effectiveness
-- Prevention measures
-- Process improvements
-
-**AI Capabilities**:
-- Pattern matching with past incidents
-- Root cause suggestion
-- Prevention strategy generation
-- Risk scoring for recurrence
-
-#### 8. Iteration Planning
-**Artifact Location**: `artifacts/iteration-planning/`
-**Output Location**: `docs/helix/06-iterate/next-iteration.md`
-
-Strategic planning for the next cycle:
-- Selected backlog issues for the next iteration
-- Canonical artifact updates required before execution
-- Technical improvements needed
-- Process changes to implement
-- Team capacity and allocation
-- Success metrics for next cycle
-- Risk mitigation strategies
-
-**AI Capabilities**:
-- Capacity planning optimization
-- Risk-adjusted prioritization
-- Success probability scoring
-- Resource allocation recommendations
+Individual metric specification: name, unit, direction (higher-is-better or
+lower-is-better), measurement command, tolerance band, and ratchet floor.
 
 #### Cross-Phase Action: Alignment Review
 **Action Location**: `../../actions/reconcile-alignment.md`
@@ -383,17 +236,10 @@ Track these metrics across iterations to measure improvement:
 - **Skill Development**: New capabilities acquired
 - **Collaboration**: Cross-functional effectiveness
 
-## AI-Powered Analysis Tools
+## Analysis Tools
 
-Leverage these AI capabilities during Iterate by working from the prompt and
-template pairs in the artifact directories:
-
-- `artifacts/metrics-dashboard/` for trend and KPI analysis
-- `artifacts/feedback-analysis/` for clustering user and operator feedback
-- `artifacts/lessons-learned/` for retrospective synthesis
-
-- `artifacts/improvement-backlog/` and `artifacts/iteration-planning/` for
-  turning observations into scheduled follow-up work
+Iterate work is driven by the cross-phase actions (`helix align`, `helix review`,
+`helix experiment`) and metric definitions in `artifacts/metric-definition/`.
 
 ## Integration with Next Cycle
 
@@ -431,16 +277,7 @@ actions:
 - `.ddx/plugins/helix/workflows/actions/reconcile-alignment.md`
 - `.ddx/plugins/helix/workflows/actions/backfill-helix-docs.md`
 
-For retrospective and planning artifacts, use the prompts and templates under
-`.ddx/plugins/helix/workflows/phases/06-iterate/artifacts/`.
-
-Common entry points:
-- `artifacts/feedback-analysis/`
-- `artifacts/improvement-backlog/`
-- `artifacts/iteration-planning/`
-- `artifacts/lessons-learned/`
-- `artifacts/metrics-dashboard/`
-- `artifacts/story-iteration-report/`
+For metric tracking, use `artifacts/metric-definition/`.
 
 AI is useful for synthesis, clustering feedback, and surfacing patterns. Human
 judgment remains responsible for prioritization, tradeoffs, and scheduling.

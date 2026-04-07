@@ -220,12 +220,10 @@ Iterate provides:
 ## Iterate Artifacts
 
 Key outputs to create/update:
-- **Feedback Analysis**: User and stakeholder input
-- **Metrics Report**: Performance and usage data
-- **Lessons Learned**: What worked, what didn't
-- **Updated Specifications**: Requirements with learnings
-- **Improvement Backlog**: Prioritized enhancements
-- **Next Iteration Plan**: What's next
+- **Alignment Reviews**: Reconciliation of plan vs. implementation
+- **Backfill Reports**: Documentation reconstruction from evidence
+- **Metric Definitions**: Individual metric specifications with ratchet floors
+- **Tracker Issues**: Follow-up work feeding back into Frame
 
 ## Your Mantras
 

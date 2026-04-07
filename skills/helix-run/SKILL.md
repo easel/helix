@@ -182,17 +182,14 @@ phase), narrow all steps to that scope.
 
 ### Build Phase Artifacts
 - Implementation Plan
-- Secure Coding Guidelines
 
 ### Deploy Phase Artifacts
-- Deployment Checklist
-- Monitoring Setup
-- Runbooks
+- Project-specific checklists and runbooks as needed
 
 ### Iterate Phase Artifacts
-- Metrics Dashboard
-- Lessons Learned
-- Improvement Backlog
+- Alignment Reviews
+- Backfill Reports
+- Metric Definitions
 
 ## When to Use HELIX
 

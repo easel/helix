@@ -72,55 +72,11 @@ graph TD
 
 ## Work Items
 
-### Artifacts (Template-Based Outputs)
+### Artifacts
 
-#### 1. Deployment Checklist
-**Artifact Location**: `artifacts/deployment-checklist/`
-**Output Location**: `docs/helix/05-deploy/deployment-checklist.md`
-
-Comprehensive pre-flight checklist:
-- Code readiness verification
-- Configuration validation
-- Dependency checks
-- Communication plan
-- Rollback procedures
-- Go/no-go decision criteria
-
-#### 2. Monitoring Setup
-**Artifact Location**: `artifacts/monitoring-setup/`
-**Output Location**: `docs/helix/05-deploy/monitoring-setup.md`
-
-Observability configuration:
-- Metrics and dashboards
-- Alert rules and thresholds
-- Log aggregation setup
-- Distributed tracing
-- SLI/SLO definitions
-- On-call procedures
-
-#### 3. Security Monitoring Setup
-**Artifact Location**: `artifacts/security-monitoring/`
-**Output Location**: `docs/helix/05-deploy/security-monitoring.md`
-
-Production security monitoring configuration:
-- **SIEM integration and security event collection**
-- **Real-time security alerts and threat detection**
-- **Compliance monitoring and audit trail setup**
-- **Incident response procedures and escalation**
-- **Vulnerability monitoring and patch management**
-- **Access monitoring and suspicious activity detection**
-
-#### 4. Runbook
-**Artifact Location**: `artifacts/runbook/`
-**Output Location**: `docs/helix/05-deploy/runbook.md`
-
-Operational procedures:
-- Deployment steps
-- Rollback procedures
-- Common issues and fixes
-- Escalation paths
-- Emergency contacts
-- Disaster recovery
+Deploy artifacts are project-specific. Rather than prescribing a fixed set of
+templates, create checklists, runbooks, and monitoring configurations as needed
+for your project's deployment model.
 
 ### Story Deploy Issues
 **Output Location**: `.ddx/issues.jsonl` queried through `ddx bead`
@@ -383,15 +339,8 @@ deploy:
 ## Using AI Assistance
 
 Deploy execution is driven by deploy issues through `helix build` or
-`helix run`. Use the prompts and templates under
-`.ddx/plugins/helix/workflows/phases/05-deploy/artifacts/` to prepare rollout and
-operational documentation.
-
-Common entry points:
-- `artifacts/deployment-checklist/`
-- `artifacts/monitoring-setup/`
-- `artifacts/runbook/`
-- `artifacts/story-deployment-plan/`
+`helix run`. Create project-specific checklists, runbooks, and monitoring
+configurations as needed for your deployment model.
 
 AI is useful for rollout documentation, checklists, and observability setup.
 Go/no-go decisions, incident handling, and rollback approval remain human-owned.

@@ -75,30 +75,6 @@ helix check
 That action determines whether the next step is more implementation,
 alignment, backfill, waiting on blockers, user guidance, or stopping.
 
-### 2. Build Procedures
-**Location**: `artifacts/build-procedures/`
-**Output**: `docs/helix/04-build/build-procedures.md`
-
-TDD implementation guide:
-- **Red-Green-Refactor procedures**: Step-by-step TDD process
-- **Implementation patterns**: Common coding patterns
-- **Integration procedures**: How to connect components
-- **Refactoring guidelines**: When and how to improve code
-- **Quality checkpoints**: Code review and standards
-- **Troubleshooting guide**: Common issues and solutions
-
-### 3. Secure Coding Checklist
-**Artifact Location**: `artifacts/secure-coding/`
-**Output Location**: `docs/helix/04-build/secure-coding-checklist.md`
-
-Security implementation validation:
-- **Input validation and sanitization checks**
-- **Authentication and session management verification**
-- **Authorization and access control implementation**
-- **Data protection and encryption validation**
-- **Security testing integration and SAST/DAST execution**
-- **Secrets management and configuration security**
-
 ## Core Workflow
 
 ### Test-Driven Development Cycle
@@ -395,9 +371,6 @@ need supporting build documentation or issue guidance.
 
 Common entry points:
 - `artifacts/implementation-plan/`
-- `artifacts/story-implementation-plan/`
-- `artifacts/build-procedures/`
-- `artifacts/secure-coding/`
 
 AI is useful for implementation drafting and focused refactoring. Human review
 must verify design fidelity, test intent, and security-sensitive changes.

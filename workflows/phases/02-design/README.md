@@ -92,41 +92,6 @@ Comprehensive data architecture:
 - **Access Patterns**: Common queries and optimization
 - **Migration Strategy**: Moving from current to target state
 
-### Security Design Artifacts
-
-#### 6. Security Architecture
-**Artifact Location**: `artifacts/security-architecture/`
-**Output Location**: `docs/helix/02-design/security-architecture.md`
-
-Comprehensive security architecture and controls:
-- **Security principles and patterns applied**
-- **Defense in depth implementation strategy**
-- **Authentication and authorization architecture**
-- **Data protection and encryption design**
-- **Security monitoring and incident response integration**
-
-#### 7. Authentication and Authorization Design
-**Artifact Location**: `artifacts/auth-design/`
-**Output Location**: `docs/helix/02-design/auth-design.md`
-
-Detailed identity and access management design:
-- **Identity provider integration and SSO design**
-- **Multi-factor authentication implementation**
-- **Role-based access control (RBAC) model**
-- **Session management and token handling**
-- **API authentication and authorization patterns**
-
-#### 8. Data Protection Plan
-**Artifact Location**: `artifacts/data-protection/`
-**Output Location**: `docs/helix/02-design/data-protection.md`
-
-Data security and privacy implementation:
-- **Data classification and handling procedures**
-- **Encryption at rest and in transit specifications**
-- **Key management architecture**
-- **Privacy controls and data subject rights**
-- **Compliance implementation strategy**
-
 ### Technical Investigation Artifacts (Optional - When Technical Uncertainty Exists)
 
 When significant technical unknowns exist about architecture, technology choices, integration complexity, or implementation approaches, technical investigation artifacts can be used to reduce risk and validate approaches before committing to detailed design.
@@ -454,9 +419,7 @@ the canonical `docs/helix/02-design/` paths defined in each artifact.
 Common entry points:
 - `artifacts/solution-design/`
 - `artifacts/technical-design/`
-- `artifacts/contracts/`
 - `artifacts/adr/`
-- `artifacts/security-architecture/`
 - `artifacts/tech-spike/` and `artifacts/proof-of-concept/` for bounded
   investigation work
 

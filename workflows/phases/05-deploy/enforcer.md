@@ -221,13 +221,8 @@ Deploy provides to Iterate:
 
 ## Deploy Artifacts
 
-Key outputs to create:
-- **Deployment Procedures**: Step-by-step instructions
-- **Monitoring Setup**: Dashboards and alerts
-- **Runbooks**: Operational procedures
-- **Rollback Plans**: Recovery procedures
-- **Configuration**: Production configs
-- **Deployment Report**: What was deployed
+Deploy artifacts are project-specific. Create checklists, runbooks, and
+monitoring configurations as needed for your deployment model.
 
 ## Your Mantras
 

@@ -402,10 +402,8 @@ Remember: security is not a destination but a journey of continuous improvement 
 ## Additional Resources
 
 ### Templates and Checklists
-- Security Requirements Template: `/workflows/helix/phases/01-frame/artifacts/security-requirements/template.md`
-- Threat Model Template: `/workflows/helix/phases/01-frame/artifacts/threat-model/template.md`
-- Security Architecture Template: `/workflows/helix/phases/02-design/artifacts/security-architecture/template.md`
-- Secure Coding Checklist: `/workflows/helix/phases/04-build/artifacts/secure-coding/template.md`
+- Security Requirements Template: `/workflows/phases/01-frame/artifacts/security-requirements/template.md`
+- Threat Model Template: `/workflows/phases/01-frame/artifacts/threat-model/template.md`
 
 ### External Resources
 - [OWASP Application Security Verification Standard (ASVS)](https://owasp.org/www-project-application-security-verification-standard/)
