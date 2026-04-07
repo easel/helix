@@ -1,3 +1,12 @@
+#!/usr/bin/env bash
+# Generate the concerns catalog page from workflows/concerns/ source files.
+# Run from repo root: bash website/scripts/generate-concerns.sh
+set -euo pipefail
+
+CONCERNS_DIR="${1:-workflows/concerns}"
+OUTPUT="${2:-website/content/docs/glossary/concerns.md}"
+
+cat > "$OUTPUT" <<'HEADER'
 ---
 title: Concerns
 weight: 4
@@ -51,69 +60,55 @@ The library lives at `workflows/concerns/`. Each concern has two files:
 - `concern.md` — Category, areas, components, constraints, quality gates
 - `practices.md` — Phase-specific practices (requirements, design, implementation, testing)
 
-### Tech Stack Concerns
+HEADER
 
-| Concern | Areas | Key Tools |
-|---------|-------|-----------|
-| **go-std** | all | Go (version pinned in `go.mod`) |
-| **python-uv** | all | Python 3.12+ |
-| **react-nextjs** | web, ui | React 19 — functional components and hooks only |
-| **rust-cargo** | all | Rust (latest stable; MSRV pinned in `rust-toolchain.toml`) |
-| **scala-sbt** | all | Scala 2.x (pinned per project) |
-| **typescript-bun** | all | TypeScript (strict mode) |
+# Collect concerns by category
+declare -A categories
+declare -A concern_data
 
-### Security Concerns
+for dir in "$CONCERNS_DIR"/*/; do
+  [[ -f "$dir/concern.md" ]] || continue
+  name=$(basename "$dir")
+  title=$(head -1 "$dir/concern.md" | sed 's/^# Concern: //')
+  category=$(awk '/^## Category/{getline; print; exit}' "$dir/concern.md")
+  areas=$(awk '/^## Areas/{getline; print; exit}' "$dir/concern.md")
 
-| Concern | Areas | Key Tools |
-|---------|-------|-----------|
-| **security-owasp** | all | OWASP Top 10 (current edition) |
+  # Normalize category for grouping
+  case "$category" in
+    tech-stack)       group="Tech Stack" ;;
+    security)         group="Security" ;;
+    observability)    group="Observability" ;;
+    accessibility)    group="Accessibility" ;;
+    internationalization) group="Internationalization" ;;
+    infrastructure)   group="Infrastructure" ;;
+    microsite|demo)   group="Tooling" ;;
+    testing)          group="Testing" ;;
+    quality-attribute) group="Quality" ;;
+    *)                group="Other" ;;
+  esac
 
-### Observability Concerns
+  # Extract key tools from first component line (strip markdown formatting)
+  focus=$(awk '/^## Components/{found=1; next} found && /^- \*\*/{gsub(/^- \*\*[^*]+\*\*: */,""); print; exit}' "$dir/concern.md" 2>/dev/null || true)
+  [[ -z "$focus" ]] && focus="$title"
+  # Truncate long focus lines
+  focus="${focus:0:80}"
 
-| Concern | Areas | Key Tools |
-|---------|-------|-----------|
-| **o11y-otel** | api, backend, infra | OpenTelemetry (traces, metrics, logs) |
+  # Build table row
+  categories["$group"]+="| **$name** | $areas | $focus |"$'\n'
+done
 
-### Accessibility Concerns
+# Output categories in a sensible order
+for group in "Tech Stack" "Security" "Observability" "Accessibility" "Internationalization" "Quality" "Testing" "Infrastructure" "Tooling"; do
+  [[ -z "${categories[$group]:-}" ]] && continue
+  echo "### $group Concerns"
+  echo ""
+  echo "| Concern | Areas | Key Tools |"
+  echo "|---------|-------|-----------|"
+  echo -n "${categories[$group]}"
+  echo ""
+done >> "$OUTPUT"
 
-| Concern | Areas | Key Tools |
-|---------|-------|-----------|
-| **a11y-wcag-aa** | ui, frontend | WCAG 2.1 Level AA |
-
-### Internationalization Concerns
-
-| Concern | Areas | Key Tools |
-|---------|-------|-----------|
-| **i18n-icu** | ui, frontend | ICU MessageFormat |
-
-### Quality Concerns
-
-| Concern | Areas | Key Tools |
-|---------|-------|-----------|
-| **testing** | all | Tests exist to find bugs in the code, not to prove it works |
-| **ux-radix** | ui, frontend | Radix UI (headless, accessible by default) |
-
-### Testing Concerns
-
-| Concern | Areas | Key Tools |
-|---------|-------|-----------|
-| **e2e-kind** | api, infra | kind (Kubernetes in Docker) |
-| **e2e-playwright** | ui, site | Playwright (`@playwright/test`) |
-
-### Infrastructure Concerns
-
-| Concern | Areas | Key Tools |
-|---------|-------|-----------|
-| **k8s-kind** | infra | `kind` (Kubernetes in Docker) — NOT docker-compose |
-
-### Tooling Concerns
-
-| Concern | Areas | Key Tools |
-|---------|-------|-----------|
-| **demo-asciinema** | all | Asciinema (`asciinema rec`) — terminal session recording |
-| **demo-playwright** | ui, frontend | Playwright — headless browser automation with video capture |
-| **hugo-hextra** | all | Hugo (extended edition) |
-
+cat >> "$OUTPUT" <<'FOOTER'
 
 ## Drift Signals
 
@@ -155,3 +150,6 @@ Every HELIX action that involves technology or quality choices loads active conc
 | **frame** | Concern selection happens during framing |
 | **check** | Detects missing area labels, stale digests, missing concerns.md |
 | **backfill** | Discovers concerns from project evidence |
+FOOTER
+
+echo "Generated $OUTPUT with $(grep -c '^\*\*' "$OUTPUT" 2>/dev/null || echo '?') concerns"

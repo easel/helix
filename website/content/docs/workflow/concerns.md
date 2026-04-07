@@ -52,6 +52,7 @@ consists of two files:
 | **python-uv** | uv, ruff, pyright, pytest + hypothesis |
 | **go-std** | gofmt, go vet, golangci-lint, govulncheck |
 | **scala-sbt** | sbt-dynver, scalafmt, scalafix, ScalaTest |
+| **react-nextjs** | React 19, Next.js, functional components + hooks |
 
 ### Quality and Infrastructure Concerns
 
@@ -61,7 +62,27 @@ consists of two files:
 | **o11y-otel** | OpenTelemetry tracing, structured logging, metrics |
 | **a11y-wcag-aa** | WCAG 2.1 AA, semantic HTML, keyboard navigation |
 | **i18n-icu** | ICU message format, locale-aware formatting |
+| **testing** | Test philosophy, bug-finding over proof, property-based testing |
+| **ux-radix** | Radix UI headless primitives, accessible by default |
 | **k8s-kind** | Kubernetes with kind, Helm charts, service discovery |
+
+### Testing Concerns
+
+| Concern | Focus |
+|---------|-------|
+| **e2e-playwright** | Playwright browser automation, visual regression |
+| **e2e-kind** | Kind cluster E2E testing for APIs and infrastructure |
+
+### Tooling Concerns
+
+| Concern | Focus |
+|---------|-------|
+| **hugo-hextra** | Hugo + Hextra theme, GitHub Pages deployment |
+| **demo-asciinema** | Scripted terminal recordings, Docker reproducibility |
+| **demo-playwright** | Browser demo recordings with Playwright video capture |
+
+See the [full concerns catalog](/docs/glossary/concerns) for detailed
+component listings and all available concerns.
 
 ## Drift Detection
 

@@ -85,6 +85,9 @@ jobs:
             echo "::endgroup::"
           done
 
+      - name: Generate concerns catalog
+        run: bash website/scripts/generate-concerns.sh
+
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
