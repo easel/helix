@@ -352,7 +352,61 @@ fi
 printf '%s\n' "${MOCK_BR_LIST_JSON:-[]}"
 EOF
 
-  chmod +x "$root/bin/codex" "$root/bin/claude" "$root/bin/bd" "$root/bin/br"
+  # Mock pi as the default agent harness
+  cat >"$root/bin/pi" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+
+state_root="${MOCK_STATE_ROOT:?}"
+
+# pi -p <prompt> — skip flags, use last positional arg as prompt
+prompt="${@: -1}"
+
+record() {
+  printf '%s
+' "$1" >> "$state_root/calls.log"
+}
+
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then
+    echo STOP
+    return
+  fi
+  head -n1 "$file"
+  tail -n +2 "$file" > "$file.tmp" || true
+  mv "$file.tmp" "$file"
+}
+
+case "$prompt" in
+  *"implementation action"*)
+    record implement
+    echo "implementation complete"
+    ;;
+  *"check action"*)
+    record check
+    action="$(next_action)"
+    printf 'NEXT_ACTION: %s\n' "$action"
+    ;;
+  *"alignment action"*)
+    record align
+    echo "alignment complete"
+    ;;
+  *"review action"*)
+    record review
+    echo "review complete"
+    ;;
+  *"experiment"*)
+    record experiment
+    echo "experiment complete"
+    ;;
+  *)
+    printf '{"result":"%s"}\n' "$prompt"
+    ;;
+esac
+EOF
+
+  chmod +x "$root/bin/codex" "$root/bin/claude" "$root/bin/pi" "$root/bin/bd" "$root/bin/br"
 }
 
 make_workspace() {
@@ -401,10 +455,12 @@ run_helix() {
     PATH="$root/bin:$PATH" \
     MOCK_STATE_ROOT="$root/state" \
     HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+    HELIX_AGENT=codex \
     HELIX_FORCE_EPHEMERAL=1 \
     HELIX_REVIEW_AGENT="codex" \
     HELIX_ALT_AGENT="none" \
     HELIX_DIRECT_AGENT=1 \
+    HELIX_EXEC_CONTEXT=1 \
     HELIX_AUTO_ALIGN="${HELIX_AUTO_ALIGN:-0}" \
     DDX_BEAD_DIR="$root/work/.ddx" \
     DDX_DISABLE_UPDATE_CHECK=1 \
@@ -445,6 +501,7 @@ run_helix_with_env() {
       "DDX_BEAD_DIR=$root/work/.ddx" \
       "DDX_DISABLE_UPDATE_CHECK=1" \
       "HELIX_DIRECT_AGENT=1" \
+      "HELIX_EXEC_CONTEXT=1" \
       "$env_name=$env_value" \
       bash "$repo_root/scripts/helix" "$cmd" --quiet "$@"
   )
@@ -474,6 +531,7 @@ run_helix_with_envs() {
       "DDX_BEAD_DIR=$root/work/.ddx" \
       "DDX_DISABLE_UPDATE_CHECK=1" \
       "HELIX_DIRECT_AGENT=1" \
+      "HELIX_EXEC_CONTEXT=1" \
       "${env_args[@]}" \
       bash "$repo_root/scripts/helix" "$cmd" --quiet "$@"
   )
@@ -1076,8 +1134,8 @@ case "$payload" in
 esac
 MOCK
   cp "$root/bin/mock-supersession" "$root/bin/codex"
-  cp "$root/bin/mock-supersession" "$root/bin/claude"
-  chmod +x "$root/bin/codex" "$root/bin/claude"
+  cp "$root/bin/mock-supersession" "$root/bin/pi"
+  chmod +x "$root/bin/codex" "$root/bin/pi"
 
   local output
   output="$(run_helix "$root" run --no-auto-review 2>&1)"
@@ -1135,20 +1193,18 @@ test_skill_package_validation() {
   )
 }
 
-test_claude_run_stops_after_queue_drains() {
+test_pi_run_stops_after_queue_drains() {
   local root
   root="$(make_workspace)"
   seed_tracker "$root" 1
   printf 'STOP\n' > "$root/state/next-actions"
 
-  # Mock claude that closes issues
-  cat >"$root/bin/claude" <<'MOCK'
+  # Mock pi that closes issues
+  cat >"$root/bin/pi" <<'MOCK'
 #!/usr/bin/env bash
 set -euo pipefail
 state_root="${MOCK_STATE_ROOT:?}"
-stdin_payload=""
-if ! [[ -t 0 ]]; then stdin_payload="$(cat)"; fi
-payload="$* $stdin_payload"
+prompt="${@: -1}"
 record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
 next_action() {
   local file="$state_root/next-actions"
@@ -1157,7 +1213,7 @@ next_action() {
   tail -n +2 "$file" > "$file.tmp" || true
   mv "$file.tmp" "$file"
 }
-case "$payload" in
+case "$prompt" in
   *"implementation action"*)
     record implement
     if [[ -f .ddx/beads.jsonl ]]; then
@@ -1173,40 +1229,40 @@ case "$payload" in
     ;;
   *"alignment action"*)
     record align; echo "alignment complete" ;;
-  *) record other; echo "mock claude" ;;
+  *) record other; echo "mock pi" ;;
 esac
 MOCK
-  chmod +x "$root/bin/claude"
+  chmod +x "$root/bin/pi"
 
   local output
-  output="$(run_helix "$root" run --claude --no-auto-review --no-auto-align 2>&1)"
+  output="$(run_helix "$root" run --agent pi --no-auto-review --no-auto-align 2>&1)"
 
   local calls
   calls="$(cat "$root/state/calls.log")"
-  assert_eq $'implement\ncheck' "$calls" "claude run should implement until drained, then check"
-  assert_contains "$output" "helix: stopping after check returned STOP" "claude run should report why it stopped"
+  assert_eq $'implement\ncheck' "$calls" "pi run should implement until drained, then check"
+  assert_contains "$output" "helix: stopping after check returned STOP" "pi run should report why it stopped"
   rm -rf "$root"
 }
 
-test_claude_run_auto_aligns() {
+test_pi_run_auto_aligns() {
   local root
   root="$(make_workspace)"
   printf 'ALIGN\nSTOP\n' > "$root/state/next-actions"
 
-  HELIX_AUTO_ALIGN=1 run_helix "$root" run --claude --no-auto-review >/dev/null
+  HELIX_AUTO_ALIGN=1 run_helix "$root" run --agent pi --no-auto-review >/dev/null
 
   local calls
   calls="$(cat "$root/state/calls.log")"
-  assert_eq $'check\nalign\ncheck' "$calls" "claude run should auto-align when check returns ALIGN"
+  assert_eq $'check\nalign\ncheck' "$calls" "pi run should auto-align when check returns ALIGN"
   rm -rf "$root"
 }
 
-test_claude_check_dry_run() {
+test_pi_check_dry_run() {
   local root
   root="$(make_workspace)"
   local output
-  output="$(run_helix "$root" check --claude --dry-run repo)"
-  assert_contains "$output" "claude -p --permission-mode bypassPermissions" "claude dry-run should print claude command"
+  output="$(run_helix "$root" check --agent pi --dry-run repo)"
+  assert_contains "$output" "pi " "pi dry-run should print pi command"
   assert_contains "$output" "check action" "claude dry-run should reference check action"
   rm -rf "$root"
 }
@@ -1553,7 +1609,7 @@ test_claude_agent_timeout_kills_process() {
   seed_tracker "$root" 1
 
   local output
-  if output="$(HELIX_AGENT_TIMEOUT=1 MOCK_CLAUDE_SLEEP=30 run_helix "$root" run --claude 2>&1)"; then
+  if output="$(HELIX_AGENT_TIMEOUT=1 MOCK_CLAUDE_SLEEP=30 run_helix "$root" run --agent pi 2>&1)"; then
     fail "claude run should fail when agent times out"
   fi
 
@@ -1879,9 +1935,9 @@ run_test "run stops when issue is superseded" test_run_stops_when_issue_is_super
 run_test "backfill requires report marker" test_backfill_requires_report_marker
 run_test "backfill creates report" test_backfill_creates_report
 run_test "doctor reports status" test_doctor_reports_status
-run_test "claude run stops after drain" test_claude_run_stops_after_queue_drains
-run_test "claude auto-align" test_claude_run_auto_aligns
-run_test "claude check dry-run" test_claude_check_dry_run
+run_test "pi run stops after drain" test_pi_run_stops_after_queue_drains
+run_test "pi auto-align" test_pi_run_auto_aligns
+run_test "pi check dry-run" test_pi_check_dry_run
 run_test "run stops on WAIT" test_run_stops_on_wait
 run_test "run dispatches backfill" test_run_dispatches_backfill
 run_test "run stops after repeated BACKFILL" test_run_stops_after_repeated_backfill
@@ -1975,10 +2031,12 @@ run_helix_summary() {
     PATH="$root/bin:$PATH" \
     MOCK_STATE_ROOT="$root/state" \
     HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+    HELIX_AGENT=codex \
     HELIX_FORCE_EPHEMERAL=1 \
     HELIX_REVIEW_AGENT="codex" \
     HELIX_ALT_AGENT="none" \
     HELIX_DIRECT_AGENT=1 \
+    HELIX_EXEC_CONTEXT=1 \
     HELIX_AUTO_ALIGN="${HELIX_AUTO_ALIGN:-0}" \
     bash "$repo_root/scripts/helix" "$cmd" --summary "$@"
   )
@@ -2929,6 +2987,7 @@ test_review_dry_run_uses_review_agent() {
     HELIX_FORCE_EPHEMERAL=1 \
     HELIX_REVIEW_AGENT="codex" \
     HELIX_DIRECT_AGENT=1 \
+    HELIX_EXEC_CONTEXT=1 \
     bash "$repo_root/scripts/helix" review --agent claude --quiet --dry-run 2>&1
   )"
 
@@ -3433,6 +3492,7 @@ MOCK
     HELIX_FORCE_EPHEMERAL=1 \
     HELIX_REVIEW_AGENT="codex" \
     HELIX_DIRECT_AGENT=1 \
+    HELIX_EXEC_CONTEXT=1 \
     bash "$repo_root/scripts/helix" run --agent claude --quiet --no-auto-align 2>&1
   )" || true
 

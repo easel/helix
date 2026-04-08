@@ -30,9 +30,83 @@ tracker_file="${tracker_dir}/beads.jsonl"
 export DDX_BEAD_DIR="$tracker_dir"
 export DDX_BEAD_PREFIX="${DDX_BEAD_PREFIX:-hx}"
 
-agent="${HELIX_AGENT:-codex}"
+agent="${HELIX_AGENT:-pi}"
 agent_model="${HELIX_MODEL:-}"
 agent_effort="${HELIX_EFFORT:-}"
+
+# Preset definitions — bind HELIX actions to execution presets.
+# ddx resolves preset + harness to concrete model, effort, and timeout.
+_action_preset() {
+  local action="$1"
+  case "$action" in
+    frame|design|align|review|evolve)  printf '%s' "smart" ;;
+    build|polish|check|triage)         printf '%s' "fast" ;;
+    experiment)                         printf '%s' "reasoning" ;;
+    *)                                  printf '%s' "smart" ;;
+  esac
+}
+
+# _resolve_preset <preset> — call ddx agent resolve and set model, effort, timeout.
+# Sets _ddx_resolved_model, _ddx_resolved_effort, _ddx_resolved_timeout.
+# Returns 0 on success, 1 if ddx resolve fails.
+_resolve_preset() {
+  local preset="$1"
+  _ddx_resolved_model=""
+  _ddx_resolved_effort=""
+  _ddx_resolved_timeout=""
+
+  if ! command -v ddx &>/dev/null; then
+    return 1
+  fi
+
+  local resolved
+  resolved="$(ddx agent resolve "$agent" "$preset" --json 2>/dev/null)" || return 1
+
+  _ddx_resolved_model="$(printf '%s' "$resolved" | ddx jq -r '.model // empty' 2>/dev/null)"
+  _ddx_resolved_effort="$(printf '%s' "$resolved" | ddx jq -r '.effort // empty' 2>/dev/null)"
+  local timeout_ms
+  timeout_ms="$(printf '%s' "$resolved" | ddx jq -r '.timeout_ms // empty' 2>/dev/null)"
+  if [[ -n "$timeout_ms" && "$timeout_ms" != "null" ]]; then
+    _ddx_resolved_timeout="$((timeout_ms / 1000))"
+  fi
+}
+
+# _detect_alt_agent — set alt_agent to the first available harness different from $agent.
+# Uses ddx agent list for discovery. Falls back to the legacy hardcoded detection.
+_detect_alt_agent() {
+  if [[ "${HELIX_ALT_AGENT:-auto}" != "auto" ]]; then
+    alt_agent="${HELIX_ALT_AGENT}"
+    [[ "$alt_agent" == "none" ]] && alt_agent=""
+    return
+  fi
+
+  # Try ddx agent list for dynamic discovery
+  if command -v ddx &>/dev/null && ddx agent list &>/dev/null 2>&1; then
+    local avail
+    avail="$(ddx agent list --json 2>/dev/null | ddx jq -r '.[] | select(.available == true) | .name' 2>/dev/null)" || avail=""
+    for h in $avail; do
+      if [[ "$h" != "$agent" && "$h" != "virtual" ]]; then
+        alt_agent="$h"
+        return
+      fi
+    done
+  fi
+
+  # Legacy fallback for environments without ddx
+  if [[ "${agent}" == "codex" ]] && command -v claude >/dev/null 2>&1; then
+    alt_agent="claude"
+  elif [[ "${agent}" == "claude" ]] && command -v codex >/dev/null 2>&1; then
+    alt_agent="codex"
+  else
+    alt_agent=""
+  fi
+}
+
+alt_agent=""
+_detect_alt_agent
+# review_agent kept as alias for backward compat with --review-agent flag
+review_agent="${HELIX_REVIEW_AGENT:-$alt_agent}"
+
 review_every=15
 force_ephemeral="${HELIX_FORCE_EPHEMERAL:-0}"
 session_active=0  # 1 = reusable session exists for the current epic
@@ -41,73 +115,7 @@ auto_align="${HELIX_AUTO_ALIGN:-1}"
 auto_review=1
 review_threshold=100
 
-# Model tiers: "smart" for reasoning-heavy stages, "cheap" for mechanical stages.
-# Override with HELIX_SMART_MODEL / HELIX_CHEAP_MODEL for the primary agent.
-smart_model="${HELIX_SMART_MODEL:-}"
-cheap_model="${HELIX_CHEAP_MODEL:-}"
 
-# resolve_model <tier> — return the model name for the current $agent and tier.
-# tier: "smart" or "cheap"
-# HELIX_SMART_MODEL / HELIX_CHEAP_MODEL override defaults for the PRIMARY agent.
-# When the current agent is the alternate (adversarial rotation), use that
-# agent's own defaults — the env overrides don't cross agent boundaries.
-resolve_model() {
-  local tier="${1:-smart}"
-  local primary="${HELIX_AGENT:-codex}"
-  case "$agent" in
-    claude)
-      if [[ "$tier" == "smart" ]]; then
-        if [[ "$agent" == "$primary" && -n "$smart_model" ]]; then
-          printf '%s' "$smart_model"
-        else
-          printf '%s' "claude-opus-4-6"
-        fi
-      else
-        if [[ "$agent" == "$primary" && -n "$cheap_model" ]]; then
-          printf '%s' "$cheap_model"
-        else
-          printf '%s' "claude-sonnet-4-6"
-        fi
-      fi
-      ;;
-    codex)
-      if [[ "$tier" == "smart" ]]; then
-        if [[ "$agent" == "$primary" && -n "$smart_model" ]]; then
-          printf '%s' "$smart_model"
-        else
-          printf '%s' "gpt-5.4"
-        fi
-      else
-        if [[ "$agent" == "$primary" && -n "$cheap_model" ]]; then
-          printf '%s' "$cheap_model"
-        else
-          printf '%s' "gpt-5.4-mini"
-        fi
-      fi
-      ;;
-    *)
-      # Unknown agent — fall through to agent default
-      printf '%s' "${agent_model:-}"
-      ;;
-  esac
-}
-
-# Adversarial agent rotation: reasoning stages use the primary agent,
-# mechanical stages (build, polish, check) use the alternate agent.
-# This ensures different models review each other's work.
-# Set HELIX_ALT_AGENT=none to explicitly disable auto-detection.
-if [[ "${HELIX_ALT_AGENT:-auto}" != "auto" ]]; then
-  alt_agent="${HELIX_ALT_AGENT}"
-  [[ "$alt_agent" == "none" ]] && alt_agent=""
-elif [[ "${agent}" == "codex" ]] && command -v claude >/dev/null 2>&1; then
-  alt_agent="claude"
-elif [[ "${agent}" == "claude" ]] && command -v codex >/dev/null 2>&1; then
-  alt_agent="codex"
-else
-  alt_agent=""
-fi
-# review_agent kept as alias for backward compat with --review-agent flag
-review_agent="${HELIX_REVIEW_AGENT:-$alt_agent}"
 dry_run=0
 quiet=0
 summary=0
@@ -164,21 +172,21 @@ verbose_line() {
 usage() {
   cat <<EOF
 Usage:
-  helix run [--agent codex|claude] [--review-every N] [--max-cycles N] [--no-auto-align] [--no-auto-review] [--summary] [--dry-run]
-  helix frame [--agent codex|claude] [scope]
-  helix build [--agent codex|claude] [selector]
-  helix check [--agent codex|claude] [scope]
-  helix align [--agent codex|claude] [scope]
-  helix backfill [--agent codex|claude] [scope]
-  helix design [--agent codex|claude] [--rounds N] [scope]
-  helix polish [--agent codex|claude] [--rounds N] [scope]
+  helix run [--agent <name>] [--review-every N] [--max-cycles N] [--no-auto-align] [--no-auto-review] [--summary] [--dry-run]
+  helix frame [--agent <name>] [scope]
+  helix build [--agent <name>] [selector]
+  helix check [--agent <name>] [scope]
+  helix align [--agent <name>] [scope]
+  helix backfill [--agent <name>] [scope]
+  helix design [--agent <name>] [--rounds N] [scope]
+  helix polish [--agent <name>] [--rounds N] [scope]
   helix doctor [--fix]
   helix start [helix run options...]
   helix stop
   helix status [--json]
   helix next
-  helix review [--agent codex|claude] [scope]
-  helix experiment [--agent codex|claude] [--close] [issue-id|goal]
+  helix review [--agent <name>] [scope]
+  helix experiment [--agent <name>] [--close] [issue-id|goal]
   helix evolve [--agent codex|claude] [--scope S] [--artifact ID] [--from source] "requirement"
   helix triage "Title" [--type task|epic|bug|chore] [ddx bead create options...]
   ddx bead <command> [args...]
@@ -207,33 +215,35 @@ Options:
   --agent           Agent to use: codex or claude (default: ${agent})
   --claude          Shorthand for --agent claude
   --codex           Shorthand for --agent codex
-  --model           Model to use (e.g., claude-sonnet-4-6, gpt-5.4)
-  --effort          Reasoning effort: low, medium, high, max (defaults vary by action)
+  --model           Model to use (overrides ddx preset resolution)
+  --effort          Reasoning effort level (overrides ddx preset resolution)
   --review-every    Run alignment every N completed implementation cycles
   --max-cycles      Stop after N completed implementation cycles
   --no-auto-align   Do not auto-run alignment when check returns ALIGN
   --no-auto-review  Do not run fresh-eyes review after each implementation
   --review-threshold N  Skip review for changes below N lines (default: 100)
   --review-agent    Use a different agent for reviews (default: adversarial alternate)
-  --smart-model     Model for reasoning-heavy stages (frame, design, align, review)
-  --cheap-model     Model for mechanical stages (build, polish, check)
   --dry-run         Print the agent command instead of executing it
   --quiet, -q       Suppress progress output (command echo, prompt sizes)
   --summary, -s     Concise output with log-file line pointers (implies --quiet)
 
 Environment:
-  HELIX_AGENT          Default primary agent (codex or claude)
-  HELIX_ALT_AGENT      Alternate agent for adversarial rotation (auto-detected)
+  HELIX_AGENT          Default primary agent harness (from ddx agent list)
+  HELIX_ALT_AGENT      Alternate agent for adversarial rotation (auto-detected via ddx)
   HELIX_AGENT_TIMEOUT  Agent timeout in seconds (default: 2700)
-  HELIX_SMART_MODEL    Model for reasoning stages (default: opus / gpt-5.4)
-  HELIX_CHEAP_MODEL    Model for mechanical stages (default: sonnet / gpt-5.4-mini)
   HELIX_LIBRARY_ROOT   Override the library root that contains workflows/
   HELIX_TRACKER_DIR    Override the tracker directory (default: .helix/)
 
+Preset system:
+  HELIX actions bind to presets: smart (frame, design, align, review, evolve),
+  fast (build, polish, check, triage), reasoning (experiment).
+  ddx resolves preset + harness to model, effort, and timeout.
+  HELIX_MODEL and --model override the resolved model.
+  HELIX_EFFORT and --effort override the resolved effort.
+
 Adversarial rotation:
-  Primary agent (frame, design, evolve, align, review) uses the smart model.
-  Alternate agent (build, polish, check) uses the cheap model.
-  This ensures different models review each other's work.
+  Primary agent handles reasoning tasks (smart preset); alternate agent
+  handles mechanical tasks (fast preset). Auto-detected via ddx agent list.
 
 Logs:
   Session logs are written to .helix-logs/helix-YYYYMMDD-HHMMSS.log
@@ -332,15 +342,28 @@ run_doctor() {
   _check ddx 1
 
   printf '\nAgent CLIs (at least one required):\n'
-  local has_agent=0
-  if command -v claude >/dev/null 2>&1; then
-    _check claude 0; has_agent=1
+  local agent_count=0
+  # Check via ddx agent list for dynamic discovery
+  if command -v ddx &>/dev/null && ddx agent list &>/dev/null 2>&1; then
+    local avail
+    avail="$(ddx agent list --json 2>/dev/null | ddx jq -r '.[] | select(.available == true) | .name' 2>/dev/null)" || avail=""
+    for h in $avail; do
+      if [[ "$h" != "virtual" ]]; then
+        _check "$h" 0
+        agent_count=$((agent_count + 1))
+      fi
+    done
   fi
-  if command -v codex >/dev/null 2>&1; then
-    _check codex 0; has_agent=1
+  # Legacy fallback
+  if ! command -v ddx &>/dev/null || [[ -z "$avail" ]]; then
+    if command -v claude >/dev/null 2>&1; then
+      _check claude 0; agent_count=$((agent_count + 1))
+    fi
+    if command -v codex >/dev/null 2>&1; then
+      _check codex 0; agent_count=$((agent_count + 1))
+    fi
   fi
-  if (( ! has_agent )); then
-    printf '  ✗  No agent CLI found (need claude or codex)\n'
+  if (( agent_count == 0 )); then
     fail=$((fail + 1))
   fi
 
@@ -813,31 +836,35 @@ reset_session() {
 
 run_agent_prompt() {
   local prompt="$1"
-  # Only apply agent_model when no explicit override is given AND
-  # the current agent matches the configured primary agent.
-  # This prevents passing claude models to codex during cross-model review.
-  local model_override="${2:-}"
-  if [[ -z "$model_override" ]] && [[ "$agent" == "${HELIX_AGENT:-codex}" ]]; then
-    model_override="$agent_model"
-  fi
-  local effort_override="${3:-$agent_effort}"
+  local preset="${2:-smart}"  # preset: smart, fast, reasoning
   local prompt_bytes
   prompt_bytes="$(printf '%s' "$prompt" | wc -c)"
-  local agent_timeout="${HELIX_AGENT_TIMEOUT:-2700}"
 
-  # Prefer ddx agent run for unified dispatch (token tracking, session logging,
-  # harness-agnostic interface). Fall back to direct dispatch only when ddx
-  # agent is unavailable. Set HELIX_DIRECT_AGENT=1 to skip ddx and dispatch
-  # to agent binaries directly (used by tests with mock agents).
+  # Resolve preset to model + effort + timeout via ddx.
+  # Skip resolution when HELIX_DIRECT_AGENT=1 (tests use direct dispatch).
+  local resolved_model="" resolved_effort="" resolved_timeout="${HELIX_AGENT_TIMEOUT:-2700}"
   if [[ "${HELIX_DIRECT_AGENT:-0}" != "1" ]] \
      && command -v ddx &>/dev/null \
      && ddx agent list &>/dev/null 2>&1; then
-    _run_agent_ddx "$prompt" "$model_override" "$effort_override" "$agent_timeout"
+    _resolve_preset "$preset"
+    resolved_model="$_ddx_resolved_model"
+    resolved_effort="$_ddx_resolved_effort"
+    [[ -n "$_ddx_resolved_timeout" ]] && resolved_timeout="$_ddx_resolved_timeout"
+  fi
+
+  # Backwards-compat: explicit --model/--effort flags win over preset defaults
+  [[ -n "$agent_model" ]] && resolved_model="$agent_model"
+  [[ -n "$agent_effort" ]] && resolved_effort="$agent_effort"
+
+  if [[ "${HELIX_DIRECT_AGENT:-0}" != "1" ]] \
+     && command -v ddx &>/dev/null \
+     && ddx agent list &>/dev/null 2>&1; then
+    _run_agent_ddx "$prompt" "$resolved_model" "$resolved_effort" "$resolved_timeout"
     return $?
   fi
 
   # Fallback: direct agent dispatch (no ddx)
-  _run_agent_direct "$prompt" "$model_override" "$effort_override" "$agent_timeout"
+  _run_agent_direct "$prompt" "$resolved_model" "$resolved_effort" "$resolved_timeout"
 }
 
 # Extract agent text result from ddx agent run JSON output.
@@ -1162,6 +1189,31 @@ _run_agent_direct() {
         return "$_claude_rc"
       fi
       ;;
+    pi)
+      need_cmd pi
+      local _pi_model_flag=""
+      [[ -n "$model_override" ]] && _pi_model_flag="--model $model_override"
+      if (( dry_run )); then
+        printf 'pi -p %s %q\n' "$_pi_model_flag" "$prompt"
+      else
+        if (( ! quiet )); then
+          printf 'helix: [%s] pi -p %s (timeout %ss)\n' "$(date +%H:%M:%S)" "${model_override:+(model: $model_override)}" "$agent_timeout" >&2
+        fi
+        local _pi_tmp _pi_rc=0
+        _pi_tmp="$(mktemp)"
+        timeout "${agent_timeout}s" pi -p $_pi_model_flag "$prompt" > "$_pi_tmp" 2>&1 || _pi_rc=$?
+        if (( _pi_rc == 124 )); then
+          printf 'helix: [%s] pi timeout after %ss\n' "$(date +%H:%M:%S)" "$agent_timeout" >&2
+          rm -f "$_pi_tmp"
+          return 1
+        fi
+        local _pi_raw
+        _pi_raw="$(cat "$_pi_tmp")"
+        rm -f "$_pi_tmp"
+        printf '%s\n' "$_pi_raw"
+        return "$_pi_rc"
+      fi
+      ;;
     *)
       echo "unsupported agent: $agent" >&2
       exit 1
@@ -1285,7 +1337,7 @@ EOF
 run_frame() {
   local scope="${1:-}"
   # Frame is reasoning-heavy — use primary agent with smart model
-  run_agent_prompt "$(frame_prompt "$scope")" "$(resolve_model smart)" "${agent_effort:-high}"
+  run_agent_prompt "$(frame_prompt "$scope")" "smart"
 }
 
 plan_prompt() {
@@ -1399,7 +1451,7 @@ run_evolve() {
     require_tracker
   fi
   # Evolve is reasoning-heavy — use primary agent with smart model
-  run_agent_prompt "$(evolve_prompt "$requirement" "$scope" "$artifact" "$source")" "$(resolve_model smart)" "${agent_effort:-high}"
+  run_agent_prompt "$(evolve_prompt "$requirement" "$scope" "$artifact" "$source")" "smart"
 }
 
 extract_agents_md_commands() {
@@ -1700,7 +1752,7 @@ run_implementation() {
     (( ! quiet )) && printf 'helix: adversarial build: switching to %s\n' "$agent" >&2
   fi
   local _rc=0
-  run_agent_prompt "$(implementation_prompt "$selector")" "$(resolve_model cheap)" "${agent_effort:-medium}" || _rc=$?
+  run_agent_prompt "$(implementation_prompt "$selector")" "fast" || _rc=$?
   [[ -z "$_saved_agent" ]] || agent="$_saved_agent"
   return "$_rc"
 }
@@ -1718,7 +1770,7 @@ run_batch_implementation() {
     (( ! quiet )) && printf 'helix: adversarial build: switching to %s\n' "$agent" >&2
   fi
   local _rc=0
-  run_agent_prompt "$(batch_implementation_prompt "$issues")" "$(resolve_model cheap)" "${agent_effort:-medium}" || _rc=$?
+  run_agent_prompt "$(batch_implementation_prompt "$issues")" "fast" || _rc=$?
   [[ -z "$_saved_agent" ]] || agent="$_saved_agent"
   return "$_rc"
 }
@@ -1736,7 +1788,7 @@ run_check() {
     (( ! quiet )) && printf 'helix: adversarial check: switching to %s\n' "$agent" >&2
   fi
   local _rc=0
-  run_agent_prompt "$(check_prompt "$scope")" "$(resolve_model cheap)" "${agent_effort:-low}" || _rc=$?
+  run_agent_prompt "$(check_prompt "$scope")" "fast" || _rc=$?
   [[ -z "$_saved_agent" ]] || agent="$_saved_agent"
   return "$_rc"
 }
@@ -1747,7 +1799,7 @@ run_alignment() {
     require_tracker
   fi
   # Alignment is reasoning-heavy — use primary agent with smart model
-  run_agent_prompt "$(alignment_prompt "$scope")" "$(resolve_model smart)" "${agent_effort:-high}"
+  run_agent_prompt "$(alignment_prompt "$scope")" "smart"
 }
 
 run_backfill() {
@@ -1755,7 +1807,7 @@ run_backfill() {
 
   if (( dry_run )); then
     # Backfill is reasoning-heavy — use primary agent with smart model
-    run_agent_prompt "$(backfill_prompt "$scope")" "$(resolve_model smart)" "${agent_effort:-high}"
+    run_agent_prompt "$(backfill_prompt "$scope")" "smart"
     return 0
   fi
 
@@ -1763,7 +1815,7 @@ run_backfill() {
 
   local output
   # Backfill is reasoning-heavy — use primary agent with smart model
-  output="$(run_agent_prompt "$(backfill_prompt "$scope")" "$(resolve_model smart)" "${agent_effort:-high}")"
+  output="$(run_agent_prompt "$(backfill_prompt "$scope")" "smart")"
   printf '%s\n' "$output"
 
   local status
@@ -1850,7 +1902,7 @@ run_plan() {
   local rounds="${2:-5}"
   # Planning does NOT require tracker — it happens before issue creation
   # Design/plan is reasoning-heavy — use primary agent with smart model
-  run_agent_prompt "$(plan_prompt "$scope" "$rounds")" "$(resolve_model smart)" "${agent_effort:-high}"
+  run_agent_prompt "$(plan_prompt "$scope" "$rounds")" "smart"
 
   # Cross-model critique: if review_agent is configured, alternate agents
   # for additional refinement passes on the written plan
@@ -1894,7 +1946,7 @@ run_polish() {
     (( ! quiet )) && printf 'helix: adversarial polish: switching to %s\n' "$agent" >&2
   fi
   local _rc=0
-  run_agent_prompt "$(polish_prompt "$scope" "$rounds")" "$(resolve_model cheap)" "${agent_effort:-medium}" || _rc=$?
+  run_agent_prompt "$(polish_prompt "$scope" "$rounds")" "fast" || _rc=$?
   [[ -z "$_saved_agent" ]] || agent="$_saved_agent"
   return "$_rc"
 }
@@ -1918,13 +1970,13 @@ run_review() {
 
   if (( dry_run )); then
     local _rc=0
-    run_agent_prompt "$(review_prompt "$scope" "$in_loop")" "$(resolve_model smart)" "${agent_effort:-high}" || _rc=$?
+    run_agent_prompt "$(review_prompt "$scope" "$in_loop")" "smart" || _rc=$?
     [[ -z "$_saved_agent" ]] || agent="$_saved_agent"
     return "$_rc"
   fi
 
   local output
-  output="$(run_agent_prompt "$(review_prompt "$scope" "$in_loop")" "$(resolve_model smart)" "${agent_effort:-high}")"
+  output="$(run_agent_prompt "$(review_prompt "$scope" "$in_loop")" "smart")"
   printf '%s\n' "$output"
 
   # Restore agent before returning
@@ -2980,11 +3032,13 @@ main() {
             shift
             ;;
           --smart-model)
-            smart_model="$2"
+            # Deprecated: model selection is now driven by presets via ddx.
+            # This flag is a no-op for backwards compatibility.
             shift 2
             ;;
           --cheap-model)
-            cheap_model="$2"
+            # Deprecated: model selection is now driven by presets via ddx.
+            # This flag is a no-op for backwards compatibility.
             shift 2
             ;;
           --review-agent)
