@@ -7,7 +7,7 @@ dun:
     - ADR-001
 ---
 
-# TD-011: Slider Autonomy Implementation Design
+# TD-011: Slider Autonomy Implementation Design (Revised)
 
 | Date | Status | Deciders | Related | Confidence |
 |------|--------|----------|---------|------------|
@@ -34,81 +34,135 @@ From FEAT-011:
 
 ## Design Decisions
 
-### Decision 1: Graph Traversal Algorithm
+### Decision 1: Graph Traversal Algorithm (Revised)
 
-**Approach**: Depth-first traversal with authority ordering constraints
+**Approach**: Two-phase traversal - collect subgraph first, then topological sort by authority tier
 
 ```pseudocode
-function traverseGraph(impactPoint, direction):
+# Phase 1: Collect all impacted artifacts (bidirectional BFS)
+function collectImpactedSubgraph(startArtifact):
     visited = set()
-    queue = [impactPoint]
-    result = []
+    queue = [startArtifact]
     
     while queue not empty:
         current = queue.pop()
-        
         if current in visited:
-            continue  # Cycle prevention
-        
+            continue
         visited.add(current)
-        result.append(current)
         
-        neighbors = getNeighbors(current, direction)
-        
-        # Authority ordering constraint
-        for neighbor in sortByAuthority(neighbors):
+        # Add both upstream and downstream neighbors
+        for neighbor in getUpstreamNeighbors(current):
+            if neighbor not in visited:
+                queue.push(neighbor)
+        for neighbor in getDownstreamNeighbors(current):
             if neighbor not in visited:
                 queue.push(neighbor)
     
-    return result
+    return visited
 
-function getNeighbors(artifact, direction):
-    if direction == "downstream":
-        return parseCrossReferences(artifact).downstream_dependents
-    else:
-        return parseCrossReferences(artifact).upstream_dependencies
+# Phase 2: Sort by authority tier (stable topological sort)
+function orderByAuthority(artifacts):
+    # Canonical order from workflows/artifact-hierarchy.md
+    authorityTiers = {
+        "vision": 0, "prd": 1,
+        "feat": 2, "us": 3,
+        "adr": 4, "architecture": 4,  # ADRs at same tier as architecture
+        "sd": 5, "td": 6,
+        "tp": 7, "tests": 8,
+        "implementation_plan": 9,
+        "code": 10
+    }
+    
+    return sortBy(artifacts, key=lambda a: authorityTiers[getArtifactType(a)])
 ```
 
-**Authority ordering**: Vision > PRD > FEAT > US > SD > TD > TP > Tests > Code
-- ADRs can appear at multiple levels; they're inserted based on their `depends_on` metadata
+**Authority ordering** (aligned with `workflows/artifact-hierarchy.md`):
+1. Product Vision
+2. PRD
+3. Feature Specifications and User Stories
+4. Architecture and ADRs
+5. Solution Designs and Technical Designs
+6. Test Plans and Executable Tests
+7. Implementation Plans
+8. Source Code and Build Artifacts
 
-### Decision 2: Impact Detection Two-Phase System
+### Decision 2: Impact Detection Three-Phase System (Revised)
+
+**Phase 0: Build Reverse Index (One-time, cached)**
+```bash
+# Create reverse index mapping each ID to its downstream dependents
+# This enables efficient upstream→downstream traversal
+function buildReverseIndex():
+    idToFiles = {}      # ID → file path
+    downstreamMap = {}  # ID → [IDs that reference this one]
+    
+    for artifact in allArtifacts(docs/helix/):
+        id = extractArtifactId(artifact)
+        idToFiles[id] = artifact.path
+        
+        # For each [[ID]] reference in this artifact
+        for ref in parseCrossReferences(artifact):
+            if ref not in downstreamMap:
+                downstreamMap[ref] = []
+            downstreamMap[ref].append(id)
+    
+    return idToFiles, downstreamMap
+```
 
 **Phase 1: Declared Links (Primary)**
 ```bash
-# Extract all [[ID]] references from changed artifact
-rg '\[\[([A-Z]+-\d+|helix\.[a-z]+)\]\]' docs/helix/01-frame/features/FEAT-011.md | \
-  sed 's/\[\[\([^]]*\)\]\]/\1/' | sort -u
+# Extract all [[ID]] references - supports slugs and dotted IDs
+# Pattern matches: US-036-list-mcp-servers, FEAT-011, helix.workflow.artifact-hierarchy
+rg '\[\[([A-Z]+-\d+(?:-[a-z0-9-]+)?|helix(?:\.[a-z][a-z-]*)+)\]\]' docs/helix/ | \
+  sed 's/.*\[\[\([^]]*\)\]\].*/\1/' | sort -u
 
-# For each ID, find the artifact file and extract ITS references (recursive)
+# For each ID, resolve to file path and extract ITS references (recursive)
+for id in ids; do
+  # Resolve ID to artifact file
+  file=$(findArtifactById "$id")
+  if [ -f "$file" ]; then
+    # Extract upstream refs from this artifact's [[ID]] links
+    rg '\[\[([A-Z]+-\d+(?:-[a-z0-9-]+)?|helix(?:\.[a-z][a-z-]*)+)\]\]' "$file"
+  fi
+done
 ```
 
 **Phase 2: Search Fallback (Supplemental)**
 ```bash
-# Extract key terms from change diff
-git diff HEAD~1 -- docs/helix/01-frame/features/FEAT-011.md | \
-  grep -E "^\+" | rg -oP '\b[A-Z][a-z]+\b' | sort -u
+# Extract key terms from input text or change diff
+# Use NLP-aware extraction, not just capitalization
+if [ -n "$INPUT_TEXT" ]; then
+  # For helix input: extract nouns and domain terms from natural language
+  echo "$INPUT_TEXT" | rg -oP '\b(?:postgres|sqlite|database|api|auth|login|[A-Z][a-z]+)\b'
+elif [ -n "$GIT_DIFF" ]; then
+  # For file changes: extract added terms (case-insensitive)
+  git diff HEAD~1 -- docs/helix/ | grep "^+" | rg -oiP '\b[a-z]{4,}\b'
+fi | sort -u | head -20
 
 # Search for term matches in artifact titles and content
 for term in terms; do
-  rg "$term" docs/helix/ --glob "*.md" | grep -v FEAT-011.md
+  rg "$term" docs/helix/ --glob "*.md" --heading-line-number
 done
 ```
 
 **Precedence**: Declared links always take precedence. Search results only added if not already in declared set.
 
-### Decision 3: Conflict Classification Rules
+### Decision 3: Conflict Classification Rules (Revised)
 
 | Pattern | Type | Detection Method | Action |
 |---------|------|------------------|--------|
-| Technology choice (Postgres vs SQLite) | Resolvable | Term conflict in ADRs | Escalate bead, assume first mentioned |
-| Constraint contradiction ("real-time" + "batch only") | Physics-level | Logical negation detection | Block, require human |
+| Technology choice (Postgres vs SQLite) | Resolvable | Authority-tier precedence | Escalate bead, use highest authority |
+| Constraint contradiction ("real-time" + "batch only") | Physics-level | Structured field analysis | Block, require human |
 | Missing upstream artifact | Gap | Reference to non-existent ID | Create gap bead, continue with placeholder |
-| Duplicate specification | Resolvable | Same requirement in multiple places | Escalate bead, use highest authority |
+| Duplicate specification | Resolvable | Authority-tier precedence | Escalate bead, use highest authority |
 
-**Physics-level detection heuristic**: If two constraints cannot both be true simultaneously (detected via keyword patterns: "must" + negation, "only" + alternative), classify as physics-level.
+**Physics-level detection heuristic**:
+1. **Authority-tier precedence first**: If same constraint appears at different tiers, higher authority wins
+2. **Structured field analysis only**: Only analyze `## Constraints` or `## Requirements` sections, not free text
+3. **Explicit contradiction patterns**: Look for direct negations in structured fields (e.g., "must use X" vs "must NOT use X")
+4. **Default to resolvable**: If unclear, classify as resolvable and escalate via bead
 
-### Decision 4: Slider Config Schema
+### Decision 4: Slider Config Schema (Revised)
 
 ```yaml
 # .helix/slider-config.yaml
@@ -136,6 +190,8 @@ verification:
 ```
 
 **Environment overrides**: `HELIX_AUTONOMY=high`, `HELIX_SPECULATIVE=false`
+
+**Note on conflict_handling.resolvable**: Even when set to `auto-resolve`, an escalation bead MUST be created for traceability. The auto-resolve only determines whether execution blocks while waiting for human review.
 
 ### Decision 5: CLI Implementation
 
@@ -166,7 +222,7 @@ helix input "the login button is broken" --autonomy medium
 
 Continues to execute beads from queue. New bead types (`kind:escalation`, `kind:speculative`) are handled by existing worker logic with appropriate labeling.
 
-### Decision 6: Verification Loop Integration
+### Decision 6: Verification Loop Integration (Revised)
 
 **Traceability metadata format**:
 ```markdown
@@ -192,25 +248,41 @@ test('list MCP servers returns array', async () => {
 });
 ```
 
-**Failure traceback algorithm**:
+**Failure traceback algorithm (integrated with helix measure/report)**:
 ```pseudocode
-function traceBackFromFailure(failingTest):
+# Runs as part of helix measure phase after build completes
+function traceBackFromFailure(failingTest, testOutput):
     # Step 1: Extract spec reference from test metadata
     specRef = parseTestMetadata(failingTest).spec_ref
     
-    # Step 2: Load spec artifact and check for conflicts
+    if not specRef:
+        return createBuildBead("Missing spec ref", failingTest.path)
+    
+    # Step 2: Load spec and check for upstream conflicts
     spec = loadArtifact(specRef)
+    upstreamRefs = parseCrossReferences(spec).upstream_dependencies
     
-    if hasConflict(spec, upstreamArtifacts(spec)):
-        return createEscalationBead("Spec conflict", specRef)
+    conflict = detectUpstreamConflict(spec, upstreamRefs)
+    if conflict:
+        return createEscalationBead(
+            "Spec conflict detected",
+            specRef,
+            details=conflict
+        )
     
-    # Step 3: Check implementation against spec
-    if !matchesImplementation(spec, code):
-        return createBuildBead("Implementation bug", specRef)
-    
-    # Step 4: If test itself is wrong
-    return createTestFixBead("Test bug", failingTest.path)
+    # Step 3: Default triage - assume implementation bug unless evidence suggests otherwise
+    # This is conservative and safe; helix report can refine if pattern emerges
+    return createBuildBead(
+        "Implementation does not meet spec",
+        specRef,
+        testOutput=testOutput
+    )
 ```
+
+**Integration with existing HELIX workflow**:
+- Runs during `helix measure` phase (after build, before report)
+- Uses existing `ddx bead create` for failure triage output
+- Results feed into `helix report` for follow-on bead creation
 
 ## Component Architecture
 
@@ -227,14 +299,15 @@ function traceBackFromFailure(failingTest):
                        ▼
 ┌─────────────────────────────────────────────────────────────┐
 │  Impact Detector                                             │
+│  Phase 0: Build reverse index (cached)                      │
 │  Phase 1: Parse [[ID]] cross-references                     │
 │  Phase 2: Search fallback for term matches                  │
 └──────────────────────┬──────────────────────────────────────┘
                        ▼
 ┌─────────────────────────────────────────────────────────────┐
 │  Graph Traverser                                             │
-│  • DFS with authority ordering                               │
-│  • Cycle detection                                           │
+│  • Bidirectional BFS to collect subgraph                    │
+│  • Topological sort by authority tier                       │
 │  • Conflict classification                                   │
 └──────────────────────┬──────────────────────────────────────┘
                        ▼
@@ -259,7 +332,7 @@ function traceBackFromFailure(failingTest):
 `helix input` is a **new entrypoint** that feeds into the existing supervisory model:
 - `helix input` creates beads → `helix run` executes them
 - No change to `helix run` behavior or supervisory logic
-- Companion commands (`align`, `plan`, etc.) remain as subroutines
+- Companion commands (`design`, `polish`, `align`, `check`) remain as subroutines
 
 ### Artifact Hierarchy Compatibility
 
@@ -281,6 +354,7 @@ New bead labels:
 - Graph traversal with fixture artifacts (known input → known output)
 - Conflict classification test cases (resolvable vs physics-level examples)
 - Impact detection accuracy (declared links + search coverage)
+- Reverse index correctness (ID resolution, downstream mapping)
 
 ### Integration Tests
 - End-to-end `helix input` flow with sample requests
