@@ -1,0 +1,96 @@
+artifact:
+  name: Monitoring Setup
+  id: monitoring-setup
+  type: document
+  phase: deploy
+
+description: |
+  Service-specific observability and alerting setup required before or during
+  rollout.
+
+dependencies:
+  requires:
+    - input: Deployment Checklist
+      type: artifact
+      path: deployment-checklist
+      required: false
+      note: "Release steps and readiness conditions that monitoring must cover"
+    - input: Architecture
+      type: artifact
+      path: architecture
+      required: false
+      note: "Service boundaries and dependencies that affect signal design"
+    - input: Runbook
+      type: artifact
+      path: runbook
+      required: false
+      note: "Escalation and response procedures that alerts should route into"
+  enables:
+    - output: Deployment Verification
+      type: artifact
+      phase: deploy
+    - output: Metrics Dashboard
+      type: artifact
+      phase: iterate
+
+output:
+  location: docs/helix/05-deploy/monitoring-setup.md
+  format: markdown
+  naming: monitoring-setup.md
+
+validation:
+  required_sections:
+    - service_summary
+    - metrics_collection
+    - alerting_rules
+    - dashboards
+    - logs_and_tracing
+    - health_checks
+    - sli_slo_tracking
+    - incident_response
+
+  quality_checks:
+    - check: service_specific_signals
+      description: Metrics and alerts must be specific to the service rather than generic placeholders
+      severity: blocking
+    - check: alert_thresholds_defined
+      description: Alert conditions and routing must be explicit
+      severity: blocking
+    - check: health_checks_linked
+      description: Health checks should connect to rollout safety and operator verification
+      severity: warning
+    - check: runbook_linked
+      description: Incident response should reference runbook or escalation ownership
+      severity: warning
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+workflow:
+  creation_order: 2
+  review_cycles: 1
+  approval_required: true
+  approvers:
+    - Technical Lead
+    - On-Call Owner
+
+relationships:
+  informed_by:
+    - deployment-checklist
+    - architecture
+    - runbook
+  informs:
+    - deployment-verification
+    - metrics-dashboard
+
+tags:
+  - deploy
+  - observability
+  - monitoring
+  - alerts
+
+version: 1.0.0
+last_updated: 2026-04-09
