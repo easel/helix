@@ -46,10 +46,6 @@ exit_requirements:
       path: docs/helix/06-iterate/retrospective.md
       description: "Team retrospective must exist"
 
-    - check: file_exists
-      path: docs/helix/06-iterate/next-iteration.md
-      description: "Next iteration planning must exist"
-
     # Security metrics
     - check: file_exists
       path: docs/helix/06-iterate/security-metrics.md
@@ -67,16 +63,15 @@ exit_requirements:
       path: docs/helix/06-iterate/improvement-backlog.md
       description: "Improvement backlog has prioritized items"
 
-    # Next iteration has defined goals
     - check: grep_present
-      pattern: "(goal|objective|target|metric)"
-      path: docs/helix/06-iterate/next-iteration.md
-      description: "Next iteration has defined goals"
+      pattern: "(Selection for Next Iteration|next iteration|next slot)"
+      path: docs/helix/06-iterate/improvement-backlog.md
+      description: "Improvement backlog makes the next iteration selection explicit"
 
   manual:
     - "Backlog issues created in tracker (`ddx bead`)"
     - "Improvement backlog references issue IDs or tracker queries"
-    - "Next iteration plan references selected issue IDs"
+    - "Improvement backlog references the selected next-iteration issue IDs"
     - "Team retrospective completed with all members"
     - "Improvement priorities agreed by stakeholders"
     - "Decision made: continue to next iteration or project complete"

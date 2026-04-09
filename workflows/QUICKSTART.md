@@ -72,7 +72,7 @@ Typical order:
 6. Deploy in `docs/helix/05-deploy/` plus the tracker
    Keep rollout docs canonical and rollout tasks in the tracker.
 7. Iterate in `docs/helix/06-iterate/`
-   Capture backlog, lessons, reviews, and next-iteration planning.
+   Capture backlog, lessons, reviews, and the explicit next-cycle selection.
 
 ## Create Execution Work
 

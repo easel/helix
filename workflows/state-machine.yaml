@@ -185,7 +185,6 @@ phases:
         - feedback-analysis      # Analyze feedback
         - lessons-learned        # Document learnings
         - improvement-backlog    # Plan improvements
-        - iteration-planning     # Next cycle
       parallel: []
     entry_gate:
       automated:

@@ -293,7 +293,7 @@ judgment remains responsible for prioritization, tradeoffs, and scheduling.
 - **Generated Insights**: `docs/helix/06-iterate/`
   - Completed analyses and reports
   - Lessons learned documentation
-  - Planning documents for next iteration
+  - Prioritized backlog with explicit next-cycle selection
 
 This separation keeps analysis templates reusable while organizing insights where they're most valuable for the team.
 

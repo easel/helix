@@ -44,3 +44,12 @@ built-in tracker holds the executable tasks themselves.
 `improvement-backlog` is not replaced by tracker primitives. The tracker is the
 execution system; the backlog remains the prioritization surface that bridges
 iteration learnings to the next planning pass.
+
+The deleted `iteration-planning` artifact stays retired as a standalone
+document. Its useful responsibility already lives here: the backlog must make
+the next iteration candidate explicit and tie it to evidence-backed tracker
+work.
+
+If a team needs a separate meeting note or staffing worksheet, that may exist
+locally, but it is not a canonical HELIX artifact. Reintroducing
+`iteration-planning` would split one decision across two thin docs.
