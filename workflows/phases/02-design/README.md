@@ -57,6 +57,14 @@ flow rationale, wireframes, and interaction trade-offs in the governing
 solution design or technical design, and use a proof of concept when the main
 risk is validating an interactive workflow end to end.
 
+`auth-design` is retired as a standalone HELIX artifact. Put authentication
+and authorization security posture — trust boundaries, identity, session
+handling, token security, and access control policy — in `security-architecture`,
+which has a dedicated "Identity and Access" section for this purpose. Use a
+`solution-design` when the auth subsystem is a first-class implementation
+target (e.g., a custom identity provider or multi-tenant RBAC engine) that
+needs a full feature-level design artifact of its own.
+
 ### 2. Architecture Diagrams
 **Location**: `docs/helix/02-design/architecture.md`
 

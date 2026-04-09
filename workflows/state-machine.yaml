@@ -79,7 +79,6 @@ phases:
         - adr                    # Decisions can be captured anytime
         - security-architecture
         - data-design
-        - auth-design
         - proof-of-concept
         - tech-spike
     entry_gate:
