@@ -1,0 +1,91 @@
+artifact:
+  name: Security Architecture
+  id: security-architecture
+  type: document
+  phase: design
+
+description: |
+  Design-level security architecture that maps trust boundaries, controls,
+  and security decisions to implementation and testing.
+
+dependencies:
+  requires:
+    - input: Security Requirements
+      type: artifact
+      path: security-requirements
+      required: true
+    - input: Threat Model
+      type: artifact
+      path: threat-model
+      required: true
+    - input: System Architecture
+      type: artifact
+      path: architecture
+      required: true
+  enables:
+    - output: Technical Design
+      type: artifact
+      phase: design
+    - output: Security Test Plan
+      type: artifact
+      phase: test
+
+output:
+  location: docs/helix/02-design/security-architecture.md
+  format: markdown
+  naming: security-architecture.md
+
+validation:
+  required_sections:
+    - decision
+    - trust_boundaries
+    - control_mapping
+    - identity_and_access
+    - data_protection
+    - logging_and_monitoring
+    - residual_risk
+    - security_test_hooks
+
+  quality_checks:
+    - check: boundaries_explicit
+      description: Trust boundaries must be named and described
+      severity: blocking
+    - check: control_mapping_present
+      description: Every major risk should map to a concrete control
+      severity: blocking
+    - check: test_hooks_defined
+      description: The security architecture must point to verification or tests
+      severity: warning
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+workflow:
+  creation_order: 2
+  review_cycles: 2
+  approval_required: true
+  approvers:
+    - Security Champion
+    - Technical Lead
+
+relationships:
+  informed_by:
+    - security-requirements
+    - threat-model
+    - architecture
+  informs:
+    - technical-design
+    - test-plan
+    - security-tests
+
+tags:
+  - design
+  - security
+  - architecture
+  - controls
+
+version: 1.0.0
+last_updated: 2026-04-09
