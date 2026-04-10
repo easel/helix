@@ -58,7 +58,9 @@ update a lower-authority artifact in a way that contradicts a higher one.
      part of Phase 4 artifact evolution.
 0b. **Context digest**: When `helix evolve` creates or modifies beads, it must
    assemble a context digest per `.ddx/plugins/helix/workflows/references/context-digest.md` and
-   prepend it to the bead description.
+   prepend it to the bead description. If a repo helper exists for digest
+   assembly, use it instead of hand-writing the XML. The `<concerns>` element
+   must contain matched concern names, never `area:*` labels.
 
 ## PHASE 0.5 — Bead Acquisition
 

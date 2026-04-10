@@ -53,7 +53,8 @@ Issues are stored in `.ddx/beads.jsonl`.
 0c. **Refresh context digests**: For each bead in scope that has an existing
    `<context-digest>`, re-assemble per `.ddx/plugins/helix/workflows/references/context-digest.md`
    and update if material changes exist. For beads without a digest, assemble
-   one and prepend it.
+   one and prepend it. If the repo provides a digest refresh helper, use it so
+   area-label inference and digest assembly stay deterministic.
 1. Verify the built-in tracker is available.
    - If `ddx bead status` fails, stop immediately.
 2. Load all open issues for the scope.
@@ -189,6 +190,9 @@ Area labels are required for concern filtering to work. For each bead in scope:
 4. Beads that touch all areas (e.g., CI config, cross-cutting refactors) may
    omit area labels — they will match only `areas: all` concerns, which is
    correct.
+5. Area labels are routing metadata, not digest content. Refresh the
+   `<concerns>` element from matched concern names after relabeling; do not
+   leave stale area names in the digest.
 
 ### Concern-Aware Acceptance Criteria
 

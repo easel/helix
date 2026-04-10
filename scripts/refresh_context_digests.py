@@ -1,0 +1,310 @@
+#!/usr/bin/env python3
+
+from __future__ import annotations
+
+import argparse
+import html
+import json
+import re
+import subprocess
+import sys
+from collections import OrderedDict, defaultdict
+from pathlib import Path
+
+
+STANDARD_TAGS = ("principles", "concerns", "practices", "adrs", "governing")
+
+
+def read_text(path: Path) -> str:
+    return path.read_text(encoding="utf-8")
+
+
+def extract_section(markdown: str, heading: str) -> str:
+    pattern = re.compile(
+        rf"^## {re.escape(heading)}\n(.*?)(?=^## |\Z)", re.MULTILINE | re.DOTALL
+    )
+    match = pattern.search(markdown)
+    return match.group(1).strip() if match else ""
+
+
+def strip_markdown(text: str) -> str:
+    text = re.sub(r"`([^`]+)`", r"\1", text)
+    text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
+    text = text.replace("**", "")
+    text = re.sub(r"\s+", " ", text)
+    return text.strip(" -")
+
+
+def parse_principles(root: Path) -> list[str]:
+    project = root / "docs/helix/01-frame/principles.md"
+    source = project if project.exists() and project.stat().st_size else root / "workflows/principles.md"
+    principles = []
+    for line in read_text(source).splitlines():
+        if line.startswith("### "):
+            principles.append(strip_markdown(line[4:]))
+    return principles
+
+
+def parse_active_concerns(markdown: str) -> list[str]:
+    names = []
+    section = extract_section(markdown, "Active Concerns")
+    for line in section.splitlines():
+        line = line.strip()
+        if not line.startswith("- "):
+            continue
+        body = line[2:].strip()
+        body = body.split(" — ", 1)[0]
+        body = body.split(" (", 1)[0]
+        body = body.strip("[]")
+        if body and not body.startswith("<!--"):
+            names.append(strip_markdown(body))
+    return names
+
+
+def parse_overrides(markdown: str) -> dict[str, list[str]]:
+    overrides: dict[str, list[str]] = defaultdict(list)
+    section = extract_section(markdown, "Project Overrides")
+    current = ""
+    for raw_line in section.splitlines():
+        line = raw_line.rstrip()
+        if line.startswith("### "):
+            current = strip_markdown(line[4:])
+            continue
+        if current and line.strip().startswith("- "):
+            overrides[current].append(strip_markdown(line.strip()[2:]))
+    return overrides
+
+
+def parse_area_taxonomy(markdown: str) -> list[str]:
+    section = extract_section(markdown, "Area Labels")
+    areas: list[str] = []
+    for line in section.splitlines():
+        if "area:" not in line:
+            continue
+        match = re.search(r"`area:([^`]+)`", line)
+        if match:
+            areas.append(match.group(1))
+    return areas
+
+
+def parse_concern_areas(path: Path) -> list[str]:
+    section = extract_section(read_text(path), "Areas")
+    values = []
+    for raw in section.splitlines():
+        line = raw.strip()
+        if not line or line.startswith("## "):
+            continue
+        values.extend([part.strip() for part in line.split(",") if part.strip()])
+    return values
+
+
+def parse_practice_bullets(path: Path) -> list[str]:
+    bullets = []
+    for raw in read_text(path).splitlines():
+        line = raw.strip()
+        if line.startswith("- "):
+            bullets.append(strip_markdown(line[2:]))
+    return bullets
+
+
+def build_concern_library(root: Path, active_concerns: list[str], overrides: dict[str, list[str]]) -> dict[str, dict[str, list[str]]]:
+    library: dict[str, dict[str, list[str]]] = {}
+    for name in active_concerns:
+        concern_dir = root / "workflows" / "concerns" / name
+        areas = parse_concern_areas(concern_dir / "concern.md") if (concern_dir / "concern.md").exists() else []
+        practices = overrides.get(name) or parse_practice_bullets(concern_dir / "practices.md")[:5]
+        library[name] = {"areas": areas, "practices": practices}
+    return library
+
+
+def bead_paths(item: dict) -> list[str]:
+    paths = set()
+    _, description_body = split_digest(item.get("description", ""))
+    haystacks = [item.get("title", ""), description_body, item.get("acceptance", ""), item.get("spec-id", "")]
+    patterns = [
+        re.compile(r"(?:docs|tests|workflows|website|\.ddx)/[A-Za-z0-9_./:-]+\.[A-Za-z0-9-]+"),
+        re.compile(r"(?:scripts|bin)/helix\b"),
+    ]
+    for text in haystacks:
+        for pattern in patterns:
+            for match in pattern.findall(text):
+                paths.add(match.rstrip(".,:;"))
+    return sorted(paths)
+
+
+def infer_area_labels(item: dict) -> list[str]:
+    labels = set(label for label in item.get("labels", []) if label.startswith("area:"))
+    title = item.get("title", "").lower()
+    for path in bead_paths(item):
+        normalized = path.lower()
+        if normalized.startswith("website/"):
+            labels.add("area:site")
+        if normalized.startswith("docs/demos/"):
+            labels.add("area:demo")
+        if normalized.startswith("docs/"):
+            labels.add("area:docs")
+        if normalized.startswith("tests/"):
+            labels.add("area:testing")
+        if normalized.startswith("scripts/") or normalized.startswith("bin/"):
+            labels.add("area:cli")
+        if normalized.startswith("workflows/") or normalized.startswith(".ddx/"):
+            labels.add("area:workflow")
+        if "/artifacts/" in normalized:
+            labels.add("area:artifacts")
+    if "playwright coverage" in title or "deterministic coverage" in title or "deterministic verification" in title:
+        labels.add("area:testing")
+    if "helix-cli.sh hang" in title:
+        labels.add("area:testing")
+    if "deleted artifact type" in title or "artifact order consistency" in title:
+        labels.add("area:artifacts")
+    return sorted(labels)
+
+
+def concern_matches(bead_areas: set[str], concern_areas: list[str]) -> bool:
+    if "all" in concern_areas:
+        return True
+    aliases = {
+        "ui": {"ui", "frontend", "site"},
+        "frontend": {"ui", "frontend", "site"},
+        "api": {"api", "backend"},
+        "backend": {"api", "backend"},
+        "site": {"site"},
+    }
+    expanded = set(bead_areas)
+    for area in list(bead_areas):
+        expanded |= aliases.get(area, set())
+    for concern_area in concern_areas:
+        if concern_area in expanded:
+            return True
+        if aliases.get(concern_area, set()) & bead_areas:
+            return True
+    return False
+
+
+def split_digest(description: str) -> tuple[str, str]:
+    match = re.match(r"\s*<context-digest>\s*(.*?)\s*</context-digest>\s*(.*)\Z", description, re.DOTALL)
+    if not match:
+        return "", description.strip()
+    return match.group(1), match.group(2).strip()
+
+
+def extract_extra_tags(digest_inner: str) -> list[str]:
+    extras = []
+    for match in re.finditer(r"<([a-z-]+)>(.*?)</\1>", digest_inner, re.DOTALL):
+        tag = match.group(1)
+        if tag not in STANDARD_TAGS:
+            extras.append(match.group(0).strip())
+    return extras
+
+
+def compact(items: list[str], limit: int) -> list[str]:
+    ordered = list(OrderedDict.fromkeys(item for item in items if item))
+    return ordered[:limit]
+
+
+def build_governing(item: dict) -> str:
+    spec = strip_markdown(str(item.get("spec-id", "")))
+    acceptance = strip_markdown(str(item.get("acceptance", "")))
+    if acceptance:
+        acceptance = acceptance.split(";")[0].strip()
+    if spec and acceptance:
+        return f"{spec} — {acceptance}"
+    return spec or acceptance
+
+
+def build_digest(item: dict, principles: list[str], library: dict[str, dict[str, list[str]]]) -> tuple[str, list[str]]:
+    existing_digest, body = split_digest(item.get("description", ""))
+    labels = infer_area_labels(item)
+    bead_areas = {label.removeprefix("area:") for label in labels}
+    matched = [
+        name
+        for name, data in library.items()
+        if concern_matches(bead_areas, data["areas"])
+    ]
+    practices = []
+    for name in matched:
+        practices.extend(library[name]["practices"][:2])
+    extra_tags = extract_extra_tags(existing_digest)
+
+    digest_lines = ["<context-digest>"]
+    if principles:
+        digest_lines.append(
+            f"<principles>{html.escape(' · '.join(principles), quote=False)}</principles>"
+        )
+    if matched:
+        digest_lines.append(
+            f"<concerns>{html.escape(' | '.join(compact(matched, 5)), quote=False)}</concerns>"
+        )
+    if practices:
+        digest_lines.append(
+            f"<practices>{html.escape(' · '.join(compact(practices, 6)), quote=False)}</practices>"
+        )
+    governing = build_governing(item)
+    if governing:
+        digest_lines.append(f"<governing>{html.escape(governing, quote=False)}</governing>")
+    digest_lines.extend(extra_tags)
+    digest_lines.append("</context-digest>")
+
+    rebuilt_description = "\n".join(digest_lines)
+    if body:
+        rebuilt_description += "\n\n" + body
+    return rebuilt_description, labels
+
+
+def run_update(bead_id: str, description: str, labels: list[str]) -> None:
+    subprocess.run(
+        [
+            "ddx",
+            "bead",
+            "update",
+            bead_id,
+            "--description",
+            description,
+            "--labels",
+            ",".join(labels),
+        ],
+        check=True,
+    )
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Refresh HELIX bead context digests and area labels.")
+    parser.add_argument("--apply", action="store_true", help="Write updates back to the tracker.")
+    parser.add_argument("--bead", action="append", default=[], help="Restrict updates to specific bead IDs.")
+    parser.add_argument("--status", default="open", help="Tracker status to target (default: open).")
+    args = parser.parse_args()
+
+    root = Path(__file__).resolve().parents[1]
+    tracker = root / ".ddx/beads.jsonl"
+    concerns_doc = read_text(root / "docs/helix/01-frame/concerns.md")
+    active_concerns = parse_active_concerns(concerns_doc)
+    overrides = parse_overrides(concerns_doc)
+    principles = parse_principles(root)
+    library = build_concern_library(root, active_concerns, overrides)
+
+    targeted = set(args.bead)
+    changed = 0
+    for line in read_text(tracker).splitlines():
+        if not line.strip():
+            continue
+        item = json.loads(line)
+        if item.get("status") != args.status:
+            continue
+        if targeted and item.get("id") not in targeted:
+            continue
+        new_description, new_labels = build_digest(item, principles, library)
+        old_labels = [label for label in item.get("labels", []) if label.startswith("area:")]
+        if new_description == item.get("description", "") and sorted(old_labels) == new_labels:
+            continue
+        changed += 1
+        print(f"{item['id']}: {','.join(old_labels) or '-'} -> {','.join(new_labels) or '-'}")
+        if args.apply:
+            merged_labels = [label for label in item.get("labels", []) if not label.startswith("area:")] + new_labels
+            run_update(item["id"], new_description, merged_labels)
+    if not changed:
+        print("No bead updates required.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

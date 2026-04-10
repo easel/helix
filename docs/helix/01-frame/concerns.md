@@ -12,8 +12,17 @@
 | `all` | Every bead |
 | `cli` | scripts/helix, CLI wrapper |
 | `workflow` | workflows/actions, workflows/concerns, workflow engine |
+| `docs` | docs/, plans, reports, and user-facing workflow documentation |
 | `site` | website/, microsite content and deployment |
 | `demo` | docs/demos/, demo scripts and recordings |
+| `testing` | tests/, deterministic harnesses, and verification-only slices |
+| `artifacts` | workflows/phases/*/artifacts metadata, prompts, and templates |
+
+Use combined labels when the work spans more than one concern surface.
+Examples:
+- `area:workflow,area:docs` for workflow-contract doc updates
+- `area:site,area:testing` for Playwright coverage on the microsite
+- `area:workflow,area:artifacts` for artifact-definition changes
 
 ## Project Overrides
 

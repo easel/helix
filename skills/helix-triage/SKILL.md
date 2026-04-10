@@ -40,7 +40,8 @@ traceable:
 
 Additional labels to include when applicable:
 - `kind:build`, `kind:implementation`, `kind:testing`, `kind:documentation`
-- `area:*` for the affected subsystem (e.g., `area:wal`, `area:query`, `area:cli`)
+- `area:*` for the affected subsystem, using the taxonomy declared in
+  `docs/helix/01-frame/concerns.md`
 
 ## Steps
 
@@ -65,7 +66,10 @@ Additional labels to include when applicable:
    `.ddx/plugins/helix/workflows/references/context-digest.md` to build a compact summary of
    active principles, concerns, practices, relevant ADRs, and governing spec
    context. Prepend the `<context-digest>` XML block to the description so
-   the implementing agent can work from the bead alone.
+   the implementing agent can work from the bead alone. If the repo ships
+   `scripts/refresh_context_digests.py`, use it after bead creation instead of
+   hand-writing digest XML. The `<concerns>` field must list concern names,
+   never area labels.
 
 6. **Create the issue.**
 
