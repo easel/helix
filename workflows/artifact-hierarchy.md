@@ -106,9 +106,11 @@ Each user story progresses through all phases independently:
 
 ### Naming Pattern
 Canonical story document artifacts use `{Prefix}-{Number}-{descriptive-name}.md`.
-Build and deploy execution use native tracker issue IDs. Iterate no longer
-creates a numbered story-scoped report artifact; outcomes flow into the
-canonical iterate outputs plus tracker-backed follow-on work.
+Build and deploy execution use native tracker issue IDs. A story enters
+ITERATE when all matching `phase:deploy` issues are complete and no matching
+deploy issue remains not closed. Shared iterate outputs stay project- or
+iteration-level context, while tracker-backed follow-on work adds
+story-specific evidence when needed.
 
 ### Phase Progression
 ```
@@ -117,8 +119,11 @@ Design:  TD-036-list-mcp-servers.md
 Test:    TP-036-list-mcp-servers.md
 Build:   issue `hx-a3f2dd` labeled `helix`, `phase:build`, `story:US-036`
 Deploy:  issue `hx-b4c9e1` labeled `helix`, `phase:deploy`, `story:US-036`
-Iterate: `metrics-dashboard.md`, `security-metrics.md` (when relevant),
-         `improvement-backlog.md`, and tracker follow-on work linked to US-036
+Iterate: all `phase:deploy` issue(s) for `story:US-036` are complete and no
+         matching deploy issue remains not closed; optional tracker follow-on
+         work may remain linked to US-036
+Context: `metrics-dashboard.md`, `security-metrics.md` (when relevant), and
+         `improvement-backlog.md` provide shared iteration-wide context
 ```
 
 ### Artifact Descriptions
@@ -129,7 +134,7 @@ Iterate: `metrics-dashboard.md`, `security-metrics.md` (when relevant),
 | TD | Technical Design | Design | Details HOW to build it |
 | TP | Test Plan | Test | Specifies tests to verify it |
 | ISSUE | Build / Deploy Issue | Build / Deploy | Tracks scoped execution work in the built-in tracker |
-| Iterate outputs | `metrics-dashboard`, `security-metrics`, `improvement-backlog`, plus tracker follow-on work | Iterate | Capture measured results, durable learnings, and prioritized next work without a separate numbered story report |
+| Iterate outputs | `metrics-dashboard`, `security-metrics`, `improvement-backlog`, plus tracker follow-on work | Iterate | Shared iteration context and prioritized next work after story-level ITERATE is established by completed deploy issue(s), without a separate numbered story report |
 
 ## Feature-Level Progression (Epics)
 
