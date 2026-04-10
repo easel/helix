@@ -26,8 +26,10 @@ if "pattern:" in body:
     errors.append("story iterate rule must not include a static artifact pattern")
 if "query_only: true" not in body:
     errors.append("story iterate rule must be query-only")
-if "completed tracker issues labeled helix, phase:deploy, story:US-{id}" not in body:
-    errors.append("story iterate query must key off completed deploy issues")
+if "Inspect tracker issues labeled helix, phase:deploy, story:US-{id}" not in body:
+    errors.append("story iterate query must inspect deploy issues by story label")
+if "all matching deploy issues are complete and no open deploy issue remains" not in body:
+    errors.append("story iterate query must require all deploy issues complete with no open deploy issue remaining")
 if "not queried by story ID" not in body:
     errors.append("story iterate rule must keep shared iterate docs out of story matching")
 
@@ -35,7 +37,7 @@ if errors:
     raise SystemExit("\n".join(errors))
 PYEOF
 
-grep -Fq "If deploy issues for story US-036 are complete: Story is in ITERATE" "$state_machine" \
-  || fail "state machine example must show deploy completion as the iterate threshold"
+grep -Fq "If all deploy issues for story US-036 are complete and no open deploy issues remain: Story is in ITERATE" "$state_machine" \
+  || fail "state machine example must require all deploy issues closed before iterate"
 
 printf 'validated story iterate state rules\n'

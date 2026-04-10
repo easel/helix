@@ -159,7 +159,8 @@ old story-scoped intent is already covered by the current iterate contract:
   future expectations
 
 For story-state detection, the deterministic ITERATE threshold remains
-completion of the story's deploy issue(s). Shared iterate outputs provide
+completion of all matching deploy issue(s) with no open deploy issue
+remaining. Shared iterate outputs provide
 iteration-wide context, and linked tracker follow-on work adds story-specific
 evidence when present; HELIX does not require a story-keyed iterate document.
 
