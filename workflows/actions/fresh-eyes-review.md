@@ -57,8 +57,8 @@ See `.ddx/plugins/helix/workflows/references/bead-first.md` for the full pattern
    ```bash
    ddx bead create "review: <scope description>" \
      --type task \
-     --labels helix,kind:planning,action:review \
-     --spec-id <reviewed-commit-or-issue> \
+     --labels helix,phase:review,kind:planning,action:review \
+     --set spec-id=<reviewed-commit-or-issue> \
      --description "<context-digest>...</context-digest>
    Fresh-eyes review of <target>.
    Review target: <last-commit|issue-id|file-list>" \
@@ -183,7 +183,7 @@ For each actionable finding, create a tracker issue:
 ddx bead create "<category>: <short description>" \
   --type task \
   --labels helix,phase:build,review-finding \
-  --spec-id <governing-artifact-or-file-path> \
+  --set spec-id=<governing-artifact-or-file-path> \
   --description "Review finding from fresh-eyes review.
 File: <file>:<line>
 Category: <category>
@@ -197,7 +197,8 @@ Rules for filing:
 - `low` severity findings: do not file as issues; report them in the output
   only
 - Use label `review-finding` on every finding issue for queryability
-- Set `--spec-id` to the file path where the finding was identified
+- Set `spec-id` with `--set spec-id=<file-path>` using the file path where the
+  finding was identified
 - Write deterministic acceptance criteria (e.g., "test X passes", "no SQL
   injection in function Y") so the issue can be closed by automated build
 
