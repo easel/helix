@@ -4,6 +4,7 @@ import { test, expect } from '@playwright/test'
 const article = (page: any) => page.locator('article')
 const searchInput = (page: any) => page.getByPlaceholder('Search...').first()
 const searchResults = (page: any) => page.getByLabel('Search results').filter({ has: page.locator('a[href]') }).first()
+const isGlossaryIndexRoute = (route: string) => /\/docs\/glossary\/?$/.test(route)
 
 test.describe('Homepage', () => {
   test('loads with hero and feature cards', async ({ page }) => {
@@ -255,6 +256,17 @@ test.describe('Navigation Workflows', () => {
 
 test.describe('Search Workflows', () => {
   test('search routes glossary and CLI queries to live pages', async ({ page }) => {
+    await test.step('verify the rendered search index points glossary queries at the live page', async () => {
+      const response = await page.request.get('/en.search-data.json')
+      expect(response.ok()).toBeTruthy()
+
+      const searchIndex = (await response.json()) as Record<string, unknown>
+      const glossaryRoutes = Object.keys(searchIndex).filter(route => route.endsWith('/glossary/'))
+
+      expect(glossaryRoutes.filter(isGlossaryIndexRoute)).toHaveLength(1)
+      expect(glossaryRoutes.filter(route => !isGlossaryIndexRoute(route))).toEqual([])
+    })
+
     await test.step('open site search from the docs menu', async () => {
       await page.setViewportSize({ width: 700, height: 900 })
       await page.goto('/docs/')
