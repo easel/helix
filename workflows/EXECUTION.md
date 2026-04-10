@@ -366,7 +366,8 @@ Main commands:
   or when `check` returns `ALIGN`
 - may run `helix review` after each successful build pass when review
   automation is enabled; review findings are filed as tracker issues with
-  label `review-finding` and the loop continues
+  label `review-finding` plus scope-appropriate `area:*` labels derived from
+  the reviewed bead or reviewed scope, and the loop continues
 - files acceptance check failures as tracker issues with label
   `acceptance-failure` instead of only logging to stderr
 - may use `--review-agent` for cross-model review
@@ -643,9 +644,10 @@ tracker-sync commit lands after the code commit, the loop reviews the bead's
 still inspect the implementation diff rather than the tracker bookkeeping diff.
 
 Review findings are durable: the review action files each actionable finding
-as a tracker issue with label `review-finding`. The run loop continues after
-review rather than stopping, because the findings are now in the tracker and
-will surface via `ddx bead list --label review-finding` or
+as a tracker issue with label `review-finding` plus at least one
+scope-appropriate `area:*` label derived from the reviewed bead or scope. The
+run loop continues after review rather than stopping, because the findings are
+now in the tracker and will surface via `ddx bead list --label review-finding` or
 `ddx bead ready` once they are ready for implementation.
 
 Similarly, when acceptance checks fail in the run loop, the specific failures
