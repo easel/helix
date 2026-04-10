@@ -98,13 +98,15 @@ back into one vague surface without adding a new prompt or template contract.
 `CHANGELOG.md` may still exist as a repository history log, but it does not
 replace release-scoped notes that are audience-filtered and action-oriented.
 
-### Story Deploy Issues
-**Output Location**: `.ddx/issues.jsonl` queried through `ddx bead`
+### Deploy Issues
+**Output Location**: `.ddx/beads.jsonl` queried through `ddx bead`
 
-Story-level rollout work is tracked as deploy issues rather than per-story
-deployment markdown plans. Deploy issues reference the project deployment
-artifacts and the build issues they are rolling out using native tracker issue
-IDs, dependencies, and labels.
+Deploy work is tracked as `phase:deploy` issues rather than per-story
+deployment markdown plans. These issues cover both story-scoped rollout
+execution and release-scoped coordination slices such as owners, dependencies,
+approval handoffs, and communication checkpoints. Deploy issues reference the
+project deployment artifacts and the build issues they are rolling out using
+native tracker issue IDs, dependencies, and labels.
 
 The deleted `story-deployment-plan` artifact stays retired. Its only durable
 responsibility is to define scoped rollout work, and the built-in tracker now

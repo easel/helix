@@ -210,7 +210,8 @@ HELIX execution categories are expressed through native issue types,
 parents, dependencies, `spec-id`, and labels rather than custom files:
 
 - `phase:build` for story-level implementation work
-- `phase:deploy` for story-level rollout work
+- `phase:deploy` for rollout execution work, including story-scoped rollout
+  tasks and release-scoped coordination issues that track owners, dependencies, and communication
 - `phase:iterate` and `kind:backlog` for prioritized follow-up work
 - `phase:review` and `kind:review` for reconciliation or audit work
 
