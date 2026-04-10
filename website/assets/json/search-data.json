@@ -27,11 +27,19 @@
   {{- end -}}
 {{- end -}}
 
+{{- $glossaryPage := site.GetPage "/docs/glossary" -}}
+{{- if not $glossaryPage -}}
+  {{- errorf "glossary page not found" -}}
+{{- end -}}
+
+{{- $glossaryLink := $glossaryPage.RelPermalink -}}
+{{- $existingGlossary := index $output $glossaryLink | default (dict "title" "Glossary" "data" (dict)) -}}
+{{- $existingGlossaryData := index $existingGlossary "data" | default (dict) -}}
 {{- $glossary := dict
-  "title" "Glossary"
-  "data" $glossaryEntries
+  "title" ((index $existingGlossary "title") | default "Glossary")
+  "data" ($existingGlossaryData | merge $glossaryEntries)
 -}}
 
-{{- $output = $output | merge (dict (relLangURL "glossary") $glossary )}}
+{{- $output = $output | merge (dict $glossaryLink $glossary) -}}
 
 {{- $output | jsonify -}}

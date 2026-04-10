@@ -2,6 +2,8 @@ import { test, expect } from '@playwright/test'
 
 // Helper: target the main content area to avoid TOC/sidebar duplicates
 const article = (page: any) => page.locator('article')
+const searchInput = (page: any) => page.getByPlaceholder('Search...').first()
+const searchResults = (page: any) => page.getByLabel('Search results').filter({ has: page.locator('a[href]') }).first()
 
 test.describe('Homepage', () => {
   test('loads with hero and feature cards', async ({ page }) => {
@@ -247,6 +249,56 @@ test.describe('Navigation Workflows', () => {
 
     await test.step('verify phase content loaded', async () => {
       await expect(page.getByRole('heading', { name: /Phase 1.*Frame/ })).toBeVisible()
+    })
+  })
+})
+
+test.describe('Search Workflows', () => {
+  test('search routes glossary and CLI queries to live pages', async ({ page }) => {
+    await test.step('open site search from the docs menu', async () => {
+      await page.setViewportSize({ width: 700, height: 900 })
+      await page.goto('/docs/')
+      await page.getByRole('button', { name: 'Menu' }).click()
+      await expect(searchInput(page)).toBeVisible()
+      await searchInput(page).click()
+      await expect(searchInput(page)).toBeFocused()
+    })
+
+    await test.step('query glossary and open a valid glossary page', async () => {
+      await searchInput(page).pressSequentially('glossary')
+      await expect(searchResults(page)).toBeVisible()
+
+      const glossaryResult = searchResults(page).locator('a[href*="/docs/glossary"]').first()
+      await expect(glossaryResult).toBeVisible()
+
+      const glossaryHref = await glossaryResult.getAttribute('href')
+      expect(glossaryHref).toBeTruthy()
+      expect(glossaryHref).toMatch(/^\/docs\/glossary(\/|#|$)/)
+
+      await glossaryResult.click()
+      await expect(page).toHaveURL(/\/docs\/glossary(\/|#|$)/)
+      await expect(page.getByRole('heading', { name: 'Glossary' }).first()).toBeVisible()
+    })
+
+    await test.step('query CLI and open a valid CLI page', async () => {
+      await page.getByRole('button', { name: 'Menu' }).click()
+      await expect(searchInput(page)).toBeVisible()
+      await searchInput(page).click()
+      await expect(searchInput(page)).toBeFocused()
+
+      await searchInput(page).pressSequentially('cli')
+      await expect(searchResults(page)).toBeVisible()
+
+      const cliResult = searchResults(page).locator('a[href*="/docs/cli"]').first()
+      await expect(cliResult).toBeVisible()
+
+      const cliHref = await cliResult.getAttribute('href')
+      expect(cliHref).toBeTruthy()
+      expect(cliHref).toMatch(/^\/docs\/cli(\/|#|$)/)
+
+      await cliResult.click()
+      await expect(page).toHaveURL(/\/docs\/cli(\/|#|$)/)
+      await expect(page.getByRole('heading', { name: 'CLI Reference' }).first()).toBeVisible()
     })
   })
 })
