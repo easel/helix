@@ -17,45 +17,46 @@ In this repository, the canonical HELIX phase artifacts live under `docs/helix/`
 
 ```
 docs/
-├── README.md                    # This overview document
-├── frame/                       # Phase 01: Requirements & Problem Definition
-│   ├── prd.md                  # Product Requirements Document
-│   ├── principles.md           # Project-specific principles
-│   ├── features/               # Feature specifications (plural)
-│   │   ├── FEAT-001-[name].md # Feature specification
-│   │   ├── FEAT-002-[name].md # Feature specification
-│   │   └── feature-registry.md # Central feature tracking
-│   └── user-stories/           # User stories (plural)
-│       ├── US-001-[name].md   # User story collection
-│       └── US-002-[name].md   # User story collection
-├── design/                     # Phase 02: Technical Architecture
-│   ├── architecture.md         # System architecture diagrams (singular)
-│   ├── data-design.md         # Data architecture (singular)
-│   ├── security.md            # Security design (singular)
-│   ├── solution-designs/       # Solution designs (plural)
-│   │   ├── SD-001-[name].md   # Solution design for features
-│   │   └── SD-002-[name].md   # Solution design for features
-│   ├── contracts/              # API contracts (plural)
-│   │   ├── API-001-[name].md  # API contract specification
-│   │   └── API-002-[name].md  # API contract specification
-│   └── adr/                    # Architecture Decision Records (plural)
-│       ├── ADR-001-[title].md # Architectural decision record
-│       └── ADR-002-[title].md # Architectural decision record
-├── test/                       # Phase 03: Test Strategy & Specifications
-│   ├── test-plan.md           # Overall testing strategy (singular)
-│   └── test-procedures.md     # Test execution procedures (singular)
-├── build/                      # Phase 04: Implementation Strategy
-│   ├── implementation-plan.md  # Build strategy and planning (singular)
-│   └── build-procedures.md    # Development procedures (singular)
-├── helix/05-deploy/            # Phase 05: Deployment & Operations
-│   ├── deployment-checklist.md # Release go/no-go checklist (singular)
-│   ├── monitoring-setup.md    # Observability and alerting setup (singular)
-│   ├── runbook.md             # Operator response and rollback guide (singular)
-│   └── release-notes.md       # Release communication artifact (singular)
-└── helix/06-iterate/           # Phase 06: Post-Deployment & Feedback
-    ├── metrics-dashboard.md   # Iteration health and outcome summary (singular)
-    ├── security-metrics.md    # Security posture summary (singular)
-    └── improvement-backlog.md # Prioritized follow-on work (singular)
+├── README.md                     # This overview document
+└── helix/
+    ├── 01-frame/                # Phase 01: Requirements & Problem Definition
+    │   ├── prd.md               # Product Requirements Document
+    │   ├── principles.md        # Project-specific principles
+    │   ├── features/            # Feature specifications (plural)
+    │   │   ├── FEAT-001-[name].md # Feature specification
+    │   │   ├── FEAT-002-[name].md # Feature specification
+    │   │   └── feature-registry.md # Central feature tracking
+    │   └── user-stories/        # User stories (plural)
+    │       ├── US-001-[name].md # User story collection
+    │       └── US-002-[name].md # User story collection
+    ├── 02-design/               # Phase 02: Technical Architecture
+    │   ├── architecture.md      # System architecture diagrams (singular)
+    │   ├── data-design.md       # Data architecture (singular)
+    │   ├── security.md          # Security design (singular)
+    │   ├── solution-designs/    # Solution designs (plural)
+    │   │   ├── SD-001-[name].md # Solution design for features
+    │   │   └── SD-002-[name].md # Solution design for features
+    │   ├── contracts/           # API contracts (plural)
+    │   │   ├── API-001-[name].md # API contract specification
+    │   │   └── API-002-[name].md # API contract specification
+    │   └── adr/                 # Architecture Decision Records (plural)
+    │       ├── ADR-001-[title].md # Architectural decision record
+    │       └── ADR-002-[title].md # Architectural decision record
+    ├── 03-test/                 # Phase 03: Test Strategy & Specifications
+    │   ├── test-plan.md         # Overall testing strategy (singular)
+    │   └── test-procedures.md   # Test execution procedures (singular)
+    ├── 04-build/                # Phase 04: Implementation Strategy
+    │   ├── implementation-plan.md # Build strategy and planning (singular)
+    │   └── build-procedures.md  # Development procedures (singular)
+    ├── 05-deploy/               # Phase 05: Deployment & Operations
+    │   ├── deployment-checklist.md # Release go/no-go checklist (singular)
+    │   ├── monitoring-setup.md  # Observability and alerting setup (singular)
+    │   ├── runbook.md           # Operator response and rollback guide (singular)
+    │   └── release-notes.md     # Release communication artifact (singular)
+    └── 06-iterate/              # Phase 06: Post-Deployment & Feedback
+        ├── metrics-dashboard.md # Iteration health and outcome summary (singular)
+        ├── security-metrics.md  # Security posture summary (singular)
+        └── improvement-backlog.md # Prioritized follow-on work (singular)
 ```
 
 ## Legacy Structure
@@ -103,15 +104,15 @@ The documentation uses systematic identifiers to ensure traceability across phas
 ### Singular vs Plural Artifacts
 
 **Singular Artifacts** (one per project):
-- Product Requirements Document (`frame/prd.md`)
-- Project Principles (`frame/principles.md`)
-- System Architecture (`design/architecture.md`)
-- Data Design (`design/data-design.md`)
-- Security Design (`design/security.md`)
-- Test Plan (`test/test-plan.md`)
-- Test Procedures (`test/test-procedures.md`)
-- Implementation Plan (`build/implementation-plan.md`)
-- Build Procedures (`build/build-procedures.md`)
+- Product Requirements Document (`docs/helix/01-frame`)
+- Project Principles (`docs/helix/01-frame`)
+- System Architecture (`docs/helix/02-design`)
+- Data Design (`docs/helix/02-design`)
+- Security Design (`docs/helix/02-design`)
+- Test Plan (`docs/helix/03-test`)
+- Test Procedures (`docs/helix/03-test`)
+- Implementation Plan (`docs/helix/04-build`)
+- Build Procedures (`docs/helix/04-build`)
 - Deployment Checklist (`docs/helix/05-deploy/deployment-checklist.md`)
 - Monitoring Setup (`docs/helix/05-deploy/monitoring-setup.md`)
 - Runbook (`docs/helix/05-deploy/runbook.md`)
@@ -121,11 +122,11 @@ The documentation uses systematic identifiers to ensure traceability across phas
 - Improvement Backlog (`docs/helix/06-iterate/improvement-backlog.md`)
 
 **Plural Artifacts** (multiple per project):
-- Feature Specifications (`frame/features/FEAT-XXX-[name].md`)
-- User Stories (`frame/user-stories/US-XXX-[name].md`)
-- Solution Designs (`design/solution-designs/SD-XXX-[name].md`)
-- API Contracts (`design/contracts/API-XXX-[name].md`)
-- Architecture Decision Records (`design/adr/ADR-XXX-[title].md`)
+- Feature Specifications (`docs/helix/01-frame/features`)
+- User Stories (`docs/helix/01-frame/user-stories`)
+- Solution Designs (`docs/helix/02-design/solution-designs`)
+- API Contracts (`docs/helix/02-design/contracts`)
+- Architecture Decision Records (`docs/helix/02-design/adr`)
 
 ## Phase-Specific Details
 
@@ -192,10 +193,10 @@ The structure enables clear traceability across phases:
 4. **Maintain Traceability**: Link related artifacts across phases
 
 ### For Readers
-1. **Business Context**: Start in `frame/` for what and why
-2. **Technical Details**: Move to `design/` for how
-3. **Quality Assurance**: Check `test/` for verification approach
-4. **Implementation**: Review `build/` for development approach
+1. **Business Context**: Start in `docs/helix/01-frame/` for what and why
+2. **Technical Details**: Move to `docs/helix/02-design/` for how
+3. **Quality Assurance**: Check `docs/helix/03-test/` for verification approach
+4. **Implementation**: Review `docs/helix/04-build/` for development approach
 
 ### For Maintainers
 1. **Keep Structure Consistent**: Follow naming conventions
