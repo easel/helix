@@ -79,43 +79,53 @@ Validated against `bash scripts/helix help` on 2026-04-10.
 
 ## Live Queue Snapshot
 
-Snapshot captured during this refresh after claiming `helix-62559453` on 2026-04-10:
+Snapshot rebuilt on 2026-04-10 from the open queue that remains after this
+refresh bead closes:
 
-- `22` open
-- `22` ready
+- `27` open
+- `27` ready
 - `0` blocked
-- `1` in progress (`helix-62559453`, this queue-refresh task)
 
 ### Build backlog
 
 | Issue | Priority | Focus |
 |-------|----------|-------|
 | `helix-0d48272d` | P0 | Add deterministic coverage for `bin/helix` delegation |
+| `helix-11c498d6` | P0 | Fix secondary ADR discovery in the context-digest helper |
 | `helix-15eff7dc` | P0 | Align monitoring-setup runbook contract with deploy ordering |
+| `helix-19a0b99a` | P0 | Preserve override-specific digest guidance when the first bullet duplicates library content |
+| `helix-268c54ee` | P0 | Reconcile the implementation-plan command surface with `bash scripts/helix help` |
 | `helix-3ad4ba25` | P0 | Preserve `area:*` labels on review-filed findings |
 | `helix-3c960e4b` | P0 | Add deterministic verification for `helix input` intake flow |
+| `helix-414fe238` | P0 | Update the deploy phase glossary for the restored `release-notes` contract |
 | `helix-41b86771` | P0 | Remove or restore deleted artifact types still named in supporting docs |
+| `helix-512324ed` | P0 | Define story-keyed iterate evidence before retiring shared-IR state detection |
 | `helix-6f9f8081` | P0 | Add deterministic validation for deploy artifact order consistency |
-| `helix-7b3c6980` | P0 | Implement FEAT-006 concern and context-digest propagation for live beads |
 | `helix-ae94e347` | P0 | Fix broken glossary route in site search output |
 | `helix-b7f0c18a` | P0 | Add deterministic coverage for deploy artifact order consistency |
+| `helix-c1466715` | P0 | Align the deploy README with the restored `release-notes` contract |
+| `helix-ef1cc923` | P0 | Prevent every story from matching ITERATE once `docs/helix/06-iterate/` exists |
 | `helix-f58a8717` | P0 | Add Playwright coverage for microsite search workflow |
+| `helix-f6c2b3a6` | P0 | Require `release-notes` in the deploy gate |
+| `helix-fb2ccbb1` | P1 | Fix the `ddx-agent` dry-run hang in `tests/helix-cli.sh` |
 | `hx-89d8e016` | P0 | Restore `security-metrics` in iterate state-machine artifacts |
 | `hx-98076461` | P0 | Remove stale build-procedures reference in `docs/README.md` |
 | `hx-f34fcaf1` | P0 | Close bead `helix-2a702709` after completed work |
-| `helix-fb2ccbb1` | P1 | Fix `tests/helix-cli.sh` hang in the ddx-agent dry-run path |
 
-### Design and blocked backlog
+### Design backlog
 
 | Issue | Priority | Focus |
 |-------|----------|-------|
 | `helix-004375e5` | P0 | Review deleted artifact type: `gtm-plan` |
 | `helix-05fa7338` | P0 | Review deleted artifact type: `launch-checklist` |
-| `helix-420f4f76` | P0 | Review deleted artifact type: `story-iteration-report` |
-| `helix-427e95a6` | P0 | Review deleted artifact type: `release-notes` |
+| `helix-1940a77b` | P2 | Add first-class contract artifact support in design |
 | `helix-dd21cbaa` | P0 | Define the workspace-state transformation model for beads |
 | `helix-fef22846` | P0 | Audit deleted HELIX artifact types for restoration or retirement |
-| `helix-1940a77b` | P2 | Add first-class contract artifact support in design |
+
+### Blocked backlog
+
+| Issue | Priority | Focus |
+|-------|----------|-------|
 | `helix-81c0c0df` | P1 | Blocked DDx tier-policy integration for model selection |
 
 ## Build Sequencing
