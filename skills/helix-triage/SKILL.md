@@ -58,6 +58,11 @@ Additional labels to include when applicable:
    names `ddx agent execute-loop` as the queue-drain primitive; git diff
    --check passes."
 
+   Triage must not create execution-ready implementation beads without
+   measurable success criteria. If the governing artifacts do not let you
+   name explicit commands, checks, files, fields, or observable end-state
+   conditions, stop treating the work as queue-ready execution input.
+
 3. **Choose type and labels.**
    - `task` — bounded work with clear completion (most issues)
    - `epic` — collection of tasks sharing a goal (needs child decomposition)
@@ -65,7 +70,8 @@ Additional labels to include when applicable:
    - `chore` — maintenance (no spec-id needed)
 
 4. **Set parent and dependencies.** If this is part of an epic, set `--parent`.
-   If it depends on other issues completing first, use `--deps`.
+   If it depends on other issues completing first, add explicit tracker
+   dependencies after creation with `ddx bead dep add`.
 
    For queue-drained execution beads, prefer AC that names:
    - exact commands to run
@@ -74,6 +80,11 @@ Additional labels to include when applicable:
    Avoid AC that requires a human to decide whether the result "looks right"
    unless the bead is explicitly a review or planning bead rather than an
    execution-ready implementation bead.
+
+   If you cannot derive deterministic success criteria from the governing
+   artifacts, do not create a queue-ready implementation bead anyway. Route
+   the work back to planning/polish, or file it as a not-execution-ready
+   planning/review bead with the missing information called out explicitly.
 
 5. **Assemble context digest.** Follow
    `.ddx/plugins/helix/workflows/references/context-digest.md` to build a compact summary of
@@ -87,7 +98,7 @@ Additional labels to include when applicable:
 6. **Create the issue.**
 
 ```bash
-ddx bead create "Implement X" \
+new_id="$(ddx bead create "Implement X" \
   --type task \
   --labels helix,phase:build,kind:implementation,area:wal \
   --spec-id SD-017 \
@@ -101,8 +112,9 @@ ddx bead create "Implement X" \
 
 Implement the Y component per SD-017 Section 3.2. Governing: SD-017, TP-SD-017, ADR-050." \
   --acceptance "cargo test -p niflheim-wal test_y passes; AC-SD17-005 promoted to active" \
-  --parent hx-epic-id \
-  --deps hx-dependency-id
+  --parent hx-epic-id)"
+
+ddx bead dep add "$new_id" hx-dependency-id
 ```
 
 ## Decomposition Pattern
@@ -112,8 +124,9 @@ When an epic or large task needs breakdown:
 1. Read the parent's acceptance criteria
 2. Create child tasks that collectively cover every AC
 3. Set `--parent` on each child
-4. Each child should be completable in one `helix build` cycle
-5. If the parent is a task with 2+ children, consider promoting it to an epic
+4. Add explicit `ddx bead dep add` edges when child order matters
+5. Each child should be completable in one `helix build` or `execute-bead` cycle
+6. If the parent is a task with 2+ children, consider promoting it to an epic
 
 ## References
 

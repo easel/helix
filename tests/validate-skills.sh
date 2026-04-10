@@ -220,6 +220,18 @@ assert_file_contains \
   "helix-triage must require success-measurement criteria for execution-ready beads"
 assert_file_contains \
   "$repo_root/skills/helix-triage/SKILL.md" \
+  "Triage must not create execution-ready implementation beads without" \
+  "helix-triage must block queue-ready implementation beads that lack measurable success criteria"
+assert_file_contains \
+  "$repo_root/skills/helix-triage/SKILL.md" \
+  "the work back to planning/polish, or file it as a not-execution-ready" \
+  "helix-triage must define a planning/polish or not-execution-ready fallback for vague build beads"
+assert_file_contains \
+  "$repo_root/skills/helix-triage/SKILL.md" \
+  "not-execution-ready" \
+  "helix-triage fallback must explicitly preserve not-execution-ready status for vague build beads"
+assert_file_contains \
+  "$repo_root/skills/helix-triage/SKILL.md" \
   "DDx-managed execution to close merged work with evidence" \
   "helix-triage must explain DDx-managed close-with-evidence expectations"
 assert_file_contains \
