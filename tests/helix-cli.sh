@@ -3514,6 +3514,78 @@ test_commit_syncs_tracker_close_to_implementation_commit() {
   rm -rf "$root"
 }
 
+test_commit_succeeds_with_external_tracker_dir() {
+  local root
+  root="$(make_workspace)"
+  local external_tracker
+  external_tracker="$root/external-ddx"
+  mkdir -p "$external_tracker"
+  printf '{"id":"hx-ext-0","title":"mock issue 0","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n' > "$external_tracker/beads.jsonl"
+
+  (cd "$root/work" && git config user.email "test@test.com" && git config user.name "Test")
+  printf 'base\n' > "$root/work/src.txt"
+  (
+    cd "$root/work" &&
+    git add src.txt &&
+    git commit -qm "seed"
+  )
+
+  printf 'updated\n' > "$root/work/src.txt"
+
+  local output
+  output="$(
+    cd "$root/work" &&
+    env \
+      HOME="$root/home" \
+      PATH="$root/bin:$PATH" \
+      MOCK_STATE_ROOT="$root/state" \
+      HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+      HELIX_FORCE_EPHEMERAL=1 \
+      HELIX_REVIEW_AGENT="codex" \
+      HELIX_ALT_AGENT="none" \
+      HELIX_AUTO_ALIGN=0 \
+      HELIX_DIRECT_AGENT=1 \
+      DDX_BEAD_DIR="$external_tracker" \
+      DDX_DISABLE_UPDATE_CHECK=1 \
+      bash "$repo_root/scripts/helix" commit --quiet hx-ext-0 2>&1
+  )" || true
+
+  local status
+  status="$(
+    env \
+      HOME="$root/home" \
+      PATH="$root/bin:$PATH" \
+      DDX_BEAD_DIR="$external_tracker" \
+      DDX_DISABLE_UPDATE_CHECK=1 \
+      ddx bead show hx-ext-0 --json | ddx jq -r '.status'
+  )"
+  local closing_sha
+  closing_sha="$(
+    env \
+      HOME="$root/home" \
+      PATH="$root/bin:$PATH" \
+      DDX_BEAD_DIR="$external_tracker" \
+      DDX_DISABLE_UPDATE_CHECK=1 \
+      ddx bead show hx-ext-0 --json | ddx jq -r '.closing_commit_sha // ""'
+  )"
+  local impl_sha
+  impl_sha="$(cd "$root/work" && git rev-list --all -n 1 --grep '^hx-ext-0 mock issue 0$')"
+  local head_subject
+  head_subject="$(cd "$root/work" && git log -1 --pretty=%s)"
+  local worktree_status
+  worktree_status="$(cd "$root/work" && git status --short --untracked-files=all | grep -Ev '^\?\? \.helix-logs/' || true)"
+
+  [[ -n "$impl_sha" ]] || fail "helix commit should create the implementation commit when the tracker is external"
+  assert_eq "closed" "$status" "external tracker mode should still close the issue"
+  assert_eq "$impl_sha" "$closing_sha" "external tracker mode should still sync closing_commit_sha to the implementation commit"
+  assert_eq "hx-ext-0 mock issue 0" "$head_subject" "external tracker mode should not create a repo-local tracker-sync commit"
+  assert_contains "$output" "helix: tracker file is external; skipping repo-local tracker-sync commit" "commit output should explain why the tracker-sync commit was skipped"
+  assert_contains "$output" "helix: closed hx-ext-0" "external tracker mode should still report the tracker close"
+  assert_not_contains "$output" "outside repository" "external tracker mode should avoid git add failures for out-of-repo tracker files"
+  assert_eq "" "$worktree_status" "external tracker mode should leave a clean worktree"
+  rm -rf "$root"
+}
+
 # --- Cross-model review in live run ---
 
 test_cross_model_review_switches_agent() {
@@ -3758,6 +3830,7 @@ run_test "review CLEAN succeeds" test_review_clean_status_succeeds
 run_test "review ISSUES_FOUND continues loop" test_review_issues_found_continues_loop
 run_test "run review targets closing commit sha after tracker sync commit" test_run_review_targets_closing_commit_sha_after_tracker_sync_commit
 run_test "helix commit syncs closing commit sha to implementation commit" test_commit_syncs_tracker_close_to_implementation_commit
+run_test "helix commit succeeds with external tracker dir" test_commit_succeeds_with_external_tracker_dir
 run_test "cross-model review switches agent" test_cross_model_review_switches_agent
 run_test "explicit --agent dispatches to named agent" test_explicit_agent_dispatches_to_named_agent
 run_test "run-state records explicit agent" test_run_state_records_explicit_agent
