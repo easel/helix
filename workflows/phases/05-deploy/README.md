@@ -355,11 +355,13 @@ deploy:
 ## Using AI Assistance
 
 Deploy execution is driven by deploy issues through `helix build` or
-`helix run`. Create project-specific checklists, runbooks, and monitoring
-configurations as needed for your deployment model.
+`helix run`. Create or update the deploy artifacts your release needs under
+`docs/helix/05-deploy/`: `deployment-checklist`, `monitoring-setup`,
+`runbook`, and `release-notes`.
 
-AI is useful for rollout documentation, checklists, and observability setup.
-Go/no-go decisions, incident handling, and rollback approval remain human-owned.
+AI is useful for rollout documentation, release notes, checklists, and
+observability setup. Go/no-go decisions, incident handling, and rollback
+approval remain human-owned.
 
 ## File Organization
 
@@ -368,12 +370,17 @@ Go/no-go decisions, incident handling, and rollback approval remain human-owned.
   - Templates and prompts for deployment artifacts
   - Action definitions for deployment tasks
 
-- **Generated Artifacts**: `docs/`
-  - `docs/deployment/` - Deployment checklists and procedures
-  - `docs/monitoring/` - Monitoring setup and dashboards
-  - `docs/operations/` - Runbooks and operational docs
+- **Generated Artifacts**: `docs/helix/05-deploy/`
+  - `docs/helix/05-deploy/deployment-checklist.md` - Deployment checklist and
+    release gating steps
+  - `docs/helix/05-deploy/monitoring-setup.md` - Monitoring setup,
+    dashboards, and alerts
+  - `docs/helix/05-deploy/runbook.md` - Runbooks and operational procedures
+  - `docs/helix/05-deploy/release-notes.md` - Release notes, operator actions,
+    and known issues
 
-This separation keeps deployment templates reusable while organizing operational documentation logically.
+This separation keeps deploy templates reusable while keeping the canonical
+release artifacts together in the HELIX docs tree.
 
 ---
 
