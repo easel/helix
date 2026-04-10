@@ -259,6 +259,16 @@ Tracks the checks that decide whether rollout can proceed, continue, pause, or
 roll back. It references `monitoring-setup` for signals and `runbook` for
 response procedures rather than duplicating those artifacts.
 
+### Runbook
+
+`docs/helix/05-deploy/runbook.md`
+
+Service-specific operator procedure surface for incidents, rollback, recovery,
+and recurring maintenance. It translates alerts or symptoms into first checks,
+commands, decision points, and escalation paths. It is not the same as
+`deployment-checklist`, which decides release readiness, or
+`monitoring-setup`, which defines the signals and dashboards the runbook uses.
+
 ---
 
 ## Iterate (Phase 6)
