@@ -19,6 +19,7 @@ ddx bead update <id> --claim  # Claim work
 ddx bead close <id>      # Complete work
 ddx bead status          # Check tracker health
 bash tests/helix-cli.sh       # Deterministic HELIX wrapper tests
+bash tests/validate-state-rules.sh # Deterministic state detection contract validation
 bash tests/validate-skills.sh # Deterministic HELIX skill package validation
 just test                     # Run all tests (CLI + skills)
 helix run                     # Run bounded HELIX execution loop
@@ -303,6 +304,14 @@ If you change any of the following, run the HELIX wrapper harness:
 - `workflows/EXECUTION.md`
 - other docs that materially change the HELIX execution contract
 
+If you change story/project state detection rules or examples, also run the
+state-rule validator:
+
+- `workflows/state-rules.yml`
+- `workflows/state-machine.yaml`
+- `tests/validate-state-rules.sh`
+- docs that materially change the HELIX state detection contract
+
 If you change published skill packaging or metadata, also run the skill package
 validator:
 
@@ -317,6 +326,7 @@ Required checks:
 
 ```bash
 bash tests/helix-cli.sh
+bash tests/validate-state-rules.sh
 bash tests/validate-skills.sh
 git diff --check
 ```
