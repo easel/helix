@@ -3476,6 +3476,44 @@ MOCK
   rm -rf "$root"
 }
 
+test_commit_syncs_tracker_close_to_implementation_commit() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+
+  (cd "$root/work" && git config user.email "test@test.com" && git config user.name "Test")
+  printf 'base\n' > "$root/work/src.txt"
+  (
+    cd "$root/work" &&
+    git add .ddx/beads.jsonl src.txt &&
+    git commit -qm "seed"
+  )
+
+  printf 'updated\n' > "$root/work/src.txt"
+
+  local output
+  output="$(run_helix "$root" commit hx-mock-0 2>&1)" || true
+
+  local status
+  status="$(run_bead "$root" show hx-mock-0 --json | ddx jq -r '.status')"
+  local closing_sha
+  closing_sha="$(run_bead "$root" show hx-mock-0 --json | ddx jq -r '.closing_commit_sha // ""')"
+  local impl_sha
+  impl_sha="$(cd "$root/work" && git rev-list --all -n 1 --grep '^hx-mock-0 mock issue 0$')"
+  local head_subject
+  head_subject="$(cd "$root/work" && git log -1 --pretty=%s)"
+  local worktree_status
+  worktree_status="$(cd "$root/work" && git status --short --untracked-files=all | grep -Ev '^\?\? \.helix-logs/' || true)"
+
+  [[ -n "$impl_sha" ]] || fail "helix commit should create the implementation commit"
+  assert_eq "closed" "$status" "helix commit should close the issue"
+  assert_eq "$impl_sha" "$closing_sha" "tracker sync should point closing_commit_sha at the implementation commit"
+  assert_contains "$head_subject" "hx-mock-0 close tracker bead" "helix commit should create a tracker-sync commit"
+  assert_contains "$output" "helix: closed hx-mock-0" "commit output should report the tracker close"
+  assert_eq "" "$worktree_status" "helix commit should leave a clean worktree"
+  rm -rf "$root"
+}
+
 # --- Cross-model review in live run ---
 
 test_cross_model_review_switches_agent() {
@@ -3717,6 +3755,7 @@ run_test "drift on spec-id change skips close" test_drift_on_spec_id_change_skip
 run_test "review CLEAN succeeds" test_review_clean_status_succeeds
 run_test "review ISSUES_FOUND continues loop" test_review_issues_found_continues_loop
 run_test "run review targets closing commit sha after tracker sync commit" test_run_review_targets_closing_commit_sha_after_tracker_sync_commit
+run_test "helix commit syncs closing commit sha to implementation commit" test_commit_syncs_tracker_close_to_implementation_commit
 run_test "cross-model review switches agent" test_cross_model_review_switches_agent
 run_test "explicit --agent dispatches to named agent" test_explicit_agent_dispatches_to_named_agent
 run_test "run-state records explicit agent" test_run_state_records_explicit_agent

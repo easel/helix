@@ -2314,6 +2314,7 @@ run_status() {
 
 run_commit() {
   local issue_id="${1:-}"
+  local impl_sha=""
 
   # Check for staged changes
   if ! (cd "$target_root" && git diff --cached --quiet 2>/dev/null); then
@@ -2365,17 +2366,32 @@ run_commit() {
 
   # Commit
   (cd "$target_root" && git commit -m "$msg")
+  impl_sha="$(cd "$target_root" && git rev-parse HEAD)"
   echo "helix: committed: $summary" >&2
+
+  # Tracker update
+  if [[ -n "$issue_id" ]]; then
+    local closing_sha=""
+    local tracker_msg=""
+    if ! tracker_close "$issue_id" 2>/dev/null; then
+      echo "helix: failed to close $issue_id" >&2
+      return 1
+    fi
+    closing_sha="$(tracker_show "$issue_id" --json 2>/dev/null | ddx jq -r '.closing_commit_sha // ""')" || closing_sha=""
+    if [[ "$closing_sha" != "$impl_sha" ]]; then
+      tracker_update "$issue_id" --set "closing_commit_sha=$impl_sha" >/dev/null || {
+        echo "helix: failed to sync closing_commit_sha for $issue_id" >&2
+        return 1
+      }
+    fi
+    tracker_msg="$(printf '%s close tracker bead\n\nVerification: ddx bead show %s --json\n' "$issue_id" "$issue_id")"
+    (cd "$target_root" && git add "$tracker_file" && git commit -m "$tracker_msg")
+    echo "helix: closed $issue_id" >&2
+  fi
 
   # Push
   (cd "$target_root" && git pull --rebase 2>/dev/null && git push 2>/dev/null) || true
   echo "helix: pushed" >&2
-
-  # Tracker update
-  if [[ -n "$issue_id" ]]; then
-    tracker_close "$issue_id" 2>/dev/null || true
-    echo "helix: closed $issue_id" >&2
-  fi
 }
 
 recover_prompt() {
