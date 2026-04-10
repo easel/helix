@@ -20,11 +20,6 @@ dependencies:
       path: architecture
       required: false
       note: "Service boundaries and dependencies that affect signal design"
-    - input: Runbook
-      type: artifact
-      path: runbook
-      required: false
-      note: "Escalation and response procedures that alerts should route into"
   enables:
     - output: Deployment Verification
       type: artifact
@@ -93,4 +88,4 @@ tags:
   - alerts
 
 version: 1.0.0
-last_updated: 2026-04-09
+last_updated: 2026-04-10

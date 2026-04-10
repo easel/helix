@@ -16,16 +16,6 @@ dependencies:
       path: implementation-plan
       required: false
       note: "Build completion context and sequencing constraints that affect deployment"
-    - input: Monitoring Setup
-      type: artifact
-      path: monitoring-setup
-      required: false
-      note: "Signals and alerts that the rollout must verify"
-    - input: Runbook
-      type: artifact
-      path: runbook
-      required: false
-      note: "Rollback and operator procedures referenced by the checklist"
 
 output:
   location: docs/helix/05-deploy/deployment-checklist.md
