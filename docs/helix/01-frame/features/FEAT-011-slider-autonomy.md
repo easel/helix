@@ -79,13 +79,17 @@ The system shall support configurable autonomy level (per session or project):
 | **Medium** | Traverse graph autonomously, ask only on conflicts/ambiguity | Default for most work |
 | **High** | Continue end-to-end autonomously; escalate resolvable conflicts as non-blocking beads; only physics-level conflicts stop the supervisory workflow, while DDx preserve outcomes end the current bounded attempt and hand control back to HELIX | Trusted contexts, rapid iteration |
 
-### FR-06: Minimal CLI Surface (Backward Compatible)
-CLI commands reduce to two core capabilities while maintaining backward compatibility:
+### FR-06: Minimal Execution Surface (Backward Compatible)
+Execution entrypoints reduce to two core capabilities while maintaining backward compatibility:
 
 1. **Input command**: `helix input "<natural language>"` - accepts sparse input, triggers graph traversal
-2. **Execute command**: `helix run` - executes beads from queue (existing behavior preserved)
+2. **Queue-drain command**: `ddx agent execute-loop` - drains execution-ready beads using DDx-managed claim, execute-bead, land/preserve, and close-with-evidence semantics
 
-**Deprecation timeline**: Legacy commands (`design`, `build`, etc.) remain functional but route through new model. Deprecation warnings added in v0.4.x, removal in v1.0.
+`helix run` remains as a compatibility wrapper and operator convenience surface
+while DDx loop parity is validated. If `execute-loop` plus HELIX skills reach
+the required parity, HELIX-owned execution wrappers (`helix run`, and
+potentially `helix build`) become deprecation candidates while input,
+planning, review, and spec-shaping surfaces remain HELIX-owned.
 
 ### FR-07: Bead-Centric Coordination
 All work flows through beads (non-blocking for resolvable conflicts):
@@ -133,16 +137,24 @@ This section summarizes the canonical boundary defined in [`CONTRACT-001`](../..
 - graph primitives (`[[ID]]` indexing, upstream/downstream traversal, reverse lookup)
 - graph-discovered execution docs and required validation execution
 - managed bead execution via `ddx agent execute-bead <bead-id> [--from <rev>] [--no-merge]`
-- runtime evidence capture, execution runs, metric projection, ratchet evaluation, and merge/preserve mechanics
+- single-project queue draining via `ddx agent execute-loop`
+- runtime evidence capture, execution runs, metric projection, ratchet evaluation, and merge/preserve/close mechanics
 
 **HELIX owns the workflow semantics**:
 - autonomy behavior (`low` / `medium` / `high`)
 - authority ordering and artifact-flow policy
 - conflict classification and escalation behavior
-- workflow routing (`helix input`, `helix run`, follow-on bead creation)
+- workflow routing (`helix input`, when to delegate a queue to `execute-loop`, follow-on bead creation)
+- deterministic bead acceptance and success-measurement authoring
 - prompt design and prompt-engineering strategy
 
-**Handoff contract**: HELIX decides scope, autonomy behavior, and workflow context; DDx executes the bounded bead and returns runtime evidence plus merge/preserve outcome; HELIX interprets that result to continue, escalate, or ask for input.
+**Handoff contract**: HELIX decides scope, autonomy behavior, queue policy, and
+workflow context; DDx executes either one bounded bead (`execute-bead`) or the
+project queue (`execute-loop`) and returns runtime evidence plus merge/preserve
+outcomes; HELIX interprets preserved, failed, or blocked results to continue,
+escalate, or ask for input. Direct `ddx agent run` remains appropriate for
+planning, review, alignment, and other non-managed prompts that should not
+claim and close beads automatically.
 
 ## Acceptance Criteria
 
@@ -168,8 +180,9 @@ This section summarizes the canonical boundary defined in [`CONTRACT-001`](../..
 
 ### AC-05: CLI Simplification (Backward Compatible)
 - [ ] `helix input "<text>"` command accepts natural language and triggers graph traversal
-- [ ] `helix run` continues to execute beads from queue without behavior change
-- [ ] Legacy commands (`design`, `build`, etc.) route through new model with deprecation warnings
+- [ ] `ddx agent execute-loop` is the primary documented queue-drain command for execution-ready beads
+- [ ] `helix run` is either a thin compatibility wrapper over DDx-managed queue draining or is explicitly documented as transitional
+- [ ] Legacy commands (`design`, `build`, etc.) route through the new model or have an explicit deprecation/retention decision recorded
 
 ### AC-06: Verification Loop
 - [ ] 100% of tests reference spec IDs (via comments or metadata)
@@ -184,9 +197,15 @@ This section summarizes the canonical boundary defined in [`CONTRACT-001`](../..
 
 ### AC-08: DDx Handoff Is Observable
 - [ ] HELIX dispatches bounded implementation/verification work through `ddx agent execute-bead` rather than an implicit internal execution path
+- [ ] HELIX documents `ddx agent execute-loop` as the queue-drain substrate rather than a wrapper-owned claim/execute/close loop
 - [ ] Preserve-vs-merge outcomes returned by DDx are observable inputs to HELIX workflow behavior (continue, escalate, or ask)
 - [ ] A DDx preserve outcome ends the current bounded attempt and returns control to HELIX without being misclassified as a physics-level conflict
 - [ ] Runtime evidence returned by DDx is sufficient for HELIX to interpret required execution outcomes and ratchet results without building a parallel execution store
+
+### AC-09: Automation-Friendly Success Criteria
+- [ ] Execution-ready beads carry deterministic acceptance criteria with explicit commands, checks, or observable repository states
+- [ ] Success measurement criteria are specific enough that DDx-managed execution can close merged work with evidence instead of relying on manual interpretation
+- [ ] Direct `ddx agent run` is not required to understand whether a merged execution-ready bead succeeded; the bead contract itself is sufficient
 
 ## Non-Requirements
 
@@ -225,6 +244,7 @@ This section summarizes the canonical boundary defined in [`CONTRACT-001`](../..
 - **Automated change flow through artifact graph works reliably** (tested with fixtures)
 - **Verification loop closes successfully**: tests pass, metrics met, failures trigger correct reflow
 - **Functional artifacts produced**: each layer produces measurable, verifiable output
+- **High execute-loop closure rate**: execution-ready beads land and auto-close from DDx-managed evidence without follow-up clarification on what "done" means
 
 ## References
 

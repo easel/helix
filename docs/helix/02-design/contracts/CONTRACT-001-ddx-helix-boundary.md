@@ -32,7 +32,10 @@ HELIX expects DDx to provide these platform capabilities.
 ### 2. Agent execution substrate
 - `ddx agent run` as the general harness interface
 - `ddx agent execute-bead <bead-id> [--from <rev>] [--no-merge]` as the
-  canonical git-aware bead execution primitive HELIX expects to call
+  canonical git-aware single-bead execution primitive
+- `ddx agent execute-loop [--once] [--poll-interval <duration>]` as the
+  canonical single-project queue-drain primitive that claims ready beads,
+  runs `execute-bead`, and closes merged work with evidence
 - Standard harness/model/effort/preset controls available through the DDx agent surface
 - Session capture, transcript capture, and runtime evidence capture
 
@@ -52,7 +55,8 @@ HELIX expects DDx to provide these platform capabilities.
 - Guaranteed worktree cleanup after landing or preservation
 
 ### 5. Always-on runtime metrics and provenance
-For every managed execute-bead attempt, DDx should capture runtime facts such as:
+For every managed execute-bead attempt, including attempts launched by
+`ddx agent execute-loop`, DDx should capture runtime facts such as:
 - harness
 - model
 - session ID
@@ -82,6 +86,11 @@ HELIX owns:
 - planning vs execution routing
 - supervisory stop/continue behavior
 - when to ask for human input
+- whether queue draining should be hosted by HELIX wrappers or delegated to
+  `ddx agent execute-loop`
+- bead authoring rules for deterministic acceptance and success-measurement
+  criteria so DDx-managed execution can close merged work without manual
+  interpretation
 
 ### 3. Artifact-flow policy
 HELIX owns:
@@ -144,12 +153,15 @@ HELIX decides:
 - what autonomy behavior should apply
 - what workflow prompt/context to use
 - when implementation/verification should be dispatched
+- whether to dispatch one bounded attempt with `ddx agent execute-bead` or
+  hand a single-project ready queue to `ddx agent execute-loop`
 
 HELIX then hands execution to DDx through managed agent/execution surfaces.
 
 ### DDx -> HELIX
 DDx returns evidence, not workflow policy:
 - execution outcome
+- queue-drain result summaries when `execute-loop` is used
 - required execution results
 - ratchet results
 - runtime metrics
@@ -157,10 +169,22 @@ DDx returns evidence, not workflow policy:
 - transcript/session/exec evidence locations
 
 Minimum workflow-visible outcome surface expected by HELIX:
+- per-bead merge vs preserve state
 - merge vs preserve state
 - required execution pass/fail summary
 - ratchet pass/fail summary
 - enough runtime evidence to inspect why the bounded attempt landed or was preserved
+
+HELIX-authored execution beads must make success machine-auditable. In
+practice that means deterministic acceptance and success-measurement criteria:
+exact commands, named checks, concrete files or fields to inspect, and
+observable end states. Vague success text such as "works correctly" is not a
+sufficient contract for `ddx agent execute-bead` or `ddx agent execute-loop`.
+
+When HELIX delegates queue draining to `ddx agent execute-loop`, DDx owns the
+claim/execute/close mechanics for merged work in that loop. HELIX remains
+responsible for deciding when loop delegation is appropriate and for
+interpreting preserved, failed, or blocked outcomes.
 
 A preserved outcome is an execution result from a bounded DDx-managed attempt. It is not, by itself, a HELIX physics-level conflict; it hands control back to HELIX for workflow interpretation.
 
@@ -186,6 +210,8 @@ HELIX then decides what to do next:
 - a second metrics/provenance store
 - a separate prompt-version registry
 - custom git execution mechanics that bypass the DDx managed execution flow
+- a second single-project queue-drain loop once `ddx agent execute-loop`
+  satisfies the required HELIX supervision contract
 
 ## Validation Checklist
 
@@ -193,6 +219,10 @@ The boundary is healthy when all of the following are true:
 
 - [ ] HELIX uses DDx graph primitives instead of a parallel graph implementation for document indexing/traversal
 - [ ] HELIX uses DDx-managed bead execution instead of directly inventing its own execution/provenance substrate
+- [ ] HELIX uses `ddx agent execute-loop` for queue draining once the DDx loop
+  exposes the required HELIX-visible outcomes and automation hooks
+- [ ] HELIX execution beads carry deterministic success criteria and
+  measurement hooks precise enough for DDx-managed close-with-evidence
 - [ ] DDx provides enough runtime evidence for HELIX to evaluate preserved attempts and landed runs
 - [ ] HELIX autonomy behavior is documented in HELIX, not DDx
 - [ ] DDx execution/metric/git semantics are documented in DDx, not redefined in HELIX

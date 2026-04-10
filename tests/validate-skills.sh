@@ -27,6 +27,17 @@ fail() {
   exit 1
 }
 
+assert_file_contains() {
+  local path="$1"
+  local needle="$2"
+  local message="$3"
+
+  [[ -f "$path" ]] || fail "missing file for validation: $path"
+  if ! grep -Fq "$needle" "$path"; then
+    fail "$message"
+  fi
+}
+
 # ---------- Plugin layout checks ----------
 
 plugin_manifest="$repo_root/.claude-plugin/plugin.json"
@@ -192,5 +203,42 @@ for name in "${expected_skills[@]}"; do
     fail "missing argument-hint field in $skill_file"
   fi
 done
+
+assert_file_contains \
+  "$repo_root/skills/helix-triage/SKILL.md" \
+  "deterministic acceptance and success-measurement criteria" \
+  "helix-triage must require success-measurement criteria for execution-ready beads"
+assert_file_contains \
+  "$repo_root/skills/helix-triage/SKILL.md" \
+  "DDx-managed execution to close merged work with evidence" \
+  "helix-triage must explain DDx-managed close-with-evidence expectations"
+assert_file_contains \
+  "$repo_root/skills/helix-polish/SKILL.md" \
+  "require execution-ready beads to name exact commands," \
+  "helix-polish must require explicit measurable acceptance text for execution-ready beads"
+assert_file_contains \
+  "$repo_root/skills/helix-polish/SKILL.md" \
+  "flag it as not execution-ready" \
+  "helix-polish must define a flagging path for non-measurable acceptance text"
+assert_file_contains \
+  "$repo_root/workflows/actions/polish.md" \
+  "Treat \"works\", \"correct\", \"complete\", \"aligned\", or similar adjectives" \
+  "polish action must reject vague non-measurable acceptance wording"
+assert_file_contains \
+  "$repo_root/workflows/actions/polish.md" \
+  "flag the bead as **not execution-ready**" \
+  "polish action must define a not-execution-ready flagging path"
+assert_file_contains \
+  "$repo_root/docs/helix/01-frame/features/FEAT-011-slider-autonomy.md" \
+  "### AC-09: Automation-Friendly Success Criteria" \
+  "FEAT-011 must retain the automation-friendly success-criteria acceptance contract"
+assert_file_contains \
+  "$repo_root/docs/helix/02-design/contracts/CONTRACT-001-ddx-helix-boundary.md" \
+  "HELIX-authored execution beads must make success machine-auditable." \
+  "CONTRACT-001 must retain machine-auditable bead success criteria"
+assert_file_contains \
+  "$repo_root/docs/helix/02-design/technical-designs/TD-011-slider-autonomy-implementation.md" \
+  "### Decision 5c: Bead Success-Measurement Contract" \
+  "TD-011 must retain the bead success-measurement decision"
 
 printf 'validated %d HELIX skills\n' "${#expected_skills[@]}"

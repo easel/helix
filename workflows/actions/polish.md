@@ -149,6 +149,22 @@ Each pass performs ALL of the following checks. Track changes made per pass.
     invalid credentials returns 401 with error code AUTH_INVALID"
 - Ensure every issue has at least one concrete acceptance criterion.
 - Add verification method: what command or test proves this criterion is met?
+- For execution-ready beads (`phase:build`, `phase:deploy`, `phase:iterate`
+  implementation work), require acceptance text to name at least one explicit:
+  - command to run
+  - named check or execution doc
+  - observable repository state, file, field, or tracker condition
+- Treat "works", "correct", "complete", "aligned", or similar adjectives
+  without a named check as non-measurable acceptance text.
+- If the governing artifacts let you sharpen the bead, rewrite the acceptance
+  criteria immediately.
+- If the governing artifacts do **not** let you sharpen the bead into explicit
+  measurement criteria, flag the bead as **not execution-ready** and route it
+  back through planning/polish refinement instead of leaving hidden wrapper
+  knowledge to decide success.
+- A bead is not execute-loop-ready until DDx-managed execution could determine
+  success from the bead contract itself without a human inferring what "done"
+  means from HELIX wrapper behavior.
 
 ### Dependency Verification
 

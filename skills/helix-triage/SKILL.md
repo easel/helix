@@ -1,6 +1,6 @@
 ---
 name: helix-triage
-description: Create tracker issues with governing artifact references and deterministic acceptance criteria.
+description: Create tracker issues with governing artifact references and deterministic acceptance and success-measurement criteria.
 argument-hint: '"Title" [--type task|epic|bug|chore] [options...]'
 ---
 
@@ -34,7 +34,7 @@ traceable:
 |-------|-------------|-------------|
 | `--labels helix,phase:*` | All issues | `helix` + one of `phase:frame`, `phase:design`, `phase:test`, `phase:build`, `phase:deploy`, `phase:iterate`, `phase:review` |
 | `--spec-id` | Tasks | Nearest governing artifact (e.g., `SD-001`, `ADR-048`, `TP-SD-014`) |
-| `--acceptance` | Tasks, Epics | Deterministic completion criteria — what must be true when this is done |
+| `--acceptance` | Tasks, Epics | Deterministic completion and success-measurement criteria — what must be true, and how success will be observed, when this is done |
 | `--description` | Recommended | Work contract: what to do, which files, governing artifact references |
 | `--design` | Recommended | Implementation approach: how to do it |
 
@@ -48,10 +48,15 @@ Additional labels to include when applicable:
 1. **Identify the governing artifact.** What spec, design, ADR, or test plan
    authorizes this work? Set `--spec-id` to its ID.
 
-2. **Write deterministic acceptance criteria.** The AC should be verifiable
-   by running a specific command or checking a specific condition. Bad:
+2. **Write deterministic acceptance and success-measurement criteria.** The
+   AC should be verifiable by running a specific command or checking a
+   specific condition, and it should make success observable enough for
+   DDx-managed execution to close merged work with evidence. Bad:
    "system works correctly." Good: "cargo test -p niflheim-wal passes;
    AC-SD17-003 promoted to active in TP-SD-017.acceptance.toml."
+   Better: "cargo test -p niflheim-wal passes; `docs/helix/.../contract.md`
+   names `ddx agent execute-loop` as the queue-drain primitive; git diff
+   --check passes."
 
 3. **Choose type and labels.**
    - `task` — bounded work with clear completion (most issues)
@@ -61,6 +66,14 @@ Additional labels to include when applicable:
 
 4. **Set parent and dependencies.** If this is part of an epic, set `--parent`.
    If it depends on other issues completing first, use `--deps`.
+
+   For queue-drained execution beads, prefer AC that names:
+   - exact commands to run
+   - exact files or fields expected to change
+   - exact pass/fail or observable end-state conditions
+   Avoid AC that requires a human to decide whether the result "looks right"
+   unless the bead is explicitly a review or planning bead rather than an
+   execution-ready implementation bead.
 
 5. **Assemble context digest.** Follow
    `.ddx/plugins/helix/workflows/references/context-digest.md` to build a compact summary of

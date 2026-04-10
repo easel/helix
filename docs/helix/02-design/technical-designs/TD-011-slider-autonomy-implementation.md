@@ -20,7 +20,9 @@ This technical design specifies implementation details for the slider autonomy m
 **Key constraints**:
 - Must integrate with existing `[[ID]]` cross-reference pattern (no new storage format)
 - Must maintain backward compatibility during deprecation period
-- Must work within ADR-001 supervisory control model (`helix run` as supervisor)
+- Must work within ADR-001 supervisory control model while shifting
+  queue-drain execution ownership to `ddx agent execute-loop` and retaining
+  HELIX wrappers only where they still add supervisory value
 
 ## Requirements Summary
 
@@ -30,7 +32,10 @@ From FEAT-011:
 3. Physics-level vs resolvable conflict classification
 4. Autonomy slider (low/medium/high) controlling flow behavior
 5. Verification loop with failure triage and traceback
-6. CLI simplification: `helix input` + `helix run`
+6. CLI simplification: `helix input` + `ddx agent execute-loop`, with any
+   retained HELIX execution wrappers treated as transitional compatibility
+7. Deterministic bead acceptance and success-measurement criteria so
+   DDx-managed execution can land and close work without hidden human policy
 
 ## Design Decisions
 
@@ -198,30 +203,60 @@ helix input "the login button is broken" --autonomy medium
    - Create beads for work needed
 6. Output summary of created beads and assumptions
 
-#### Existing Command: `helix run` (Unchanged)
+#### Primary Queue-Drain Command: `ddx agent execute-loop`
 
-Continues to execute beads from queue. New bead types (`kind:escalation`, `kind:speculative`) are handled by existing worker logic with appropriate labeling.
+```bash
+ddx agent execute-loop
+ddx agent execute-loop --once
+ddx agent execute-loop --harness codex --model gpt-5.4
+```
+
+`execute-loop` is the primary queue-drain surface for execution-ready work. It
+claims the next ready bead, runs `ddx agent execute-bead`, closes merged work
+with evidence, and leaves preserved or failed attempts open for later HELIX
+interpretation.
+
+#### Role of `helix run` and `helix build`
+
+- `helix run` becomes a compatibility wrapper and orchestration surface while
+  DDx queue-drain parity is being validated.
+- `helix build` remains relevant only when HELIX needs a single bounded action
+  that is not yet expressible as a direct `execute-loop` or `execute-bead`
+  invocation.
+- Neither surface should own a separate claim/execute/close loop once
+  `execute-loop` satisfies the required HELIX-visible contract.
+- Direct `ddx agent run` remains valid for planning, review, alignment, and
+  other non-managed prompts where no bead should be auto-claimed or auto-closed.
 
 ### Decision 5b: DDx Handoff Model
 
-HELIX delegates bounded implementation and verification execution to DDx. The handoff is explicit: HELIX owns workflow selection and interpretation, while DDx owns managed execution and runtime evidence.
+HELIX delegates managed implementation and verification execution to DDx. The
+handoff is explicit: HELIX owns workflow selection, bead shaping, and result
+interpretation, while DDx owns managed execution, close-with-evidence
+mechanics, and runtime evidence.
 
 #### Handoff Flow
 
 1. **HELIX prepares execution context**
    - Select bead ID and workflow scope
    - Determine autonomy behavior (`low` / `medium` / `high`)
-   - Assemble governing artifact context, constraints, and conflict notes
-2. **HELIX dispatches bounded work to DDx**
-   - Invoke `ddx agent execute-bead <bead-id> [--from <rev>] [--no-merge]`
-   - Pass standard harness/model/effort controls through the DDx agent surface
+   - Assemble governing artifact context, constraints, conflict notes, and
+     deterministic success criteria
+2. **HELIX chooses the execution surface**
+   - Use `ddx agent execute-bead <bead-id> [--from <rev>] [--no-merge]` for one
+     bounded attempt
+   - Use `ddx agent execute-loop` when HELIX wants DDx to drain the current
+     execution-ready queue for one project
+   - Use direct `ddx agent run` only for non-managed prompts such as planning,
+     review, or alignment
 3. **DDx executes and verifies**
-   - Run the bead in a managed git context
+   - Run the bead or queue in a managed git context
    - Capture transcript, runtime evidence, and execution results
    - Run graph-discovered required executions and evaluate metric ratchets
-   - Return a merge or preserve outcome with supporting evidence
+   - Return merge/preserve outcomes with supporting evidence and close merged
+     work when queue delegation is used
 4. **HELIX interprets the outcome**
-   - If merged: continue to measure/report or next workflow step
+   - If merged: continue to the next workflow step or the next queue item
    - If preserved: treat this as the end of the current DDx-managed attempt, then escalate, ask for input, or revise prompts/workflow wording
    - If required execution failed or ratchets regressed: create follow-on beads or route to the appropriate supervisory action
 
@@ -232,12 +267,42 @@ Preserved outcomes are execution results, not physics-level conflicts. They stop
 | Capability | Owner | Notes |
 |------------|-------|-------|
 | Graph primitives and execution discovery | DDx | HELIX consumes results |
-| Managed bead execution and runtime evidence | DDx | `ddx agent execute-bead` is the contract |
+| Managed bead execution and runtime evidence | DDx | `ddx agent execute-bead` is the single-bead contract |
+| Queue-drain execution and close-with-evidence | DDx | `ddx agent execute-loop` is the single-project queue-drain contract |
 | Required executions, metrics, and ratchet evaluation | DDx | returned as evidence/outcomes |
 | Autonomy semantics | HELIX | what low/medium/high mean behaviorally |
 | Authority ordering and artifact flow | HELIX | policy over DDx graph primitives |
 | Conflict classification and escalation behavior | HELIX | workflow semantics, not substrate |
+| Acceptance and success-measurement authoring | HELIX | beads must be precise enough for automated close decisions |
 | Supervisory routing and prompt strategy | HELIX | decides next action from DDx outcomes |
+
+### Decision 5c: Bead Success-Measurement Contract
+
+Execution-ready beads must carry success criteria that a DDx-managed execution
+lane can evaluate without hidden human policy.
+
+Required shape:
+- name the concrete command, check, or execution doc that proves success
+- name the observable repository state that should exist after success
+- avoid vague words such as "works", "correct", or "complete" without a check
+- align acceptance text with any required execution docs or ratchets that
+  `execute-bead` will evaluate
+
+Good:
+- `bash tests/helix-cli.sh` passes and `git diff --check` passes
+- `docs/helix/02-design/contracts/CONTRACT-001-ddx-helix-boundary.md` names
+  `ddx agent execute-loop` as the queue-drain primitive and `skills/helix-triage/SKILL.md`
+  requires deterministic success criteria for execution-ready beads
+
+Bad:
+- `Queue draining works`
+- `The docs are aligned`
+
+On the currently shipped DDx surface, `execute-loop` closes a bead when
+`execute-bead` reports `success` and records evidence. HELIX therefore must
+shape execution-ready beads so the success conditions that drive that outcome
+are explicit in the bead contract, the governing docs, and the discovered
+validation surface.
 
 ### Decision 6: Verification Loop Integration (Revised)
 
@@ -337,8 +402,8 @@ function traceBackFromFailure(failingTest, testOutput):
 └──────────────────────┬──────────────────────────────────────┘
                        ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  helix run (existing, unchanged)                             │
-│  Executes all bead types from queue                         │
+│  ddx agent execute-loop                                      │
+│  Drains execution-ready queue and closes merged work        │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -346,10 +411,10 @@ function traceBackFromFailure(failingTest, testOutput):
 
 ### ADR-001 Supervisory Control Model
 
-`helix input` is a **new entrypoint** that feeds into the existing supervisory model:
-- `helix input` creates beads → `helix run` executes them
-- No change to `helix run` behavior or supervisory logic
-- Companion commands (`design`, `polish`, `align`, `check`) remain as subroutines
+`helix input` is a **new entrypoint** that feeds the supervisory model:
+- `helix input` creates beads → `ddx agent execute-loop` executes execution-ready work
+- HELIX wrappers may still orchestrate planning, review, and check/alignment decisions
+- Companion commands (`design`, `polish`, `align`, `check`) remain HELIX-owned subroutines
 
 ### Artifact Hierarchy Compatibility
 
@@ -417,19 +482,26 @@ Test: `helix input "change US-001 acceptance criteria"` should produce beads for
 ### Phase 3: CLI Integration
 - [ ] `helix input` command implementation
 - [ ] Bead creator integration with DDx tracker
+- [ ] `execute-loop` queue-drain adoption path and compatibility wrappers
 - [ ] Verification loop traceback
 
-### Phase 4: Testing and Validation
+### Phase 4: Bead-Contract Hardening
+- [ ] Triage/polish guidance requires execute-loop-friendly success criteria
+- [ ] Measurement and acceptance conventions align with DDx close-with-evidence semantics
+- [ ] Queue-ready beads can be evaluated without hidden wrapper logic
+
+### Phase 5: Testing and Validation
 - [ ] Unit tests for all components
 - [ ] Integration tests with fixture projects
 - [ ] Acceptance criteria validation
 
-### Phase 5: Deprecation Period (v0.4.x)
-- [ ] Add deprecation warnings to legacy commands
+### Phase 6: Deprecation Period (v0.4.x)
+- [ ] Decide which HELIX CLI surfaces remain first-class vs compatibility-only
+- [ ] Add deprecation warnings to thin execution wrappers if DDx parity holds
 - [ ] Document migration path
 - [ ] Monitor usage patterns
 
-### Phase 6: Full Release (v1.0)
+### Phase 7: Full Release (v1.0)
 - [ ] Remove deprecated commands (optional, can keep as aliases)
 - [ ] Update all documentation
 - [ ] Training materials for new model
@@ -449,6 +521,7 @@ Test: `helix input "change US-001 acceptance criteria"` should produce beads for
 2. How do we handle multi-repo scenarios where artifacts span repositories?
 3. Should speculation beads auto-expire if not reviewed within N days?
 4. What's the exact format for test-to-spec traceability in code files?
+5. Which HELIX CLI surfaces still add durable value once DDx owns queue draining?
 
 ## References
 
