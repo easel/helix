@@ -212,11 +212,11 @@ Each artifact references its dependencies:
 
 ### Traceability Chain
 ```
-FEAT-001 → SD-001 → US-036 → TD-036 → TP-036 → build issue(s) → deploy issue(s) → all deploy issue(s) complete with no open deploy issue remaining + optional follow-on tracker work (ITERATE evidence)
+FEAT-001 → SD-001 → US-036 → TD-036 → TP-036 → build issue(s) → deploy issue(s) → all deploy issue(s) complete with no matching deploy issue remaining not closed + optional follow-on tracker work (ITERATE evidence)
          ↓
-         US-037 → TD-037 → TP-037 → build issue(s) → deploy issue(s) → all deploy issue(s) complete with no open deploy issue remaining + optional follow-on tracker work (ITERATE evidence)
+         US-037 → TD-037 → TP-037 → build issue(s) → deploy issue(s) → all deploy issue(s) complete with no matching deploy issue remaining not closed + optional follow-on tracker work (ITERATE evidence)
          ↓
-         US-038 → TD-038 → TP-038 → build issue(s) → deploy issue(s) → all deploy issue(s) complete with no open deploy issue remaining + optional follow-on tracker work (ITERATE evidence)
+         US-038 → TD-038 → TP-038 → build issue(s) → deploy issue(s) → all deploy issue(s) complete with no matching deploy issue remaining not closed + optional follow-on tracker work (ITERATE evidence)
 ```
 
 ## Naming Rules
@@ -247,8 +247,8 @@ If exists US-036: Story is in FRAME
 If exists TD-036: Story is in DESIGN
 If exists TP-036: Story is in TEST
 If open HELIX build issues exist for story US-036: Story is in BUILD
-If open HELIX deploy issues exist for story US-036: Story is in DEPLOY
-If all deploy issues for story US-036 are complete and no open deploy issues remain: Story is in ITERATE
+If any HELIX deploy issue for story US-036 is not closed, including status: in_progress: Story is in DEPLOY
+If all deploy issues for story US-036 are complete and no matching deploy issue remains not closed: Story is in ITERATE
 Linked tracker follow-on work adds iterate evidence when present; shared
 iterate outputs provide iteration context but are not queried by story ID
 ```
@@ -315,9 +315,9 @@ Feature Level:
   SD-001-mcp-management.md
 
 Story Level:
-  US-036-list-mcp-servers.md → ... → deploy issue(s) → all deploy issue(s) complete with no open deploy issue remaining + optional follow-on tracker work
-  US-037-install-mcp-server.md → ... → deploy issue(s) → all deploy issue(s) complete with no open deploy issue remaining + optional follow-on tracker work
-  US-038-configure-mcp-server.md → ... → deploy issue(s) → all deploy issue(s) complete with no open deploy issue remaining + optional follow-on tracker work
+  US-036-list-mcp-servers.md → ... → deploy issue(s) → all deploy issue(s) complete with no matching deploy issue remaining not closed + optional follow-on tracker work
+  US-037-install-mcp-server.md → ... → deploy issue(s) → all deploy issue(s) complete with no matching deploy issue remaining not closed + optional follow-on tracker work
+  US-038-configure-mcp-server.md → ... → deploy issue(s) → all deploy issue(s) complete with no matching deploy issue remaining not closed + optional follow-on tracker work
 ```
 
 ### Example 2: Story in Multiple Phases
@@ -328,7 +328,7 @@ Tuesday:  Create TD-041-user-authentication.md (DESIGN)
 Wednesday: Create TP-041-user-authentication.md (TEST)
 Thursday: Create build issue(s) for US-041 (BUILD)
 Friday:   Create deploy issue(s) for US-041 (DEPLOY)
-Next Week: Complete all deploy issue(s) and leave no open deploy issue remaining; story enters ITERATE and any follow-on work is captured in tracker-backed iteration evidence
+Next Week: Complete all deploy issue(s) and leave no matching deploy issue not closed; story enters ITERATE and any follow-on work is captured in tracker-backed iteration evidence
 ```
 
 ## Commands
