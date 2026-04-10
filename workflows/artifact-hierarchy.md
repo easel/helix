@@ -212,11 +212,11 @@ Each artifact references its dependencies:
 
 ### Traceability Chain
 ```
-FEAT-001 → SD-001 → US-036 → TD-036 → TP-036 → build issue(s) → deploy issue(s) → iterate outputs + follow-on tracker work
+FEAT-001 → SD-001 → US-036 → TD-036 → TP-036 → build issue(s) → deploy issue(s) → completed deploy issue(s) + optional follow-on tracker work (ITERATE evidence)
          ↓
-         US-037 → TD-037 → TP-037 → build issue(s) → deploy issue(s) → iterate outputs + follow-on tracker work
+         US-037 → TD-037 → TP-037 → build issue(s) → deploy issue(s) → completed deploy issue(s) + optional follow-on tracker work (ITERATE evidence)
          ↓
-         US-038 → TD-038 → TP-038 → build issue(s) → deploy issue(s) → iterate outputs + follow-on tracker work
+         US-038 → TD-038 → TP-038 → build issue(s) → deploy issue(s) → completed deploy issue(s) + optional follow-on tracker work (ITERATE evidence)
 ```
 
 ## Naming Rules
@@ -248,8 +248,9 @@ If exists TD-036: Story is in DESIGN
 If exists TP-036: Story is in TEST
 If open HELIX build issues exist for story US-036: Story is in BUILD
 If open HELIX deploy issues exist for story US-036: Story is in DEPLOY
-If deploy issues are complete and the outcome is reflected in iterate outputs
-or tracker-backed follow-on work for story US-036: Story is in ITERATE
+If deploy issues for story US-036 are complete: Story is in ITERATE
+Linked tracker follow-on work adds iterate evidence when present; shared
+iterate outputs provide iteration context but are not queried by story ID
 ```
 
 ### Feature State Detection
@@ -314,9 +315,9 @@ Feature Level:
   SD-001-mcp-management.md
 
 Story Level:
-  US-036-list-mcp-servers.md → ... → deploy issue(s) → iterate outputs + follow-on tracker work
-  US-037-install-mcp-server.md → ... → deploy issue(s) → iterate outputs + follow-on tracker work
-  US-038-configure-mcp-server.md → ... → deploy issue(s) → iterate outputs + follow-on tracker work
+  US-036-list-mcp-servers.md → ... → deploy issue(s) → completed deploy issue(s) + optional follow-on tracker work
+  US-037-install-mcp-server.md → ... → deploy issue(s) → completed deploy issue(s) + optional follow-on tracker work
+  US-038-configure-mcp-server.md → ... → deploy issue(s) → completed deploy issue(s) + optional follow-on tracker work
 ```
 
 ### Example 2: Story in Multiple Phases
@@ -327,7 +328,7 @@ Tuesday:  Create TD-041-user-authentication.md (DESIGN)
 Wednesday: Create TP-041-user-authentication.md (TEST)
 Thursday: Create build issue(s) for US-041 (BUILD)
 Friday:   Create deploy issue(s) for US-041 (DEPLOY)
-Next Week: Record the outcome in iterate outputs and tracker follow-on work (ITERATE)
+Next Week: Complete deploy issue(s); story enters ITERATE and any follow-on work is captured in tracker-backed iteration evidence
 ```
 
 ## Commands

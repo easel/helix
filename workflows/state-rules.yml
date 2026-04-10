@@ -40,10 +40,10 @@ artifact_patterns:
       query_command: "Inspect open tracker issues labeled helix, phase:deploy, story:US-{id}"
 
     iterate:
-      pattern: "docs/helix/06-iterate/"
       type: iterate-evidence
       phase: iterate
-      query_command: "Inspect canonical iterate outputs and linked tracker follow-on work for story US-{id}; there is no numbered IR file"
+      query_only: true
+      query_command: "Inspect completed tracker issues labeled helix, phase:deploy, story:US-{id}. Treat closure of the story's deploy issue as the deterministic ITERATE threshold. Linked tracker follow-on work is supporting evidence when present; canonical iterate outputs remain shared iteration context and are not queried by story ID."
 
   # Feature-level artifacts (epics)
   feature:
@@ -131,7 +131,7 @@ naming_conventions:
       TD: "Technical Design (Design)"
       TP: "Test Plan (Test)"
       ISSUE: "Execution tracked in built-in tracker"
-      ITERATE: "Canonical iterate outputs plus tracker-backed follow-on work (no numbered story file)"
+      ITERATE: "Completed deploy issue(s) plus optional tracker-backed follow-on work; shared iterate outputs remain iteration context (no numbered story file)"
 
   feature:
     pattern: "{prefix}-{id}-{name}"
@@ -162,8 +162,8 @@ transitions:
       creates: "deploy issue(s) in tracker"
 
     deploy_to_iterate:
-      requires: ["deploy issue(s) exist", "deployed"]
-      creates: "iterate outputs and tracker follow-on work for story {id}"
+      requires: ["deploy issue(s) exist", "deploy issue(s) complete"]
+      creates: "story enters ITERATE via completed deploy issue(s); optional tracker follow-on work may capture additional iteration evidence"
 
 # Validation rules
 validation:

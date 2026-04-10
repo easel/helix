@@ -206,7 +206,7 @@ story_flow:
     test_plan: TP
     implementation_issue: "ddx bead issue labeled phase:build"
     deployment_issue: "ddx bead issue labeled phase:deploy"
-    iterate_evidence: "metrics-dashboard/security-metrics/improvement-backlog plus linked tracker follow-on work"
+    iterate_evidence: "completed deploy issue(s) plus optional linked tracker follow-on work; canonical iterate outputs remain shared iteration context"
 
   transitions:
     - from: US-{id}
@@ -222,7 +222,7 @@ story_flow:
       to: "tracker issue(s) labeled helix, phase:deploy, story:US-{id}"
       phase_change: build -> deploy
     - from: "tracker issue(s) labeled helix, phase:deploy, story:US-{id}"
-      to: "iterate outputs and tracker follow-on work for story US-{id}"
+      to: "completed deploy issue(s) for story US-{id}; optional linked tracker follow-on work"
       phase_change: deploy -> iterate
 
   state_detection:
@@ -233,7 +233,8 @@ story_flow:
       If exists TP-036: Story is in TEST
       If open HELIX build issues exist for story US-036: Story is in BUILD
       If open HELIX deploy issues exist for story US-036: Story is in DEPLOY
-      If deploy issues are complete and iterate outputs or linked follow-on work reference story US-036: Story is in ITERATE
+      If deploy issues for story US-036 are complete: Story is in ITERATE
+      Linked tracker follow-on work adds iterate evidence when present; canonical iterate outputs remain shared iteration context and are not queried by story ID
 
 # Parallelization rules
 parallelization:

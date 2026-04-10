@@ -158,6 +158,11 @@ old story-scoped intent is already covered by the current iterate contract:
   feature specs, stories, risk registers, or tests when the learning changes
   future expectations
 
+For story-state detection, the deterministic ITERATE threshold remains
+completion of the story's deploy issue(s). Shared iterate outputs provide
+iteration-wide context, and linked tracker follow-on work adds story-specific
+evidence when present; HELIX does not require a story-keyed iterate document.
+
 The deleted prompt and template were too thin to justify restoring a separate
 canonical report. Reintroducing `story-iteration-report` would duplicate
 evidence already owned by execution issues, iterate summary artifacts, and the
