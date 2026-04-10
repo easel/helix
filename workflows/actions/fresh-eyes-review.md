@@ -68,7 +68,7 @@ See `.ddx/plugins/helix/workflows/references/bead-first.md` for the full pattern
      --description "<context-digest>...</context-digest>
    Fresh-eyes review of <target>.
    Review target: <last-commit|issue-id|file-list>" \
-     --acceptance "All review passes complete; findings filed as beads; AGENTS.md updated if needed"
+     --acceptance "All review passes complete; findings filed as beads with scope-appropriate area labels; AGENTS.md updated if needed"
    ```
 4. Record the bead ID. All review findings are governed by this bead.
 
@@ -188,7 +188,7 @@ For each actionable finding, create a tracker issue:
 ```bash
 ddx bead create "<category>: <short description>" \
   --type task \
-  --labels helix,phase:build,review-finding \
+  --labels helix,phase:build,review-finding,<derived-area-labels> \
   --set spec-id=<governing-artifact-or-file-path> \
   --description "Review finding from fresh-eyes review.
 File: <file>:<line>
@@ -203,6 +203,18 @@ Rules for filing:
 - `low` severity findings: do not file as issues; report them in the output
   only
 - Use label `review-finding` on every finding issue for queryability
+- Include at least one scope-appropriate `area:*` label on every filed finding
+  so concern matching survives re-entry into the queue
+- Derive `area:*` labels in this priority order:
+  1. Preserve `area:*` labels from the reviewed execution bead when the review
+     target is an issue or when the governing review bead points back to that
+     issue.
+  2. Otherwise infer the label(s) from the reviewed scope using the project
+     area taxonomy in `docs/helix/01-frame/concerns.md` (or the default
+     taxonomy in `.ddx/plugins/helix/workflows/references/concern-resolution.md`
+     when the project file does not exist).
+  3. If the finding spans multiple surfaces, assign multiple `area:*` labels
+     rather than picking one arbitrarily.
 - Set `spec-id` with `--set spec-id=<file-path>` using the file path where the
   finding was identified
 - Write deterministic acceptance criteria (e.g., "test X passes", "no SQL

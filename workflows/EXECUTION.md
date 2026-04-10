@@ -380,6 +380,20 @@ Main commands:
   attributed safely and without reverting unrelated changes
 - writes blocker reports and persisted lifecycle state for `helix status`
 
+`helix run` is now a transitional HELIX-owned wrapper around a DDx-owned
+execution substrate. The target contract is:
+
+- `ddx agent execute-loop` owns single-project queue draining, claim/execute/
+  close-with-evidence mechanics
+- `ddx agent execute-bead` owns the bounded single-bead managed execution
+  attempt inside that loop
+- direct `ddx agent run` remains for planning, review, alignment, and other
+  non-managed prompts that should not auto-claim and auto-close beads
+
+As DDx parity hardens, HELIX should stop growing independent claim/execute/close
+logic in the wrapper and instead focus on bead shaping, supervisory routing,
+and interpretation of preserved or blocked outcomes.
+
 ### `--summary` mode
 
 Use `--summary` (or `-s`) when launching `helix run` as a background process
@@ -576,6 +590,22 @@ the digest summarizes.
 `helix measure` verifies concern-declared quality gates as part of its
 acceptance criteria check. Measurement results are recorded on the bead so
 that a closed bead carries its verification evidence.
+
+Execution-ready beads must also carry deterministic success-measurement
+criteria. A bead meant for `ddx agent execute-loop` should name the exact
+commands, checks, files, fields, or ratchets that demonstrate success. Prefer:
+
+- `bash tests/helix-cli.sh` passes and `git diff --check` passes
+- `.ddx/plugins/helix/workflows/EXECUTION.md` names `ddx agent execute-loop` as the queue-drain substrate
+
+Avoid:
+
+- `queue draining works`
+- `docs are aligned`
+
+If a bead cannot be closed from explicit evidence, it is not ready for a
+DDx-managed execution lane and should be refined by `helix polish` or
+`helix triage` before entering the execution queue.
 
 Concern threading is end-to-end: once a concern is introduced in
 `docs/helix/01-frame/concerns.md`, it must propagate through context digests,
