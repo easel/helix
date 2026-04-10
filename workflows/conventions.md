@@ -125,8 +125,7 @@ Each phase directory contains artifacts directly (no `artifacts/` subdirectory):
 ├── README.md
 ├── deployment-checklist.md
 ├── runbook.md
-├── monitoring-setup.md
-└── security-monitoring.md
+└── monitoring-setup.md
 
 06-iterate/
 ├── README.md

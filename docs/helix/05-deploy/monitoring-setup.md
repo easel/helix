@@ -53,3 +53,10 @@ deployment checklist, runbook, or metrics dashboard.
 `metrics-dashboard`. Those artifacts consume or reference observability setup,
 but this document remains the canonical place where deploy-time monitoring
 requirements are made explicit.
+
+The deleted `security-monitoring` artifact stays superseded rather than
+restored. Its surviving intent, security-focused alerts, audit signals,
+escalation paths, and compliance-relevant monitoring, is now part of
+`monitoring-setup`. Restoring a second deploy artifact for the same operational
+surface would reintroduce overlap without adding a distinct prompt or template
+responsibility.
