@@ -3393,13 +3393,38 @@ main() {
       parse_common_flags "$@"
       set -- "${REMAINING_ARGS[@]}"
       local autonomy="medium"
+      local autonomy_seen=0
+      local request=""
       while [[ $# -gt 0 ]]; do
         case "$1" in
-          --autonomy) autonomy="$2"; shift 2 ;;
-          *) break ;;
+          --autonomy)
+            if [[ "$#" -lt 2 || -z "${2:-}" || "${2:0:2}" == "--" ]]; then
+              echo "helix: input requires --autonomy low, medium, or high" >&2
+              exit 1
+            fi
+            if (( autonomy_seen )); then
+              echo "helix: input accepts at most one --autonomy flag" >&2
+              exit 1
+            fi
+            autonomy_seen=1
+            autonomy="$2"
+            shift 2
+            ;;
+          --*)
+            echo "helix: unknown input flag '$1'" >&2
+            exit 1
+            ;;
+          *)
+            if [[ -n "$request" ]]; then
+              echo "helix: input accepts exactly one quoted natural language request" >&2
+              exit 1
+            fi
+            request="$1"
+            shift
+            ;;
         esac
       done
-      exec_wrap input run_input "${1:-}" "$autonomy"
+      exec_wrap input run_input "$request" "$autonomy"
       ;;
     *)
       echo "unknown command: $command" >&2

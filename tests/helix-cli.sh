@@ -574,6 +574,31 @@ MOCK
   rm -rf "$root"
 }
 
+test_input_accepts_request_before_autonomy_flag() {
+  local root
+  root="$(make_workspace)"
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+printf '%s\n' "$*" > "$state_root/input-command.log"
+echo "input complete"
+MOCK
+  chmod +x "$root/bin/codex"
+
+  run_helix_with_env "$root" HELIX_EXEC_CONTEXT 1 input "design a CRM" --autonomy low >/dev/null
+  assert_file_exists "$root/state/input-command.log" "input should dispatch when autonomy follows the request"
+
+  local payload
+  payload="$(cat "$root/state/input-command.log")"
+  assert_contains "$payload" "User request: design a CRM" \
+    "input should preserve the request when autonomy trails it"
+  assert_contains "$payload" "Autonomy level: low" \
+    "input should honor request-first autonomy syntax"
+  rm -rf "$root"
+}
+
 test_input_rejects_invalid_autonomy() {
   local root
   root="$(make_workspace)"
@@ -582,6 +607,22 @@ test_input_rejects_invalid_autonomy() {
   run_helix_with_env "$root" HELIX_EXEC_CONTEXT 1 input --autonomy turbo "design a CRM" >/dev/null 2>&1 || rc=$?
   [[ "$rc" -ne 0 ]] || fail "input should fail for an invalid autonomy level"
   [[ ! -s "$root/state/calls.log" ]] || fail "input should reject invalid autonomy before dispatching to the agent"
+  rm -rf "$root"
+}
+
+test_input_rejects_ambiguous_argument_layout() {
+  local root
+  root="$(make_workspace)"
+
+  local rc=0
+  run_helix_with_env "$root" HELIX_EXEC_CONTEXT 1 input "design a CRM" extra >/dev/null 2>&1 || rc=$?
+  [[ "$rc" -ne 0 ]] || fail "input should reject multiple unquoted request arguments"
+  [[ ! -s "$root/state/calls.log" ]] || fail "input should reject ambiguous input before dispatching to the agent"
+
+  rc=0
+  run_helix_with_env "$root" HELIX_EXEC_CONTEXT 1 input --autonomy medium "design a CRM" --autonomy high >/dev/null 2>&1 || rc=$?
+  [[ "$rc" -ne 0 ]] || fail "input should reject duplicate autonomy flags"
+  [[ ! -s "$root/state/calls.log" ]] || fail "input should reject duplicate autonomy before dispatching to the agent"
   rm -rf "$root"
 }
 
@@ -1919,7 +1960,9 @@ run_test "bead help" test_bead_help
 run_test "check dry-run" test_check_dry_run
 run_test "backfill dry-run" test_backfill_dry_run
 run_test "input dispatches intake action" test_input_dispatches_request_with_intake_action
+run_test "input accepts request before autonomy flag" test_input_accepts_request_before_autonomy_flag
 run_test "input rejects invalid autonomy" test_input_rejects_invalid_autonomy
+run_test "input rejects ambiguous argument layout" test_input_rejects_ambiguous_argument_layout
 run_test "quickstart demo script exists" test_quickstart_demo_script_exists
 run_test "run stops after drain" test_run_stops_after_queue_drains
 run_test "run stops on queue-drain check failure" test_run_stops_on_queue_drain_check_failure
