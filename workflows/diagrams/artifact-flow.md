@@ -284,7 +284,7 @@ graph LR
 ### Feedback Loops
 - Metrics feed back to Requirements
 - Incidents feed back to Security Requirements
-- Lessons Learned feed back to Principles
+- Iteration learnings feed back to Principles
 - Test Results feed back to Design
 
 ## Artifact Storage Structure

@@ -116,6 +116,23 @@ Prioritized iteration follow-up surface:
 - links each candidate to supporting evidence and tracker issues
 - makes the next iteration candidate explicit instead of leaving loose notes
 
+`lessons-learned` remains retired as a standalone HELIX artifact. Its durable
+responsibility is already covered by the current iterate contract:
+
+- `metrics-dashboard` records the iteration-level summary and non-security
+  learnings that changed the decision view
+- `security-metrics` records the security-specific lessons when incidents,
+  vulnerabilities, or compliance findings changed what the cycle taught
+- `improvement-backlog` turns those learnings into prioritized tracker-backed
+  follow-up work and an explicit next-cycle selection
+- upstream canonical docs absorb the durable behavioral change: update the PRD,
+  feature specs, stories, risk registers, or tests when the learning changes
+  future expectations
+
+Reintroducing `lessons-learned` would duplicate the same evidence across a thin
+summary doc plus the artifacts and governing updates that already need to carry
+the real decision.
+
 `feedback-analysis` remains retired as a standalone HELIX artifact. Its useful
 responsibility is already covered by the current iterate contract:
 
@@ -196,7 +213,7 @@ Before proceeding to the next Frame phase, ensure:
 
 ### Learning Extraction
 - [ ] Patterns identified across data sources
-- [ ] Lessons learned documented
+- [ ] Durable learnings threaded into canonical iterate outputs and upstream artifacts
 - [ ] Success factors understood
 - [ ] Failure modes analyzed
 - [ ] Knowledge base updated
@@ -321,7 +338,7 @@ judgment remains responsible for prioritization, tradeoffs, and scheduling.
 
 - **Generated Insights**: `docs/helix/06-iterate/`
   - Completed analyses and reports
-  - Lessons learned documentation
+  - Canonical iterate outputs and linked governing updates
   - Prioritized backlog with explicit next-cycle selection
 
 This separation keeps analysis templates reusable while organizing insights where they're most valuable for the team.

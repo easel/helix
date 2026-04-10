@@ -274,6 +274,8 @@ Security-specific iteration report covering incidents, vulnerabilities, applicat
 
 Prioritized inventory of follow-up work derived from metrics, feedback, incidents, and retrospectives. The tracker holds the executable beads; the backlog is the ranked bridge from iteration learnings to the next planning pass.
 
+`lessons-learned` remains retired as a standalone iterate artifact. Its useful responsibility is already split across the canonical iterate surfaces: `metrics-dashboard` captures the iteration-level synthesis, `security-metrics` captures the security-specific slice, `improvement-backlog` records the prioritized follow-up work, and upstream specs absorb the durable rule changes that should govern future cycles.
+
 ### Alignment Review
 
 `docs/helix/06-iterate/alignment-reviews/AR-*.md`
