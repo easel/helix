@@ -75,15 +75,14 @@ jobs:
             echo "::group::Recording $demo"
             dir=$(mktemp -d)
             cast="website/static/demos/helix-${demo}.cast"
-            if (cd "$dir" && asciinema rec \
+            recorded_cast="${dir}/helix-${demo}.cast"
+            (cd "$dir" && asciinema rec \
               --cols 100 --rows 30 \
               --command "HELIX_DEMO_RECORDING=1 bash ${GITHUB_WORKSPACE}/docs/demos/helix-${demo}/demo.sh" \
-              "/tmp/helix-${demo}.cast" 2>&1); then
-              cp -f "/tmp/helix-${demo}.cast" "$cast"
-              echo "✓ $demo recorded ($(wc -c < "$cast") bytes)"
-            else
-              echo "::warning::$demo demo failed — keeping committed .cast file"
-            fi
+              "$recorded_cast" 2>&1)
+            test -s "$recorded_cast"
+            cp -f "$recorded_cast" "$cast"
+            echo "✓ $demo recorded ($(wc -c < "$cast") bytes)"
             echo "::endgroup::"
           done
 
