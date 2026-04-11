@@ -895,6 +895,58 @@ find_alignment_bead() {
   '
 }
 
+claim_reclaim_status_reason=""
+claim_reclaim_status_pid=""
+claim_reclaim_status_age=0
+
+issue_claim_reclaimable() {
+  local issue_json="$1"
+  local process_pattern="${2:-}"
+  local stale_threshold="${HELIX_ORPHAN_THRESHOLD:-7200}"  # default 2 hours
+  local claimed_at claimed_pid updated claim_epoch=0 now_epoch age=0
+
+  claim_reclaim_status_reason=""
+  claim_reclaim_status_pid="unknown"
+  claim_reclaim_status_age=0
+
+  claimed_at="$(printf '%s' "$issue_json" | ddx jq -r '."claimed-at" // ""' 2>/dev/null)"
+  claimed_pid="$(printf '%s' "$issue_json" | ddx jq -r '."claimed-pid" // ""' 2>/dev/null)"
+  updated="$(printf '%s' "$issue_json" | ddx jq -r '.updated_at // ""' 2>/dev/null)"
+
+  [[ "$claimed_pid" == "null" ]] && claimed_pid=""
+  claim_reclaim_status_pid="${claimed_pid:-unknown}"
+
+  if [[ -n "$process_pattern" ]] && pgrep -f "$process_pattern" >/dev/null 2>&1; then
+    claim_reclaim_status_reason="busy"
+    return 1
+  fi
+
+  if [[ -n "$claimed_pid" ]] && kill -0 "$claimed_pid" 2>/dev/null; then
+    claim_reclaim_status_reason="pid_alive"
+    return 1
+  fi
+
+  if [[ -n "$claimed_at" && "$claimed_at" != "null" ]]; then
+    claim_epoch="$(date -d "$claimed_at" +%s 2>/dev/null || echo 0)"
+  elif [[ -n "$updated" && "$updated" != "null" ]]; then
+    claim_epoch="$(date -d "$updated" +%s 2>/dev/null || echo 0)"
+  fi
+
+  now_epoch="$(date +%s)"
+  if (( claim_epoch > 0 )); then
+    age=$(( now_epoch - claim_epoch ))
+  fi
+  claim_reclaim_status_age="$age"
+
+  if (( claim_epoch > 0 && age < stale_threshold )); then
+    claim_reclaim_status_reason="fresh"
+    return 1
+  fi
+
+  claim_reclaim_status_reason="stale"
+  return 0
+}
+
 ensure_alignment_bead() {
   local scope="${1:-repo}"
   local existing_id active_id spec_id new_id labels
@@ -909,8 +961,23 @@ ensure_alignment_bead() {
 
   active_id="$(find_alignment_bead "$scope" "in_progress")" || return 1
   if [[ -n "$active_id" ]]; then
-    local active_owner
-    active_owner="$(tracker_show "$active_id" --json 2>/dev/null | ddx jq -r '.owner // ""')" || active_owner=""
+    local active_owner active_json active_status
+    active_json="$(tracker_show "$active_id" --json 2>/dev/null || true)"
+    active_status="$(printf '%s' "$active_json" | ddx jq -r '.status // ""' 2>/dev/null)" || active_status=""
+    if [[ "$active_status" != "in_progress" ]]; then
+      ensure_alignment_bead "$scope"
+      return $?
+    fi
+    if issue_claim_reclaimable "$active_json"; then
+      verbose_line "alignment bead %s for %s is orphaned (age=%ss, pid=%s); reclaiming" \
+        "$active_id" "$scope" "$claim_reclaim_status_age" "$claim_reclaim_status_pid"
+      tracker_update "$active_id" --unclaim >/dev/null || return 1
+      tracker_update "$active_id" --claim >/dev/null || return 1
+      refresh_context_digest_for_bead "$active_id"
+      printf '%s\t%s\n' "$active_id" "reclaimed"
+      return 0
+    fi
+    active_owner="$(printf '%s' "$active_json" | ddx jq -r '.owner // ""' 2>/dev/null)" || active_owner=""
     if [[ -n "$active_owner" ]]; then
       summary_line "alignment already active for %s under owner %s (%s); refusing duplicate dispatch" "$scope" "$active_owner" "$active_id"
     else
@@ -2914,51 +2981,37 @@ recover_orphaned_issues() {
 
   local i
   for ((i = 0; i < count; i++)); do
-    local issue_id claimed_at claimed_pid
+    local issue_id issue_json
     issue_id="$(printf '%s' "$in_progress" | ddx jq -r ".[$i].id" 2>/dev/null)"
-    claimed_at="$(printf '%s' "$in_progress" | ddx jq -r ".[$i][\"claimed-at\"] // \"\"" 2>/dev/null)"
-    claimed_pid="$(printf '%s' "$in_progress" | ddx jq -r ".[$i][\"claimed-pid\"] // \"\"" 2>/dev/null)"
+    issue_json="$(tracker_show "$issue_id" --json 2>/dev/null || true)"
+    [[ -n "$issue_json" ]] || continue
 
-    # Skip if another helix process is actively working on this issue
-    if pgrep -f "helix.*implement.*${issue_id}" >/dev/null 2>&1; then
-      verbose_line "issue %s is being worked on by another process, skipping" "$issue_id"
+    if ! issue_claim_reclaimable "$issue_json" "helix.*implement.*${issue_id}"; then
+      case "$claim_reclaim_status_reason" in
+        busy)
+          verbose_line "issue %s is being worked on by another process, skipping" "$issue_id"
+          ;;
+        pid_alive)
+          verbose_line "issue %s claimed by PID %s which is still alive, skipping" "$issue_id" "$claim_reclaim_status_pid"
+          ;;
+        fresh)
+          verbose_line "issue %s claimed %ss ago (threshold %ss), too fresh to reclaim" "$issue_id" "$claim_reclaim_status_age" "$stale_threshold"
+          ;;
+      esac
       continue
     fi
 
-    # Skip if the claiming PID is still alive
-    if [[ -n "$claimed_pid" && "$claimed_pid" != "null" ]] && kill -0 "$claimed_pid" 2>/dev/null; then
-      verbose_line "issue %s claimed by PID %s which is still alive, skipping" "$issue_id" "$claimed_pid"
-      continue
-    fi
-
-    # Determine claim age (use claimed-at if available, fall back to updated)
-    local claim_epoch=0
-    if [[ -n "$claimed_at" && "$claimed_at" != "null" ]]; then
-      claim_epoch="$(date -d "$claimed_at" +%s 2>/dev/null || echo 0)"
-    else
-      local updated
-      updated="$(printf '%s' "$in_progress" | ddx jq -r ".[$i].updated_at // \"\"" 2>/dev/null)"
-      [[ -n "$updated" && "$updated" != "null" ]] && claim_epoch="$(date -d "$updated" +%s 2>/dev/null || echo 0)"
-    fi
-
-    local age=$(( now_epoch - claim_epoch ))
-    if (( claim_epoch > 0 && age < stale_threshold )); then
-      verbose_line "issue %s claimed %ss ago (threshold %ss), too fresh to reclaim" "$issue_id" "$age" "$stale_threshold"
-      continue
-    fi
-
-    # Orphan confirmed: reclaim — but only if still in-progress (it may have
-    # been closed by its agent after the snapshot was taken above).
+    # Orphan confirmed: reclaim — but only if still in-progress.
     local current_orphan_status
-    current_orphan_status="$(tracker_show "$issue_id" --json 2>/dev/null | ddx jq -r '.status // ""')" || current_orphan_status=""
+    current_orphan_status="$(printf '%s' "$issue_json" | ddx jq -r '.status // ""' 2>/dev/null)" || current_orphan_status=""
     if [[ "$current_orphan_status" == "closed" ]]; then
       verbose_line "orphan %s is now closed — skipping reclaim" "$issue_id"
       continue
     fi
     if (( summary )); then
-      summary_line "reclaiming orphaned %s (age=%ss, pid=%s dead)" "$issue_id" "$age" "${claimed_pid:-unknown}"
+      summary_line "reclaiming orphaned %s (age=%ss, pid=%s dead)" "$issue_id" "$claim_reclaim_status_age" "$claim_reclaim_status_pid"
     else
-      printf 'helix: reclaiming orphaned %s (age=%ss, pid=%s dead)\n' "$issue_id" "$age" "${claimed_pid:-unknown}" >&2
+      printf 'helix: reclaiming orphaned %s (age=%ss, pid=%s dead)\n' "$issue_id" "$claim_reclaim_status_age" "$claim_reclaim_status_pid" >&2
     fi
     tracker_update "$issue_id" --unclaim 2>/dev/null || true
     recovered=$((recovered + 1))

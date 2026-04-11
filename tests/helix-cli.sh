@@ -728,22 +728,56 @@ test_align_rejects_in_progress_governing_bead() {
   root="$(make_workspace)"
   local work_dir="$root/work"
   mkdir -p "$work_dir/.ddx"
+  local live_ts
+  live_ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-  printf '%s\n' \
-    '{"id":"hx-align-busy","title":"align: repo","issue_type":"task","status":"in_progress","priority":2,"labels":["helix","phase:review","kind:planning","action:align"],"parent":"","spec-id":"FEAT-005","description":"","design":"","acceptance":"existing align bead","dependencies":[],"owner":"other-operator","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z","claimed-at":"2099-01-01T00:00:00Z","claimed-pid":99999}' \
+  printf '{"id":"hx-align-busy","title":"align: repo","issue_type":"task","status":"in_progress","priority":2,"labels":["helix","phase:review","kind:planning","action:align"],"parent":"","spec-id":"FEAT-005","description":"","design":"","acceptance":"existing align bead","dependencies":[],"owner":"other-operator","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"%s","claimed-at":"%s","claimed-pid":%d}\n' \
+    "$live_ts" "$live_ts" "$$" \
     > "$work_dir/.ddx/beads.jsonl"
 
   local output rc=0
   output="$(run_helix "$root" align repo 2>&1)" || rc=$?
 
   [[ "$rc" -ne 0 ]] || fail "align should fail when the governing bead is already in progress"
-  assert_contains "$output" "alignment already active for repo under owner other-operator" \
-    "align should report the active governing bead owner"
   [[ ! -f "$root/state/calls.log" ]] || fail "align should not dispatch the agent when the governing bead is already in progress"
 
-  local count
+  local count status claimed_pid
   count="$(run_bead "$root" list --json | ddx jq 'length')"
   assert_eq "1" "$count" "align should not create a duplicate governing bead when one is already active"
+  status="$(run_bead "$root" show hx-align-busy --json | ddx jq -r '.status // ""')"
+  claimed_pid="$(run_bead "$root" show hx-align-busy --json | ddx jq -r '."claimed-pid" // ""')"
+  assert_eq "in_progress" "$status" "align should leave a live governing bead claimed when refusing duplicate dispatch"
+  assert_eq "$$" "$claimed_pid" "align should not rewrite live claim metadata when refusing duplicate dispatch"
+  rm -rf "$root"
+}
+
+test_align_reclaims_stale_in_progress_governing_bead() {
+  local root
+  root="$(make_workspace)"
+  local work_dir="$root/work"
+  mkdir -p "$work_dir/.ddx"
+  local stale_ts="2024-01-01T00:00:00Z"
+
+  printf '{"id":"hx-align-stale","title":"align: repo","issue_type":"task","status":"in_progress","priority":2,"labels":["helix","phase:review","kind:planning","action:align"],"parent":"","spec-id":"FEAT-005","description":"","design":"","acceptance":"existing align bead","dependencies":[],"owner":"helix","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2024-01-01T00:00:00Z","updated_at":"2024-01-01T00:00:00Z","claimed-at":"%s","claimed-pid":99999}\n' \
+    "$stale_ts" \
+    > "$work_dir/.ddx/beads.jsonl"
+
+  run_helix "$root" align repo >/dev/null
+
+  assert_file_exists "$root/state/calls.log" "align should dispatch after reclaiming a stale governing bead"
+  assert_file_contains "$root/state/calls.log" "align" "align should run after reclaiming a stale governing bead"
+
+  local count bead_json status claimed_pid claimed_at
+  count="$(run_bead "$root" list --json | ddx jq 'length')"
+  assert_eq "1" "$count" "align should reclaim the stale governing bead instead of creating a duplicate"
+
+  bead_json="$(run_bead "$root" show hx-align-stale --json)"
+  status="$(printf '%s' "$bead_json" | ddx jq -r '.status // ""')"
+  claimed_pid="$(printf '%s' "$bead_json" | ddx jq -r '."claimed-pid" // ""')"
+  claimed_at="$(printf '%s' "$bead_json" | ddx jq -r '."claimed-at" // ""')"
+  assert_eq "in_progress" "$status" "align should leave the reclaimed governing bead claimed for dispatch"
+  [[ "$claimed_pid" != "99999" ]] || fail "align should refresh the stale claim metadata when reclaiming"
+  [[ "$claimed_at" != "$stale_ts" ]] || fail "align should replace the stale claim timestamp when reclaiming"
   rm -rf "$root"
 }
 
@@ -2252,6 +2286,7 @@ run_test "periodic alignment ignores failed attempts" test_run_periodic_alignmen
 run_test "align creates governing bead" test_align_creates_governing_bead_before_prompt
 run_test "align reuses governing bead" test_align_reuses_existing_governing_bead
 run_test "align rejects in-progress governing bead" test_align_rejects_in_progress_governing_bead
+run_test "align reclaims stale in-progress governing bead" test_align_reclaims_stale_in_progress_governing_bead
 run_test "extract NEXT_ACTION from claude output" test_extract_next_action_from_claude_output
 run_test "design dry-run" test_design_dry_run
 run_test "design custom rounds" test_design_custom_rounds
