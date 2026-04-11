@@ -1155,11 +1155,6 @@ managed_build_agent() {
 resolve_execution_target() {
   local selector="${1:-}"
 
-  if [[ -n "$selector" ]] && tracker_show "$selector" --json >/dev/null 2>&1; then
-    printf '%s\n' "$selector"
-    return 0
-  fi
-
   tracker_ready --json --execution | ddx jq -r --arg selector "$selector" '
     if $selector == "" then
       .[0].id // empty

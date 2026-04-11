@@ -1861,6 +1861,23 @@ test_build_dry_run_delegates_to_execute_bead() {
   rm -rf "$root"
 }
 
+test_build_rejects_closed_selector_before_execute_bead() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+
+  local closed_id
+  closed_id="$(run_bead "$root" create "closed issue" --type task --labels helix,phase:build --acceptance "closed selector should be rejected")"
+  run_bead "$root" close "$closed_id" >/dev/null
+
+  local output rc=0
+  output="$(run_helix_with_env "$root" HELIX_EXEC_CONTEXT 1 build "$closed_id" 2>&1)" || rc=$?
+
+  [[ "$rc" -ne 0 ]] || fail "build should fail when the selected bead is closed"
+  [[ ! -f "$root/state/ddx-calls.log" ]] || fail "build should not dispatch execute-bead for a closed selector"
+  rm -rf "$root"
+}
+
 test_run_delegates_build_cycles_to_execute_loop() {
   local root
   root="$(make_workspace)"
@@ -2240,6 +2257,7 @@ run_test "experiment requires clean worktree" test_experiment_requires_clean_wor
 run_test "experiment close dry-run" test_experiment_close_dry_run
 run_test "recovery preserves unrelated dirty changes" test_run_recovery_preserves_unrelated_dirty_changes
 run_test "build dry-run delegates to execute-bead" test_build_dry_run_delegates_to_execute_bead
+run_test "build rejects closed selector before execute-bead" test_build_rejects_closed_selector_before_execute_bead
 run_test "run delegates build cycles to execute-loop" test_run_delegates_build_cycles_to_execute_loop
 # TODO: timeout test hangs in CI — the mock claude sleep subprocess isn't
 # killed reliably through the stdin pipe subshell. Fix the watchdog to
