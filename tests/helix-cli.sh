@@ -499,6 +499,9 @@ test_help() {
   local output
   output="$(run_helix "$root" help)"
   assert_contains "$output" "helix run" "help should list run command"
+  assert_contains "$output" "helix input [--agent <harness>] [--autonomy low|medium|high] \"natural language request\"" "help should advertise input usage"
+  assert_contains "$output" "helix commit [--agent <harness>] [issue-id]" "help should advertise commit usage"
+  assert_contains "$output" "input       Accept sparse intent and shape governed HELIX work" "help should describe input command"
   assert_contains "$output" "--review-every" "help should list review option"
   assert_not_contains "$output" $'\n  tracker ' "help should not list tracker command"
   rm -rf "$root"

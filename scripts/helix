@@ -244,6 +244,7 @@ usage() {
   cat <<EOF
 Usage:
   helix run [--agent <harness>] [--review-every N] [--max-cycles N] [--no-auto-align] [--no-auto-review] [--summary] [--dry-run]
+  helix input [--agent <harness>] [--autonomy low|medium|high] "natural language request"
   helix frame [--agent <harness>] [scope]
   helix build [--agent <harness>] [selector]
   helix check [--agent <harness>] [scope]
@@ -259,6 +260,7 @@ Usage:
   helix review [--agent <harness>] [scope]
   helix experiment [--agent <harness>] [--close] [issue-id|goal]
   helix evolve [--agent <harness>] [--scope S] [--artifact ID] [--from source] "requirement"
+  helix commit [--agent <harness>] [issue-id]
   helix triage "Title" [--type task|epic|bug|chore] [ddx bead create options...]
   ddx bead <command> [args...]
   helix help
@@ -268,6 +270,7 @@ Commands:
   doctor      Check installation health; --fix auto-repairs plugin symlinks and skills
   start       Launch helix run as a background process (PID file written)
   stop        Kill the background helix run cleanly
+  input       Accept sparse intent and shape governed HELIX work
   frame       Create or refine product vision, PRD, and feature specs
   build       Run one bounded implementation pass
   check       Run the bounded HELIX queue-health check
