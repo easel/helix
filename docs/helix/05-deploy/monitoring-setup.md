@@ -25,16 +25,16 @@ deployment checklist, runbook, or metrics dashboard.
 - deployment strategy and rollout plan
 - service architecture and dependency boundaries
 - health-check surfaces and operational invariants
-- runbook escalation paths
+- on-call ownership, routing, and escalation paths
 - security monitoring requirements when alerting or audit signals overlap
 
 ## Minimum Prompt Bar
 
 - Keep the setup service-specific rather than producing a generic observability checklist.
 - Define the metrics, dashboards, logs, traces, and alerts that operators will actually use.
-- Include measurable thresholds, routing, and escalation expectations where they matter.
+- Include measurable thresholds, routing, escalation ownership, and immediate containment actions where they matter.
 - Tie health checks and SLI/SLO signals to deploy readiness and rollback decisions.
-- Link incident response expectations back to the runbook and operator flow.
+- Link incident response expectations to the operator flow, and add runbook references once they exist.
 
 ## Minimum Template Bar
 
