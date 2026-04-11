@@ -126,11 +126,36 @@ HELIX interprets each bead as a governed workspace-state transformation:
 HELIX owns:
 - prompt design
 - prompt engineering strategy
-- stage-specific behavior profiles or "agent personalities" for planning,
-  execution, review, alignment, and other workflow stages
+- stage-authored behavior stance for planning, execution, review, alignment,
+  and related workflow stages
 - bead prompt structure
 - workflow wording and intervention policy
 - execution-document authoring conventions for HELIX artifacts (see [CONTRACT-002](CONTRACT-002-helix-execution-doc-conventions.md))
+
+HELIX does **not** expose stage personalities as a separate first-class
+workflow configuration surface. The simpler contract is:
+
+- HELIX bakes stage stance into the governing action prompt, skill wording, or
+  execution-doc convention for that stage
+- DDx still owns harness/model execution and any concrete model resolution
+- if a stage needs a smarter, cheaper, slower, or faster lane, HELIX may ask
+  for tier or harness constraints, but it must not turn stage stance into
+  concrete model policy
+
+The default HELIX stage stances are:
+
+| Stage family | Stance owned by HELIX | Notes |
+|---|---|---|
+| Planning (`input`, `frame`, `design`, `evolve`, `triage`, `polish`) | exploratory, assumption-surfacing, artifact-authoring | widen context, expose ambiguity, prefer reversible shaping |
+| Managed execution (`build`, `measure`, execution-ready bead work) | contract-following, bounded, anti-feature-creep | implement only the governed slice and prove it deterministically |
+| Review (`review`, fresh-eyes passes) | adversarial, defect-seeking, risk-first | findings first; preserve merge/preserve evidence boundary |
+| Alignment (`align`) | top-down, conservative, drift-seeking | compare lower layers against higher-authority artifacts |
+| Supervisory/mechanical (`check`, `report`, queue steering) | concise, state-oriented, policy-applying | route work without inventing new product behavior |
+
+These stances apply whether HELIX launches work through DDx-managed execution
+or through a direct non-managed prompt such as `ddx agent run` for planning,
+review, or alignment. The stage selects the stance; DDx resolves the execution
+vehicle and concrete model policy.
 
 ## Shared Integration Objects
 
@@ -155,6 +180,7 @@ HELIX decides:
 - what bead should be worked
 - what autonomy behavior should apply
 - what workflow prompt/context to use
+- what stage-authored stance should apply for the selected workflow step
 - when implementation/verification should be dispatched
 - whether to dispatch one bounded attempt with `ddx agent execute-bead` or
   hand a single-project ready queue to `ddx agent execute-loop`

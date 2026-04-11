@@ -239,6 +239,35 @@ handoff is explicit: HELIX owns workflow selection, bead shaping, and result
 interpretation, while DDx owns managed execution, close-with-evidence
 mechanics, and runtime evidence.
 
+#### Stage stance decision
+
+HELIX should keep stage-specific behavior, but **not** as a new first-class
+workflow configuration knob.
+
+Implementation contract:
+
+- keep stage stance in HELIX-owned prompts and workflow wording, not in a
+  separate profile manifest or `--personality`-style CLI flag
+- planning stages (`input`, `frame`, `design`, `evolve`, `triage`, `polish`)
+  use an exploratory, ambiguity-surfacing authoring stance
+- managed execution stages (`build`, `measure`) use a bounded,
+  contract-following stance that resists feature creep
+- review uses an adversarial, findings-first stance
+- alignment uses a top-down drift-audit stance
+- supervisory stages (`check`, `report`) use a concise, state-oriented stance
+
+Boundary rules:
+
+- HELIX may map a stage to abstract execution needs such as smart vs cheap,
+  or to harness-family constraints, but it must not encode concrete model
+  versions as part of the stage stance
+- DDx remains responsible for resolving the actual harness/model policy
+- direct non-managed prompts (`ddx agent run`, direct agent use) should reuse
+  the same HELIX-authored stage stance so behavior stays consistent across
+  managed and unmanaged execution surfaces
+- no new public configuration surface is needed beyond the existing stage
+  entrypoints and any future DDx tier-policy integration
+
 #### Handoff Flow
 
 1. **HELIX prepares execution context**
@@ -277,6 +306,7 @@ Preserved outcomes are execution results, not physics-level conflicts. They stop
 | Autonomy semantics | HELIX | what low/medium/high mean behaviorally |
 | Authority ordering and artifact flow | HELIX | policy over DDx graph primitives |
 | Conflict classification and escalation behavior | HELIX | workflow semantics, not substrate |
+| Stage-authored behavior stance | HELIX | internal workflow posture, not separate model policy |
 | Acceptance and success-measurement authoring | HELIX | beads must be precise enough for automated close decisions |
 | Supervisory routing and prompt strategy | HELIX | decides next action from DDx outcomes |
 

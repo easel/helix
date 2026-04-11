@@ -152,6 +152,23 @@ This section summarizes the canonical boundary defined in [`CONTRACT-001`](../..
 - workflow routing (`helix input`, when to delegate a queue to `execute-loop`, follow-on bead creation)
 - deterministic bead acceptance and success-measurement authoring
 - prompt design and prompt-engineering strategy
+- stage-authored behavior stance for planning, execution, review, alignment, and supervisory steps
+
+HELIX does not need a separate user-facing "personality profile" configuration
+surface to preserve this ownership. The intended contract is simpler:
+
+- stage stance lives in HELIX action prompts, skill wording, and execution-doc conventions
+- DDx still owns harness/model execution plus concrete model resolution
+- HELIX may request stage-appropriate tier or harness constraints, but it must
+  not turn stage stance into duplicated model-version policy
+
+Default stage families:
+
+- planning (`input`, `frame`, `design`, `evolve`, `triage`, `polish`): exploratory, ambiguity-surfacing, artifact-authoring
+- managed execution (`build`, `measure`): bounded, contract-following, anti-feature-creep
+- review: adversarial and risk-first
+- alignment: top-down and drift-seeking
+- supervisory (`check`, `report`): concise, state-oriented, policy-applying
 
 **Handoff contract**: HELIX decides scope, autonomy behavior, queue policy, and
 workflow context; DDx executes either one bounded bead (`execute-bead`) or the
@@ -159,7 +176,8 @@ project queue (`execute-loop`) and returns runtime evidence plus merge/preserve
 outcomes; HELIX interprets preserved, failed, or blocked results to continue,
 escalate, or ask for input. Direct `ddx agent run` remains appropriate for
 planning, review, alignment, and other non-managed prompts that should not
-claim and close beads automatically.
+claim and close beads automatically; those direct prompts should reuse the same
+HELIX-authored stage stance rather than inventing a separate personality lane.
 
 ## Acceptance Criteria
 
