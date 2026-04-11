@@ -21,6 +21,8 @@ ddx bead status          # Check tracker health
 bash tests/helix-cli.sh       # Deterministic HELIX wrapper tests
 bash tests/validate-state-rules.sh # Deterministic state detection contract validation
 bash tests/validate-context-digests.sh # Deterministic context-digest coverage validation
+bash tests/validate-demo-fixtures.sh # Deterministic demo prompt/fixture validation
+bash tests/validate-pages-demo-recording.sh # Deterministic Pages demo-recording workflow validation
 bash tests/validate-skills.sh # Deterministic HELIX skill package validation
 just test                     # Run all tests (CLI + skills)
 helix run                     # Run bounded HELIX execution loop
@@ -335,6 +337,22 @@ context-digest validator:
 - `workflows/actions/reconcile-alignment.md`
 - docs that materially change the FEAT-006 context-digest propagation contract
 
+If you change demo scripts, replay agent fixtures, or demo validation wiring,
+also run the demo-fixture validator:
+
+- `docs/demos/*/demo.sh`
+- `docs/demos/*/agent-dictionary/*.json`
+- `tests/validate-demo-fixtures.sh`
+- `justfile` entries that wire demo validation into shared test lanes
+
+If you change the Pages demo-recording workflow or its deterministic validator,
+also run the Pages demo-recording validator:
+
+- `.github/workflows/pages.yml`
+- `.github/workflows/test.yml`
+- `scripts/record_pages_demos.sh`
+- `tests/validate-pages-demo-recording.sh`
+
 If you change docs that redefine how portable skills and the HELIX workflow
 contract are presented publicly, run both harnesses.
 
@@ -344,6 +362,8 @@ Required checks:
 bash tests/helix-cli.sh
 bash tests/validate-state-rules.sh
 bash tests/validate-context-digests.sh
+bash tests/validate-demo-fixtures.sh
+bash tests/validate-pages-demo-recording.sh
 bash tests/validate-skills.sh
 git diff --check
 ```
