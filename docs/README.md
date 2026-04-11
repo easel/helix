@@ -71,9 +71,11 @@ materials were commonly grouped into broad categories such as
 
 Those names are historical examples, not canonical paths in this repository,
 and this repo does not ship those directories as current `docs/` locations.
-In this repo, governed HELIX artifacts live under `docs/helix/`, shared
-workflow references live under `docs/resources/`, and other repository docs
-live as topic-specific files or directories directly under `docs/`.
+In this repo, governed HELIX artifacts live under `docs/helix/`,
+authoritative shared workflow references live under `workflows/references/`,
+`docs/resources/` contains supporting background material, and other
+repository docs live as topic-specific files or directories directly under
+`docs/`.
 
 ## Naming Conventions
 
