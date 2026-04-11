@@ -77,6 +77,12 @@ Create or update tracker beads for the identified work:
    design doc ID).
 5. Write concrete, locally verifiable acceptance criteria.
 6. Encode blockers with `ddx bead dep add` when one bead must precede another.
+7. After creating a new bead, assemble its `<context-digest>` per
+   `.ddx/plugins/helix/workflows/references/context-digest.md`.
+   - If the repo ships `scripts/refresh_context_digests.py`, use it after bead
+     creation so digest assembly and area labels stay deterministic.
+   - Do not leave HELIX-created open beads without either a digest or an
+     explicit omission rationale when the contract allows omission.
 
 **Autonomy-specific bead creation rules**:
 

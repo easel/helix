@@ -81,9 +81,14 @@ def strip_frontmatter(markdown: str) -> str:
     return remainder or markdown
 
 
-def parse_principles(root: Path) -> list[str]:
+def parse_principles(root: Path, library_root: Path | None = None) -> list[str]:
+    library_root = library_root or root
     project = root / "docs/helix/01-frame/principles.md"
-    source = project if project.exists() and project.stat().st_size else root / "workflows/principles.md"
+    source = (
+        project
+        if project.exists() and project.stat().st_size
+        else library_root / "workflows/principles.md"
+    )
     principles = []
     for line in read_text(source).splitlines():
         if line.startswith("### "):
@@ -153,10 +158,16 @@ def parse_practice_bullets(path: Path) -> list[str]:
     return bullets
 
 
-def build_concern_library(root: Path, active_concerns: list[str], overrides: dict[str, list[str]]) -> dict[str, dict[str, list[str]]]:
+def build_concern_library(
+    root: Path,
+    active_concerns: list[str],
+    overrides: dict[str, list[str]],
+    library_root: Path | None = None,
+) -> dict[str, dict[str, list[str]]]:
+    library_root = library_root or root
     library: dict[str, dict[str, list[str]]] = {}
     for name in active_concerns:
-        concern_dir = root / "workflows" / "concerns" / name
+        concern_dir = library_root / "workflows" / "concerns" / name
         areas = parse_concern_areas(concern_dir / "concern.md") if (concern_dir / "concern.md").exists() else []
         library[name] = {
             "areas": areas,
@@ -168,10 +179,18 @@ def build_concern_library(root: Path, active_concerns: list[str], overrides: dic
 
 
 @lru_cache(maxsize=None)
-def list_markdown_paths(root: Path) -> tuple[Path, ...]:
+def list_markdown_paths(root: Path, library_root: Path | None = None) -> tuple[Path, ...]:
+    library_root = library_root or root
     paths: list[Path] = []
-    for base in ("docs", "workflows"):
-        directory = root / base
+    seen: set[Path] = set()
+    for directory in (
+        root / "docs",
+        root / "workflows",
+        library_root / "workflows",
+    ):
+        if directory in seen:
+            continue
+        seen.add(directory)
         if directory.exists():
             paths.extend(sorted(directory.rglob("*.md")))
     return tuple(paths)
@@ -210,14 +229,15 @@ def extract_markdown_links(markdown: str) -> list[str]:
     return [match.rstrip(".,:;") for match in re.findall(r"\[[^\]]+\]\(([^)]+)\)", markdown)]
 
 
-def resolve_artifact_path(root: Path, spec: str) -> Path | None:
+def resolve_artifact_path(root: Path, spec: str, library_root: Path | None = None) -> Path | None:
+    library_root = library_root or root
     normalized = strip_markdown(spec)
     if not normalized:
         return None
-    direct = root / normalized
-    if direct.exists():
-        return direct
-    for path in list_markdown_paths(root):
+    for direct in (root / normalized, library_root / normalized):
+        if direct.exists():
+            return direct
+    for path in list_markdown_paths(root, library_root):
         text = read_text(path)
         doc_id = extract_doc_id(text)
         if doc_id == normalized:
@@ -307,8 +327,8 @@ def extract_adr_rationale(markdown: str) -> str:
     return choose_best_clause(iter_markdown_clauses(context), "requirements constraints rationale")
 
 
-def summarize_adr(root: Path, ref: str) -> str:
-    path = resolve_artifact_path(root, ref)
+def summarize_adr(root: Path, ref: str, library_root: Path | None = None) -> str:
+    path = resolve_artifact_path(root, ref, library_root)
     if path is None or not path.exists():
         return ""
     markdown = read_text(path)
@@ -353,17 +373,19 @@ def build_adrs(
     labels: list[str],
     matched: list[str],
     library: dict[str, dict[str, list[str]]],
+    library_root: Path | None = None,
 ) -> list[str]:
+    library_root = library_root or root
     refs: list[str] = []
     for name in matched:
-        concern_path = root / "workflows" / "concerns" / name / "concern.md"
+        concern_path = library_root / "workflows" / "concerns" / name / "concern.md"
         if concern_path.exists():
             refs.extend(parse_concern_adr_refs(concern_path))
         refs.extend(parse_override_adr_refs(library[name].get("override_lines", [])))
     refs.extend(secondary_adr_matches(root, item, labels))
     summaries = []
     for ref in OrderedDict.fromkeys(refs):
-        summary = summarize_adr(root, ref)
+        summary = summarize_adr(root, ref, library_root)
         if summary:
             summaries.append(summary)
     return compact(summaries, 3)
@@ -476,11 +498,12 @@ def compact(items: list[str], limit: int) -> list[str]:
     return ordered[:limit]
 
 
-def build_governing(root: Path, item: dict) -> str:
+def build_governing(root: Path, item: dict, library_root: Path | None = None) -> str:
+    library_root = library_root or root
     spec = strip_markdown(str(item.get("spec-id", "")))
     if not spec:
         return strip_markdown(str(item.get("acceptance", "")))
-    path = resolve_artifact_path(root, spec)
+    path = resolve_artifact_path(root, spec, library_root)
     if path is None or not path.exists():
         return spec
 
@@ -510,7 +533,9 @@ def build_digest(
     principles: list[str],
     library: dict[str, dict[str, list[str]]],
     root: Path,
+    library_root: Path | None = None,
 ) -> tuple[str, list[str]]:
+    library_root = library_root or root
     existing_digest, body = split_digest(item.get("description", ""))
     labels = infer_area_labels(item)
     bead_areas = {label.removeprefix("area:") for label in labels}
@@ -519,7 +544,7 @@ def build_digest(
         for name, data in library.items()
         if concern_matches(bead_areas, data["areas"])
     ]
-    adrs = build_adrs(root, item, labels, matched, library)
+    adrs = build_adrs(root, item, labels, matched, library, library_root)
     practices = []
     for name in matched:
         practices.extend(
@@ -546,7 +571,7 @@ def build_digest(
         )
     if adrs:
         digest_lines.append(f"<adrs>{html.escape(' · '.join(adrs), quote=False)}</adrs>")
-    governing = build_governing(root, item)
+    governing = build_governing(root, item, library_root)
     if governing:
         digest_lines.append(f"<governing>{html.escape(governing, quote=False)}</governing>")
     digest_lines.extend(extra_tags)
@@ -578,16 +603,28 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Refresh HELIX bead context digests and area labels.")
     parser.add_argument("--apply", action="store_true", help="Write updates back to the tracker.")
     parser.add_argument("--bead", action="append", default=[], help="Restrict updates to specific bead IDs.")
+    parser.add_argument("--root", help="Project root containing the target tracker and docs.")
+    parser.add_argument(
+        "--library-root",
+        help="HELIX library root containing workflows/ and scripts/ resources.",
+    )
+    parser.add_argument("--tracker", help="Explicit tracker path. Defaults to <root>/.ddx/beads.jsonl.")
     parser.add_argument("--status", default="open", help="Tracker status to target (default: open).")
     args = parser.parse_args()
 
-    root = Path(__file__).resolve().parents[1]
-    tracker = root / ".ddx/beads.jsonl"
-    concerns_doc = read_text(root / "docs/helix/01-frame/concerns.md")
+    root = Path(args.root).resolve() if args.root else Path(__file__).resolve().parents[1]
+    library_root = (
+        Path(args.library_root).resolve()
+        if args.library_root
+        else Path(__file__).resolve().parents[1]
+    )
+    tracker = Path(args.tracker).resolve() if args.tracker else root / ".ddx/beads.jsonl"
+    concerns_path = root / "docs/helix/01-frame/concerns.md"
+    concerns_doc = read_text(concerns_path) if concerns_path.exists() else ""
     active_concerns = parse_active_concerns(concerns_doc)
     overrides = parse_overrides(concerns_doc)
-    principles = parse_principles(root)
-    library = build_concern_library(root, active_concerns, overrides)
+    principles = parse_principles(root, library_root)
+    library = build_concern_library(root, active_concerns, overrides, library_root)
 
     targeted = set(args.bead)
     changed = 0
@@ -599,7 +636,13 @@ def main() -> int:
             continue
         if targeted and item.get("id") not in targeted:
             continue
-        new_description, new_labels = build_digest(item, principles, library, root)
+        new_description, new_labels = build_digest(
+            item,
+            principles,
+            library,
+            root,
+            library_root,
+        )
         old_labels = [label for label in item.get("labels", []) if label.startswith("area:")]
         if new_description == item.get("description", "") and sorted(old_labels) == new_labels:
             continue

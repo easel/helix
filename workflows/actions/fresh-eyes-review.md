@@ -70,6 +70,10 @@ See `.ddx/plugins/helix/workflows/references/bead-first.md` for the full pattern
    Review target: <last-commit|issue-id|file-list>" \
      --acceptance "All review passes complete; findings filed as beads with scope-appropriate area labels; AGENTS.md updated if needed"
    ```
+   Then assemble or refresh the bead's `<context-digest>` per
+   `.ddx/plugins/helix/workflows/references/context-digest.md`. If the repo
+   ships `scripts/refresh_context_digests.py`, use it after creation so the
+   digest and derived `area:*` labels stay deterministic.
 4. Record the bead ID. All review findings are governed by this bead.
 
 ## Pass 1 - Correctness Review
@@ -186,7 +190,7 @@ durable and appear in the ready queue for subsequent execution cycles.
 For each actionable finding, create a tracker issue:
 
 ```bash
-ddx bead create "<category>: <short description>" \
+new_id="$(ddx bead create "<category>: <short description>" \
   --type task \
   --labels helix,phase:build,review-finding,<derived-area-labels> \
   --set spec-id=<governing-artifact-or-file-path> \
@@ -196,7 +200,9 @@ Category: <category>
 Severity: <severity>
 Description: <full description>
 Suggested fix: <suggested fix>" \
-  --acceptance "<deterministic verification criteria for the fix>"
+  --acceptance "<deterministic verification criteria for the fix>")"
+
+python3 scripts/refresh_context_digests.py --apply --bead "$new_id"
 ```
 
 Rules for filing:
@@ -205,6 +211,9 @@ Rules for filing:
 - Use label `review-finding` on every finding issue for queryability
 - Include at least one scope-appropriate `area:*` label on every filed finding
   so concern matching survives re-entry into the queue
+- If the repo ships `scripts/refresh_context_digests.py`, run it after creating
+  the finding bead so the queue entry carries the current `<context-digest>`
+  and any inferred `area:*` labels.
 - Derive `area:*` labels in this priority order:
   1. Preserve `area:*` labels from the reviewed execution bead when the review
      target is an issue or when the governing review bead points back to that

@@ -603,6 +603,20 @@ tracker_exec() {
   fi
 }
 
+refresh_context_digest_for_bead() {
+  local bead_id="$1"
+  local helper="${library_root}/scripts/refresh_context_digests.py"
+
+  [[ -f "$helper" ]] || return 0
+  command -v python3 >/dev/null 2>&1 || return 0
+
+  python3 "$helper" \
+    --apply \
+    --root "$target_root" \
+    --library-root "$library_root" \
+    --bead "$bead_id" >/dev/null
+}
+
 tracker_create() {
   local title="" type="task" labels="" deps="" parent="" spec_id=""
   local description="" design="" acceptance="" priority=2 execution_eligible=""
@@ -668,6 +682,8 @@ tracker_create() {
       ddx bead dep add "$id" "$dep" >/dev/null || return 1
     done
   fi
+
+  refresh_context_digest_for_bead "$id" || return 1
 
   printf '%s\n' "$id"
 }

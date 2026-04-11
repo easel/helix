@@ -37,7 +37,11 @@ If a specific request or autonomy level is given, use: $ARGUMENTS
 3. **Create or update beads** — use `ddx bead create` for new work and
    `ddx bead update <id>` to refine existing items. Set appropriate labels
    (`helix`, `phase:build`, `kind:implementation`, `area:*`) and `spec-id`.
-   For `high` autonomy, label speculative beads `kind:speculative`.
+   For `high` autonomy, label speculative beads `kind:speculative`. After
+   creating a bead, assemble its `<context-digest>` per
+   `.ddx/plugins/helix/workflows/references/context-digest.md`; if the repo
+   ships `scripts/refresh_context_digests.py`, use it instead of hand-editing
+   digest XML.
 
 4. **Detect conflicts** — check for contradictions with higher-authority
    artifacts or duplicate open beads. Report conflicts; on `high` autonomy,

@@ -2011,9 +2011,12 @@ test_triage_passthrough_creates_issue() {
   root="$(make_workspace)"
   local id
   id="$(run_helix "$root" triage "Loose issue")"
+  local description
+  description="$(run_bead "$root" show "$id" --json | ddx jq -r '.description // ""')"
   # DDx derives prefix from repo name or config; accept either hx- (configured)
   # or work- (derived from workspace directory name after DDX_BEAD_PREFIX removal).
   assert_contains "$id" "-" "triage should delegate to ddx bead create and return an ID"
+  assert_contains "$description" "<context-digest>" "triage should assemble a context digest for new beads"
   rm -rf "$root"
 }
 
