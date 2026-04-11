@@ -3829,6 +3829,86 @@ MOCK
   rm -rf "$root"
 }
 
+test_run_syncs_closing_commit_sha_after_tracker_only_measure_close_commit() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+
+  (cd "$root/work" && git config user.email "test@test.com" && git config user.name "Test")
+  mkdir -p "$root/work/src"
+  printf 'base\n' > "$root/work/src/app.txt"
+  (
+    cd "$root/work" &&
+    git add .ddx/beads.jsonl src/app.txt &&
+    git commit -qm "seed"
+  )
+
+  printf 'STOP\n' > "$root/state/next-actions"
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"; tail -n +2 "$file" > "$file.tmp" || true; mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    awk 'BEGIN { for (i = 1; i <= 120; i++) printf "implementation line %03d\n", i }' > src/app.txt
+    git add src/app.txt
+    git commit -qm "hx-mock-0 implementation"
+    git rev-parse HEAD > "$state_root/impl-sha.txt"
+    tmp="$(ddx jq -c '.status = "closed" | .notes = "tracker sync"' .ddx/beads.jsonl)"
+    printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    git add .ddx/beads.jsonl
+    git commit -qm "hx-mock-0: record measure and close bead"
+    echo "implementation complete"
+    ;;
+  *"fresh-eyes review"*)
+    record review
+    printf '%s\n' "$payload" > "$state_root/review-prompt.txt"
+    echo "REVIEW_STATUS: CLEAN"
+    echo "ISSUES_COUNT: 0"
+    ;;
+  *"check action"*)
+    record check
+    printf 'NEXT_ACTION: %s\n' "$(next_action)"
+    ;;
+  *)
+    record other
+    echo "mock"
+    ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  output="$(run_helix "$root" run --no-auto-align 2>&1)" || true
+
+  local impl_sha
+  impl_sha="$(cat "$root/state/impl-sha.txt" 2>/dev/null)"
+  local closing_sha
+  closing_sha="$(run_bead "$root" show hx-mock-0 --json | ddx jq -r '.closing_commit_sha // ""')"
+  local review_prompt
+  review_prompt="$(cat "$root/state/review-prompt.txt" 2>/dev/null)"
+  local head_subject
+  head_subject="$(cd "$root/work" && git log -1 --pretty=%s)"
+  local worktree_status
+  worktree_status="$(cd "$root/work" && git status --short --untracked-files=all | grep -Ev '^\?\? (\.helix-logs/|\.ddx/run-state\.json|\.helix/context\.md)' || true)"
+
+  [[ -n "$impl_sha" ]] || fail "mock implementation should record its commit sha"
+  assert_eq "$impl_sha" "$closing_sha" "run should preserve the implementation sha across tracker-only measure-close commits"
+  assert_contains "$review_prompt" "Review scope: commit:$impl_sha" "review should target the implementation commit after tracker-only close bookkeeping"
+  assert_contains "$head_subject" "hx-mock-0: sync closing_commit_sha" "run should create a tracker sync commit when measure-close bookkeeping drops the implementation sha"
+  assert_not_contains "$output" "skipping review for small change" "review should still inspect the implementation diff after tracker sync"
+  assert_eq "" "$worktree_status" "run should leave a clean worktree after tracker sync"
+  rm -rf "$root"
+}
+
 test_commit_syncs_tracker_close_to_implementation_commit() {
   local root
   root="$(make_workspace)"
@@ -4182,6 +4262,7 @@ run_test "drift on spec-id change skips close" test_drift_on_spec_id_change_skip
 run_test "review CLEAN succeeds" test_review_clean_status_succeeds
 run_test "review ISSUES_FOUND continues loop" test_review_issues_found_continues_loop
 run_test "run review targets closing commit sha after tracker sync commit" test_run_review_targets_closing_commit_sha_after_tracker_sync_commit
+run_test "run syncs closing commit sha after tracker-only measure close commit" test_run_syncs_closing_commit_sha_after_tracker_only_measure_close_commit
 run_test "helix commit syncs closing commit sha to implementation commit" test_commit_syncs_tracker_close_to_implementation_commit
 run_test "helix commit succeeds with external tracker dir" test_commit_succeeds_with_external_tracker_dir
 run_test "cross-model review switches agent" test_cross_model_review_switches_agent

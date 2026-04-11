@@ -2440,9 +2440,101 @@ run_polish() {
   return "$_rc"
 }
 
+issue_commit_subject() {
+  local commit_sha="$1"
+  (cd "$target_root" && git show -s --format=%s "$commit_sha" 2>/dev/null)
+}
+
+is_issue_tracker_bookkeeping_commit() {
+  local issue_id="$1"
+  local subject="$2"
+
+  case "$subject" in
+    "$issue_id close tracker bead" | \
+    "$issue_id: close tracker bead" | \
+    "$issue_id sync closing_commit_sha" | \
+    "$issue_id: sync closing_commit_sha" | \
+    "$issue_id record measure and close bead" | \
+    "$issue_id: record measure and close bead")
+      return 0
+      ;;
+  esac
+
+  return 1
+}
+
+resolve_issue_implementation_commit() {
+  local issue_id="$1"
+  local commit_sha=""
+  local subject=""
+
+  while IFS=$'\t' read -r commit_sha subject; do
+    [[ -n "$commit_sha" ]] || continue
+    if is_issue_tracker_bookkeeping_commit "$issue_id" "$subject"; then
+      continue
+    fi
+    printf '%s\n' "$commit_sha"
+    return 0
+  done < <(
+    cd "$target_root" &&
+      git log \
+        --extended-regexp \
+        --format='%H%x09%s' \
+        --grep "^${issue_id}([ :]|$)" \
+        -n 50 \
+        2>/dev/null
+  )
+
+  return 1
+}
+
+sync_issue_closing_commit_sha() {
+  local issue_id="$1"
+  local issue_json=""
+  local status=""
+  local closing_sha=""
+  local closing_subject=""
+  local target_sha=""
+
+  issue_json="$(tracker_show "$issue_id" --json 2>/dev/null)" || return 1
+  status="$(printf '%s' "$issue_json" | ddx jq -r '.status // ""')" || status=""
+  [[ "$status" == "closed" ]] || return 1
+
+  closing_sha="$(printf '%s' "$issue_json" | ddx jq -r '.closing_commit_sha // ""')" || closing_sha=""
+  if [[ -n "$closing_sha" ]] && (cd "$target_root" && git rev-parse --verify -q "${closing_sha}^{commit}" >/dev/null 2>&1); then
+    closing_subject="$(issue_commit_subject "$closing_sha" || true)"
+    if [[ -n "$closing_subject" ]] && ! is_issue_tracker_bookkeeping_commit "$issue_id" "$closing_subject"; then
+      printf '%s\n' "$closing_sha"
+      return 0
+    fi
+  fi
+
+  target_sha="$(resolve_issue_implementation_commit "$issue_id")" || return 1
+  if [[ "$closing_sha" == "$target_sha" ]]; then
+    printf '%s\n' "$target_sha"
+    return 0
+  fi
+
+  tracker_update "$issue_id" --set "closing_commit_sha=$target_sha" >/dev/null || return 1
+
+  if path_is_within_root "$tracker_file" "$target_root"; then
+    local rel_tracker="${tracker_file#"$target_root"/}"
+    local tracker_msg
+    tracker_msg="$(printf '%s\n\nVerification: ddx bead show %s --json\n' \
+      "${issue_id}: sync closing_commit_sha" \
+      "$issue_id")"
+    (cd "$target_root" && git commit --only -qm "$tracker_msg" -- "$rel_tracker")
+  else
+    verbose_line "synced closing_commit_sha for %s in external tracker" "$issue_id"
+  fi
+
+  printf '%s\n' "$target_sha"
+}
+
 resolve_review_scope_for_issue() {
   local issue_id="$1"
   local closing_sha=""
+  sync_issue_closing_commit_sha "$issue_id" >/dev/null 2>&1 || true
   closing_sha="$(tracker_show "$issue_id" --json 2>/dev/null | ddx jq -r '.closing_commit_sha // ""')" || closing_sha=""
 
   if [[ -z "$closing_sha" ]]; then
@@ -3290,6 +3382,8 @@ run_loop() {
             fi
           fi
         fi
+
+        sync_issue_closing_commit_sha "$selected_issue" >/dev/null 2>&1 || true
 
         # Epic promotion: if the agent decomposed a task into children,
         # promote the parent to an epic so epic focus mode kicks in.
