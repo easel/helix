@@ -17,6 +17,18 @@ auto-alignment, auto-review, and blocker reporting. The CLI is therefore a
 convenience and compatibility surface, not the long-term owner of queue-drain
 mechanics.
 
+After DDx queue-drain adoption, the preferred execution path is:
+
+1. `helix input "<natural language>"` when work still needs HELIX shaping
+2. `ddx agent execute-loop` for execution-ready queue drain
+3. `helix check`, `helix review`, `helix align`, `helix design`, or
+   `helix polish` when HELIX supervision needs to interpret outcomes or route
+   the next bounded planning action
+
+Retained execution wrappers (`helix run`, `helix build`) exist to preserve
+operator convenience and backward compatibility while DDx parity and migration
+land. They must not be documented as a permanent parallel execution substrate.
+
 The CLI provides one command surface for bounded execution (`run`, `build`,
 `check`, `align`, `backfill`), supervisory steering (`status`, `evolve`,
 `design`, `polish`, `review`, `triage`, `experiment`), tracker access
@@ -64,6 +76,34 @@ Command aliases: `implement` → `build`, `plan` → `design`,
 `tracker migrate` → `tracker import`.
 
 ### Execution Model
+
+#### Post-DDx Queue-Drain Boundary
+
+Execution-oriented surfaces fall into three categories:
+
+| Surface | Status | Owner | Guidance |
+|---------|--------|-------|----------|
+| `helix input` | first-class | HELIX | Preferred intake surface when user intent is not yet represented as governed work |
+| `helix check` | first-class | HELIX | Owns queue-health interpretation and `NEXT_ACTION` routing over tracker and DDx outcomes |
+| `helix align` | first-class | HELIX | Retained as a bead-governed planning prompt launcher, not a parallel execution loop |
+| `helix review`, `helix design`, `helix polish`, `helix backfill` | first-class | HELIX | Retained planning/review surfaces that shape or reconcile work without DDx-managed auto-close behavior |
+| `helix run` | compatibility-only | HELIX over DDx | Wrapper for operators who still want one HELIX entrypoint; should delegate queue drain to `ddx agent execute-loop` as parity lands |
+| `helix build` | compatibility-only | HELIX over DDx | Wrapper for one bounded execution pass when operators still want HELIX command ergonomics over `execute-bead` |
+| `helix run`, `helix build` | deprecation candidates | HELIX | Eligible only after DDx exposes the required HELIX-visible routing and evidence hooks without wrapper-owned claim/close logic |
+
+Migration rules:
+
+- New docs, quickstarts, and demo scripts should prefer `helix input` plus
+  `ddx agent execute-loop` for the default execution path.
+- Plugin packaging continues to ship `bin/helix` and the mirrored
+  `helix-<command>` skills, including retained compatibility wrappers, until a
+  separate deprecation decision removes them.
+- Future public HELIX skills should mirror HELIX-owned workflow entrypoints,
+  not DDx substrate commands. DDx-managed surfaces stay documented as DDx
+  commands rather than being reintroduced as HELIX skill names.
+- Compatibility wrappers may remain implemented and installed, but must be
+  labeled as compatibility or migration surfaces rather than canonical queue
+  drain.
 
 - `run` must continue only while true ready work exists, then call `check` when
   the queue drains.
@@ -195,6 +235,10 @@ Command aliases: `implement` → `build`, `plan` → `design`,
   session after the file is created.
 - `bin/helix` is added to PATH by the plugin loader and delegates to
   `scripts/helix` via `${CLAUDE_PLUGIN_ROOT}`.
+- Plugin docs should present `helix input` plus `ddx agent execute-loop` as
+  the default managed-execution path. `helix run` and `helix build` remain
+  available in plugin mode as retained compatibility wrappers, not as the
+  preferred long-term queue-drain contract.
 
 #### Legacy: Symlink installer
 
@@ -229,6 +273,12 @@ Command aliases: `implement` → `build`, `plan` → `design`,
 - Running `helix run` and related docs make clear that HELIX CLI execution
   surfaces are convenience wrappers over DDx-managed execution rather than a
   permanent parallel substrate.
+- Governing docs explicitly classify execution-oriented HELIX surfaces into
+  first-class workflow entrypoints, compatibility-only wrappers, and
+  deprecation candidates after DDx queue-drain adoption.
+- Plugin-mode usage, skill naming, and demo guidance all prefer
+  `helix input` plus `ddx agent execute-loop` as the default execution path,
+  while retaining `helix run` / `helix build` only as compatibility surfaces.
 - Running `helix run` does not attempt implementation after `WAIT`.
 - Running `helix run` stops and surfaces the exact backfill command after
   `BACKFILL`.

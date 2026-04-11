@@ -116,10 +116,11 @@ synthesis (a bead can pull in its full governance chain).
 
 A developer opens their terminal with a backlog of work tracked in the repo.
 Sometimes they talk directly to an agent and let it create or refine beads.
-Sometimes they use a named HELIX entrypoint such as `helix input` or
-`helix run`. In either case, the durable execution lane is the same: HELIX
-shapes workflow context and bead policy, while DDx drains execution-ready work
-through `ddx agent execute-loop` and bounded attempts through
+Sometimes they use a named HELIX entrypoint such as `helix input`,
+`helix check`, or a retained compatibility wrapper like `helix run`. In either
+case, the durable execution lane is the same: HELIX shapes workflow context
+and bead policy, while DDx drains execution-ready work through
+`ddx agent execute-loop` and bounded attempts through
 `ddx agent execute-bead`. DDx lands or preserves the attempt with evidence;
 HELIX interprets the outcome, verifies it against acceptance criteria, and
 decides what happens next. When one slice finishes, the system advances to the
@@ -127,6 +128,12 @@ next. The developer checks in periodically — reviewing diffs, approving gates,
 making product calls when HELIX surfaces a genuine ambiguity. The mental model
 is an autopilot you can always grab the wheel from, not a command wrapper you
 must drive manually at every step.
+
+For new quickstarts, plugin docs, and demos, the preferred public path is
+`helix input` plus `ddx agent execute-loop`. Retained HELIX execution wrappers
+such as `helix run` and `helix build` remain available only where they still
+add supervisory compatibility or operator convenience; they are not the
+product vision's steady-state queue-drain substrate.
 
 ## Target Market
 

@@ -251,15 +251,20 @@ helix_ready_count() {
 
 ## Manual Loop
 
-This is the minimal safe operator loop:
+This is the canonical operator path once work is execution-ready:
 
 ```bash
 while [ "$(helix_ready_count)" -gt 0 ]; do
-  helix build
+  ddx agent execute-loop --once
 done
 
 helix check
 ```
+
+`helix run` and `helix build` may still be used as compatibility wrappers when
+an operator wants HELIX to provide transitional routing or wrapper ergonomics,
+but the durable queue-drain primitive is `ddx agent execute-loop`, not an
+independent HELIX-owned claim/execute/close loop.
 
 Interpret `check` as follows:
 
@@ -282,7 +287,7 @@ Interpret `check` as follows:
 - `NEXT_ACTION: STOP`
   No actionable work remains for the current scope.
 
-`helix run` is a bounded controller, not a repair loop.
+`helix run` is a bounded compatibility controller, not a repair loop.
 
 - It counts only completed build passes toward `--max-cycles`.
 - It may dispatch `helix design` or `helix polish` before build when
@@ -402,6 +407,31 @@ execution substrate. The target contract is:
 As DDx parity hardens, HELIX should stop growing independent claim/execute/close
 logic in the wrapper and instead focus on bead shaping, supervisory routing,
 and interpretation of preserved or blocked outcomes.
+
+### Command Boundary
+
+After DDx queue-drain adoption, execution-oriented surfaces should be treated
+as follows:
+
+| Surface | Status | Intended use |
+|---------|--------|--------------|
+| `helix input` | first-class | Shape sparse intent into governed work before execution begins |
+| `helix check` | first-class | Interpret queue state and DDx outcomes to choose the next bounded HELIX action |
+| `helix align` | first-class | Launch bead-governed alignment planning work, not queue-drain execution |
+| `helix review`, `helix design`, `helix polish`, `helix backfill` | first-class | Retained HELIX planning/review/reconciliation entrypoints |
+| `helix run` | compatibility-only | Transitional wrapper over DDx queue drain plus HELIX supervisory policy |
+| `helix build` | compatibility-only | Transitional wrapper for one bounded managed execution pass |
+| `helix run`, `helix build` | deprecation candidates | Remove only after DDx parity covers the HELIX-visible routing and evidence contract |
+
+Migration guidance:
+
+- Prefer `helix input` plus `ddx agent execute-loop` in new docs, quickstarts,
+  and demo recordings.
+- Keep public skill names aligned only with retained HELIX command surfaces;
+  do not introduce `helix-*` aliases for DDx substrate commands.
+- Plugin packaging may continue shipping retained compatibility wrappers, but
+  their docs should present them as wrappers over DDx, not as the canonical
+  queue-drain substrate.
 
 ### `--summary` mode
 

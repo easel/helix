@@ -67,8 +67,10 @@ commands, not in the portable skill packaging layer.
 ### Execution Commands
 
 ```bash
+helix input "natural language request"
 ddx agent execute-loop
 ddx agent execute-loop --once
+ddx agent execute-bead hx-abc123
 helix run
 helix build
 helix build hx-abc123
@@ -80,9 +82,17 @@ helix evolve "requirement description"
 helix triage "Issue title" --type task
 ```
 
+Preferred default path:
+
+1. `helix input "..."` for sparse intent or missing bead shaping
+2. `ddx agent execute-loop` for execution-ready queue drain
+3. `helix check`, `helix review`, `helix align`, `helix design`, or
+   `helix polish` when HELIX must interpret or route the next action
+
 `ddx agent execute-loop` is the primary queue-drain command for
-execution-ready beads. `helix run` remains a convenience surface where HELIX
-still adds supervisory policy or compatibility value.
+execution-ready beads. `helix run` and `helix build` remain compatibility
+surfaces where HELIX still adds supervisory policy or operator convenience.
+New quickstarts and demos should prefer the default path above.
 
 ### Planning and Quality Commands
 
