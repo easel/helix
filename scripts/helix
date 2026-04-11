@@ -1221,6 +1221,17 @@ managed_build_agent() {
   printf '%s' "$exec_agent"
 }
 
+managed_build_model_override() {
+  local exec_agent="${1:-}"
+
+  # Keep an explicit model override only when managed execution stays on the
+  # configured primary harness. This avoids leaking codex/claude-specific
+  # concrete model names across adversarial rotation boundaries.
+  if [[ -n "${agent_model:-}" ]] && [[ -z "$exec_agent" || "$exec_agent" == "$agent" ]]; then
+    printf '%s' "$agent_model"
+  fi
+}
+
 resolve_execution_target() {
   local selector="${1:-}"
 
@@ -1249,7 +1260,7 @@ run_execute_bead() {
 
   exec_agent="$(managed_build_agent)"
   ddx_harness="$(_resolve_ddx_dispatch_harness "$exec_agent")"
-  model_override="${agent_model:-}"
+  model_override="$(managed_build_model_override "$exec_agent")"
   effort_override="${agent_effort:-medium}"
 
   [[ -n "$ddx_harness" ]] && ddx_flags+=(--harness "$ddx_harness")
@@ -1282,7 +1293,7 @@ run_execute_loop_once() {
 
   exec_agent="$(managed_build_agent)"
   ddx_harness="$(_resolve_ddx_dispatch_harness "$exec_agent")"
-  model_override="${agent_model:-}"
+  model_override="$(managed_build_model_override "$exec_agent")"
   effort_override="${agent_effort:-medium}"
 
   [[ -n "$ddx_harness" ]] && ddx_flags+=(--harness "$ddx_harness")

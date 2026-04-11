@@ -1966,6 +1966,63 @@ test_build_dry_run_delegates_to_execute_bead() {
   rm -rf "$root"
 }
 
+test_build_dry_run_suppresses_model_on_alternate_harness() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+
+  local output
+  output="$(
+    cd "$root/work"
+    HOME="$root/home" \
+    PATH="$root/bin:$PATH" \
+    MOCK_STATE_ROOT="$root/state" \
+    HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+    HELIX_FORCE_EPHEMERAL=1 \
+    HELIX_REVIEW_AGENT="codex" \
+    HELIX_AGENT="codex" \
+    HELIX_ALT_AGENT="claude" \
+    HELIX_MODEL="gpt-5.4" \
+    HELIX_DIRECT_AGENT=1 \
+    HELIX_AUTO_ALIGN=0 \
+    DDX_BEAD_DIR="$root/work/.ddx" \
+    DDX_DISABLE_UPDATE_CHECK=1 \
+    bash "$repo_root/scripts/helix" build --quiet --dry-run 2>&1
+  )"
+
+  assert_contains "$output" "ddx agent execute-bead hx-mock-0 --harness claude" "build dry-run should rotate to the alternate harness when configured"
+  assert_not_contains "$output" " --model " "build dry-run should not leak a primary-harness model override onto the alternate harness"
+  rm -rf "$root"
+}
+
+test_build_dry_run_keeps_model_on_primary_harness() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+
+  local output
+  output="$(
+    cd "$root/work"
+    HOME="$root/home" \
+    PATH="$root/bin:$PATH" \
+    MOCK_STATE_ROOT="$root/state" \
+    HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+    HELIX_FORCE_EPHEMERAL=1 \
+    HELIX_REVIEW_AGENT="codex" \
+    HELIX_AGENT="codex" \
+    HELIX_ALT_AGENT="none" \
+    HELIX_MODEL="gpt-5.4" \
+    HELIX_DIRECT_AGENT=1 \
+    HELIX_AUTO_ALIGN=0 \
+    DDX_BEAD_DIR="$root/work/.ddx" \
+    DDX_DISABLE_UPDATE_CHECK=1 \
+    bash "$repo_root/scripts/helix" build --quiet --dry-run 2>&1
+  )"
+
+  assert_contains "$output" "--model gpt-5.4" "build dry-run should preserve an explicit model override when execution stays on the primary harness"
+  rm -rf "$root"
+}
+
 test_build_dry_run_rejects_closed_selector_before_execute_bead() {
   local root
   root="$(make_workspace)"
@@ -2398,6 +2455,8 @@ run_test "experiment requires clean worktree" test_experiment_requires_clean_wor
 run_test "experiment close dry-run" test_experiment_close_dry_run
 run_test "recovery preserves unrelated dirty changes" test_run_recovery_preserves_unrelated_dirty_changes
 run_test "build dry-run delegates to execute-bead" test_build_dry_run_delegates_to_execute_bead
+run_test "build dry-run suppresses model on alternate harness" test_build_dry_run_suppresses_model_on_alternate_harness
+run_test "build dry-run keeps model on primary harness" test_build_dry_run_keeps_model_on_primary_harness
 run_test "build dry-run rejects closed selector before execute-bead" test_build_dry_run_rejects_closed_selector_before_execute_bead
 run_test "build rejects closed selector before execute-bead" test_build_rejects_closed_selector_before_execute_bead
 run_test "run delegates build cycles to execute-loop" test_run_delegates_build_cycles_to_execute_loop
@@ -3155,6 +3214,36 @@ test_run_dry_run_uses_execute_loop_for_area_labeled_queue() {
   rm -rf "$root"
 }
 
+test_run_dry_run_suppresses_model_on_alternate_harness() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+  printf 'STOP\n' > "$root/state/next-actions"
+
+  local output
+  output="$(
+    cd "$root/work"
+    HOME="$root/home" \
+    PATH="$root/bin:$PATH" \
+    MOCK_STATE_ROOT="$root/state" \
+    HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+    HELIX_FORCE_EPHEMERAL=1 \
+    HELIX_REVIEW_AGENT="codex" \
+    HELIX_AGENT="codex" \
+    HELIX_ALT_AGENT="claude" \
+    HELIX_MODEL="gpt-5.4" \
+    HELIX_DIRECT_AGENT=1 \
+    HELIX_AUTO_ALIGN=0 \
+    DDX_BEAD_DIR="$root/work/.ddx" \
+    DDX_DISABLE_UPDATE_CHECK=1 \
+    bash "$repo_root/scripts/helix" run --quiet --dry-run --no-auto-review --no-auto-align --max-cycles 1 2>&1
+  )" || true
+
+  assert_contains "$output" "ddx agent execute-loop --once --harness claude" "run dry-run should rotate the bounded build cycle to the alternate harness when configured"
+  assert_not_contains "$output" " --model " "run dry-run should not leak a primary-harness model override onto the alternate harness"
+  rm -rf "$root"
+}
+
 # --- Revalidation / queue drift ---
 
 test_drift_on_parent_change_skips_close() {
@@ -3526,6 +3615,7 @@ run_test "context generated at run start" test_context_generated_at_run_start
 run_test "context contains issue counts" test_context_contains_issue_counts
 run_test "epic focus selects children" test_epic_focus_selects_children
 run_test "run dry-run uses execute-loop for area-labeled queue" test_run_dry_run_uses_execute_loop_for_area_labeled_queue
+run_test "run dry-run suppresses model on alternate harness" test_run_dry_run_suppresses_model_on_alternate_harness
 run_test "drift on parent change skips close" test_drift_on_parent_change_skips_close
 run_test "acceptance failure filed as issue" test_acceptance_failure_filed_as_issue
 run_test "backoff delay formula" test_backoff_delay_formula
