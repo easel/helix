@@ -20,6 +20,7 @@ ddx bead close <id>      # Complete work
 ddx bead status          # Check tracker health
 bash tests/helix-cli.sh       # Deterministic HELIX wrapper tests
 bash tests/validate-state-rules.sh # Deterministic state detection contract validation
+bash tests/validate-context-digests.sh # Deterministic context-digest coverage validation
 bash tests/validate-skills.sh # Deterministic HELIX skill package validation
 just test                     # Run all tests (CLI + skills)
 helix run                     # Run bounded HELIX execution loop
@@ -86,6 +87,10 @@ ddx bead close hx-old
   `lefthook run pre-commit` before pushing (Phase 8 in implementation.md).
 - **Skill YAML front matter** — quote values containing colons or pipes,
   otherwise codex's skill loader silently rejects them.
+- **`asciinema rec` masks child failures** — the recorder can exit `0` and
+  write a non-empty `.cast` even when the wrapped demo command fails. Pages
+  or demo validation must capture and assert the child exit status explicitly;
+  checking only the recorder exit code or `test -s` on the cast is not enough.
 - **Stale in-progress claims** — after a crashed run, unclaim manually:
   `ddx bead list --status in_progress --json | ddx jq -r '.[].id'`
   then `ddx bead update <id> --status open --assignee ""`
@@ -319,6 +324,17 @@ validator:
 - `.agents/skills`
 - docs that change the HELIX skill packaging contract
 
+If you change context-digest assembly or validation behavior, also run the
+context-digest validator:
+
+- `scripts/refresh_context_digests.py`
+- `scripts/validate_context_digests.py`
+- `workflows/references/context-digest.md`
+- `workflows/actions/input.md`
+- `workflows/actions/fresh-eyes-review.md`
+- `workflows/actions/reconcile-alignment.md`
+- docs that materially change the FEAT-006 context-digest propagation contract
+
 If you change docs that redefine how portable skills and the HELIX workflow
 contract are presented publicly, run both harnesses.
 
@@ -327,6 +343,7 @@ Required checks:
 ```bash
 bash tests/helix-cli.sh
 bash tests/validate-state-rules.sh
+bash tests/validate-context-digests.sh
 bash tests/validate-skills.sh
 git diff --check
 ```
