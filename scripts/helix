@@ -328,6 +328,12 @@ Logs:
   in the project root. All stderr output is captured for post-hoc inspection.
 
 Notes:
+  \`helix run\` remains a compatibility wrapper for supervisory routing, but
+  build cycles delegate to \`ddx agent execute-loop --once\` when that DDx
+  surface is available.
+  \`helix build\` remains a compatibility wrapper for one bounded pass and
+  delegates to \`ddx agent execute-bead\` after resolving a matching ready bead
+  when that DDx surface is available.
   Codex runs as \`codex --dangerously-bypass-approvals-and-sandbox exec\`.
   Any harness listed by \`ddx agent list\` can be passed to --agent.
   \`ddx-agent\`, \`embedded\`, and legacy \`forge\` are resolved against the live DDx embedded harness name.
@@ -1003,6 +1009,108 @@ exec_wrap() {
   fi
 }
 # ----------------------------------------------------------
+
+ddx_managed_execution_available() {
+  command -v ddx >/dev/null 2>&1 || return 1
+  ddx agent execute-bead --help >/dev/null 2>&1 || return 1
+  ddx agent execute-loop --help >/dev/null 2>&1 || return 1
+  return 0
+}
+
+managed_build_agent() {
+  local exec_agent="$agent"
+  if [[ -n "$alt_agent" ]] && [[ "$alt_agent" != "$agent" ]]; then
+    exec_agent="$alt_agent"
+  fi
+  printf '%s' "$exec_agent"
+}
+
+resolve_execution_target() {
+  local selector="${1:-}"
+
+  if [[ -n "$selector" ]] && tracker_show "$selector" --json >/dev/null 2>&1; then
+    printf '%s\n' "$selector"
+    return 0
+  fi
+
+  tracker_ready --json --execution | ddx jq -r --arg selector "$selector" '
+    if $selector == "" then
+      .[0].id // empty
+    else
+      [
+        .[] |
+        select(
+          .id == $selector or
+          (.parent // "") == $selector or
+          (.["spec-id"] // "") == $selector or
+          ((.labels // []) | index($selector)) or
+          ((.title // "") | contains($selector))
+        )
+      ][0].id // empty
+    end
+  '
+}
+
+run_execute_bead() {
+  local issue_id="${1:-}"
+  local exec_agent ddx_harness model_override effort_override
+  local -a ddx_flags=()
+
+  exec_agent="$(managed_build_agent)"
+  ddx_harness="$(_resolve_ddx_dispatch_harness "$exec_agent")"
+  model_override="$(resolve_model cheap)"
+  effort_override="${agent_effort:-medium}"
+
+  [[ -n "$ddx_harness" ]] && ddx_flags+=(--harness "$ddx_harness")
+  [[ -n "$model_override" ]] && ddx_flags+=(--model "$model_override")
+  [[ -n "$effort_override" ]] && ddx_flags+=(--effort "$effort_override")
+
+  if (( dry_run )); then
+    printf 'ddx agent execute-bead %s' "${issue_id:-<ready-bead>}"
+    local flag
+    for flag in "${ddx_flags[@]}"; do
+      printf ' %q' "$flag"
+    done
+    printf '\n'
+    return 0
+  fi
+
+  if [[ -z "$issue_id" ]]; then
+    echo "helix: no execution-ready bead matched the build selector" >&2
+    return 1
+  fi
+
+  verbose_line "delegating helix build to ddx agent execute-bead for %s" "$issue_id"
+  env HELIX_SELECTED_ISSUE="$issue_id" ddx agent execute-bead "$issue_id" "${ddx_flags[@]}"
+}
+
+run_execute_loop_once() {
+  local selected_issue="${1:-}"
+  local exec_agent ddx_harness model_override effort_override
+  local -a ddx_flags=(--once)
+
+  exec_agent="$(managed_build_agent)"
+  ddx_harness="$(_resolve_ddx_dispatch_harness "$exec_agent")"
+  model_override="$(resolve_model cheap)"
+  effort_override="${agent_effort:-medium}"
+
+  [[ -n "$ddx_harness" ]] && ddx_flags+=(--harness "$ddx_harness")
+  [[ -n "$model_override" ]] && ddx_flags+=(--model "$model_override")
+  [[ -n "$effort_override" ]] && ddx_flags+=(--effort "$effort_override")
+
+  if (( dry_run )); then
+    printf 'ddx agent execute-loop'
+    local flag
+    for flag in "${ddx_flags[@]}"; do
+      printf ' %q' "$flag"
+    done
+    printf '\n'
+    return 0
+  fi
+
+  verbose_line "delegating helix run build cycle to ddx agent execute-loop --once"
+  env HELIX_SELECTED_ISSUE="$selected_issue" ddx agent execute-loop "${ddx_flags[@]}"
+}
 
 tracker_dispatch() {
   local subcmd="${1:-}"
@@ -2015,6 +2123,16 @@ run_implementation() {
   if (( ! dry_run )); then
     require_tracker
   fi
+  if ddx_managed_execution_available; then
+    local issue_id=""
+    if [[ -n "$selector" ]]; then
+      issue_id="$(resolve_execution_target "$selector")" || return 1
+    elif tracker_ready --json --execution >/dev/null 2>&1; then
+      issue_id="$(resolve_execution_target "" 2>/dev/null || true)"
+    fi
+    run_execute_bead "$issue_id"
+    return $?
+  fi
   # Build is mechanical — use alternate agent with cheap model
   local _saved_agent=""
   if [[ -n "$alt_agent" ]] && [[ "$alt_agent" != "$agent" ]]; then
@@ -2929,11 +3047,17 @@ run_loop() {
         sleep "${HELIX_BACKOFF_SLEEP:-$delay}"
       fi
 
-      # Batch related issues for token efficiency
-      local batch_issues
-      batch_issues="$(helix_select_batch "$selected_issue" 3 "$skip_json")"
-      local batch_count
-      batch_count="$(printf '%s\n' "$batch_issues" | wc -l)"
+      local managed_execution=0
+      local batch_issues="$selected_issue"
+      local batch_count=1
+      if ddx_managed_execution_available; then
+        managed_execution=1
+      else
+        # Batch related issues for token efficiency when HELIX still owns
+        # the implementation dispatch path.
+        batch_issues="$(helix_select_batch "$selected_issue" 3 "$skip_json")"
+        batch_count="$(printf '%s\n' "$batch_issues" | wc -l)"
+      fi
 
       local _cycle_start
       _cycle_start="$(date +%s)"
@@ -2957,7 +3081,9 @@ run_loop() {
       fi
       attempted_cycles=$((attempted_cycles + 1))
       local _impl_cmd
-      if (( batch_count > 1 )); then
+      if (( managed_execution )); then
+        _impl_cmd="run_execute_loop_once \"$selected_issue\""
+      elif (( batch_count > 1 )); then
         _impl_cmd="run_batch_implementation \"$batch_issues\""
       else
         _impl_cmd="run_implementation \"$selected_issue\""

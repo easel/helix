@@ -79,6 +79,8 @@ assert_fails() {
 
 make_mock_bin() {
   local root="$1"
+  local real_ddx
+  real_ddx="$(type -P ddx)"
   mkdir -p "$root/bin" "$root/state"
 
   cat >"$root/bin/codex" <<'EOF'
@@ -354,7 +356,93 @@ fi
 printf '%s\n' "${MOCK_BR_LIST_JSON:-[]}"
 EOF
 
-  chmod +x "$root/bin/codex" "$root/bin/claude" "$root/bin/bd" "$root/bin/br"
+  cat >"$root/bin/ddx" <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+
+real_ddx="$real_ddx"
+state_root="\${MOCK_STATE_ROOT:-}"
+
+record_execute() {
+  [[ -n "\$state_root" ]] || return 0
+  printf '%s\n' "\$1" >> "\$state_root/ddx-calls.log"
+}
+
+pick_issue() {
+  if [[ -n "\${HELIX_SELECTED_ISSUE:-}" ]] && "\$real_ddx" bead show "\$HELIX_SELECTED_ISSUE" --json >/dev/null 2>&1; then
+    printf '%s\n' "\$HELIX_SELECTED_ISSUE"
+    return 0
+  fi
+  "\$real_ddx" bead ready --json --execution 2>/dev/null | "\$real_ddx" jq -r '.[0].id // empty'
+}
+
+dispatch_managed_execution() {
+  local harness="\$1"
+  local issue_id="\$2"
+  case "\$harness" in
+    claude)
+      claude -p --dangerously-skip-permissions --no-session-persistence \
+        "implementation action" "Implementation target: \$issue_id"
+      ;;
+    *)
+      codex exec --dangerously-bypass-approvals-and-sandbox \
+        "implementation action" "Implementation target: \$issue_id"
+      ;;
+  esac
+}
+
+if [[ "\${1:-} \${2:-}" == "agent execute-loop" ]]; then
+  if [[ " \$* " == *" --help "* ]]; then
+    exec "\$real_ddx" "\$@"
+  fi
+  shift 2
+  harness="codex"
+  json_mode=0
+  while [[ \$# -gt 0 ]]; do
+    case "\$1" in
+      --harness) harness="\$2"; shift 2 ;;
+      --json) json_mode=1; shift ;;
+      --once) shift ;;
+      --model|--effort|--from|--poll-interval) shift 2 ;;
+      *) shift ;;
+    esac
+  done
+  issue_id="\$(pick_issue)"
+  record_execute "execute-loop \${issue_id:-none}"
+  if [[ -z "\$issue_id" ]]; then
+    (( json_mode )) && printf '{"processed":0}\n'
+    exit 0
+  fi
+  dispatch_managed_execution "\$harness" "\$issue_id"
+  exit \$?
+fi
+
+if [[ "\${1:-} \${2:-}" == "agent execute-bead" ]]; then
+  if [[ " \$* " == *" --help "* ]]; then
+    exec "\$real_ddx" "\$@"
+  fi
+  shift 2
+  issue_id="\${1:-}"
+  shift || true
+  harness="codex"
+  while [[ \$# -gt 0 ]]; do
+    case "\$1" in
+      --harness) harness="\$2"; shift 2 ;;
+      --json) shift ;;
+      --model|--effort|--from|--prompt) shift 2 ;;
+      --no-merge) shift ;;
+      *) shift ;;
+    esac
+  done
+  record_execute "execute-bead \$issue_id"
+  dispatch_managed_execution "\$harness" "\$issue_id"
+  exit \$?
+fi
+
+exec "\$real_ddx" "\$@"
+EOF
+
+  chmod +x "$root/bin/codex" "$root/bin/claude" "$root/bin/bd" "$root/bin/br" "$root/bin/ddx"
 }
 
 make_workspace() {
@@ -502,6 +590,8 @@ test_help() {
   assert_contains "$output" "helix input [--agent <harness>] [--autonomy low|medium|high] \"natural language request\"" "help should advertise input usage"
   assert_contains "$output" "helix commit [--agent <harness>] [issue-id]" "help should advertise commit usage"
   assert_contains "$output" "input       Accept sparse intent and shape governed HELIX work" "help should describe input command"
+  assert_contains "$output" "\`helix run\` remains a compatibility wrapper for supervisory routing" "help should document the run compatibility boundary"
+  assert_contains "$output" "\`helix build\` remains a compatibility wrapper for one bounded pass" "help should document the build compatibility boundary"
   assert_contains "$output" "--review-every" "help should list review option"
   assert_not_contains "$output" $'\n  tracker ' "help should not list tracker command"
   rm -rf "$root"
@@ -1708,14 +1798,56 @@ test_claude_agent_timeout_kills_process() {
   rm -rf "$root"
 }
 
-test_build_prompt_references_tracker() {
+test_build_dry_run_delegates_to_execute_bead() {
   local root
   root="$(make_workspace)"
+  seed_tracker "$root" 1
   local output
   output="$(run_helix "$root" build --dry-run)"
-  assert_contains "$output" "ddx bead" "build prompt should reference ddx bead"
-  assert_contains "$output" "issues.jsonl" "build prompt should reference JSONL file"
-  assert_contains "$output" "re-read the selected issue immediately before claim and immediately before close" "build prompt should require pre-claim and pre-close revalidation"
+  assert_contains "$output" "ddx agent execute-bead hx-mock-0" "build dry-run should delegate to execute-bead for the resolved ready bead"
+  rm -rf "$root"
+}
+
+test_run_delegates_build_cycles_to_execute_loop() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+  printf 'STOP\n' > "$root/state/next-actions"
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"
+  tail -n +2 "$file" > "$file.tmp" || true
+  mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*"Implementation target: hx-mock-0"*)
+    record implement
+    tmp="$(ddx jq -c 'if .id == "hx-mock-0" then .status = "closed" else . end' .ddx/beads.jsonl)"
+    printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    echo "implementation complete"
+    ;;
+  *"check action"*)
+    record check
+    printf 'NEXT_ACTION: %s\n' "$(next_action)"
+    ;;
+  *) record other; echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  run_helix "$root" run --no-auto-review --no-auto-align >/dev/null
+
+  local ddx_calls
+  ddx_calls="$(cat "$root/state/ddx-calls.log")"
+  assert_eq "execute-loop hx-mock-0" "$ddx_calls" "run should delegate the bounded build cycle to execute-loop"
   rm -rf "$root"
 }
 
@@ -2053,11 +2185,12 @@ run_test "experiment dry-run" test_experiment_dry_run
 run_test "experiment requires clean worktree" test_experiment_requires_clean_worktree
 run_test "experiment close dry-run" test_experiment_close_dry_run
 run_test "recovery preserves unrelated dirty changes" test_run_recovery_preserves_unrelated_dirty_changes
+run_test "build dry-run delegates to execute-bead" test_build_dry_run_delegates_to_execute_bead
+run_test "run delegates build cycles to execute-loop" test_run_delegates_build_cycles_to_execute_loop
 # TODO: timeout test hangs in CI — the mock claude sleep subprocess isn't
 # killed reliably through the stdin pipe subshell. Fix the watchdog to
 # kill the process group, then re-enable.
 # run_test "claude agent timeout kills process" test_claude_agent_timeout_kills_process
-run_test "build prompt references tracker" test_build_prompt_references_tracker
 
 # ── triage passthrough tests ──────────────────────────────────────────
 
@@ -2152,7 +2285,7 @@ test_summary_flag_accepted() {
   local output
   output="$(run_helix_summary "$root" build --dry-run 2>&1)"
   # dry-run should still produce the agent command
-  assert_contains "$output" "codex" "summary dry-run should print agent command"
+  assert_contains "$output" "ddx agent execute-bead" "summary dry-run should print the DDx managed execution command"
   rm -rf "$root"
 }
 
@@ -2785,29 +2918,26 @@ MOCK
   rm -rf "$root"
 }
 
-# --- Area-label batching ---
+# --- Area-label queue compatibility ---
 
-test_batch_falls_back_to_area_labels() {
+test_run_dry_run_uses_execute_loop_for_area_labeled_queue() {
   local root
   root="$(make_workspace)"
   local work_dir="$root/work"
   mkdir -p "$work_dir/.ddx"
-  # Two issues with same area label but no shared parent or spec-id
   {
     printf '{"id":"hx-area-1","title":"area issue 1","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build","area:auth"],"parent":"","spec-id":"SPEC-A","description":"","design":"","acceptance":"done","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n'
     printf '{"id":"hx-area-2","title":"area issue 2","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build","area:auth"],"parent":"","spec-id":"SPEC-B","description":"","design":"","acceptance":"done","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n'
     printf '{"id":"hx-area-3","title":"unrelated issue","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build","area:storage"],"parent":"","spec-id":"SPEC-C","description":"","design":"","acceptance":"done","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n'
   } > "$work_dir/.ddx/beads.jsonl"
 
-  # Use dry-run — the batch prompt should mention both area:auth siblings
   printf 'STOP\n' > "$root/state/next-actions"
   make_mock_bin "$root"
   local output
   output="$(run_helix "$root" run --dry-run --no-auto-review --no-auto-align 2>&1)" || true
 
-  # The dry-run output should show a batch containing both area:auth issues
-  # (batch=2 in the cycle line, or both IDs in the prompt)
-  assert_contains "$output" "hx-area-2" "batch should include area:auth sibling"
+  assert_contains "$output" "ddx agent execute-loop --once" "run dry-run should advertise DDx queue draining for ready area-labeled work"
+  assert_not_contains "$output" "batch=2 issues" "managed queue-drain compatibility path should not claim HELIX-side batching"
   rm -rf "$root"
 }
 
@@ -3181,7 +3311,7 @@ MOCK
 run_test "context generated at run start" test_context_generated_at_run_start
 run_test "context contains issue counts" test_context_contains_issue_counts
 run_test "epic focus selects children" test_epic_focus_selects_children
-run_test "batch falls back to area labels" test_batch_falls_back_to_area_labels
+run_test "run dry-run uses execute-loop for area-labeled queue" test_run_dry_run_uses_execute_loop_for_area_labeled_queue
 run_test "drift on parent change skips close" test_drift_on_parent_change_skips_close
 run_test "acceptance failure filed as issue" test_acceptance_failure_filed_as_issue
 run_test "backoff delay formula" test_backoff_delay_formula

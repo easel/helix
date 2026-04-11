@@ -266,6 +266,18 @@ an operator wants HELIX to provide transitional routing or wrapper ergonomics,
 but the durable queue-drain primitive is `ddx agent execute-loop`, not an
 independent HELIX-owned claim/execute/close loop.
 
+Current compatibility behavior:
+
+- `helix run` keeps HELIX-owned supervisory routing, queue-health decisions,
+  review/alignment dispatch, blocker reporting, and persisted run state, but
+  delegates each build cycle to `ddx agent execute-loop --once`.
+- `helix build` keeps HELIX-owned selector resolution and compatibility CLI
+  ergonomics, then delegates the managed execution attempt to
+  `ddx agent execute-bead`.
+- Related-issue batching remains a HELIX-only optimization on the legacy
+  direct-agent implementation path; the DDx-managed compatibility path runs
+  one bead per bounded execution attempt.
+
 Interpret `check` as follows:
 
 - `NEXT_ACTION: BUILD`
@@ -419,8 +431,8 @@ as follows:
 | `helix check` | first-class | Interpret queue state and DDx outcomes to choose the next bounded HELIX action |
 | `helix align` | first-class | Launch bead-governed alignment planning work, not queue-drain execution |
 | `helix review`, `helix design`, `helix polish`, `helix backfill` | first-class | Retained HELIX planning/review/reconciliation entrypoints |
-| `helix run` | compatibility-only | Transitional wrapper over DDx queue drain plus HELIX supervisory policy |
-| `helix build` | compatibility-only | Transitional wrapper for one bounded managed execution pass |
+| `helix run` | compatibility-only | Transitional wrapper over `ddx agent execute-loop --once` plus HELIX supervisory policy |
+| `helix build` | compatibility-only | Transitional wrapper that resolves one ready bead, then launches `ddx agent execute-bead` |
 | `helix run`, `helix build` | deprecation candidates | Remove only after DDx parity covers the HELIX-visible routing and evidence contract |
 
 Migration guidance:
