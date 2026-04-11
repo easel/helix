@@ -92,7 +92,7 @@ validate_helix_triage_intro() {
       | tr -s '[:space:]' ' '
   )"
 
-  blanket_execution_ready_pattern='(every|all|each)([[:space:]]+[[:alpha:]][[:alpha:]-]*){0,4}[[:space:]]+(issue|issues|bead|beads|task|tasks|work[[:space:]]+item|work[[:space:]]+items)[[:space:]]+should[[:space:]]+enter[[:space:]]+the[[:space:]]+tracker[[:space:]]+ready[[:space:]]+(to[[:space:]]+execute|for[[:space:]]+execution)'
+  blanket_execution_ready_pattern='(every|all|each)([[:space:]]+[[:alpha:]][[:alpha:]-]*)*[[:space:]]+(issue|issues|bead|beads|task|tasks|work[[:space:]]+item|work[[:space:]]+items)[[:space:]]+should[[:space:]]+enter[[:space:]]+the[[:space:]]+tracker[[:space:]]+ready[[:space:]]+(to[[:space:]]+execute|for[[:space:]]+execution)'
   if [[ "$normalized" =~ $blanket_execution_ready_pattern ]]; then
     fail "helix-triage intro must not prime every issue as execution-ready"
   fi
@@ -100,6 +100,10 @@ validate_helix_triage_intro() {
 
 assert_helix_triage_blanket_priming_regression() {
   local temp_root output_file regression_output
+  local -a blanket_priming_sentences=(
+    "All implementation issues should enter the tracker ready to execute when possible."
+    "All execution-ready implementation planning and review issues should enter the tracker ready to execute when possible."
+  )
 
   if [[ "${HELIX_VALIDATE_SKILLS_SKIP_REGRESSION:-0}" == "1" ]]; then
     return
@@ -123,35 +127,40 @@ assert_helix_triage_blanket_priming_regression() {
   mkdir -p "$temp_root/tests"
   cp -f "$repo_root/tests/validate-skills.sh" "$temp_root/tests/validate-skills.sh"
 
-  python3 - "$temp_root/skills/helix-triage/SKILL.md" <<'PYEOF'
+  for blanket_priming_sentence in "${blanket_priming_sentences[@]}"; do
+    python3 - "$temp_root/skills/helix-triage/SKILL.md" "$blanket_priming_sentence" <<'PYEOF'
 from pathlib import Path
 import sys
 
 path = Path(sys.argv[1])
+blanket_priming_sentence = sys.argv[2]
 text = path.read_text(encoding="utf-8")
 needle = "# Triage: Shape Execution-Ready And Planning Issues\n\n"
 replacement = (
     "# Triage: Shape Execution-Ready And Planning Issues\n\n"
-    "All implementation issues should enter the tracker ready to execute when possible.\n\n"
+    f"{blanket_priming_sentence}\n\n"
 )
 if needle not in text:
     raise SystemExit("missing helix-triage heading in regression fixture")
 path.write_text(text.replace(needle, replacement, 1), encoding="utf-8")
 PYEOF
 
-  assert_command_fails \
-    "$output_file" \
-    "validate-skills must fail when helix-triage regains blanket execution-ready priming" \
-    env \
-      HELIX_VALIDATE_SKILLS_REPO_ROOT="$temp_root" \
-      HELIX_VALIDATE_SKILLS_SKIP_REGRESSION=1 \
-      bash "$temp_root/tests/validate-skills.sh"
+    assert_command_fails \
+      "$output_file" \
+      "validate-skills must fail when helix-triage regains blanket execution-ready priming" \
+      env \
+        HELIX_VALIDATE_SKILLS_REPO_ROOT="$temp_root" \
+        HELIX_VALIDATE_SKILLS_SKIP_REGRESSION=1 \
+        bash "$temp_root/tests/validate-skills.sh"
 
-  regression_output="$(<"$output_file")"
-  assert_output_contains \
-    "$regression_output" \
-    "helix-triage intro must not prime every issue as execution-ready" \
-    "validate-skills must report the blanket execution-ready triage regression"
+    regression_output="$(<"$output_file")"
+    assert_output_contains \
+      "$regression_output" \
+      "helix-triage intro must not prime every issue as execution-ready" \
+      "validate-skills must report the blanket execution-ready triage regression"
+
+    cp -f "$repo_root/skills/helix-triage/SKILL.md" "$temp_root/skills/helix-triage/SKILL.md"
+  done
 
   rm -rf "$temp_root"
   rm -f "$output_file"
