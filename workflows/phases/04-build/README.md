@@ -50,7 +50,7 @@ Reintroducing `secure-coding` as its own artifact would recreate the same thin,
 duplicative checklist that HELIX already retired.
 
 ### Story Build Issues
-**Output Location**: `.ddx/issues.jsonl` queried through `ddx bead`
+**Output Location**: `.ddx/beads.jsonl` managed through `ddx bead`
 
 Story-level implementation work is tracked as build issues rather than
 per-story markdown plans. Build issues:
