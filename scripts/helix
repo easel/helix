@@ -772,11 +772,129 @@ alignment_bead_acceptance() {
     'Alignment review complete; all gaps classified; execution issues created for real gaps; traceability matrix produced'
 }
 
+alignment_area_labels_from_path() {
+  local path="${1#./}"
+
+  [[ "$path" == website/* ]] && printf 'area:site\n'
+  [[ "$path" == docs/demos/* ]] && printf 'area:demo\n'
+  [[ "$path" == docs/* ]] && printf 'area:docs\n'
+  [[ "$path" == tests/* ]] && printf 'area:testing\n'
+  [[ "$path" == scripts/* || "$path" == bin/* ]] && printf 'area:cli\n'
+  [[ "$path" == workflows/* || "$path" == .ddx/* ]] && printf 'area:workflow\n'
+  [[ "$path" == *"/artifacts/"* ]] && printf 'area:artifacts\n'
+}
+
+alignment_project_area_labels() {
+  local concerns_path="$target_root/docs/helix/01-frame/concerns.md"
+
+  if [[ -s "$concerns_path" ]]; then
+    awk '
+      match($0, /`area:[^`]+`/) {
+        label=substr($0, RSTART + 1, RLENGTH - 2)
+        if (!seen[label]++) print label
+      }
+    ' "$concerns_path"
+    return 0
+  fi
+
+  printf '%s\n' \
+    'area:ui' \
+    'area:api' \
+    'area:data' \
+    'area:infra' \
+    'area:cli'
+}
+
+resolve_alignment_scope_path() {
+  local scope="${1:-repo}"
+  local helper="${library_root}/scripts/refresh_context_digests.py"
+
+  [[ "$scope" == "repo" || "$scope" == area:* ]] && return 0
+  [[ -f "$helper" ]] || return 0
+  command -v python3 >/dev/null 2>&1 || return 0
+
+  python3 - "$target_root" "$library_root" "$scope" <<'PY'
+from importlib.util import module_from_spec, spec_from_file_location
+from pathlib import Path
+import sys
+
+root = Path(sys.argv[1])
+library_root = Path(sys.argv[2])
+scope = sys.argv[3]
+helper = library_root / "scripts" / "refresh_context_digests.py"
+
+spec = spec_from_file_location("refresh_context_digests", helper)
+if spec is None or spec.loader is None:
+    raise SystemExit(0)
+module = module_from_spec(spec)
+spec.loader.exec_module(module)
+path = module.resolve_artifact_path(root, scope, library_root)
+if path is None:
+    raise SystemExit(0)
+for base in (root, library_root):
+    try:
+        print(path.relative_to(base).as_posix())
+        break
+    except ValueError:
+        continue
+PY
+}
+
+alignment_scope_area_labels() {
+  local scope="${1:-repo}"
+  local resolved_path=""
+
+  if [[ "$scope" == "repo" ]]; then
+    alignment_project_area_labels | awk 'NF && !seen[$0]++'
+    return 0
+  fi
+
+  {
+    [[ "$scope" == area:* ]] && printf '%s\n' "$scope"
+    alignment_area_labels_from_path "$scope"
+    resolved_path="$(resolve_alignment_scope_path "$scope" || true)"
+    if [[ -n "$resolved_path" ]]; then
+      alignment_area_labels_from_path "$resolved_path"
+    fi
+  } | awk 'NF && !seen[$0]++'
+}
+
+alignment_scope_areas_text() {
+  local scope="${1:-repo}"
+  local label="" joined=""
+
+  while IFS= read -r label; do
+    [[ -n "$label" ]] || continue
+    if [[ -n "$joined" ]]; then
+      joined+=", "
+    fi
+    joined+="${label#area:}"
+  done < <(alignment_scope_area_labels "$scope")
+
+  printf '%s\n' "$joined"
+}
+
+alignment_bead_labels() {
+  local scope="${1:-repo}"
+  local labels='helix,phase:review,kind:planning,action:align'
+  local label=""
+
+  while IFS= read -r label; do
+    [[ -n "$label" ]] || continue
+    labels+=",${label}"
+  done < <(alignment_scope_area_labels "$scope")
+
+  printf '%s\n' "$labels"
+}
+
 alignment_bead_description() {
   local scope="${1:-repo}"
+  local scope_areas=""
+  scope_areas="$(alignment_scope_areas_text "$scope")"
   cat <<EOF
 Top-down reconciliation review for ${scope}.
 Scope: ${scope}.
+${scope_areas:+Scope areas: ${scope_areas}.}
 EOF
 }
 
@@ -805,11 +923,12 @@ find_alignment_bead() {
 
 ensure_alignment_bead() {
   local scope="${1:-repo}"
-  local existing_id active_id spec_id new_id
+  local existing_id active_id spec_id new_id labels
 
   existing_id="$(find_alignment_bead "$scope")" || return 1
   if [[ -n "$existing_id" ]]; then
     tracker_update "$existing_id" --claim >/dev/null || return 1
+    refresh_context_digest_for_bead "$existing_id"
     printf '%s\t%s\n' "$existing_id" "claimed"
     return 0
   fi
@@ -827,11 +946,12 @@ ensure_alignment_bead() {
   fi
 
   spec_id="$(infer_alignment_spec_id "$scope" || true)"
+  labels="$(alignment_bead_labels "$scope")"
   if [[ -n "$spec_id" ]]; then
     new_id="$(tracker_create \
       "$(alignment_bead_title "$scope")" \
       --type task \
-      --labels helix,phase:review,kind:planning,action:align \
+      --labels "$labels" \
       --spec-id "$spec_id" \
       --description "$(alignment_bead_description "$scope")" \
       --acceptance "$(alignment_bead_acceptance)")" || return 1
@@ -839,11 +959,12 @@ ensure_alignment_bead() {
     new_id="$(tracker_create \
       "$(alignment_bead_title "$scope")" \
       --type task \
-      --labels helix,phase:review,kind:planning,action:align \
+      --labels "$labels" \
       --description "$(alignment_bead_description "$scope")" \
       --acceptance "$(alignment_bead_acceptance)")" || return 1
   fi
 
+  refresh_context_digest_for_bead "$new_id"
   printf '%s\t%s\n' "$new_id" "created"
 }
 

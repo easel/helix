@@ -652,6 +652,29 @@ test_align_dry_run_mentions_governing_bead() {
 test_align_creates_governing_bead_before_prompt() {
   local root
   root="$(make_workspace)"
+  mkdir -p "$root/work/docs/helix/01-frame" "$root/work/workflows/concerns/custom-cli"
+  cat >"$root/work/docs/helix/01-frame/concerns.md" <<'EOF'
+# Project Concerns
+
+## Active Concerns
+- custom-cli
+
+## Area Labels
+
+| Label | Applies to |
+|-------|-----------|
+| `area:cli` | CLI wrapper code |
+| `area:workflow` | Workflow prompts |
+EOF
+  cat >"$root/work/workflows/concerns/custom-cli/concern.md" <<'EOF'
+# Concern: Custom CLI
+
+## Areas
+cli
+EOF
+  cat >"$root/work/workflows/concerns/custom-cli/practices.md" <<'EOF'
+- Use custom CLI concern practices
+EOF
 
   run_helix "$root" align repo >/dev/null
 
@@ -664,7 +687,12 @@ test_align_creates_governing_bead_before_prompt() {
   assert_contains "$bead_json" "\"title\":\"align: repo\"" "align should create the governing bead for repo scope"
   assert_contains "$bead_json" "\"kind:planning\"" "align bead should carry the planning label"
   assert_contains "$bead_json" "\"action:align\"" "align bead should carry the align action label"
+  assert_contains "$bead_json" "\"area:cli\"" "align bead should seed repo-scope area labels from project concerns"
+  assert_contains "$bead_json" "\"area:workflow\"" "align bead should preserve all project area labels for repo scope"
   assert_contains "$bead_json" "\"status\":\"open\"" "new governing align bead should remain available for the stored prompt to claim"
+  assert_contains "$bead_json" "\"<context-digest>\\n" "align bead should refresh its context digest before prompt dispatch"
+  assert_contains "$bead_json" "custom-cli" "align bead digest should include matched concerns for the reviewed scope"
+  assert_contains "$bead_json" "Use custom CLI concern practices" "align bead digest should include matched concern practices"
   rm -rf "$root"
 }
 
