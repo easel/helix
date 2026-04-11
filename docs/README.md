@@ -69,7 +69,8 @@ materials were commonly grouped into broad categories such as
 `architecture/`, `implementation/`, `usage/`, `development/`, and
 `references/`.
 
-Those names are historical examples, not canonical paths in this repository.
+Those names are historical examples, not canonical paths in this repository,
+and this repo does not ship those directories as current `docs/` locations.
 In this repo, governed HELIX artifacts live under `docs/helix/`, shared
 workflow references live under `docs/resources/`, and other repository docs
 live as topic-specific files or directories directly under `docs/`.
