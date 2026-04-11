@@ -316,7 +316,7 @@ Environment:
   HELIX_SMART_MODEL    Optional model override for reasoning stages
   HELIX_CHEAP_MODEL    Optional model override for mechanical stages
   HELIX_LIBRARY_ROOT   Override the library root that contains workflows/
-  HELIX_TRACKER_DIR    Override the tracker directory (default: .helix/)
+  HELIX_TRACKER_DIR    Override the tracker directory (default: <repo>/.ddx)
 
 Adversarial rotation:
   Primary agent (frame, design, evolve, align, review) uses the smart model.

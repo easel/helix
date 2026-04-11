@@ -485,7 +485,7 @@ helix design auth
 | `HELIX_CHECK_MODEL` | — | Cheaper model for queue-drain decisions |
 | `HELIX_POLISH_MODEL` | — | Cheaper model for issue refinement |
 | `HELIX_LIBRARY_ROOT` | `<repo>/workflows` | Override the workflow library root |
-| `HELIX_TRACKER_DIR` | `.helix/` | Override the tracker directory |
+| `HELIX_TRACKER_DIR` | `<repo>/.ddx` | Override the tracker directory |
 | `HELIX_BEADS_DIR` | `.beads` | Override the beads interop directory |
 | `HELIX_FORCE_EPHEMERAL` | `0` | Force ephemeral sessions (no resume) |
 | `HELIX_AUTO_ALIGN` | `1` | Enable auto-alignment on ALIGN/STOP |
