@@ -5,6 +5,8 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 tmpdir="$(mktemp -d)"
 trap 'rm -rf "$tmpdir"' EXIT
 
+PYTHONPATH="$repo_root" python3 "$repo_root/tests/test_refresh_context_digests.py" >/dev/null
+
 cat >"$tmpdir/valid.jsonl" <<'EOF'
 {"id":"hx-digest-ok","title":"digest present","status":"open","labels":["helix","phase:build"],"description":"<context-digest>\n<principles>Validate Your Work</principles>\n</context-digest>\n\nBody"}
 {"id":"hx-rationale-ok","title":"authorized omission rationale","status":"open","labels":["helix","phase:build","digest:omission-authorized"],"digest-omission-path":"helix-input:legacy-migration","description":"Explicit omission rationale: Legacy migrated planning bead intentionally omits a digest until the upstream concern mapping lands."}

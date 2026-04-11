@@ -436,6 +436,7 @@ def bead_paths(item: dict) -> list[str]:
     haystacks = [item.get("title", ""), description_body, item.get("acceptance", ""), item.get("spec-id", "")]
     patterns = [
         re.compile(r"(?:docs|tests|workflows|website|\.ddx)/[A-Za-z0-9_./:-]+\.[A-Za-z0-9-]+"),
+        re.compile(r"(?:docs|tests|workflows|website|\.ddx)/[A-Za-z0-9_./:-]+/artifacts\b"),
         re.compile(r"(?:scripts|bin)/helix\b"),
     ]
     for text in haystacks:

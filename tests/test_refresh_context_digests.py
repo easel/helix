@@ -6,6 +6,24 @@ import scripts.refresh_context_digests as refresh_context_digests
 
 
 class RefreshContextDigestsTest(unittest.TestCase):
+    def test_bead_paths_infers_extensionless_artifact_scope_directories(self) -> None:
+        item = {
+            "title": "align: workflows/phases/05-deploy/artifacts",
+            "description": "Review the artifact directory scope directly.",
+            "acceptance": "Recover workflow and artifact area labels from the scope path.",
+            "labels": ["helix", "phase:build"],
+            "spec-id": "workflows/phases/05-deploy/artifacts",
+        }
+
+        self.assertEqual(
+            refresh_context_digests.bead_paths(item),
+            ["workflows/phases/05-deploy/artifacts"],
+        )
+        self.assertEqual(
+            refresh_context_digests.infer_area_labels(item),
+            ["area:artifacts", "area:workflow"],
+        )
+
     def test_build_digest_keeps_library_practices_and_overrides(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
