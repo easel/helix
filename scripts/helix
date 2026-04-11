@@ -2340,7 +2340,9 @@ run_implementation() {
   if ddx_managed_execution_available; then
     local issue_id=""
     if [[ -n "$selector" ]]; then
-      issue_id="$(resolve_execution_target "$selector" 2>/dev/null || true)"
+      if ! issue_id="$(resolve_execution_target "$selector")"; then
+        return $?
+      fi
     elif tracker_ready --json --execution >/dev/null 2>&1; then
       issue_id="$(resolve_execution_target "" 2>/dev/null || true)"
     fi

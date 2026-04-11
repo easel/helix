@@ -461,6 +461,29 @@ if [[ "\${1:-} \${2:-}" == "agent execute-bead" ]]; then
   exit \$?
 fi
 
+if [[ "\${1:-} \${2:-}" == "bead ready" ]] && [[ "\${MOCK_VALIDATE_TRACKER_JSON:-0}" == "1" ]]; then
+  tracker_dir="\${DDX_BEAD_DIR:-}"
+  tracker_file="\${tracker_dir:+\$tracker_dir/beads.jsonl}"
+  if [[ -f "\$tracker_file" ]]; then
+    if ! python3 - "\$tracker_file" <<'PY' >/dev/null 2>&1
+import json
+import sys
+
+path = sys.argv[1]
+with open(path, "r", encoding="utf-8") as fh:
+    for line in fh:
+        line = line.strip()
+        if not line:
+            continue
+        json.loads(line)
+PY
+    then
+      echo "mock tracker parse failure" >&2
+      exit 1
+    fi
+  fi
+fi
+
 if [[ "\${1:-} \${2:-}" == "bead show" ]] && [[ \$# -ge 3 ]] && [[ "\${3:-}" != "--help" ]]; then
   issue_id="\$3"
   show_output="\$("\$real_ddx" "\$@")"
@@ -2115,6 +2138,22 @@ test_build_dry_run_rejects_closed_selector_before_execute_bead() {
   rm -rf "$root"
 }
 
+test_build_dry_run_surfaces_selector_resolution_failure() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+  printf '{bad json\n' > "$root/work/.ddx/beads.jsonl"
+
+  local output rc=0
+  output="$(run_helix_with_envs "$root" MOCK_VALIDATE_TRACKER_JSON 1 -- HELIX_EXEC_CONTEXT 1 build --dry-run hx-bad 2>&1)" || rc=$?
+
+  [[ "$rc" -ne 0 ]] || fail "build --dry-run should fail when selector resolution fails"
+  assert_contains "$output" "mock tracker parse failure" "build --dry-run should surface resolver failures"
+  assert_not_contains "$output" "no execution-ready bead matched the build selector" "build --dry-run should not collapse resolver failures into selector misses"
+  [[ ! -f "$root/state/ddx-calls.log" ]] || fail "build --dry-run should not dispatch execute-bead when selector resolution fails"
+  rm -rf "$root"
+}
+
 test_build_rejects_closed_selector_before_execute_bead() {
   local root
   root="$(make_workspace)"
@@ -2129,6 +2168,22 @@ test_build_rejects_closed_selector_before_execute_bead() {
 
   [[ "$rc" -ne 0 ]] || fail "build should fail when the selected bead is closed"
   [[ ! -f "$root/state/ddx-calls.log" ]] || fail "build should not dispatch execute-bead for a closed selector"
+  rm -rf "$root"
+}
+
+test_build_surfaces_selector_resolution_failure() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+  printf '{bad json\n' > "$root/work/.ddx/beads.jsonl"
+
+  local output rc=0
+  output="$(run_helix_with_envs "$root" MOCK_VALIDATE_TRACKER_JSON 1 -- HELIX_EXEC_CONTEXT 1 build hx-bad 2>&1)" || rc=$?
+
+  [[ "$rc" -ne 0 ]] || fail "build should fail when selector resolution fails"
+  assert_contains "$output" "mock tracker parse failure" "build should surface resolver failures"
+  assert_not_contains "$output" "no execution-ready bead matched the build selector" "build should not collapse resolver failures into selector misses"
+  [[ ! -f "$root/state/ddx-calls.log" ]] || fail "build should not dispatch execute-bead when selector resolution fails"
   rm -rf "$root"
 }
 
