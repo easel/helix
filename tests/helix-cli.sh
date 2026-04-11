@@ -545,6 +545,55 @@ test_backfill_dry_run() {
   rm -rf "$root"
 }
 
+test_align_dry_run_mentions_governing_bead() {
+  local root
+  root="$(make_workspace)"
+  local output
+  output="$(run_helix "$root" align --dry-run repo)"
+  assert_contains "$output" "actions/reconcile-alignment.md" "align dry-run should reference the alignment action"
+  assert_contains "$output" "Governing alignment bead:" "align dry-run should describe the governing bead contract"
+  assert_contains "$output" "kind:planning,action:align bead before proceeding" "align dry-run should require bead-first alignment entry"
+  rm -rf "$root"
+}
+
+test_align_creates_governing_bead_before_prompt() {
+  local root
+  root="$(make_workspace)"
+
+  run_helix "$root" align repo >/dev/null
+
+  local calls
+  calls="$(cat "$root/state/calls.log")"
+  assert_eq "align" "$calls" "align should dispatch the stored alignment prompt once"
+
+  local bead_json
+  bead_json="$(run_bead "$root" list --json | ddx jq -c '.[0]')"
+  assert_contains "$bead_json" "\"title\":\"align: repo\"" "align should create the governing bead for repo scope"
+  assert_contains "$bead_json" "\"kind:planning\"" "align bead should carry the planning label"
+  assert_contains "$bead_json" "\"action:align\"" "align bead should carry the align action label"
+  assert_contains "$bead_json" "\"status\":\"open\"" "new governing align bead should remain available for the stored prompt to claim"
+  rm -rf "$root"
+}
+
+test_align_reuses_existing_governing_bead() {
+  local root
+  root="$(make_workspace)"
+
+  local bead_id
+  bead_id="$(run_bead "$root" create "align: repo" --type task --labels helix,phase:review,kind:planning,action:align --acceptance "existing align bead")"
+
+  run_helix "$root" align repo >/dev/null
+
+  local count
+  count="$(run_bead "$root" list --json | ddx jq 'length')"
+  assert_eq "1" "$count" "align should reuse the existing governing bead instead of creating a duplicate"
+
+  local status
+  status="$(run_bead "$root" show "$bead_id" --json | ddx jq -r '.status // ""')"
+  assert_eq "in_progress" "$status" "align should claim an existing open governing bead before dispatch"
+  rm -rf "$root"
+}
+
 test_input_dispatches_request_with_intake_action() {
   local root
   root="$(make_workspace)"
@@ -1959,6 +2008,7 @@ run_test "no hardcoded bead prefix export" test_no_hardcoded_bead_prefix_export
 run_test "bead help" test_bead_help
 run_test "check dry-run" test_check_dry_run
 run_test "backfill dry-run" test_backfill_dry_run
+run_test "align dry-run" test_align_dry_run_mentions_governing_bead
 run_test "input dispatches intake action" test_input_dispatches_request_with_intake_action
 run_test "input accepts request before autonomy flag" test_input_accepts_request_before_autonomy_flag
 run_test "input rejects invalid autonomy" test_input_rejects_invalid_autonomy
@@ -1986,6 +2036,8 @@ run_test "run dispatches backfill" test_run_dispatches_backfill
 run_test "run stops after repeated BACKFILL" test_run_stops_after_repeated_backfill
 run_test "max cycles count completed work only" test_run_max_cycles_counts_completed_cycles_only
 run_test "periodic alignment ignores failed attempts" test_run_periodic_alignment_ignores_failed_attempts
+run_test "align creates governing bead" test_align_creates_governing_bead_before_prompt
+run_test "align reuses governing bead" test_align_reuses_existing_governing_bead
 run_test "extract NEXT_ACTION from claude output" test_extract_next_action_from_claude_output
 run_test "design dry-run" test_design_dry_run
 run_test "design custom rounds" test_design_custom_rounds
@@ -3606,7 +3658,7 @@ test_commit_succeeds_with_external_tracker_dir() {
   local root
   root="$(make_workspace)"
   local external_tracker
-  external_tracker="$root/external-ddx"
+  external_tracker="$root/external-ddx/.ddx"
   mkdir -p "$external_tracker"
   printf '{"id":"hx-ext-0","title":"mock issue 0","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n' > "$external_tracker/beads.jsonl"
 

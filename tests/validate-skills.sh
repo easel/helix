@@ -266,11 +266,12 @@ assert_file_contains \
 command -v python3 >/dev/null 2>&1 || fail "python3 is required for execution-ready bead validation"
 mixed_fixture="$repo_root/tests/fixtures/execution-ready-beads/mixed-ready-semantics.jsonl"
 mixed_tracker_dir="$(mktemp -d)"
-cp -f "$mixed_fixture" "$mixed_tracker_dir/beads.jsonl"
+mkdir -p "$mixed_tracker_dir/.ddx"
+cp -f "$mixed_fixture" "$mixed_tracker_dir/.ddx/beads.jsonl"
 mixed_expected_ids="$(mktemp)"
 mixed_actual_ids="$(mktemp)"
-DDX_BEAD_DIR="$mixed_tracker_dir" ddx bead ready --execution --json >"$mixed_expected_ids"
-python3 - "$repo_root/scripts/validate_execution_ready_beads.py" "$mixed_tracker_dir/beads.jsonl" >"$mixed_actual_ids" <<'PYEOF'
+DDX_BEAD_DIR="$mixed_tracker_dir/.ddx" ddx bead ready --execution --json >"$mixed_expected_ids"
+python3 - "$repo_root/scripts/validate_execution_ready_beads.py" "$mixed_tracker_dir/.ddx/beads.jsonl" >"$mixed_actual_ids" <<'PYEOF'
 import importlib.util
 import json
 import sys

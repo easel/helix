@@ -753,6 +753,85 @@ tracker_close() {
   tracker_exec close "$@"
 }
 
+alignment_bead_title() {
+  local scope="${1:-repo}"
+  printf 'align: %s\n' "$scope"
+}
+
+alignment_bead_acceptance() {
+  printf '%s\n' \
+    'Alignment review complete; all gaps classified; execution issues created for real gaps; traceability matrix produced'
+}
+
+alignment_bead_description() {
+  local scope="${1:-repo}"
+  cat <<EOF
+Top-down reconciliation review for ${scope}.
+Scope: ${scope}.
+EOF
+}
+
+infer_alignment_spec_id() {
+  local scope="${1:-repo}"
+  case "$scope" in
+    FEAT-*|US-*|SD-*|TD-*|TP-*|ADR-*|CONTRACT-*)
+      printf '%s\n' "$scope"
+      ;;
+  esac
+}
+
+find_alignment_bead() {
+  local scope="${1:-repo}"
+  local title
+  title="$(alignment_bead_title "$scope")"
+  tracker_list --json 2>/dev/null | ddx jq -r --arg title "$title" '
+    [.[] | select(
+      (.status // "") != "closed" and
+      ((.labels // []) | index("kind:planning")) and
+      ((.labels // []) | index("action:align")) and
+      (.title // "") == $title
+    )][0].id // empty
+  '
+}
+
+ensure_alignment_bead() {
+  local scope="${1:-repo}"
+  local existing_id spec_id new_id
+
+  existing_id="$(find_alignment_bead "$scope")" || return 1
+  if [[ -n "$existing_id" ]]; then
+    local existing_status
+    existing_status="$(tracker_show "$existing_id" --json 2>/dev/null | ddx jq -r '.status // ""')" || return 1
+    if [[ "$existing_status" == "open" ]]; then
+      tracker_update "$existing_id" --claim >/dev/null || return 1
+      printf '%s\t%s\n' "$existing_id" "claimed"
+    else
+      printf '%s\t%s\n' "$existing_id" "reused"
+    fi
+    return 0
+  fi
+
+  spec_id="$(infer_alignment_spec_id "$scope" || true)"
+  if [[ -n "$spec_id" ]]; then
+    new_id="$(tracker_create \
+      "$(alignment_bead_title "$scope")" \
+      --type task \
+      --labels helix,phase:review,kind:planning,action:align \
+      --spec-id "$spec_id" \
+      --description "$(alignment_bead_description "$scope")" \
+      --acceptance "$(alignment_bead_acceptance)")" || return 1
+  else
+    new_id="$(tracker_create \
+      "$(alignment_bead_title "$scope")" \
+      --type task \
+      --labels helix,phase:review,kind:planning,action:align \
+      --description "$(alignment_bead_description "$scope")" \
+      --acceptance "$(alignment_bead_acceptance)")" || return 1
+  fi
+
+  printf '%s\t%s\n' "$new_id" "created"
+}
+
 # Unclaim an issue only if it is still in-progress.
 # Never unclaims a closed bead — semantically wrong and kept as a guard;
 # ddx bead update --unclaim only clears claim metadata on closed beads
@@ -1391,7 +1470,21 @@ EOF
 }
 
 alignment_prompt() {
-  local scope="${1:-repo}"
+  local scope="${1:-repo}" governing_bead="${2:-}" governing_mode="${3:-}"
+  local governing_note="Governing alignment bead: create or claim the relevant kind:planning,action:align bead before proceeding."
+  if [[ -n "$governing_bead" ]]; then
+    case "$governing_mode" in
+      claimed)
+        governing_note="Governing alignment bead: ${governing_bead} (claimed by the wrapper entrypoint; treat Phase 0.5 as already satisfied unless tracker metadata drifted materially)."
+        ;;
+      reused)
+        governing_note="Governing alignment bead: ${governing_bead} (already active for this scope; reuse it and do not create a duplicate governing bead)."
+        ;;
+      created)
+        governing_note="Governing alignment bead: ${governing_bead} (created by the wrapper entrypoint; claim and reuse it instead of creating a duplicate governing bead)."
+        ;;
+    esac
+  fi
   cat <<EOF
 Execute the following HELIX alignment action.
 $(inline_action "${helix_docs_root}/actions/reconcile-alignment.md")
@@ -1399,6 +1492,7 @@ Use supporting references at ${helix_docs_root}/README.md and ${helix_docs_root}
 Execute in the current repository rooted at ${target_root}.
 Issue tracker: built-in JSONL at ${tracker_file} (legacy: .ddx/issues.jsonl). Use \`ddx bead\` subcommands.
 Review scope: ${scope}.
+${governing_note}
 Follow the action exactly. Do the work — do not just describe what you would do.
 EOF
 }
@@ -1969,11 +2063,15 @@ run_check() {
 
 run_alignment() {
   local scope="${1:-repo}"
+  local governing_bead="" governing_mode="" alignment_state=""
   if (( ! dry_run )); then
     require_tracker
+    alignment_state="$(ensure_alignment_bead "$scope")" || return 1
+    governing_bead="${alignment_state%%$'\t'*}"
+    governing_mode="${alignment_state#*$'\t'}"
   fi
   # Alignment is reasoning-heavy — use primary agent with smart model
-  run_agent_prompt "$(alignment_prompt "$scope")" "$(resolve_model smart)" "${agent_effort:-high}"
+  run_agent_prompt "$(alignment_prompt "$scope" "$governing_bead" "$governing_mode")" "$(resolve_model smart)" "${agent_effort:-high}"
 }
 
 run_backfill() {
