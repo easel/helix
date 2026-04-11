@@ -755,7 +755,7 @@ alignment_area_labels_from_path() {
   [[ "$path" == tests/* ]] && printf 'area:testing\n'
   [[ "$path" == scripts/* || "$path" == bin/* ]] && printf 'area:cli\n'
   [[ "$path" == workflows/* || "$path" == .ddx/* ]] && printf 'area:workflow\n'
-  [[ "$path" == *"/artifacts/"* ]] && printf 'area:artifacts\n'
+  [[ "$path" == *"/artifacts/"* || "$path" == */artifacts ]] && printf 'area:artifacts\n'
 }
 
 alignment_project_area_labels() {

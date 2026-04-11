@@ -771,6 +771,21 @@ EOF
   rm -rf "$root"
 }
 
+test_align_artifact_directory_scope_preserves_artifact_area_label() {
+  local root
+  root="$(make_workspace)"
+
+  run_helix "$root" align workflows/phases/05-deploy/artifacts >/dev/null
+
+  local bead_json
+  bead_json="$(run_bead "$root" list --json | ddx jq -c '.[0]')"
+  assert_contains "$bead_json" "\"title\":\"align: workflows/phases/05-deploy/artifacts\"" "align should create the governing bead for artifact-directory scope"
+  assert_contains "$bead_json" "\"area:workflow\"" "artifact-directory align should keep workflow scope"
+  assert_contains "$bead_json" "\"area:artifacts\"" "artifact-directory align should add artifact scope"
+  assert_contains "$bead_json" "Scope areas: workflow, artifacts." "artifact-directory align description should mention both workflow and artifact scopes"
+  rm -rf "$root"
+}
+
 test_align_rejects_in_progress_governing_bead() {
   local root
   root="$(make_workspace)"
@@ -2333,6 +2348,7 @@ run_test "max cycles count completed work only" test_run_max_cycles_counts_compl
 run_test "periodic alignment ignores failed attempts" test_run_periodic_alignment_ignores_failed_attempts
 run_test "align creates governing bead" test_align_creates_governing_bead_before_prompt
 run_test "align reuses governing bead" test_align_reuses_existing_governing_bead
+run_test "align preserves artifact-directory scope labels" test_align_artifact_directory_scope_preserves_artifact_area_label
 run_test "align rejects in-progress governing bead" test_align_rejects_in_progress_governing_bead
 run_test "align reclaims stale in-progress governing bead" test_align_reclaims_stale_in_progress_governing_bead
 run_test "extract NEXT_ACTION from claude output" test_extract_next_action_from_claude_output

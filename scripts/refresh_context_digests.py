@@ -462,7 +462,7 @@ def infer_area_labels(item: dict) -> list[str]:
             labels.add("area:cli")
         if normalized.startswith("workflows/") or normalized.startswith(".ddx/"):
             labels.add("area:workflow")
-        if "/artifacts/" in normalized:
+        if "/artifacts/" in normalized or normalized.endswith("/artifacts"):
             labels.add("area:artifacts")
     if "playwright coverage" in title or "deterministic coverage" in title or "deterministic verification" in title:
         labels.add("area:testing")
