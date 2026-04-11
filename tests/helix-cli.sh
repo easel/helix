@@ -1712,6 +1712,7 @@ test_review_dry_run() {
   output="$(run_helix "$root" review --dry-run)"
   assert_contains "$output" "actions/fresh-eyes-review.md" "review dry-run should reference fresh-eyes action"
   assert_contains "$output" "Review scope: last-commit" "review dry-run should default to last-commit"
+  assert_contains "$output" "label \`review-finding\` plus at least one scope-appropriate \`area:*\` label" "review dry-run should require area labels on filed findings"
   rm -rf "$root"
 }
 

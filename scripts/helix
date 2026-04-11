@@ -1681,7 +1681,7 @@ Execute in the current repository rooted at ${target_root}.
 Issue tracker: built-in JSONL at ${tracker_file} (legacy: .ddx/issues.jsonl). Use \`ddx bead\` subcommands.
 Review scope: ${scope}.
 ${in_loop:+This review is running inside the automated helix run loop after an implementation cycle.}
-IMPORTANT: File each actionable finding (critical, high, medium severity) as a tracker issue with label \`review-finding\` so findings are durable and queryable via \`ddx bead list --label review-finding\`. See the "Filing Findings as Tracker Issues" section in the action for the exact command pattern.
+IMPORTANT: File each actionable finding (critical, high, medium severity) as a tracker issue with label \`review-finding\` plus at least one scope-appropriate \`area:*\` label so findings are durable, concern-aware, and queryable via \`ddx bead list --label review-finding\`. See the "Filing Findings as Tracker Issues" section in the action for the exact command pattern.
 Follow the action exactly. Do the work — do not just describe what you would do.
 EOF
 }
