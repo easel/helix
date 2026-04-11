@@ -723,6 +723,54 @@ test_align_reuses_existing_governing_bead() {
   rm -rf "$root"
 }
 
+test_align_repairs_reused_governing_bead_scope_labels_and_digest() {
+  local root
+  root="$(make_workspace)"
+
+  mkdir -p "$root/work/docs/helix/01-frame"
+  cat >"$root/work/docs/helix/01-frame/concerns.md" <<'EOF'
+# Project Concerns
+
+## Active Concerns
+- custom-cli
+
+## Area Labels
+| Label | Applies to |
+|-------|------------|
+| `area:cli` | CLI wrapper code |
+| `area:workflow` | Workflow prompts |
+EOF
+  mkdir -p "$root/work/workflows/concerns/custom-cli"
+  cat >"$root/work/workflows/concerns/custom-cli/concern.md" <<'EOF'
+# Concern: Custom CLI
+
+## Areas
+cli
+EOF
+  cat >"$root/work/workflows/concerns/custom-cli/practices.md" <<'EOF'
+- Use custom CLI concern practices
+EOF
+
+  local bead_id
+  bead_id="$(run_bead "$root" create "align: repo" --type task --labels helix,phase:review,kind:planning,action:align --acceptance "existing align bead")"
+
+  run_helix "$root" align repo >/dev/null
+
+  local count bead_json status
+  count="$(run_bead "$root" list --json | ddx jq 'length')"
+  assert_eq "1" "$count" "align should repair and reuse the existing governing bead instead of creating a duplicate"
+
+  bead_json="$(run_bead "$root" show "$bead_id" --json)"
+  status="$(printf '%s' "$bead_json" | ddx jq -r '.status // ""')"
+  assert_eq "in_progress" "$status" "align should leave the repaired governing bead claimed for dispatch"
+  assert_contains "$bead_json" "\"area:cli\"" "align should add deterministic scope labels when reusing an unlabeled governing bead"
+  assert_contains "$bead_json" "\"area:workflow\"" "align should add all repo-scope area labels when reusing an unlabeled governing bead"
+  assert_contains "$bead_json" "\"<context-digest>\\n" "align should refresh the context digest after repairing reused governing bead labels"
+  assert_contains "$bead_json" "custom-cli" "align should rebuild concern matching after repairing reused governing bead labels"
+  assert_contains "$bead_json" "Use custom CLI concern practices" "align should include concern practices in the repaired governing bead digest"
+  rm -rf "$root"
+}
+
 test_align_rejects_in_progress_governing_bead() {
   local root
   root="$(make_workspace)"

@@ -861,6 +861,32 @@ alignment_bead_labels() {
   printf '%s\n' "$labels"
 }
 
+merge_alignment_bead_labels() {
+  local bead_id="$1" scope="${2:-repo}"
+  local issue_json="" current_csv="" merged_csv=""
+
+  issue_json="$(tracker_show "$bead_id" --json 2>/dev/null)" || return 1
+  current_csv="$(printf '%s' "$issue_json" | ddx jq -r '(.labels // []) | join(",")' 2>/dev/null)" || return 1
+  merged_csv="$(
+    {
+      printf '%s\n' "$current_csv" | tr ',' '\n'
+      alignment_bead_labels "$scope" | tr ',' '\n'
+    } | awk '
+      NF && !seen[$0]++ {
+        labels[++count] = $0
+      }
+      END {
+        for (i = 1; i <= count; i++) {
+          printf "%s%s", labels[i], (i < count ? "," : ORS)
+        }
+      }
+    '
+  )" || return 1
+
+  [[ "$merged_csv" == "$current_csv" ]] && return 0
+  tracker_update "$bead_id" --labels "$merged_csv" >/dev/null || return 1
+}
+
 alignment_bead_description() {
   local scope="${1:-repo}"
   local scope_areas=""
@@ -954,6 +980,7 @@ ensure_alignment_bead() {
   existing_id="$(find_alignment_bead "$scope")" || return 1
   if [[ -n "$existing_id" ]]; then
     tracker_update "$existing_id" --claim >/dev/null || return 1
+    merge_alignment_bead_labels "$existing_id" "$scope" || return 1
     refresh_context_digest_for_bead "$existing_id"
     printf '%s\t%s\n' "$existing_id" "claimed"
     return 0
@@ -973,6 +1000,7 @@ ensure_alignment_bead() {
         "$active_id" "$scope" "$claim_reclaim_status_age" "$claim_reclaim_status_pid"
       tracker_update "$active_id" --unclaim >/dev/null || return 1
       tracker_update "$active_id" --claim >/dev/null || return 1
+      merge_alignment_bead_labels "$active_id" "$scope" || return 1
       refresh_context_digest_for_bead "$active_id"
       printf '%s\t%s\n' "$active_id" "reclaimed"
       return 0
