@@ -37,22 +37,22 @@ agent CLI like `codex`), plus `bash` and `git`.
 
 ## Quick Start
 
-Open Claude Code in your project and tell it what you want to build:
+Start by shaping sparse intent into governed HELIX work:
 
-```
-> I want to build a REST API for managing bookmarks. Use /helix-frame to get started.
-```
-
-Claude loads the HELIX skills automatically and begins the structured
-workflow — creating a product vision, PRD, and feature specs. From there:
-
-```
-> /helix-run
+```bash
+helix input "Build a REST API for managing bookmarks"
 ```
 
-HELIX takes over: it designs the solution, writes failing tests, implements
-the code, reviews the work, and iterates — stopping only when human judgment
-is needed or the queue is empty.
+Then let DDx drain the execution-ready queue:
+
+```bash
+ddx agent execute-loop
+```
+
+`helix input` is the preferred intake surface for new work. `ddx agent execute-loop`
+is the primary queue-drain command for execution-ready beads. `helix run` and
+`helix build` remain available as compatibility wrappers for operators who
+still want HELIX-owned execution entrypoints.
 
 ### Interactive commands
 
@@ -60,9 +60,10 @@ Inside a Claude Code session, HELIX skills are available as slash commands:
 
 | Command | What it does |
 |---------|-------------|
-| `/helix-run` | Autopilot: build → review → check → repeat |
+| `/helix-input "build a bookmarks API"` | Shape sparse intent into governed HELIX work |
+| `/helix-run` | Compatibility autopilot wrapper over DDx queue drain |
+| `/helix-build` | Compatibility wrapper for one bounded implementation pass |
 | `/helix-frame` | Create vision, PRD, and feature specs |
-| `/helix-build` | Execute one ready issue end-to-end |
 | `/helix-design auth` | Design a subsystem through iterative refinement |
 | `/helix-review` | Fresh-eyes review of recent work |
 | `/helix-evolve "add OAuth"` | Thread a new requirement through the artifact stack |
@@ -73,11 +74,19 @@ Inside a Claude Code session, HELIX skills are available as slash commands:
 
 ### CLI (automation and scripting)
 
-For background execution, CI integration, or scripting, the same commands
-are available as a shell CLI:
+For automation and scripting, prefer the DDx-managed queue-drain path:
 
 ```bash
-helix run --agent claude --summary    # Background autopilot
+helix input "Build a REST API for managing bookmarks"
+ddx agent execute-loop                # Primary queue-drain surface
+ddx agent execute-loop --once         # One bounded drain pass
+```
+
+Compatibility wrappers remain available:
+
+```bash
+helix run --agent claude --summary    # Compatibility autopilot wrapper
+helix build                           # Compatibility bounded build wrapper
 helix start                           # Daemon mode with PID file
 helix status                          # Check progress
 helix stop                            # Stop the daemon
@@ -98,10 +107,10 @@ artifacts that drive the next:
 
 ## How it works
 
-1. You describe what you want to build in a Claude Code session
-2. HELIX creates governing artifacts (vision → requirements → design → tests)
+1. You shape intent into governed work with `helix input`
+2. HELIX creates or updates governing artifacts (vision → requirements → design → tests)
 3. The tracker breaks work into issues with acceptance criteria
-4. Agents claim issues, implement them, and verify against the tests
+4. `ddx agent execute-loop` drains execution-ready work from the queue
 5. Reviews catch bugs that implementation blindness misses
 6. The loop continues until the queue drains or human input is needed
 

@@ -7,7 +7,8 @@ next: /docs/skills
 
 The `helix` CLI is a shell orchestrator that sits on top of DDx primitives.
 It delegates work-item storage to `ddx bead` and agent dispatch to
-`ddx agent run`, adding supervisory intelligence on top.
+`ddx agent`, adding supervisory intelligence on top. New workflows should
+prefer `helix input` for intake and `ddx agent execute-loop` for queue drain.
 
 ## Commands
 
@@ -15,8 +16,10 @@ It delegates work-item storage to `ddx bead` and agent dispatch to
 
 | Command | Purpose |
 |---------|---------|
-| `helix run` | Supervisory autopilot — select and execute the next best action |
-| `helix build [issue]` | One bounded implementation pass |
+| `helix input "request"` | Preferred sparse-intent intake surface |
+| `ddx agent execute-loop` | Primary queue-drain surface for execution-ready work |
+| `helix run` | Compatibility autopilot wrapper over DDx queue drain |
+| `helix build [issue]` | Compatibility wrapper for one bounded implementation pass |
 | `helix check [scope]` | Decide what action should happen next |
 | `helix status` | Structured lifecycle snapshot |
 
@@ -42,10 +45,18 @@ It delegates work-item storage to `ddx bead` and agent dispatch to
 
 ## helix run
 
-The primary command. Runs the supervisory autopilot loop.
+Compatibility wrapper for operators who still want a HELIX-owned autopilot
+entrypoint. The durable queue-drain contract is `ddx agent execute-loop`.
 
 ```bash
 helix run [options]
+```
+
+Prefer this default path for new automation:
+
+```bash
+helix input "Build a bookmarks API"
+ddx agent execute-loop
 ```
 
 ### Options

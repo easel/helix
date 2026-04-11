@@ -6,7 +6,11 @@ prev: /docs/glossary
 
 # Demo Reels
 
-Scripted terminal recordings of HELIX in action. Each demo runs in a Docker container for reproducibility and uses `ddx agent run` as the agent harness.
+Scripted terminal recordings of HELIX in action. New-user workflows should
+prefer `helix input` to shape work and `ddx agent execute-loop` to drain the
+execution-ready queue. The current demo recordings focus on the first-five-
+minutes experience and may still show compatibility wrappers or direct
+`ddx agent run` prompt capture inside the recording harness.
 
 The shipped public demo inventory is `helix-quickstart`, `helix-concerns`,
 `helix-evolve`, and `helix-experiment`. The repo also contains
@@ -15,9 +19,13 @@ currently embedded here or recorded by the Pages workflow.
 
 ---
 
-## Quickstart: Full Lifecycle
+## Quickstart: Intake to Queue Drain
 
-The complete HELIX onboarding experience: install, frame, design, build, and review. Builds a Node.js temperature converter from scratch, driven entirely by HELIX artifacts and the tracker.
+The complete HELIX onboarding experience: install, shape a request with
+`helix input`, then let DDx drain execution-ready work. The current recording
+still visualizes the phase-by-phase compatibility flow while the docs here
+reflect the new default contract. The demo builds a Node.js temperature
+converter from scratch, driven entirely by HELIX artifacts and the tracker.
 
 {{< asciinema src="helix-quickstart" >}}
 
@@ -25,11 +33,11 @@ The complete HELIX onboarding experience: install, frame, design, build, and rev
 |-----|-------|-------------|
 | 1 | Install | Install HELIX skills and CLI, verify ddx agent harness |
 | 2 | Setup | Initialize git repo, tracker, and AGENTS.md |
-| 3 | Frame | Agent creates product vision, PRD, and feature spec |
-| 4 | Design | Agent creates technical design, then tracker issues |
-| 5 | Build | Red: write failing tests. Green: implement to pass. |
+| 3 | Input | `helix input` shapes the request into governed HELIX artifacts |
+| 4 | Queue | `ddx agent execute-loop` drains the execution-ready queue |
+| 5 | Build | The work follows HELIX's test-first Build discipline |
 | 6 | Verify | Run tests, check acceptance criteria |
-| 7 | Review | Agent reviews all work for gaps |
+| 7 | Review | Review surfaces follow-on gaps or drift |
 
 {{< tabs >}}
 

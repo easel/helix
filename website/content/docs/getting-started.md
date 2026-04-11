@@ -42,15 +42,14 @@ agent CLI like `codex`), plus `bash` and `git`.
 
 ## Start Building
 
-Open Claude Code in your project directory and describe what you want to build:
+Start by shaping your request into governed HELIX work:
 
-```
-> I want to build a REST API for managing bookmarks. Use /helix-frame to get started.
+```bash
+helix input "Build a REST API for managing bookmarks"
 ```
 
-Claude loads the HELIX skills automatically and begins the structured
-workflow — creating a product vision, PRD, and feature specs based on your
-description. The governing artifacts it creates will drive everything
+`helix input` is the preferred intake surface for new work. It turns sparse
+intent into the governing artifacts and tracker beads that HELIX and DDx use
 downstream.
 
 ## Understand the Artifact Hierarchy
@@ -89,16 +88,16 @@ ddx bead create "Add OAuth login flow" --type task \
 
 ## Run the Autopilot
 
-Once framing is complete and beads exist, start the autopilot:
+Once framing or triage has produced execution-ready beads, drain the queue with DDx:
 
-```
-> /helix-run
+```bash
+ddx agent execute-loop
 ```
 
-HELIX takes over from here. It reads the governing artifacts, designs the
-solution, writes failing tests, implements the code to make them pass, reviews
-the work for bugs, and iterates — stopping only when human judgment is needed
-or the work queue is empty.
+This is the primary execution path. DDx claims ready beads, executes the
+bounded work, records evidence, and closes completed items. `helix run` and
+`helix build` still exist as compatibility wrappers for operators who prefer
+the older HELIX-owned entrypoints.
 
 ## Interactive Commands
 
@@ -107,9 +106,10 @@ You can invoke them at any time to steer the work:
 
 | Command | What it does |
 |---------|-------------|
-| `/helix-run` | Autopilot: build → review → check → repeat |
+| `/helix-input "build a bookmarks API"` | Shape sparse intent into governed HELIX work |
+| `/helix-run` | Compatibility autopilot wrapper over DDx queue drain |
+| `/helix-build` | Compatibility wrapper for one bounded implementation pass |
 | `/helix-frame` | Create vision, PRD, and feature specs |
-| `/helix-build` | Execute one ready issue end-to-end |
 | `/helix-design auth` | Design a subsystem through iterative refinement |
 | `/helix-review` | Fresh-eyes review of recent work |
 | `/helix-evolve "add OAuth"` | Thread a new requirement through the artifact stack |
@@ -131,20 +131,30 @@ understands HELIX context and will invoke the right skills:
 
 ## Background Execution (CLI)
 
-For long-running work, CI integration, or scripting, the same commands are
-available as a shell CLI:
+For long-running work, CI integration, or scripting, prefer the DDx-managed
+execution path:
 
 ```bash
+helix input "Build a REST API for managing bookmarks"
+ddx agent execute-loop                # Primary queue-drain surface
+ddx agent execute-loop --once         # One bounded drain pass
+```
+
+Compatibility wrappers remain available:
+
+```bash
+helix run --agent claude --summary    # Compatibility autopilot wrapper
+helix build                           # Compatibility bounded build wrapper
 helix start                           # Daemon mode with PID file
 helix status                          # Check progress
 helix stop                            # Stop the daemon
 ```
 
-Or run directly:
+Or run the queue-drain command directly:
 
 ```bash
-helix run --agent claude --summary    # Background autopilot with concise output
-helix run --max-cycles 10             # Stop after 10 completed build cycles
+ddx agent execute-loop                # Drain the ready queue until it stops
+ddx agent execute-loop --once         # Stop after one bounded pass
 ```
 
 ## Next Steps
