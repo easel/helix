@@ -58,6 +58,14 @@ class RefreshContextDigestsTest(unittest.TestCase):
         )
         self.assertEqual(selected, ["Library practice A", "Override practice C"])
 
+    def test_select_digest_practices_keeps_unique_override_when_early_override_matches_later_library(self) -> None:
+        selected = refresh_context_digests.select_digest_practices(
+            ["Library practice A", "Library practice B"],
+            ["Library practice B", "Override practice C"],
+            limit=2,
+        )
+        self.assertEqual(selected, ["Library practice A", "Override practice C"])
+
     def test_build_digest_adds_adrs_and_governing_clause_from_artifacts(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

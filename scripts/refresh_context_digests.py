@@ -395,12 +395,13 @@ def select_digest_practices(
     library_practices: list[str], override_practices: list[str], limit: int
 ) -> list[str]:
     prioritized: list[str] = []
+    library_set = set(library_practices)
     if library_practices:
         prioritized.append(library_practices[0])
 
     chosen_override = ""
     for practice in override_practices:
-        if practice not in prioritized:
+        if practice not in library_set:
             chosen_override = practice
             break
     if not chosen_override and override_practices:
