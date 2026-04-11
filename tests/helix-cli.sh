@@ -687,6 +687,30 @@ test_align_reuses_existing_governing_bead() {
   rm -rf "$root"
 }
 
+test_align_rejects_in_progress_governing_bead() {
+  local root
+  root="$(make_workspace)"
+  local work_dir="$root/work"
+  mkdir -p "$work_dir/.ddx"
+
+  printf '%s\n' \
+    '{"id":"hx-align-busy","title":"align: repo","issue_type":"task","status":"in_progress","priority":2,"labels":["helix","phase:review","kind:planning","action:align"],"parent":"","spec-id":"FEAT-005","description":"","design":"","acceptance":"existing align bead","dependencies":[],"owner":"other-operator","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z","claimed-at":"2099-01-01T00:00:00Z","claimed-pid":99999}' \
+    > "$work_dir/.ddx/beads.jsonl"
+
+  local output rc=0
+  output="$(run_helix "$root" align repo 2>&1)" || rc=$?
+
+  [[ "$rc" -ne 0 ]] || fail "align should fail when the governing bead is already in progress"
+  assert_contains "$output" "alignment already active for repo under owner other-operator" \
+    "align should report the active governing bead owner"
+  [[ ! -f "$root/state/calls.log" ]] || fail "align should not dispatch the agent when the governing bead is already in progress"
+
+  local count
+  count="$(run_bead "$root" list --json | ddx jq 'length')"
+  assert_eq "1" "$count" "align should not create a duplicate governing bead when one is already active"
+  rm -rf "$root"
+}
+
 test_input_dispatches_request_with_intake_action() {
   local root
   root="$(make_workspace)"
@@ -2174,6 +2198,7 @@ run_test "max cycles count completed work only" test_run_max_cycles_counts_compl
 run_test "periodic alignment ignores failed attempts" test_run_periodic_alignment_ignores_failed_attempts
 run_test "align creates governing bead" test_align_creates_governing_bead_before_prompt
 run_test "align reuses governing bead" test_align_reuses_existing_governing_bead
+run_test "align rejects in-progress governing bead" test_align_rejects_in_progress_governing_bead
 run_test "extract NEXT_ACTION from claude output" test_extract_next_action_from_claude_output
 run_test "design dry-run" test_design_dry_run
 run_test "design custom rounds" test_design_custom_rounds

@@ -790,12 +790,12 @@ infer_alignment_spec_id() {
 }
 
 find_alignment_bead() {
-  local scope="${1:-repo}"
+  local scope="${1:-repo}" status="${2:-open}"
   local title
   title="$(alignment_bead_title "$scope")"
-  tracker_list --json 2>/dev/null | ddx jq -r --arg title "$title" '
+  tracker_list --json 2>/dev/null | ddx jq -r --arg title "$title" --arg status "$status" '
     [.[] | select(
-      (.status // "") != "closed" and
+      (.status // "") == $status and
       ((.labels // []) | index("kind:planning")) and
       ((.labels // []) | index("action:align")) and
       (.title // "") == $title
@@ -805,19 +805,25 @@ find_alignment_bead() {
 
 ensure_alignment_bead() {
   local scope="${1:-repo}"
-  local existing_id spec_id new_id
+  local existing_id active_id spec_id new_id
 
   existing_id="$(find_alignment_bead "$scope")" || return 1
   if [[ -n "$existing_id" ]]; then
-    local existing_status
-    existing_status="$(tracker_show "$existing_id" --json 2>/dev/null | ddx jq -r '.status // ""')" || return 1
-    if [[ "$existing_status" == "open" ]]; then
-      tracker_update "$existing_id" --claim >/dev/null || return 1
-      printf '%s\t%s\n' "$existing_id" "claimed"
-    else
-      printf '%s\t%s\n' "$existing_id" "reused"
-    fi
+    tracker_update "$existing_id" --claim >/dev/null || return 1
+    printf '%s\t%s\n' "$existing_id" "claimed"
     return 0
+  fi
+
+  active_id="$(find_alignment_bead "$scope" "in_progress")" || return 1
+  if [[ -n "$active_id" ]]; then
+    local active_owner
+    active_owner="$(tracker_show "$active_id" --json 2>/dev/null | ddx jq -r '.owner // ""')" || active_owner=""
+    if [[ -n "$active_owner" ]]; then
+      summary_line "alignment already active for %s under owner %s (%s); refusing duplicate dispatch" "$scope" "$active_owner" "$active_id"
+    else
+      summary_line "alignment already active for %s (%s); refusing duplicate dispatch" "$scope" "$active_id"
+    fi
+    return 1
   fi
 
   spec_id="$(infer_alignment_spec_id "$scope" || true)"
