@@ -127,4 +127,34 @@ set -e
 assert_contains "$docs_fail_output" "deploy README: missing canonical four-artifact contract wording" \
   "three-artifact fixture should report the missing canonical contract wording"
 
+docs_coexist_dir="$tmpdir/docs-coexist"
+mkdir -p "$docs_coexist_dir"
+cp -f "$repo_root/workflows/phases/05-deploy/README.md" "$docs_coexist_dir/README.md"
+cp -f "$repo_root/workflows/phases/05-deploy/enforcer.md" "$docs_coexist_dir/enforcer.md"
+cp -f "$repo_root/website/content/docs/glossary/artifacts.md" "$docs_coexist_dir/artifacts.md"
+python3 - "$docs_coexist_dir/README.md" <<'PYEOF'
+from pathlib import Path
+import sys
+
+path = Path(sys.argv[1])
+text = path.read_text(encoding="utf-8")
+text += (
+    "\nDeploy artifacts are project-specific, but current HELIX still treats three "
+    "deploy surfaces as first-class in the live contract: `deployment-checklist`, "
+    "`monitoring-setup`, and `runbook`.\n"
+)
+path.write_text(text, encoding="utf-8")
+PYEOF
+
+set +e
+docs_coexist_output="$(run_docs_validator \
+  --deploy-readme "$docs_coexist_dir/README.md" \
+  --deploy-enforcer "$docs_coexist_dir/enforcer.md" \
+  --glossary "$docs_coexist_dir/artifacts.md" 2>&1)"
+docs_coexist_status=$?
+set -e
+[[ $docs_coexist_status -ne 0 ]] || fail "validator should fail when stale three-artifact wording coexists with canonical deploy docs"
+assert_contains "$docs_coexist_output" "deploy README: contains stale three-artifact contract wording" \
+  "coexistence fixture should report the stale deploy contract wording"
+
 printf 'validated deploy artifact graph checks\n'

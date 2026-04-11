@@ -19,6 +19,7 @@ class SurfaceSpec:
     label: str
     path: Path
     required_fragment: str
+    stale_fragment: str
 
 
 def normalize_whitespace(text: str) -> str:
@@ -36,12 +37,21 @@ def build_surface_specs(args: argparse.Namespace) -> list[SurfaceSpec]:
                 "`deployment-checklist`, `monitoring-setup`, `runbook`, and "
                 "`release-notes`."
             ),
+            stale_fragment=(
+                "Deploy artifacts are project-specific, but current HELIX still "
+                "treats three deploy surfaces as first-class in the live contract:"
+            ),
         ),
         SurfaceSpec(
             label="deploy enforcer",
             path=args.deploy_enforcer,
             required_fragment=(
                 "Deploy artifacts are project-specific, but HELIX treats four "
+                "deploy outputs as the live contract under "
+                "`docs/helix/05-deploy/`:"
+            ),
+            stale_fragment=(
+                "Deploy artifacts are project-specific, but HELIX treats three "
                 "deploy outputs as the live contract under "
                 "`docs/helix/05-deploy/`:"
             ),
@@ -53,6 +63,10 @@ def build_surface_specs(args: argparse.Namespace) -> list[SurfaceSpec]:
                 "Deploy artifacts cover four first-class surfaces in the current "
                 "HELIX contract: `deployment-checklist`, `monitoring-setup`, "
                 "`runbook`, and `release-notes`."
+            ),
+            stale_fragment=(
+                "Deploy artifacts cover three first-class surfaces in the current "
+                "HELIX contract:"
             ),
         ),
     ]
@@ -69,6 +83,11 @@ def validate_surface(spec: SurfaceSpec) -> list[str]:
     if normalize_whitespace(spec.required_fragment) not in normalized:
         errors.append(
             f"{spec.label}: missing canonical four-artifact contract wording in {spec.path}"
+        )
+
+    if normalize_whitespace(spec.stale_fragment) in normalized:
+        errors.append(
+            f"{spec.label}: contains stale three-artifact contract wording in {spec.path}"
         )
 
     missing_artifacts = [artifact for artifact in CANONICAL_ARTIFACTS if f"`{artifact}`" not in text]
