@@ -125,7 +125,7 @@ Each phase produces artifacts at its level before the next phase begins:
 | **Design** | Architect the solution | Architecture, ADRs, solution designs, technical designs, contracts |
 | **Test** | Specify verification | Test plans, test procedures, executable tests |
 | **Build** | Implement the solution | Source code, work items, build artifacts |
-| **Deploy** | Release and operate | Deployment checklists, runbooks, release notes |
+| **Deploy** | Release and operate | Deployment checklists, monitoring setup, runbooks, release notes |
 | **Iterate** | Learn and improve | Alignment reviews, retrospectives, metrics |
 
 Phases are not strictly sequential — iteration sends realized artifacts
