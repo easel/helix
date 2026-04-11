@@ -14,6 +14,8 @@ OMISSION_RATIONALE_PATTERN = re.compile(
     r"^\s*Explicit omission rationale:\s*\S.*\Z", re.DOTALL
 )
 AUTHORIZED_OMISSION_LABEL = "digest:omission-authorized"
+AUTHORIZED_OMISSION_PATH_FIELD = "digest-omission-path"
+AUTHORIZED_OMISSION_PATHS = {"helix-input:legacy-migration"}
 
 
 def review_finding_missing_area(labels: list[str]) -> bool:
@@ -26,9 +28,15 @@ def has_digest(description: str) -> bool:
     return bool(DIGEST_PATTERN.search(description))
 
 
-def has_authorized_omission_rationale(description: str, labels: list[str]) -> bool:
-    return AUTHORIZED_OMISSION_LABEL in labels and bool(
-        OMISSION_RATIONALE_PATTERN.match(description)
+def has_authorized_omission_rationale(bead: dict[str, object]) -> bool:
+    description = bead.get("description") or ""
+    labels = bead.get("labels", [])
+    omission_path = bead.get(AUTHORIZED_OMISSION_PATH_FIELD)
+    return (
+        isinstance(labels, list)
+        and AUTHORIZED_OMISSION_LABEL in labels
+        and omission_path in AUTHORIZED_OMISSION_PATHS
+        and bool(OMISSION_RATIONALE_PATTERN.match(description))
     )
 
 
@@ -77,7 +85,7 @@ def main() -> int:
         if has_digest(description):
             continue
         if OMISSION_RATIONALE_PATTERN.match(description):
-            if has_authorized_omission_rationale(description, labels):
+            if has_authorized_omission_rationale(bead):
                 continue
             unauthorized_omission.append(
                 (line_number, bead.get("id", "<unknown>"), bead.get("title", ""))
@@ -97,7 +105,8 @@ def main() -> int:
         for line_number, bead_id, title in unauthorized_omission:
             print(
                 f"{tracker_path}:{line_number}: bead {bead_id} uses an explicit omission rationale "
-                f"without {AUTHORIZED_OMISSION_LABEL}: {title}",
+                f"without {AUTHORIZED_OMISSION_LABEL} plus an allowed "
+                f"{AUTHORIZED_OMISSION_PATH_FIELD}: {title}",
                 file=sys.stderr,
             )
         for line_number, bead_id, title in missing_review_area:

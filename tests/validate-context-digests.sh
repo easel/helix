@@ -7,7 +7,7 @@ trap 'rm -rf "$tmpdir"' EXIT
 
 cat >"$tmpdir/valid.jsonl" <<'EOF'
 {"id":"hx-digest-ok","title":"digest present","status":"open","labels":["helix","phase:build"],"description":"<context-digest>\n<principles>Validate Your Work</principles>\n</context-digest>\n\nBody"}
-{"id":"hx-rationale-ok","title":"authorized omission rationale","status":"open","labels":["helix","phase:build","digest:omission-authorized"],"description":"Explicit omission rationale: Legacy migrated planning bead intentionally omits a digest until the upstream concern mapping lands."}
+{"id":"hx-rationale-ok","title":"authorized omission rationale","status":"open","labels":["helix","phase:build","digest:omission-authorized"],"digest-omission-path":"helix-input:legacy-migration","description":"Explicit omission rationale: Legacy migrated planning bead intentionally omits a digest until the upstream concern mapping lands."}
 {"id":"hx-review-finding-ok","title":"review finding has area label","status":"open","labels":["helix","phase:build","review-finding","area:workflow"],"description":"<context-digest>\n<principles>Validate Your Work</principles>\n</context-digest>\n\nBody"}
 {"id":"hx-closed-legacy","title":"closed legacy bead","status":"closed","labels":["helix","phase:build"],"description":"Legacy body"}
 EOF
@@ -17,7 +17,8 @@ python3 "$repo_root/scripts/validate_context_digests.py" --tracker "$tmpdir/vali
 cat >"$tmpdir/invalid.jsonl" <<'EOF'
 {"id":"hx-digest-missing","title":"missing digest","status":"open","labels":["helix","phase:build"],"description":"Legacy body"}
 {"id":"hx-rationale-unauthorized","title":"unauthorized omission rationale","status":"open","labels":["helix","phase:build"],"description":"Explicit omission rationale: skipped for convenience"}
-{"id":"hx-rationale-empty","title":"empty omission rationale","status":"open","labels":["helix","phase:build","digest:omission-authorized"],"description":"Explicit omission rationale:   "}
+{"id":"hx-rationale-label-only","title":"label-only omission rationale","status":"open","labels":["helix","phase:build","digest:omission-authorized"],"description":"Explicit omission rationale: skipped for convenience"}
+{"id":"hx-rationale-empty","title":"empty omission rationale","status":"open","labels":["helix","phase:build","digest:omission-authorized"],"digest-omission-path":"helix-input:legacy-migration","description":"Explicit omission rationale:   "}
 {"id":"hx-review-finding-missing-area","title":"review finding missing area","status":"open","labels":["helix","phase:build","review-finding"],"description":"<context-digest>\n<principles>Validate Your Work</principles>\n</context-digest>\n\nBody"}
 EOF
 
@@ -33,6 +34,11 @@ grep -Fq "hx-digest-missing" "$tmpdir/invalid.err" || {
 
 grep -Fq "hx-rationale-unauthorized" "$tmpdir/invalid.err" || {
   echo "FAIL: validator should reject omission rationales without explicit authorization" >&2
+  exit 1
+}
+
+grep -Fq "hx-rationale-label-only" "$tmpdir/invalid.err" || {
+  echo "FAIL: validator should reject omission rationales that only self-apply the label" >&2
   exit 1
 }
 

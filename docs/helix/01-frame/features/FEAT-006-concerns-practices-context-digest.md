@@ -477,9 +477,14 @@ choices from the start
   before dropping them.
 - **Permitted digest omission**: If a governing workflow explicitly allows a
   bead to omit the digest, the bead must carry label
-  `digest:omission-authorized` and its description must begin with
-  `Explicit omission rationale: <reason>`. The rationale must be non-empty and
-  explain why omission is allowed for that bead.
+  `digest:omission-authorized`, machine-set field
+  `digest-omission-path`, and its description must begin with
+  `Explicit omission rationale: <reason>`. The rationale must be non-empty,
+  explain why omission is allowed for that bead, and match a named
+  workflow-authorized omission path. HELIX currently defines one such path:
+  `helix-input:legacy-migration` for `helix input` when migrating legacy
+  beads whose concern mapping is not yet complete enough to assemble a
+  trustworthy digest.
 - **Stale ADR in digest**: If a referenced ADR is superseded after the
   digest is assembled, `helix polish` must detect the supersession and
   update the digest.

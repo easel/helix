@@ -67,10 +67,16 @@ summarizes all cross-cutting concerns and governing context into
    If the repository ships a digest helper script, use it instead of
    hand-assembling XML so the live queue and future beads stay consistent.
    When the governing contract explicitly permits omitting the digest,
-   the bead must carry label `digest:omission-authorized`, and the
-   description must begin with `Explicit omission rationale: <reason>`
-   instead of a `<context-digest>` block. The rationale must be non-empty
-   and explain why omission is allowed for that bead.
+   the bead must carry label `digest:omission-authorized`, the machine-set
+   field `digest-omission-path`, and a description that begins with
+   `Explicit omission rationale: <reason>` instead of a `<context-digest>`
+   block. The rationale must be non-empty and explain why omission is
+   allowed for that bead.
+   HELIX currently defines exactly one allowed omission path:
+   `helix-input:legacy-migration`. This path is reserved for `helix input`
+   when it creates or updates a migrated legacy bead whose upstream concern
+   mapping is not yet complete enough to assemble a trustworthy digest.
+   Any other bead class must carry a full `<context-digest>`.
 
 ## Digest Format
 

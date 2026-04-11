@@ -83,9 +83,13 @@ Create or update tracker beads for the identified work:
      creation so digest assembly and area labels stay deterministic.
    - Do not leave HELIX-created open beads without either a digest or an
      explicit omission rationale when the contract allows omission. Use the
-     exact prefix `Explicit omission rationale: <reason>` and add label
-     `digest:omission-authorized` so validators can prove the omission path
-     was explicitly granted.
+     exact prefix `Explicit omission rationale: <reason>`, add label
+     `digest:omission-authorized`, and set
+     `digest-omission-path=helix-input:legacy-migration` so validators can
+     prove the omission path was explicitly granted.
+   - This omission path is allowed only for migrated legacy beads whose
+     upstream concern mapping is still incomplete. If `helix input` can
+     assemble a digest, it must do so instead of using the omission path.
 
 **Autonomy-specific bead creation rules**:
 
