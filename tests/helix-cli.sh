@@ -1966,6 +1966,40 @@ test_build_dry_run_delegates_to_execute_bead() {
   rm -rf "$root"
 }
 
+test_build_dry_run_rejects_closed_selector_before_execute_bead() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+
+  local closed_id
+  closed_id="$(run_bead "$root" create "closed issue" --type task --labels helix,phase:build --acceptance "closed selector should be rejected in dry-run")"
+  run_bead "$root" close "$closed_id" >/dev/null
+
+  local output_file output log_file rc=0
+  output_file="$root/state/build-dry-run.log"
+  if run_helix_with_env "$root" HELIX_EXEC_CONTEXT 1 build --dry-run "$closed_id" >"$output_file" 2>&1; then
+    rc=0
+  else
+    rc=$?
+  fi
+  local _tries=0
+  while [[ ! -s "$output_file" ]] && (( _tries < 20 )); do
+    sleep 0.05
+    _tries=$((_tries + 1))
+  done
+  log_file="$(ls -1t "$root/work/.helix-logs"/helix-*.log 2>/dev/null | head -n1 || true)"
+  output="$(cat "$output_file")"
+  if [[ -n "$log_file" ]]; then
+    output+=$'\n'"$(cat "$log_file")"
+  fi
+
+  [[ "$rc" -ne 0 ]] || fail "build --dry-run should fail when the selected bead is closed"
+  assert_contains "$output" "no execution-ready bead matched the build selector" "build --dry-run should explain why the selector was rejected"
+  [[ "$output" != *"ddx agent execute-bead"* ]] || fail "build --dry-run should not print an execute-bead command for a closed selector"
+  [[ ! -f "$root/state/ddx-calls.log" ]] || fail "build --dry-run should not dispatch execute-bead for a closed selector"
+  rm -rf "$root"
+}
+
 test_build_rejects_closed_selector_before_execute_bead() {
   local root
   root="$(make_workspace)"
@@ -2364,6 +2398,7 @@ run_test "experiment requires clean worktree" test_experiment_requires_clean_wor
 run_test "experiment close dry-run" test_experiment_close_dry_run
 run_test "recovery preserves unrelated dirty changes" test_run_recovery_preserves_unrelated_dirty_changes
 run_test "build dry-run delegates to execute-bead" test_build_dry_run_delegates_to_execute_bead
+run_test "build dry-run rejects closed selector before execute-bead" test_build_dry_run_rejects_closed_selector_before_execute_bead
 run_test "build rejects closed selector before execute-bead" test_build_rejects_closed_selector_before_execute_bead
 run_test "run delegates build cycles to execute-loop" test_run_delegates_build_cycles_to_execute_loop
 # TODO: timeout test hangs in CI — the mock claude sleep subprocess isn't

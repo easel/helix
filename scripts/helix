@@ -1267,7 +1267,7 @@ run_execute_bead() {
   fi
 
   if [[ -z "$issue_id" ]]; then
-    echo "helix: no execution-ready bead matched the build selector" >&2
+    summary_line "no execution-ready bead matched the build selector"
     return 1
   fi
 
@@ -2317,9 +2317,13 @@ run_implementation() {
   if ddx_managed_execution_available; then
     local issue_id=""
     if [[ -n "$selector" ]]; then
-      issue_id="$(resolve_execution_target "$selector")" || return 1
+      issue_id="$(resolve_execution_target "$selector" 2>/dev/null || true)"
     elif tracker_ready --json --execution >/dev/null 2>&1; then
       issue_id="$(resolve_execution_target "" 2>/dev/null || true)"
+    fi
+    if [[ -n "$selector" ]] && [[ -z "$issue_id" ]]; then
+      summary_line "no execution-ready bead matched the build selector"
+      return 1
     fi
     run_execute_bead "$issue_id"
     return $?
