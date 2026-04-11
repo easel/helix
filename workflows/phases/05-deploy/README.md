@@ -95,6 +95,15 @@ response, `release-notes` cover release communication, and linked
 Restoring a separate launch checklist would collapse distinct responsibilities
 back into one vague surface without adding a new prompt or template contract.
 
+The deleted `gtm-plan` artifact stays retired. Its only durable HELIX-native
+responsibilities are already covered by the current deploy contract:
+`release-notes` handle release-scoped communication, and linked `phase:deploy`
+tracker issues carry launch coordination, owners, approvals, and communication
+checkpoints. Broader go-to-market or adoption planning is project-specific
+business planning rather than a portable HELIX artifact, so restoring
+`gtm-plan` would either duplicate `release-notes` or reintroduce another thin,
+non-actionable launch stub.
+
 `CHANGELOG.md` may still exist as a repository history log, but it does not
 replace release-scoped notes that are audience-filtered and action-oriented.
 

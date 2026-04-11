@@ -70,6 +70,11 @@ the live contract even though the original artifact stub was pruned.
 - the changelog records repository history
 - release notes communicate the release itself
 
+The deleted `gtm-plan` artifact stays retired. `release-notes` cover the
+release communication that HELIX standardizes, while broader launch
+coordination or adoption planning belongs in linked `phase:deploy` tracker
+issues or project-specific business planning outside the portable artifact set.
+
 The deleted prompt and template were too generic to justify keeping. Restoration
 is warranted only with a tighter prompt and template bar that forces
 release-scoped, audience-aware communication.

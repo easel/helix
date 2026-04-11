@@ -21,8 +21,9 @@ pruned.
   the checklist must verify, but it is not itself the live go/no-go surface.
 - `runbook` explains how operators respond when rollout fails or an incident
   occurs, but it is broader and more procedural than the release checklist.
-- Release communication artifacts such as `release-notes` or `gtm-plan` cover
-  messaging and coordination, not technical deployment readiness.
+- Release communication belongs in `release-notes`, and broader launch
+  coordination belongs in linked `phase:deploy` tracker issues rather than the
+  technical deployment checklist.
 
 ## Canonical Inputs
 
