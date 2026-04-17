@@ -1,0 +1,22 @@
+{
+  "bead_id": "helix-00e2486f",
+  "attempt_id": "20260417T214423-ed7adc95",
+  "base_rev": "8a0891fa4e8293403cbdff00eadf86f1fc5a89df",
+  "result_rev": "8a0891fa4e8293403cbdff00eadf86f1fc5a89df",
+  "outcome": "task_failed",
+  "status": "execution_failed",
+  "detail": "exec: no command",
+  "harness": "lmstudio",
+  "model": "qwen3.5-27b",
+  "session_id": "eb-2e4971d1",
+  "duration_ms": 0,
+  "exit_code": -1,
+  "error": "exec: no command",
+  "failure_mode": "unknown",
+  "execution_dir": ".ddx/executions/20260417T214423-ed7adc95",
+  "prompt_file": ".ddx/executions/20260417T214423-ed7adc95/prompt.md",
+  "manifest_file": ".ddx/executions/20260417T214423-ed7adc95/manifest.json",
+  "result_file": ".ddx/executions/20260417T214423-ed7adc95/result.json",
+  "started_at": "2026-04-17T21:44:24.291706697Z",
+  "finished_at": "2026-04-17T21:44:24.292043988Z"
+}
