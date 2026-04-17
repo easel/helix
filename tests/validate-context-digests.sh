@@ -9,7 +9,7 @@ PYTHONPATH="$repo_root" python3 "$repo_root/tests/test_refresh_context_digests.p
 
 cat >"$tmpdir/valid.jsonl" <<'EOF'
 {"id":"hx-digest-ok","title":"digest present","status":"open","labels":["helix","phase:build"],"description":"<context-digest>\n<principles>Validate Your Work</principles>\n</context-digest>\n\nBody"}
-{"id":"hx-rationale-ok","title":"authorized omission rationale","status":"open","labels":["helix","phase:build","digest:omission-authorized"],"digest-omission-path":"helix-input:legacy-migration","description":"Explicit omission rationale: Legacy migrated planning bead intentionally omits a digest until the upstream concern mapping lands."}
+{"id":"hx-rationale-ok","title":"authorized omission rationale with provenance","status":"open","labels":["helix","phase:build","digest:omission-authorized","kind:legacy-migrated"],"digest-omission-path":"helix-input:legacy-migration","description":"Explicit omission rationale: Legacy migrated planning bead intentionally omits a digest until the upstream concern mapping lands."}
 {"id":"hx-review-finding-ok","title":"review finding has area label","status":"open","labels":["helix","phase:build","review-finding","area:workflow"],"description":"<context-digest>\n<principles>Validate Your Work</principles>\n</context-digest>\n\nBody"}
 {"id":"hx-closed-legacy","title":"closed legacy bead","status":"closed","labels":["helix","phase:build"],"description":"Legacy body"}
 EOF
@@ -21,6 +21,7 @@ cat >"$tmpdir/invalid.jsonl" <<'EOF'
 {"id":"hx-rationale-unauthorized","title":"unauthorized omission rationale","status":"open","labels":["helix","phase:build"],"description":"Explicit omission rationale: skipped for convenience"}
 {"id":"hx-rationale-label-only","title":"label-only omission rationale","status":"open","labels":["helix","phase:build","digest:omission-authorized"],"description":"Explicit omission rationale: skipped for convenience"}
 {"id":"hx-rationale-empty","title":"empty omission rationale","status":"open","labels":["helix","phase:build","digest:omission-authorized"],"digest-omission-path":"helix-input:legacy-migration","description":"Explicit omission rationale:   "}
+{"id":"hx-forged-provenance","title":"forged authorized path without provenance label","status":"open","labels":["helix","phase:build","digest:omission-authorized"],"digest-omission-path":"helix-input:legacy-migration","description":"Explicit omission rationale: forged authorized omission path"}
 {"id":"hx-review-finding-missing-area","title":"review finding missing area","status":"open","labels":["helix","phase:build","review-finding"],"description":"<context-digest>\n<principles>Validate Your Work</principles>\n</context-digest>\n\nBody"}
 EOF
 
@@ -46,6 +47,11 @@ grep -Fq "hx-rationale-label-only" "$tmpdir/invalid.err" || {
 
 grep -Fq "hx-rationale-empty" "$tmpdir/invalid.err" || {
   echo "FAIL: validator should reject empty omission rationales" >&2
+  exit 1
+}
+
+grep -Fq "hx-forged-provenance" "$tmpdir/invalid.err" || {
+  echo "FAIL: validator should reject forged authorized omission path without provenance label" >&2
   exit 1
 }
 

@@ -16,6 +16,7 @@ OMISSION_RATIONALE_PATTERN = re.compile(
 AUTHORIZED_OMISSION_LABEL = "digest:omission-authorized"
 AUTHORIZED_OMISSION_PATH_FIELD = "digest-omission-path"
 AUTHORIZED_OMISSION_PATHS = {"helix-input:legacy-migration"}
+LEGACY_MIGRATION_PROVENANCE_LABEL = "kind:legacy-migrated"
 
 
 def review_finding_missing_area(labels: list[str]) -> bool:
@@ -35,6 +36,7 @@ def has_authorized_omission_rationale(bead: dict[str, object]) -> bool:
     return (
         isinstance(labels, list)
         and AUTHORIZED_OMISSION_LABEL in labels
+        and LEGACY_MIGRATION_PROVENANCE_LABEL in labels
         and omission_path in AUTHORIZED_OMISSION_PATHS
         and bool(OMISSION_RATIONALE_PATTERN.match(description))
     )
