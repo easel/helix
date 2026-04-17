@@ -1,0 +1,22 @@
+{
+  "bead_id": "helix-3fdba193",
+  "attempt_id": "20260417T215238-6f0001e4",
+  "base_rev": "6368c8c4f71de2be0017748b373b73814412b1cb",
+  "result_rev": "6368c8c4f71de2be0017748b373b73814412b1cb",
+  "outcome": "task_failed",
+  "status": "execution_failed",
+  "detail": "no recorded response for prompt (hash 76611aac24dd2232). Record one with: ddx agent run --harness \u003cname\u003e --record --prompt \u003cfile\u003e",
+  "harness": "virtual",
+  "model": "recorded",
+  "session_id": "eb-40b9ad29",
+  "duration_ms": 0,
+  "exit_code": 1,
+  "error": "no recorded response for prompt (hash 76611aac24dd2232). Record one with: ddx agent run --harness \u003cname\u003e --record --prompt \u003cfile\u003e",
+  "failure_mode": "unknown",
+  "execution_dir": ".ddx/executions/20260417T215238-6f0001e4",
+  "prompt_file": ".ddx/executions/20260417T215238-6f0001e4/prompt.md",
+  "manifest_file": ".ddx/executions/20260417T215238-6f0001e4/manifest.json",
+  "result_file": ".ddx/executions/20260417T215238-6f0001e4/result.json",
+  "started_at": "2026-04-17T21:52:39.119553459Z",
+  "finished_at": "2026-04-17T21:52:39.120260458Z"
+}
