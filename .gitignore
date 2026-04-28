@@ -19,6 +19,8 @@ experiments/
 .ddx/exec-runs.jsonl
 .ddx/run-state.json
 .ddx/plugins/
+.ddx/server/
+.ddx/workers/
 
 # Codex config
 .codex
