@@ -567,6 +567,31 @@ test_help() {
   rm -rf "$root"
 }
 
+test_help_no_side_effect() {
+  # hx-de7b1ef2: `bash scripts/helix help` must not invoke codex (or any agent)
+  # via heredoc command substitution; the Notes line includes a backticked
+  # command that previously ran the agent during help generation.
+  local root
+  root="$(make_workspace)"
+  # Tripwire codex: fails loudly if invoked during help rendering.
+  cat >"$root/bin/codex" <<'TRIPWIRE'
+#!/usr/bin/env bash
+echo "TRIPWIRE: codex invoked during helix help (heredoc side effect)" >&2
+exit 99
+TRIPWIRE
+  chmod +x "$root/bin/codex"
+
+  local stdout stderr rc=0
+  stdout="$(PATH="$root/bin:$PATH" bash "$repo_root/scripts/helix" help 2>"$root/help.stderr")" || rc=$?
+  stderr="$(cat "$root/help.stderr")"
+
+  [[ "$rc" -eq 0 ]] || fail "helix help should exit 0, got $rc"
+  [[ -z "$stderr" ]] || fail "helix help must not write to stderr, got: $stderr"
+  assert_contains "$stdout" 'Codex runs as `codex --dangerously-bypass-approvals-and-sandbox exec`.' \
+    "help should render the literal Notes command text with backticks intact"
+  rm -rf "$root"
+}
+
 test_bead_help() {
   local root
   root="$(make_workspace)"
@@ -1928,6 +1953,7 @@ run_test "run continues after unparseable review output" test_run_fails_on_unpar
 
 # CLI integration tests
 run_test "help" test_help
+run_test "help no side effect" test_help_no_side_effect
 run_test "bead help" test_bead_help
 run_test "check dry-run" test_check_dry_run
 run_test "backfill dry-run" test_backfill_dry_run

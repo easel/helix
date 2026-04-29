@@ -250,7 +250,7 @@ Logs:
   in the project root. All stderr output is captured for post-hoc inspection.
 
 Notes:
-  Codex runs as `codex --dangerously-bypass-approvals-and-sandbox exec`.
+  Codex runs as \`codex --dangerously-bypass-approvals-and-sandbox exec\`.
 EOF
 }
 
