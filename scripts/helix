@@ -46,29 +46,16 @@ _action_preset() {
   esac
 }
 
-# _resolve_preset <preset> — call ddx agent resolve and set model, effort, timeout.
-# Sets _ddx_resolved_model, _ddx_resolved_effort, _ddx_resolved_timeout.
-# Returns 0 on success, 1 if ddx resolve fails.
-_resolve_preset() {
-  local preset="$1"
-  _ddx_resolved_model=""
-  _ddx_resolved_effort=""
-  _ddx_resolved_timeout=""
-
-  if ! command -v ddx &>/dev/null; then
-    return 1
-  fi
-
-  local resolved
-  resolved="$(ddx agent resolve "$agent" "$preset" --json 2>/dev/null)" || return 1
-
-  _ddx_resolved_model="$(printf '%s' "$resolved" | ddx jq -r '.model // empty' 2>/dev/null)"
-  _ddx_resolved_effort="$(printf '%s' "$resolved" | ddx jq -r '.effort // empty' 2>/dev/null)"
-  local timeout_ms
-  timeout_ms="$(printf '%s' "$resolved" | ddx jq -r '.timeout_ms // empty' 2>/dev/null)"
-  if [[ -n "$timeout_ms" && "$timeout_ms" != "null" ]]; then
-    _ddx_resolved_timeout="$((timeout_ms / 1000))"
-  fi
+# _helix_preset_to_profile <preset> — map a HELIX action preset to a supported
+# `ddx agent run --profile` value. Pure function; no DDx call.
+# HELIX presets: smart (reasoning), fast (mechanical), reasoning (heaviest).
+# DDx profiles: default, cheap, fast, smart.
+_helix_preset_to_profile() {
+  case "$1" in
+    smart|reasoning) printf '%s' "smart" ;;
+    fast)            printf '%s' "fast" ;;
+    *)               printf '%s' "default" ;;
+  esac
 }
 
 # _detect_alt_agent — set alt_agent to the first available harness different from $agent.
@@ -237,9 +224,10 @@ Environment:
 Preset system:
   HELIX actions bind to presets: smart (frame, design, align, review, evolve),
   fast (build, polish, check, triage), reasoning (experiment).
-  ddx resolves preset + harness to model, effort, and timeout.
-  HELIX_MODEL and --model override the resolved model.
-  HELIX_EFFORT and --effort override the resolved effort.
+  Each preset maps to a \`ddx agent run --profile\` value (smart→smart,
+  fast→fast, reasoning→smart); ddx applies the profile's model/effort defaults.
+  HELIX_MODEL and --model override the profile's model.
+  HELIX_EFFORT and --effort override the profile's effort.
 
 Adversarial rotation:
   Primary agent handles reasoning tasks (smart preset); alternate agent
@@ -836,30 +824,24 @@ reset_session() {
 
 run_agent_prompt() {
   local prompt="$1"
-  local preset="${2:-smart}"  # preset: smart, fast, reasoning
+  local preset="${2:-smart}"  # HELIX preset: smart, fast, reasoning
   local prompt_bytes
   prompt_bytes="$(printf '%s' "$prompt" | wc -c)"
 
-  # Resolve preset to model + effort + timeout via ddx.
-  # Skip resolution when HELIX_DIRECT_AGENT=1 (tests use direct dispatch).
-  local resolved_model="" resolved_effort="" resolved_timeout="${HELIX_AGENT_TIMEOUT:-2700}"
-  if [[ "${HELIX_DIRECT_AGENT:-0}" != "1" ]] \
-     && command -v ddx &>/dev/null \
-     && ddx agent list &>/dev/null 2>&1; then
-    _resolve_preset "$preset"
-    resolved_model="$_ddx_resolved_model"
-    resolved_effort="$_ddx_resolved_effort"
-    [[ -n "$_ddx_resolved_timeout" ]] && resolved_timeout="$_ddx_resolved_timeout"
-  fi
+  # Preset → profile mapping for `ddx agent run --profile`.
+  # ddx owns the model/effort defaults per profile; we just route intent.
+  local profile
+  profile="$(_helix_preset_to_profile "$preset")"
 
-  # Backwards-compat: explicit --model/--effort flags win over preset defaults
-  [[ -n "$agent_model" ]] && resolved_model="$agent_model"
-  [[ -n "$agent_effort" ]] && resolved_effort="$agent_effort"
+  # Explicit --model/--effort flags override the profile's defaults.
+  local resolved_model="$agent_model"
+  local resolved_effort="$agent_effort"
+  local resolved_timeout="${HELIX_AGENT_TIMEOUT:-2700}"
 
   if [[ "${HELIX_DIRECT_AGENT:-0}" != "1" ]] \
      && command -v ddx &>/dev/null \
      && ddx agent list &>/dev/null 2>&1; then
-    _run_agent_ddx "$prompt" "$resolved_model" "$resolved_effort" "$resolved_timeout"
+    _run_agent_ddx "$prompt" "$resolved_model" "$resolved_effort" "$resolved_timeout" "$profile"
     return $?
   fi
 
@@ -895,7 +877,7 @@ _extract_agent_text() {
 
 # Primary dispatch via ddx agent run.
 _run_agent_ddx() {
-  local prompt="$1" model_override="$2" effort_override="$3" agent_timeout="$4"
+  local prompt="$1" model_override="$2" effort_override="$3" agent_timeout="$4" profile="${5:-}"
   local prompt_bytes
   prompt_bytes="$(printf '%s' "$prompt" | wc -c)"
 
@@ -904,6 +886,7 @@ _run_agent_ddx() {
     --permissions unrestricted
     --timeout "${agent_timeout}s"
   )
+  [[ -n "$profile" ]] && ddx_flags+=(--profile "$profile")
   [[ -n "$model_override" ]] && ddx_flags+=(--model "$model_override")
   [[ -n "$effort_override" ]] && ddx_flags+=(--effort "$effort_override")
 

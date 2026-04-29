@@ -567,6 +567,68 @@ test_help() {
   rm -rf "$root"
 }
 
+test_dispatch_uses_supported_ddx_interface() {
+  # hx-f67b0560: scripts/helix must not call `ddx agent resolve` (a
+  # subcommand DDx does not expose) and must use a supported preset
+  # interface — `--profile <name>` on `ddx agent run` — when dispatching
+  # via DDx (i.e. when HELIX_DIRECT_AGENT=1 is NOT set).
+  local root
+  root="$(make_workspace)"
+
+  # ddx stub: emit a usable agent list, tripwire on `agent resolve`,
+  # and quietly succeed on anything else (dry-run never calls agent run).
+  cat >"$root/bin/ddx" <<'STUB'
+#!/usr/bin/env bash
+state_root="${MOCK_STATE_ROOT:?}"
+case "${1:-} ${2:-}" in
+  "agent list")
+    if [[ "${3:-}" == "--json" ]]; then
+      printf '[{"name":"codex","available":true}]\n'
+    else
+      printf 'codex (available)\n'
+    fi
+    ;;
+  "agent resolve")
+    printf 'TRIPWIRE: ddx agent resolve called: %s\n' "$*" \
+      >> "$state_root/ddx-resolve.log"
+    echo "Error: unknown subcommand 'resolve'" >&2
+    exit 99
+    ;;
+  *)
+    : # silent no-op for `agent run`, `agent capabilities`, etc.
+    ;;
+esac
+STUB
+  chmod +x "$root/bin/ddx"
+
+  local output rc=0
+  output="$(
+    cd "$root/work"
+    HOME="$root/home" \
+    PATH="$root/bin:$PATH" \
+    MOCK_STATE_ROOT="$root/state" \
+    HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+    HELIX_AGENT=codex \
+    HELIX_FORCE_EPHEMERAL=1 \
+    HELIX_REVIEW_AGENT="" \
+    HELIX_ALT_AGENT="none" \
+    HELIX_EXEC_CONTEXT=1 \
+    DDX_BEAD_DIR="$root/work/.ddx" \
+    DDX_DISABLE_UPDATE_CHECK=1 \
+    bash "$repo_root/scripts/helix" build --dry-run --quiet 2>&1
+  )" || rc=$?
+
+  [[ ! -f "$root/state/ddx-resolve.log" ]] || \
+    fail "ddx agent resolve must not be invoked: $(cat "$root/state/ddx-resolve.log")"
+  assert_contains "$output" "ddx agent run" \
+    "DDx-backed dispatch should print ddx agent run in dry-run output"
+  assert_contains "$output" "--profile fast" \
+    "build action should route via the supported --profile fast flag"
+  assert_contains "$output" "--harness codex" \
+    "dispatch should pin --harness to the configured agent"
+  rm -rf "$root"
+}
+
 test_help_no_side_effect() {
   # hx-de7b1ef2: `bash scripts/helix help` must not invoke codex (or any agent)
   # via heredoc command substitution; the Notes line includes a backticked
@@ -1953,6 +2015,7 @@ run_test "run continues after unparseable review output" test_run_fails_on_unpar
 
 # CLI integration tests
 run_test "help" test_help
+run_test "dispatch uses supported ddx interface" test_dispatch_uses_supported_ddx_interface
 run_test "help no side effect" test_help_no_side_effect
 run_test "bead help" test_bead_help
 run_test "check dry-run" test_check_dry_run
