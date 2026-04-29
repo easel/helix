@@ -46,7 +46,7 @@ nohup helix run > /tmp/helix-run.stdout.log 2> /tmp/helix-run.stderr.log &
 echo $! > /tmp/helix-run.pid
 ```
 
-Defaults are reasonable: cross-model review (codex builds, claude reviews),
+Defaults are reasonable: agent selection is driven by DDx harness discovery,
 review threshold 100 lines, alignment every 15 cycles, 45-min timeout.
 
 ### Monitoring a run

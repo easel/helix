@@ -187,7 +187,7 @@ Usage:
   helix next
   helix review [--agent <name>] [scope]
   helix experiment [--agent <name>] [--close] [issue-id|goal]
-  helix evolve [--agent codex|claude] [--scope S] [--artifact ID] [--from source] "requirement"
+  helix evolve [--agent <name>] [--scope S] [--artifact ID] [--from source] "requirement"
   helix triage "Title" [--type task|epic|bug|chore] [ddx bead create options...]
   ddx bead <command> [args...]
   helix help
@@ -212,7 +212,7 @@ Commands:
   triage      Create a bead via ddx bead create
 
 Options:
-  --agent           Agent to use: codex or claude (default: ${agent})
+  --agent           Agent harness (any name from \`ddx agent list\`, default: ${agent})
   --claude          Shorthand for --agent claude
   --codex           Shorthand for --agent codex
   --model           Model to use (overrides ddx preset resolution)
@@ -232,7 +232,7 @@ Environment:
   HELIX_ALT_AGENT      Alternate agent for adversarial rotation (auto-detected via ddx)
   HELIX_AGENT_TIMEOUT  Agent timeout in seconds (default: 2700)
   HELIX_LIBRARY_ROOT   Override the library root that contains workflows/
-  HELIX_TRACKER_DIR    Override the tracker directory (default: .helix/)
+  HELIX_TRACKER_DIR    Override the tracker directory (default: .ddx/)
 
 Preset system:
   HELIX actions bind to presets: smart (frame, design, align, review, evolve),

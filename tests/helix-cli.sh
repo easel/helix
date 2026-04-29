@@ -553,6 +553,17 @@ test_help() {
   assert_contains "$output" "helix run" "help should list run command"
   assert_contains "$output" "--review-every" "help should list review option"
   assert_not_contains "$output" $'\n  tracker ' "help should not list tracker command"
+  # hx-09e8ad7a: evolve usage line uses generic --agent <name>, not codex|claude
+  assert_contains "$output" "helix evolve [--agent <name>]" \
+    "evolve usage should use generic --agent <name> syntax"
+  assert_not_contains "$output" "[--agent codex|claude]" \
+    "no usage line should hardcode codex|claude after DDx harness discovery"
+  # hx-0e28c5ab: --agent option and HELIX_TRACKER_DIR default reflect generic
+  # DDx-discovered harnesses and the actual .ddx tracker directory
+  assert_not_contains "$output" "Agent to use: codex or claude" \
+    "--agent option should not name codex or claude specifically"
+  assert_contains "$output" "HELIX_TRACKER_DIR    Override the tracker directory (default: .ddx/)" \
+    "HELIX_TRACKER_DIR should document .ddx/ as the default"
   rm -rf "$root"
 }
 
