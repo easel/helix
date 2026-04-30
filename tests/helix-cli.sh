@@ -3549,13 +3549,24 @@ test_cross_model_review_switches_agent() {
 #!/usr/bin/env bash
 state_root="${MOCK_STATE_ROOT:?}"
 record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
-# claude is used for implementation
+# claude is used for implementation. ddx agent list probes harnesses with
+# `claude --version` / `claude --no-alt-screen` to test availability — those
+# probes would fire the destructive close-bead path and break the run loop's
+# ready-count gate before implementation ever starts. Guard the close-bead
+# side effect behind a payload check so only real prompt invocations apply.
 record "claude-call"
-if [[ -f .ddx/beads.jsonl ]]; then
-  tmp="$(ddx jq -c '.status = "closed"' .ddx/beads.jsonl)"
-  printf '%s\n' "$tmp" > .ddx/beads.jsonl
-fi
-echo "implementation complete"
+case "$*" in
+  *--permission-mode*|*"implementation action"*|*"review action"*|*"check action"*)
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(ddx jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *)
+    : # availability probe (--version, --no-alt-screen, etc.) — no-op
+    ;;
+esac
 MOCK
   chmod +x "$root/bin/claude"
 
