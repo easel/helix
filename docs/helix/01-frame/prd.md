@@ -15,7 +15,7 @@ The primary product experience is not a bag of commands. It is a loop in which
 the user can work interactively at any layer, often by talking directly to an
 agent, while HELIX autonomously detects downstream implications, selects the
 least-powerful sufficient next action, and advances the workflow without
-requiring repeated manual orchestration. `helix-run` is therefore an optional
+requiring repeated manual orchestration. `helix run` is therefore an optional
 convenience entrypoint to the supervisory loop, not the only valid way to
 access it.
 
@@ -53,7 +53,7 @@ That creates three failures:
 
 | Metric | Target | Measurement Method | Timeline |
 |--------|--------|-------------------|----------|
-| Autopilot progression | `helix-run` can advance from existing vision/requirements through downstream refinement and bounded execution without explicit phase instructions | End-to-end scenario tests and workflow walkthroughs | Year 1 |
+| Autopilot progression | `helix run` can advance from existing vision/requirements through downstream refinement and bounded execution without explicit phase instructions | End-to-end scenario tests and workflow walkthroughs | Year 1 |
 | Reduced orchestration burden | Users rarely need to tell HELIX which phase to enter next when authority is sufficient | Qualitative operator evaluation and session review | Year 1 |
 | Trigger correctness | Requirement changes, spec changes, and ready implementation work route to the expected HELIX actions | Deterministic tests and spec-driven examples | Year 1 |
 | Safe escalation | HELIX asks for input mainly at real judgment boundaries, not because the control contract is underspecified | Review of intervention points in representative sessions | Year 2 |
@@ -64,8 +64,6 @@ That creates three failures:
 - Replace product, design, or prioritization judgment with guessed decisions.
 - Require autopilot mode for all users or all tasks.
 - Flatten all HELIX phases into one generic prompt.
-
-Deferred items tracked in `docs/helix/parking-lot.md`.
 
 ## Users and Scope
 
@@ -88,9 +86,9 @@ Deferred items tracked in `docs/helix/parking-lot.md`.
 
 ### Must Have (P0)
 
-1. `helix-run` acts as HELIX's supervisory autopilot rather than a narrow
+1. `helix run` acts as HELIX's supervisory autopilot rather than a narrow
    command wrapper.
-2. `helix-run` continuously selects the highest-leverage next bounded action
+2. `helix run` continuously selects the highest-leverage next bounded action
    that can be taken safely without user input.
 3. HELIX applies the principle of least power when choosing the next action.
    It should refine or reconcile existing artifacts before escalating to larger
@@ -100,7 +98,7 @@ Deferred items tracked in `docs/helix/parking-lot.md`.
      needed.
    - A specification or design change triggers issue refinement when open work
      already exists.
-   - A specification or issue refinement made during a live `helix-run`
+   - A specification or issue refinement made during a live `helix run`
      session must be observed at the next safe execution boundary rather than
      ignored until a later manual restart.
    - Ready execution work triggers bounded implementation.
@@ -116,10 +114,10 @@ Deferred items tracked in `docs/helix/parking-lot.md`.
    rules.
 9. Alignment, review, measure, and report flows must capture every actionable
    result as properly ordered beads instead of leaving prose-only next steps.
-10. `helix-run` must support concurrent local operation where an automated
+10. `helix run` must support concurrent local operation where an automated
    session advances execution while an operator or another agent refines specs
    and tracker issues interactively.
-11. `helix-run` must revalidate issue state before claim and before close so
+11. `helix run` must revalidate issue state before claim and before close so
    concurrent refinement does not lead to stale execution or false completion.
 12. HELIX must be distributed and installed as one skill pack, not as isolated
    standalone skills copied without their shared resources.
@@ -142,7 +140,7 @@ Deferred items tracked in `docs/helix/parking-lot.md`.
 5. Packaging and installer rules make incomplete skill-only installs invalid
    rather than silently degrading shared-resource access.
 6. Deterministic tests cover queue drift caused by concurrent interactive
-   refinement while `helix-run` is active.
+   refinement while `helix run` is active.
 7. `helix status` provides a structured lifecycle snapshot: run-controller
    state, current claimed work, blocked issues with reasons, pending human
    decisions, and next recommended action.
@@ -460,7 +458,7 @@ verb: `run`, `status`, `evolve`, `review`, `align`, `polish`, `experiment`.
 
 ## Success Criteria
 
-- `helix-run` is defined as HELIX's supervisory autopilot in the product docs.
+- `helix run` is defined as HELIX's supervisory autopilot in the product docs.
 - The PRD makes clear when HELIX should continue autonomously and when it must
   stop for user input.
 - The PRD defines the required transitions among requirement changes, design

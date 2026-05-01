@@ -9,8 +9,8 @@ dun:
 ---
 # Architecture
 
-HELIX is a methodology layer running on the [DDx](https://github.com/easel/ddx)
-platform substrate. Architecturally it is three things:
+HELIX is a methodology layer running on the
+[DDx](https://github.com/DocumentDrivenDX/ddx) platform substrate. Architecturally it is three things:
 
 1. A **knowledge graph of artifacts** in `docs/<project>/helix/` that captures
    product, design, test, and operational intent across seven phases.

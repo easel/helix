@@ -134,7 +134,7 @@ The loop must distinguish between attempted work and completed work.
 - The Codex runner must capture stdout and stderr together before token
   extraction so the `tokens used` footer is accounted for regardless of which
   stream Codex used.
-- `.ddx/context.md` must be regenerated at run start, on epic switch, and
+- `.helix/context.md` must be regenerated at run start, on epic switch, and
   after every 5 completed build cycles. The generator must include:
   - the Quick Reference build and test commands from `AGENTS.md`
   - current open, in-progress, ready-execution, and closed issue counts

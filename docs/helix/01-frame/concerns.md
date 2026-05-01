@@ -29,7 +29,7 @@ Examples:
 ### hugo-hextra
 - **Theme version**: Hextra v0.12.1 — pinned in `website/go.mod`
 - **Hugo version**: 0.159.2 extended — pinned in `.github/workflows/pages.yml`
-- **Deployment**: GitHub Pages at `easel.github.io/helix/`
+- **Deployment**: GitHub Pages at `documentdrivendx.github.io/helix/`
 - **Custom shortcode**: `asciinema.html` for terminal recording embeds
 
 ### demo-asciinema

@@ -124,11 +124,25 @@ HELIX_REAL_EXAMPLES = {
     "security-metrics":      "docs/helix/06-iterate/security-metrics.md",
 }
 
-# Toggle the rendering path. Stays False until PR 2 (the alignment-audit PR).
-HELIX_REAL_EXAMPLES_ENABLED = False
+# Toggle the rendering path. Enabled in PR 2 after the alignment audit.
+HELIX_REAL_EXAMPLES_ENABLED = True
+
+# Of the slugs in HELIX_REAL_EXAMPLES, only these are publishable per the
+# 2026-05-01 alignment review (AR-2026-05-01-public-examples.md).
+# Others fall through to the example.md fallback or "no example yet".
+HELIX_REAL_EXAMPLES_PUBLISHABLE = {
+    "product-vision",
+    "prd",
+    "concerns",
+    "feature-specification",
+    "architecture",
+    "adr",
+    "contract",
+    "technical-design",
+}
 
 # Branch to pin embedded relative-link rewrites against.
-HELIX_REPO_BLOB_BASE = "https://github.com/easel/helix/blob/main"
+HELIX_REPO_BLOB_BASE = "https://github.com/DocumentDrivenDX/helix/blob/main"
 
 
 def validate_helix_real_examples() -> None:
@@ -479,18 +493,50 @@ def render_artifact_page(art: dict, all_slugs: set) -> str:
 
     out.append("## Example")
     out.append("")
-    if art["example"]:
-        out.append("<details>")
-        out.append("<summary>Show a worked example of this artifact</summary>")
+
+    # Resolution order:
+    #   1. HELIX_REAL_EXAMPLES (if enabled and slug is in PUBLISHABLE)
+    #   2. hand-authored example.md
+    #   3. fallback "no example yet"
+    real_example_rendered = False
+    if (
+        HELIX_REAL_EXAMPLES_ENABLED
+        and slug in HELIX_REAL_EXAMPLES_PUBLISHABLE
+        and slug in HELIX_REAL_EXAMPLES
+    ):
+        rel_path = HELIX_REAL_EXAMPLES[slug]
+        full_path = ROOT / rel_path
+        if full_path.exists():
+            raw = full_path.read_text()
+            embedded = normalize_embedded_doc(raw, rel_path)
+            blob_url = f"{HELIX_REPO_BLOB_BASE}/{rel_path}"
+            out.append(
+                f"This example is HELIX's actual {name.lower()}, sourced from "
+                f"[`{rel_path}`]({blob_url}). It shows how this artifact is "
+                "used in a live methodology project; it may include "
+                "project-specific context."
+            )
+            out.append("")
+            out.append(embedded.strip())
+            out.append("")
+            real_example_rendered = True
+
+    if not real_example_rendered:
+        if art["example"]:
+            out.append("<details>")
+            out.append("<summary>Show a worked example of this artifact</summary>")
+            out.append("")
+            out.append("``````markdown")
+            out.append(art["example"].strip())
+            out.append("``````")
+            out.append("")
+            out.append("</details>")
+        else:
+            out.append(
+                "_No worked example captured yet. The prompt and template "
+                "above describe the canonical structure._"
+            )
         out.append("")
-        out.append("``````markdown")
-        out.append(art["example"].strip())
-        out.append("``````")
-        out.append("")
-        out.append("</details>")
-    else:
-        out.append("_No worked example captured yet. The prompt and template above describe the canonical structure._")
-    out.append("")
 
     return "\n".join(out)
 
