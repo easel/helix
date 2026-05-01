@@ -1,0 +1,145 @@
+# PR-FAQ (Press Release + FAQ) Dependencies
+
+artifact:
+  name: PR-FAQ
+  id: pr-faq
+  type: document
+  phase: frame
+
+description: |
+  Working-backwards artifact: a launch-day press release plus an internal FAQ,
+  written before the product is built. Bridges Product Vision (long-term
+  direction) to PRD (concrete requirements) by forcing commitment to a
+  specific customer outcome and surfacing the hard questions the PRD must
+  answer.
+
+dependencies:
+  requires:
+    - input: Product Vision
+      type: artifact
+      phase: "00-discover"
+      path: product-vision
+      required: true
+      relationship: "sets long-term direction; PR-FAQ narrows to a specific launch outcome within it"
+    - input: Opportunity Canvas
+      type: artifact
+      phase: "00-discover"
+      path: opportunity-canvas
+      required: false
+      relationship: "frames the customer problem and segment"
+    - input: Business Case
+      type: artifact
+      phase: "00-discover"
+      path: business-case
+      required: false
+      relationship: "informs the economic FAQs"
+
+  enables:
+    - output: PRD
+      type: artifact
+      path: prd
+      relationship: "press release outcome and FAQ open questions seed the PRD"
+    - output: Stakeholder Map
+      type: artifact
+      path: stakeholder-map
+      relationship: "internal FAQ surfaces who must be in the loop"
+    - output: Principles
+      type: artifact
+      path: principles
+      relationship: "customer commitments inform design principles"
+
+output:
+  location: docs/helix/01-frame/pr-faq.md
+  format: markdown
+
+validation:
+  required_sections:
+    - press_release_headline
+    - press_release_subhead
+    - press_release_summary
+    - the_problem
+    - the_solution
+    - leader_quote
+    - how_it_works
+    - customer_quote
+    - availability
+    - external_faqs
+    - internal_faqs
+
+  quality_checks:
+    - check: press_release_names_specific_customer
+      description: Press release names a specific customer segment and use case
+      severity: blocking
+
+    - check: customer_quote_in_their_words
+      description: Customer quote describes the outcome they got, not product features
+      severity: blocking
+
+    - check: faq_surfaces_feasibility_risk
+      description: Internal FAQ surfaces at least one credible feasibility or technical risk
+      severity: blocking
+
+    - check: faq_surfaces_economic_question
+      description: Internal FAQ confronts pricing, unit economics, or funding plausibility
+      severity: blocking
+
+    - check: faq_names_what_kills_project
+      description: Internal FAQ states what would cause the team to abandon the project
+      severity: blocking
+
+    - check: external_faq_covers_alternatives
+      description: External FAQ compares to alternatives and names who this is not for
+      severity: blocking
+
+    - check: not_in_v1_explicit
+      description: A FAQ explicitly states what is out of scope for v1
+      severity: blocking
+
+    - check: no_unresolved_markers
+      description: No [TBD], [TODO], or [NEEDS CLARIFICATION] markers remain
+      severity: blocking
+
+    - check: press_release_under_350_words
+      description: Press release stays under ~350 words
+      severity: warning
+
+    - check: experiments_named
+      description: An internal FAQ names an experiment or validation step required before commit
+      severity: warning
+
+    - check: no_marketing_fluff
+      description: Press release avoids "revolutionary", "game-changing", and similar fluff
+      severity: warning
+
+    - check: dates_and_numbers_specific
+      description: Availability, pricing, and timelines use specific dates and numbers
+      severity: warning
+
+workflow:
+  creation_order: 0.5
+  review_cycles: 1-2
+  approval_required: true
+  approvers:
+    - Product Owner
+    - Sponsor
+    - Technical Lead
+
+relationships:
+  informs:
+    - prd
+    - principles
+    - stakeholder-map
+    - feature-specification
+
+  referenced_by:
+    - prd
+    - solution-design
+    - feature-specification
+
+tags:
+  - business
+  - vision
+  - validation
+  - framing
+  - customer
+  - working-backwards

@@ -1,0 +1,72 @@
+/*
+ * HELIX design tokens — see .stitch/DESIGN.md
+ *
+ * DDx uses Cold Steel (#3B5B7A) / Aged Brass (#A8801F) / Iron Gray (#3F4147).
+ * HELIX complements with a biological palette: coral (human) + indigo (AI) + violet (connection).
+ * The indigo echoes DDx's steel-blue family; coral and violet are HELIX-only territory.
+ */
+:root {
+  --helix-human:        #C44B2F;   /* Terracotta coral — warm, organic, human */
+  --helix-human-light:  #E07A5F;
+  --helix-ai:           #3B6BA8;   /* Indigo — echoes DDx steel blue, more vibrant */
+  --helix-ai-light:     #6B9FD4;
+  --helix-connect:      #6842A8;   /* Violet — the rung/handoff color; bridges coral ↔ indigo */
+  --helix-connect-light:#9B74D4;
+
+  /*
+   * Hextra primary color — drives buttons, links, focus rings, accents.
+   * Maps to --helix-ai (#3B6BA8 ≈ HSL 213deg, 48%, 45%), the indigo execution
+   * strand from DESIGN.md. Grounded, technical, already part of the brand.
+   */
+  --primary-hue:        213deg;
+  --primary-saturation: 48%;
+  --primary-lightness:  40%;
+}
+
+.dark {
+  --helix-human:        #E07A5F;
+  --helix-human-light:  #F4A990;
+  --helix-ai:           #6B9FD4;
+  --helix-ai-light:     #A3C4E8;
+  --helix-connect:      #9B74D4;
+  --helix-connect-light:#C3A8E8;
+
+  /* Lift primary lightness for dark-mode legibility */
+  --primary-lightness:  62%;
+}
+
+/* Hero layout: SVG right of text on md+, stacked on mobile */
+.helix-hero-layout {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.helix-hero-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.helix-hero-visual {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.helix-hero-visual svg {
+  width: 300px;
+  height: 420px;
+  display: block;
+}
+
+@media (max-width: 767px) {
+  .helix-hero-layout {
+    flex-direction: column-reverse;
+  }
+
+  .helix-hero-visual svg {
+    width: 200px;
+    height: 280px;
+  }
+}

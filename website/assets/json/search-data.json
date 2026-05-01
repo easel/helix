@@ -27,7 +27,7 @@
   {{- end -}}
 {{- end -}}
 
-{{- $glossaryPage := site.GetPage "/docs/glossary" -}}
+{{- $glossaryPage := site.GetPage "/reference/glossary" -}}
 {{- if not $glossaryPage -}}
   {{- errorf "glossary page not found" -}}
 {{- end -}}

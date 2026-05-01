@@ -1,0 +1,194 @@
+# Metadata for PR-FAQ (Press Release + Frequently Asked Questions)
+
+artifact:
+  name: PR-FAQ
+  id: pr-faq
+  type: document
+  phase: frame
+
+description: |
+  A working-backwards artifact pairing a launch-day press release with an
+  internal FAQ. The press release forces the team to commit to a concrete
+  customer outcome before any design or implementation; the FAQ surfaces the
+  hard questions — economics, feasibility, adoption, regulatory exposure —
+  that the PRD will then have to answer. HELIX uses the PR-FAQ as a focus
+  and validation step between the Product Vision and the PRD.
+
+dependencies:
+  requires:
+    - input: Product Vision
+      type: artifact
+      phase: "00-discover"
+      path: product-vision
+      required: true
+      relationship: "sets the long-term direction the PR-FAQ commits to a customer outcome within"
+    - input: Opportunity Canvas
+      type: artifact
+      phase: "00-discover"
+      path: opportunity-canvas
+      required: false
+      relationship: "frames the customer problem and segment"
+    - input: Business Case
+      type: artifact
+      phase: "00-discover"
+      path: business-case
+      required: false
+      relationship: "informs the economic FAQs"
+
+  enables:
+    - output: PRD
+      type: artifact
+      path: prd
+      relationship: "the press release outcome and FAQ open questions seed the PRD's problem statement, scope, and risks"
+    - output: Stakeholder Map
+      type: artifact
+      path: stakeholder-map
+      relationship: "internal FAQ surfaces who needs to be in the loop"
+    - output: Principles
+      type: artifact
+      path: principles
+      relationship: "customer commitments from the press release inform design principles"
+
+output:
+  location: docs/helix/01-frame/pr-faq.md
+  format: markdown
+  naming: pr-faq.md
+
+validation:
+  required_sections:
+    - press_release_headline
+    - press_release_subhead
+    - press_release_summary
+    - the_problem
+    - the_solution
+    - leader_quote
+    - how_it_works
+    - customer_quote
+    - availability
+    - external_faqs
+    - internal_faqs
+
+  quality_checks:
+    - check: press_release_names_specific_customer
+      description: Press release names a specific customer segment and use case, not a generic "users"
+      severity: blocking
+
+    - check: customer_quote_in_their_words
+      description: Customer quote sounds like the imagined customer would actually say it — names the outcome they got, not the product's features
+      severity: blocking
+
+    - check: press_release_under_350_words
+      description: Press release section stays under ~350 words (Amazon convention)
+      severity: warning
+
+    - check: faq_surfaces_feasibility_risk
+      description: Internal FAQ surfaces at least one credible feasibility, technical, or scaling risk
+      severity: blocking
+
+    - check: faq_surfaces_economic_question
+      description: Internal FAQ confronts pricing, unit economics, or funding plausibility
+      severity: blocking
+
+    - check: faq_names_what_kills_project
+      description: Internal FAQ includes a "what would cause us to abandon this?" or equivalent kill-criteria question
+      severity: blocking
+
+    - check: external_faq_covers_alternatives
+      description: External FAQ explicitly compares to existing alternatives and explains who this is NOT for
+      severity: blocking
+
+    - check: not_in_v1_explicit
+      description: External or internal FAQ explicitly states what is out of scope for v1
+      severity: blocking
+
+    - check: experiments_named
+      description: At least one internal FAQ names an experiment or validation step required before commit
+      severity: warning
+
+    - check: no_marketing_fluff
+      description: Press release reads like a wire-service story, not a sales deck — no "revolutionary", "game-changing", "world-class"
+      severity: warning
+
+    - check: dates_and_numbers_specific
+      description: Availability, pricing, and timelines use specific dates and numbers, not "soon" or "competitive"
+      severity: warning
+
+  automated_checks:
+    - pattern: "\\[TBD\\]|\\[TODO\\]|\\[NEEDS CLARIFICATION"
+      expected: 0
+      message: Remove all unresolved markers before approval
+
+    - pattern: "\\[BRACKETED PLACEHOLDER"
+      expected: 0
+      message: Replace template placeholders with real content
+
+variables:
+  - name: product_name
+    description: Name of the product being launched
+    required: true
+
+  - name: launch_date
+    description: Imagined launch date used in the press release dateline
+    required: true
+
+  - name: target_customer
+    description: Specific customer segment the press release is written to
+    required: true
+
+  - name: company_name
+    description: Company or team issuing the release
+    required: true
+
+prompts:
+  generation: prompt.md
+  review: |
+    Review this PR-FAQ for:
+    1. Whether the press release commits to a specific customer outcome
+    2. Whether the customer quote sounds like a real customer, not marketing
+    3. Whether the FAQ confronts the actual hard questions (economics, feasibility, adoption)
+    4. Whether kill criteria and v1 scope boundaries are explicit
+    5. Whether the open questions and experiments are concrete enough to seed a PRD
+
+template:
+  file: template.md
+  sections:
+    - press_release: "Write the headline last; it should be the sharpest line in the document"
+    - the_problem: "Use the customer's words, not yours"
+    - customer_quote: "Make it about the outcome, not the product"
+    - internal_faqs: "If a question feels uncomfortable to write, it belongs here"
+
+examples:
+  - file: example.md
+    description: Sample PR-FAQ for a fictional small-business invoicing tool that auto-reconciles against bank deposits
+
+workflow:
+  creation_order: 0.5
+  review_cycles: 1-2
+  approval_required: true
+  approvers:
+    - Product Owner
+    - Sponsor
+    - Technical Lead
+
+relationships:
+  informs:
+    - prd
+    - principles
+    - stakeholder-map
+    - feature-specification
+
+  referenced_by:
+    - prd
+    - solution-design
+    - feature-specification
+
+tags:
+  - business
+  - vision
+  - validation
+  - framing
+  - customer
+  - working-backwards
+
+version: 1.0.0
+last_updated: 2026-05-01

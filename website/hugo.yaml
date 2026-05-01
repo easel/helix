@@ -18,27 +18,21 @@ markup:
 
 menu:
   main:
-    - name: Docs
-      pageRef: /docs
+    - name: Why HELIX
+      pageRef: /why
       weight: 1
-    - name: Background
-      pageRef: /docs/background
+    - name: Artifacts
+      pageRef: /artifacts
       weight: 2
-    - name: Workflow
-      pageRef: /docs/workflow
+    - name: Concerns
+      pageRef: /concerns
       weight: 3
-    - name: CLI Reference
-      pageRef: /docs/cli
+    - name: Use HELIX
+      pageRef: /use
       weight: 4
-    - name: Skills
-      pageRef: /docs/skills
+    - name: Reference
+      pageRef: /reference
       weight: 5
-    - name: Glossary
-      pageRef: /docs/glossary
-      weight: 6
-    - name: Demos
-      pageRef: /docs/demos
-      weight: 7
     - name: GitHub
       url: https://github.com/easel/helix
       weight: 10

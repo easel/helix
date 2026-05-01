@@ -1,0 +1,184 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 240 420"
+  width="300"
+  height="420"
+  role="img"
+  aria-labelledby="helix-svg-title"
+  preserveAspectRatio="xMidYMid meet"
+  class="helix-hero-svg"
+>
+  <title id="helix-svg-title">Double helix: a coral planning strand and an indigo execution strand intertwined, joined by violet feedback rungs that flash as signals travel through each loop.</title>
+
+  <defs>
+    <linearGradient id="grad-human" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="var(--helix-human-light)"/>
+      <stop offset="50%"  stop-color="var(--helix-human)"/>
+      <stop offset="100%" stop-color="var(--helix-human-light)"/>
+    </linearGradient>
+    <linearGradient id="grad-human-hi" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="var(--helix-human-light)" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="var(--helix-human-light)" stop-opacity="0.55"/>
+    </linearGradient>
+    <linearGradient id="grad-ai" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="var(--helix-ai-light)"/>
+      <stop offset="50%"  stop-color="var(--helix-ai)"/>
+      <stop offset="100%" stop-color="var(--helix-ai-light)"/>
+    </linearGradient>
+    <linearGradient id="grad-ai-hi" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="var(--helix-ai-light)" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="var(--helix-ai-light)" stop-opacity="0.55"/>
+    </linearGradient>
+    <linearGradient id="grad-rung" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="var(--helix-human)"/>
+      <stop offset="50%"  stop-color="var(--helix-connect)"/>
+      <stop offset="100%" stop-color="var(--helix-ai)"/>
+    </linearGradient>
+    <filter id="strand-shadow" x="-20%" y="-5%" width="140%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2.2" flood-opacity="0.22"/>
+    </filter>
+    <filter id="pulse-glow" x="-150%" y="-150%" width="400%" height="400%">
+      <feGaussianBlur stdDeviation="2.4" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Hidden full-length motion paths. Required because the visible strands
+         are split into front/back segments for z-ordering — a continuous
+         pulse can't follow segmented paths. -->
+    <path id="motion-planning"  d="M 120,0 C 157,35 190,70 190,105 C 190,140 157,175 120,210 C 83,245 50,280 50,315 C 50,350 83,385 120,420" fill="none" stroke="none"/>
+    <path id="motion-execution" d="M 120,0 C 83,35 50,70 50,105 C 50,140 83,175 120,210 C 157,245 190,280 190,315 C 190,350 157,385 120,420" fill="none" stroke="none"/>
+  </defs>
+
+  <style>
+    .helix-hero-svg {
+      --helix-human:        #C44B2F;
+      --helix-human-light:  #E07A5F;
+      --helix-ai:           #3B6BA8;
+      --helix-ai-light:     #6B9FD4;
+      --helix-connect:      #6842A8;
+      overflow: visible;
+    }
+    .dark .helix-hero-svg {
+      --helix-human:        #E07A5F;
+      --helix-human-light:  #F4A990;
+      --helix-ai:           #6B9FD4;
+      --helix-ai-light:     #A3C4E8;
+      --helix-connect:      #9B74D4;
+    }
+    .helix-hero-svg .strand-front { fill: none; stroke-linecap: round; stroke-width: 7; filter: url(#strand-shadow); }
+    .helix-hero-svg .strand-back  { fill: none; stroke-linecap: round; stroke-width: 4; opacity: 0.4; }
+    .helix-hero-svg .strand-hi    { fill: none; stroke-linecap: round; stroke-width: 2.2; opacity: 0.85; }
+    .helix-hero-svg .rung         { stroke: url(#grad-rung); stroke-width: 2.4; stroke-linecap: round; opacity: 0.45; fill: none; }
+    .helix-hero-svg .rung-end     { fill: url(#grad-rung); opacity: 0.45; }
+    .helix-hero-svg .rung-dot     { fill: var(--helix-connect); opacity: 0.55; }
+    .helix-hero-svg .pulse        { filter: url(#pulse-glow); }
+    .helix-hero-svg .pulse-planning  { fill: var(--helix-human-light); }
+    .helix-hero-svg .pulse-execution { fill: var(--helix-ai-light); }
+
+    /*
+     * Synced rung flash. Both pulses run a 10s cycle; the planning pulse
+     * passes each rung at the timestamps below (y/420 * 10s). Flash duration
+     * is 0.45s — enough to read as an event, brief enough not to dominate.
+     */
+    @keyframes rung-flash {
+      0%   { opacity: 1; }
+      4.5% { opacity: 0.45; }
+      100% { opacity: 0.45; }
+    }
+    @keyframes dot-flash {
+      0%   { opacity: 1; }
+      4.5% { opacity: 0.55; }
+      100% { opacity: 0.55; }
+    }
+
+    .helix-hero-svg .rung,
+    .helix-hero-svg .rung-end {
+      animation: rung-flash 10s linear infinite;
+    }
+    .helix-hero-svg .rung-dot {
+      animation: dot-flash 10s linear infinite;
+    }
+
+    .helix-hero-svg .r1, .helix-hero-svg .d1 { animation-delay: 1.25s; }
+    .helix-hero-svg .r2, .helix-hero-svg .d2 { animation-delay: 2.5s;  }
+    .helix-hero-svg .r3, .helix-hero-svg .d3 { animation-delay: 3.75s; }
+    .helix-hero-svg .r4, .helix-hero-svg .d4 { animation-delay: 5s;    }
+    .helix-hero-svg .r5, .helix-hero-svg .d5 { animation-delay: 6.25s; }
+    .helix-hero-svg .r6, .helix-hero-svg .d6 { animation-delay: 7.5s;  }
+    .helix-hero-svg .r7, .helix-hero-svg .d7 { animation-delay: 8.75s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .helix-hero-svg .pulse { display: none; }
+      .helix-hero-svg .rung,
+      .helix-hero-svg .rung-end,
+      .helix-hero-svg .rung-dot {
+        animation: none !important;
+        opacity: 0.65 !important;
+      }
+    }
+  </style>
+
+  <g class="helix-figure">
+    <!-- BACK LAYER: dimmer, thinner, no highlight -->
+    <g aria-hidden="true">
+      <path class="strand-back" stroke="url(#grad-ai)"    d="M 120,0 C 83,35 50,70 50,105"/>
+      <path class="strand-back" stroke="url(#grad-human)" d="M 190,105 C 190,140 157,175 120,210"/>
+      <path class="strand-back" stroke="url(#grad-human)" d="M 120,210 C 83,245 50,280 50,315"/>
+      <path class="strand-back" stroke="url(#grad-ai)"    d="M 190,315 C 190,350 157,385 120,420"/>
+    </g>
+
+    <!-- RUNGS (between layers so back strand is occluded but front overlaps rung at crossings) -->
+    <g aria-hidden="true">
+      <line    class="rung r1"     x1="63"  y1="52.5"  x2="177" y2="52.5"/>
+      <line    class="rung r2"     x1="50"  y1="105"   x2="190" y2="105"/>
+      <line    class="rung r3"     x1="63"  y1="157.5" x2="177" y2="157.5"/>
+      <ellipse class="rung-end r4" cx="120" cy="210"   rx="3.5" ry="9"/>
+      <line    class="rung r5"     x1="63"  y1="262.5" x2="177" y2="262.5"/>
+      <line    class="rung r6"     x1="50"  y1="315"   x2="190" y2="315"/>
+      <line    class="rung r7"     x1="63"  y1="367.5" x2="177" y2="367.5"/>
+    </g>
+
+    <!-- FRONT LAYER: full opacity, with tube highlight -->
+    <g aria-hidden="true">
+      <path class="strand-front" stroke="url(#grad-human)"    d="M 120,0 C 157,35 190,70 190,105"/>
+      <path class="strand-hi"    stroke="url(#grad-human-hi)" d="M 118,2 C 154,36 187,70 187,104"/>
+      <path class="strand-front" stroke="url(#grad-ai)"       d="M 50,105 C 50,140 83,175 120,210"/>
+      <path class="strand-hi"    stroke="url(#grad-ai-hi)"    d="M 47,106 C 47,140 81,173 118,208"/>
+      <path class="strand-front" stroke="url(#grad-ai)"       d="M 120,210 C 157,245 190,280 190,315"/>
+      <path class="strand-hi"    stroke="url(#grad-ai-hi)"    d="M 118,212 C 154,246 187,280 187,314"/>
+      <path class="strand-front" stroke="url(#grad-human)"    d="M 50,315 C 50,350 83,385 120,420"/>
+      <path class="strand-hi"    stroke="url(#grad-human-hi)" d="M 47,316 C 47,350 81,383 118,418"/>
+    </g>
+
+    <!-- Midpoint feedback dots — one per rung, flash with the rung -->
+    <g aria-hidden="true">
+      <circle class="rung-dot d1" cx="120" cy="52.5"  r="3.2"/>
+      <circle class="rung-dot d2" cx="120" cy="105"   r="3.6"/>
+      <circle class="rung-dot d3" cx="120" cy="157.5" r="3.2"/>
+      <circle class="rung-dot d4" cx="120" cy="210"   r="2.8"/>
+      <circle class="rung-dot d5" cx="120" cy="262.5" r="3.2"/>
+      <circle class="rung-dot d6" cx="120" cy="315"   r="3.6"/>
+      <circle class="rung-dot d7" cx="120" cy="367.5" r="3.2"/>
+    </g>
+
+    <!-- TRAVELING SIGNALS: two pulses, one per loop, same 10s duration,
+         execution offset by -5s so they travel in coordinated antiphase.
+         The dots track the planning passage; the execution pulse runs alongside,
+         making the second loop visible without doubling every flash event. -->
+    <g aria-hidden="true">
+      <circle class="pulse pulse-planning" r="5">
+        <animateMotion dur="10s" repeatCount="indefinite" calcMode="linear">
+          <mpath href="#motion-planning"/>
+        </animateMotion>
+      </circle>
+      <circle class="pulse pulse-execution" r="5">
+        <animateMotion dur="10s" repeatCount="indefinite" calcMode="linear" begin="-5s">
+          <mpath href="#motion-execution"/>
+        </animateMotion>
+      </circle>
+    </g>
+  </g>
+</svg>

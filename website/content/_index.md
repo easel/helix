@@ -3,67 +3,58 @@ title: HELIX
 layout: hextra-home
 ---
 
+<div class="helix-hero-layout">
+<div class="helix-hero-text">
+
 {{< hextra/hero-badge link="https://github.com/DocumentDrivenDX/helix" >}}
   <span>Open Source</span>
   {{< icon name="arrow-circle-right" attributes="height=14" >}}
 {{< /hextra/hero-badge >}}
 
-<div class="hx-mt-6 hx-mb-6">
 {{< hextra/hero-headline >}}
-  Express intent once.&nbsp;<br class="sm:hx-block hx-hidden" />Let HELIX carry the rest.
+A methodology for&nbsp;<br class="sm:hx-block hx-hidden" />AI-assisted software.
 {{< /hextra/hero-headline >}}
-</div>
 
-<div class="hx-mb-12">
 {{< hextra/hero-subtitle >}}
-  Supervised autopilot for AI-assisted software delivery.&nbsp;<br class="sm:hx-block hx-hidden" />Plans, builds, reviews, and iterates — stopping only when human judgment is needed.
+Seven phases. A graph of governing artifacts.&nbsp;<br class="sm:hx-block hx-hidden" />Cross-cutting concerns that travel with the work.
 {{< /hextra/hero-subtitle >}}
+
+<div class="hx-mt-8">
+{{< hextra/hero-button text="Get Started" link="use/getting-started" >}}
 </div>
 
-<div class="hx-mb-12">
-{{< hextra/hero-button text="Get Started" link="docs/getting-started" >}}
-{{< hextra/hero-button text="Workflow Guide" link="docs/workflow" style="alt" >}}
 </div>
-
-<div class="hx-mt-8"></div>
-
-{{< hextra/feature-grid >}}
-  {{< hextra/feature-card
-    title="Supervisory Autopilot"
-    subtitle="helix run continuously selects the highest-leverage next action — frame, design, build, review, align — until human input is actually needed."
-    class="hx-aspect-auto md:hx-aspect-[1.1/1] max-md:hx-min-h-[340px]"
-    style="background: radial-gradient(ellipse at 50% 80%,rgba(72,120,198,0.15),hsla(0,0%,100%,0));"
-  >}}
-  {{< hextra/feature-card
-    title="Tracker as Steering Wheel"
-    subtitle="Users steer by creating issues, setting priorities, and approving gates. Agents read tracker state and execute. The tracker is the shared state between humans and agents."
-    class="hx-aspect-auto md:hx-aspect-[1.1/1] max-md:hx-min-h-[340px]"
-    style="background: radial-gradient(ellipse at 50% 80%,rgba(142,53,163,0.15),hsla(0,0%,100%,0));"
-  >}}
-  {{< hextra/feature-card
-    title="Authority-Ordered Reconciliation"
-    subtitle="When artifacts disagree, HELIX resolves conflicts by escalating to the governing source — vision governs requirements, requirements govern design, design governs code."
-    class="hx-aspect-auto md:hx-aspect-[1.1/1] max-md:hx-min-h-[340px]"
-    style="background: radial-gradient(ellipse at 50% 80%,rgba(53,163,95,0.15),hsla(0,0%,100%,0));"
-  >}}
-  {{< hextra/feature-card
-    title="Cross-Model Verification"
-    subtitle="Critical artifacts are reviewed by alternating AI models. Different models have different blind spots — adversarial rotation catches what self-review misses."
-  >}}
-  {{< hextra/feature-card
-    title="Interactive at Any Layer"
-    subtitle="Work directly on vision, specs, designs, tests, or code. HELIX picks up where you left off — direct commands are intervention points inside the same control system."
-  >}}
-  {{< hextra/feature-card
-    title="Least-Power Execution"
-    subtitle="Refine a spec before redesigning a system. Sharpen issues before implementing. Reconcile artifacts before inventing new ones. The smallest sufficient action wins."
-  >}}
-{{< /hextra/feature-grid >}}
+<div class="helix-hero-visual">
+{{< helix-hero >}}
+</div>
+</div>
 
 <div class="hx-mt-16"></div>
 
-## See It In Action
-
 {{< asciinema src="helix-quickstart" >}}
 
-See the [quickstart guide](docs/getting-started) to try it yourself.
+<div class="hx-mt-16"></div>
+
+{{< hextra/feature-grid >}}
+  {{< hextra/feature-card
+    title="43 Artifacts across 7 phases"
+    subtitle="Every artifact HELIX produces — vision, PRD, ADRs, specs, tests, runbooks — with description, relationships, generation prompt, and worked examples. Organized by phase."
+    link="artifacts"
+    class="hx-aspect-auto md:hx-aspect-[1.6/1] max-md:hx-min-h-[200px]"
+    style="background: radial-gradient(ellipse at 50% 80%,rgba(196,75,47,0.12),hsla(0,0%,100%,0));"
+  >}}
+  {{< hextra/feature-card
+    title="18 Cross-Cutting Concerns"
+    subtitle="Shared standards declared once and propagated everywhere agents work — tech stacks, accessibility, observability, security. The control layer for consistency."
+    link="concerns"
+    class="hx-aspect-auto md:hx-aspect-[1.6/1] max-md:hx-min-h-[200px]"
+    style="background: radial-gradient(ellipse at 50% 80%,rgba(59,107,168,0.15),hsla(0,0%,100%,0));"
+  >}}
+  {{< hextra/feature-card
+    title="Why HELIX"
+    subtitle="The case for a methodology layer in AI-assisted development. Eight principles, the failure modes HELIX is built to avoid, and the audience it serves."
+    link="why"
+    class="hx-aspect-auto md:hx-aspect-[1.6/1] max-md:hx-min-h-[200px]"
+    style="background: radial-gradient(ellipse at 50% 80%,rgba(104,66,168,0.15),hsla(0,0%,100%,0));"
+  >}}
+{{< /hextra/feature-grid >}}
