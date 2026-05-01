@@ -17,7 +17,7 @@ bash tests/helix-cli.sh
 
 ## Covered Behaviors
 
-### Tracker
+### Tracker (`ddx bead` over `.ddx/beads.jsonl`)
 
 - issue creation and display
 - dependency-aware ready and blocked queries
@@ -151,7 +151,7 @@ bash tests/helix-cli.sh
 
 - Create isolated temporary git workspaces
 - Inject mock `codex` and `claude` binaries
-- Seed `.helix/issues.jsonl` with known issue graphs
+- Seed `.ddx/beads.jsonl` (the `ddx bead` tracker store) with known issue graphs
 - Assert exact stdout or stderr fragments and filesystem side effects
 
 ## Test Count
