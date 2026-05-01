@@ -1,49 +1,87 @@
-# Security Metrics
+# Security Metrics — HELIX 2026-Q2 (post-`v0.3.3`)
 
-`security-metrics` is restored as the canonical iterate-phase security posture
-report artifact.
+> Illustrative example using representative measurements taken from the
+> live HELIX repo around the `v0.3.3` release window. Exact counts reflect
+> a single sampling period and will drift; the posture report's
+> structure and decision logic are the canonical part. HELIX is a
+> developer-local methodology framework, not a hosted service, so several
+> traditional security-metric categories report N/A by design.
 
-## Decision
+**Review Window**: 2026-04-01 → 2026-04-30
+**Authority**: [`security-architecture.md`](../02-design/security-architecture.md),
+[`security-owasp` concern](../../../workflows/concerns/security-owasp/),
+[`CONTRACT-001`](../02-design/contracts/CONTRACT-001-ddx-helix-boundary.md).
 
-This artifact is restored rather than retired. HELIX still needs a distinct
-security learnings report because incident response, vulnerability management,
-application security, and compliance are not fully represented by the general
-metrics dashboard.
+## Incident Response
 
-## Why It Exists
+| Metric | Current | Target | Trend |
+|--------|---------|--------|-------|
+| Mean Time to Detect (MTTD) | N/A — operator-driven detection | N/A | Stable |
+| Mean Time to Respond (MTTR) | < 1 cycle (operator stops the run) | < 1 cycle | Stable |
+| Incidents resolved within SLA | 0 / 0 incidents this period | 100% when applicable | N/A |
+| False-positive alert rate | N/A — no automated paging | N/A | Stable |
 
-- `metrics-dashboard` summarizes overall iteration health.
-- `security-metrics` captures security-specific posture, trends, and
-  recommendations.
-- The report feeds tracker-backed follow-up work and the improvement backlog.
+**Incident Summary**
 
-## Canonical Inputs
+- Total incidents this period: 0
+- Critical (required immediate response): 0
+- Fully resolved: 0
 
-- security monitoring and incident data for the iteration period
-- vulnerability scan results
-- compliance audit findings, when applicable
-- previous security metrics report or baseline
-- `docs/helix/06-iterate/metrics-dashboard.md` for shared iteration window context
+**Root Causes** (critical and high only)
 
-## Minimum Prompt Bar
+| Root Cause | Count | Mitigation Status |
+|------------|-------|-------------------|
+| (none this period) | 0 | N/A |
 
-- cover incident response, vulnerability management, application security, and compliance
-- compare current values to prior period or baseline
-- require actionable recommendations that can become tracker issues
-- include root-cause notes for critical or high-severity incidents
+## Vulnerability Management
 
-## Minimum Template Bar
+| Metric | Current | Target | Trend |
+|--------|---------|--------|-------|
+| Open critical vulnerabilities (direct deps) | 0 | 0 | Stable |
+| Open high vulnerabilities (direct deps) | 0 | 0 | Stable |
+| MTTR for critical vulns | N/A — none open | < 7 days when applicable | Stable |
+| Patch compliance rate (HELIX direct deps) | 100% (all pinned via `go.mod` / `package.json`) | 100% | Stable |
 
-- review window
-- incident response metrics
-- vulnerability management metrics
-- application security metrics
-- compliance status
-- overall posture trend
-- actionable recommendations
+HELIX direct dependency surface is small: Hugo (pinned in
+`.github/workflows/pages.yml`), Hextra (`website/go.mod`), Playwright
+(`website/package.json`), DDx (operator-installed, version-pinned). The
+project does not run a continuous SCA scan; vulnerability tracking is
+manual and bound to dependency-update beads.
 
-## Canonical Replacement Status
+## Application Security
 
-`security-metrics` is not replaced by `metrics-dashboard` or tracker issues. It
-remains the canonical security-specific iterate report that informs follow-up
-work.
+| Metric | Value | Trend |
+|--------|-------|-------|
+| SAST findings (new this period) | 0 | Stable |
+| DAST findings (new this period) | N/A — no hosted service | N/A |
+| Dependency vulnerabilities (direct) | 0 | Stable |
+| Security review coverage | All commits gated by `lefthook` pre-commit (`check-workflow-paths`, secret-pattern scan) | Stable |
+| Secret-pattern matches in commits | 0 | Stable |
+| Bare `workflows/` references in docs (forbidden by hook) | 0 (enforced by `check-workflow-paths`) | Stable |
+
+## Compliance Status
+
+| Requirement | Status | Open Gaps | Target Resolution |
+|-------------|--------|-----------|-------------------|
+| Boundary contract (CONTRACT-001) honored | Compliant | None — every doc audited 2026-05-01 references the post-DDx-migration substrate after the AR-2026-05-01 follow-ups | Sustained via the `helix review` discipline |
+| `security-owasp` concern coverage | Compliant on the developer-local surface; not applicable to hosted-service controls (no hosted service) | None | N/A |
+| No secrets in repo | Compliant | None this period | Sustained via pre-commit secret scan |
+
+## Security Posture Trend
+
+- **Overall risk level**: Low — Trend: Stable
+- **Summary**: HELIX is a developer-local framework; the active security
+  surface is the operator's own model-provider key handling and the
+  pre-commit guards that prevent secrets from being committed. Both held
+  steady across the 2026-Q2 window. The largest residual risk is operator-
+  introduced secrets in bead bodies, which is a contract-level concern,
+  not a service-level one.
+
+## Recommendations
+
+| Recommendation | Priority | Rationale | Expected Impact |
+|----------------|----------|-----------|-----------------|
+| Add a continuous secret-pattern scan in CI (in addition to pre-commit) | Med | Pre-commit can be skipped (`--no-verify`); CI is the durable backstop | Catches any operator-bypassed secret leaks before they reach the public site |
+| Wire a lightweight SCA scan (e.g. `govulncheck` for Go, `npm audit` for the website) into CI for the HELIX direct dep surface | Med | Vulnerability discovery is currently manual; small surface but worth automating | Earlier signal on Hextra / Hugo / Playwright vulns before they age |
+| Document the `OPENROUTER_API_KEY` rotation cadence in the runbook | Low | Currently the runbook only describes how to react to auth failures, not preventive rotation | Reduces credential-age risk for long-lived operator setups |
+| Add a deterministic test that asserts `ddx-server` binds to `127.0.0.1:7743` and refuses non-loopback bind without an explicit flag | Med | Security-architecture says this; nothing today tests it | Regression-protects the loopback-default posture |
