@@ -142,225 +142,114 @@ Plan the smallest useful research effort that will close the key knowledge gaps.
 <summary>Show a worked example of this artifact</summary>
 
 ``````markdown
-# Research Plan: CLI Workflow Management Pain Points
+# Research Plan: Principles Injection Strategy Effectiveness
 
-**Research Lead**: Product Manager
-**Time Budget**: 2 weeks (40 hours)
-**Created**: 2024-01-15
+**Research Lead**: HELIX maintainers
+**Time Budget**: 1 day (~8 hours)
 **Status**: Example
+
+> Example scenario reconstructed as the *plan* that would have preceded the actual research recorded in `docs/helix/06-iterate/research-principles-injection-2026-04-05.md`. The research itself ran on 2026-04-05; this plan illustrates the artifact format.
 
 ## Research Objectives
 
 ### Primary Research Questions
 
-1. **Question 1**: What are the top 3 workflow bottlenecks for senior developers using CLI tools at startups (50-200 employees)?
-   - **Why Important**: Understanding pain points will inform our core value proposition and feature prioritization
-   - **Success Criteria**: Identify 3 specific, measurable pain points with 80% confidence based on 8+ interviews
+1. **Question**: Does injecting the HELIX product principles into agent prompts measurably change the alignment of the agent's reasoning with those principles, compared to no injection?
+   - **Why Important**: HELIX's `principles` skill (FEAT-003) injects a ~500-token preamble into many judgment-making prompts. If injection does not change behavior, the token cost is wasted. If it changes only framing without changing conclusions, the value is cosmetic and we should justify the cost differently.
+   - **Success Criteria**: A measurable alignment-score delta (≥1 point on a 0–5 rubric) between baseline and full-doc injection on at least one realistic design-judgment task.
 
-2. **Question 2**: How do development teams currently share project configurations and templates across team members?
-   - **Why Important**: This informs our sharing and collaboration feature requirements
-   - **Success Criteria**: Document 3 current approaches with pros/cons and identify gaps in existing solutions
+2. **Question**: Does selective injection (1–2 most relevant principles, ~150 tokens) preserve most of the alignment benefit while reducing cost, or does it produce principle-blind reasoning?
+   - **Why Important**: For high-frequency mechanical skills (`check`, `backfill-helix-docs`), the per-run cost of full-doc injection accumulates. Selective injection is the candidate compromise; we need evidence that the compromise actually helps before adopting it as the default for those skills.
+   - **Success Criteria**: Alignment score for selective injection compared to both baseline and full-doc, with a recommendation about which skill types should use which strategy.
 
-3. **Question 3**: What evidence exists that teams would adopt and pay for a CLI workflow management tool?
-   - **Why Important**: Validates market demand and informs business model decisions
-   - **Success Criteria**: Find 5+ teams expressing willingness to pay and establish price sensitivity range
+3. **Question**: At what principle-set size does full-doc injection start to degrade output quality relative to selective?
+   - **Why Important**: HELIX defaults to 5 principles today. The methodology may grow that list. A scale finding lets us preemptively route around regression.
+   - **Success Criteria**: A documented threshold or "needs further research" verdict with token-overhead numbers at 5/8/12 principles.
 
 ### Knowledge Gaps
 
-- **Gap 1**: User workflow pain points and current solutions
-  - **Impact**: High - affects entire product direction
-  - **Confidence**: Low - based only on assumptions
+| Gap | Impact | Current Confidence |
+|-----|--------|--------------------|
+| Whether injection changes the agent's *conclusion* or only its *framing* | High — affects whether injection has substantive value | Low — anecdotal only |
+| Whether selective injection produces principle-explicit or principle-implicit reasoning | Medium — affects auditability for design artifacts | Low — no prior measurement |
+| Token-overhead scaling at larger principle sets | Medium — informs future principle authoring | Low — no measurement above 5 principles |
 
-- **Gap 2**: Sharing and collaboration patterns in CLI tools
-  - **Impact**: Medium - affects feature design
-  - **Confidence**: Low - no direct evidence
+## Scope
 
-- **Gap 3**: Market demand and pricing willingness
-  - **Impact**: High - affects business viability
-  - **Confidence**: Low - no validation data
+**In Scope**:
+- Three injection strategies: baseline (none), full-doc (all 5 HELIX defaults), selective (2 most relevant).
+- One realistic design-judgment task that exercises at least two of the five HELIX principles.
+- Single-model evaluation using Claude Haiku 4.5 via `ddx agent run --harness claude`.
+- An alignment rubric scored 0–5 against the named principles (explicit / implicit / absent).
+- Token-cost and elapsed-time capture via DDx session metrics.
 
-## Research Scope
+**Out of Scope**:
+- Multi-model alignment (whether different models react differently to the same injection).
+- Multi-turn alignment persistence (whether injection in turn 1 carries to turn 5).
+- Position experiments (preamble vs inline vs closing constraint).
+- Automated end-to-end deployment of the resulting recommendation.
+- Human-evaluated rubric scoring (the score is self-referential in this round).
 
-### In Scope
-- [ ] Senior developers at startups (50-200 employees)
-- [ ] Current CLI workflow management practices
-- [ ] Pain points in existing tools and processes
-- [ ] Collaboration and sharing behaviors
-- [ ] Willingness to adopt new tools
-
-### Out of Scope
-- Large enterprise environments (>500 employees)
-- Junior developer needs and workflows
-- Non-startup organizational contexts
-- Detailed technical implementation preferences
-
-### Assumptions
-1. Senior developers have decision-making influence on tool adoption
-2. Startups have less rigid tool approval processes than enterprises
-3. CLI tools are used regularly by our target audience
+**Assumptions**:
+1. A single design-judgment task is sufficient to detect alignment-score deltas of ≥1 point. Smaller deltas would require a larger battery and are out of scope for this round.
+2. DDx agent metrics (`session_id`, output tokens, cost, elapsed) are the authoritative source for cost data.
+3. The 5 default HELIX principles are stable for the duration of the experiment.
 
 ## Research Methods
 
-### Method 1: User Interviews
-- **Objective**: Understand current workflows, pain points, and collaboration patterns
-- **Approach**: 45-minute semi-structured interviews with open-ended questions
-- **Participants/Sources**: 8 senior developers at different startups
-- **Duration**: 1 week for recruitment and interviews
-- **Deliverable**: Interview summary report with key insights and quotes
+### Method 1: Comparative Prompt Experiment
 
-### Method 2: Workflow Observation
-- **Objective**: Observe actual vs. reported behavior in CLI tool usage
-- **Approach**: Screen sharing sessions during typical development tasks
-- **Participants/Sources**: 3 volunteers from interview participants
-- **Duration**: 3 days for scheduling and observation
-- **Deliverable**: Workflow analysis with friction points identified
+- **Objective**: Addresses Questions 1 and 2.
+- **Approach**: Run the same design-judgment task three times — once per variant — through `ddx agent run --harness claude --model claude-haiku-4-5-20251001`. Capture full agent output, output tokens, and session ID for each run.
+- **Participants/Sources**: Single agent (Claude Haiku 4.5). Task: a realistic HELIX-flavored design question that exercises Simplicity and Reversible Decisions principles ("Should we add a `--config-file` flag to `scripts/helix`?").
+- **Duration**: ~3 hours including prompt setup, three runs, evidence capture.
+- **Deliverable**: Three logged sessions plus raw outputs committed to the research artifact.
 
-### Method 3: Competitive Analysis
-- **Objective**: Understand existing solutions, pricing, and market positioning
-- **Approach**: Feature comparison, pricing analysis, user review analysis
-- **Participants/Sources**: 5 major CLI tools and 3 emerging solutions
-- **Duration**: 2 days for research and analysis
-- **Deliverable**: Competitive landscape report with gap analysis
+### Method 2: Alignment Rubric Scoring
 
-## Success Criteria
+- **Objective**: Addresses Question 1 — quantifies the difference between variants.
+- **Approach**: Score each output 0–5 against the five HELIX principles. Each principle scores 1 point if explicitly named, 1 point if clearly implicit, 0 points if absent.
+- **Participants/Sources**: Self-scoring against the rubric in this plan. Raw outputs preserved for later peer review or human re-scoring.
+- **Duration**: ~1 hour.
+- **Deliverable**: A scoring table per variant with a per-principle breakdown.
 
-### Research Completion Criteria
-- [x] All research questions answered with evidence
-- [x] Findings documented and validated
-- [x] Recommendations are actionable
-- [x] Stakeholders aligned on conclusions
-- [x] Risk assessment complete
+### Method 3: Token-Cost Projection
 
-### Quality Standards
-- [x] Methods appropriate for research questions
-- [x] Sample size adequate for conclusions (8 interviews for qualitative insights)
-- [x] Bias identified and mitigated (diverse participant recruitment)
-- [x] Findings peer-reviewed by technical lead
-- [x] Documentation clear and comprehensive
+- **Objective**: Addresses Question 3.
+- **Approach**: Use the captured per-variant token counts to project overhead at 5 / 8 / 12 / 15 principles, assuming linear scaling of preamble length. Flag the projection as an upper bound — it does not measure quality regression at larger sets, only cost.
+- **Participants/Sources**: Captured DDx metrics.
+- **Duration**: ~1 hour.
+- **Deliverable**: A projection table with explicit "cost only — quality regression unmeasured" caveat.
 
-## Timeline and Milestones
+## Timeline
 
-| Phase | Duration | Activities | Deliverables | Responsible |
-|-------|----------|------------|--------------|-------------|
-| Planning | 1 day | Recruit participants, finalize questions | Research plan approved | Product Manager |
-| Investigation | 7 days | Conduct interviews, observations, analysis | Raw data and insights | Product Manager + Designer |
-| Analysis | 3 days | Synthesize findings, identify patterns | Research findings report | Product Manager |
-| Validation | 1 day | Review with stakeholders, finalize recommendations | Validated conclusions | Product Manager |
+| Phase | Duration | Activities | Deliverables |
+|-------|----------|------------|--------------|
+| Planning | 1 hour | Finalize task wording, lock variants and rubric | Plan approved |
+| Investigation | 3 hours | Run three variants, capture sessions and metrics | Raw outputs + DDx metrics |
+| Analysis | 2 hours | Score alignment rubric, project token costs | Scoring table + cost table |
+| Validation | 2 hours | Write up findings, peer review by a second maintainer | `research-principles-injection-<date>.md` artifact |
 
-**Total Duration**: 2 weeks
+**Total Duration**: 1 day (~8 hours)
 
-### Key Milestones
-- **Jan 15**: Research plan approved
-- **Jan 19**: Participant recruitment complete
-- **Jan 26**: Data collection complete
-- **Jan 29**: Analysis complete
-- **Jan 30**: Findings validated and research complete
+## Research Risks
 
-## Resource Requirements
+| Risk | Probability | Impact | Mitigation |
+|------|-------------|--------|------------|
+| Single-task scope produces a result that does not generalize | High | Medium | Explicitly limit conclusions to "design-judgment tasks of this shape"; flag generalization as further-research |
+| Self-referential rubric scoring biases toward injection-favorable conclusions | Medium | Medium | Preserve raw outputs verbatim so a future human or different model can re-score |
+| The chosen task does not actually exercise the named principles | Medium | High | Pre-vet the task wording against the principle list before running variants |
+| Single-model result misleads about multi-model behavior | High | Low | Document the limitation; route a follow-up research bead for cross-model replication if findings are decision-relevant |
+| Token-cost projection mistaken for a quality projection | Medium | Medium | Caveat the projection table inline; do not propagate the number into recommendations as a quality bound |
 
-### Team
-- **Research Lead**: Product Manager (20 hours)
-- **Additional Team Members**: UX Designer (8 hours for observations)
-- **External Participants**: 8 senior developers (6 hours total)
-- **Reviewers**: Technical Lead, CEO
+## Completion Criteria
 
-### Budget
-- **Personnel**: $2,400 (internal time)
-- **Tools/Software**: $0 (using existing Zoom, Miro)
-- **External Services**: $400 (participant incentives - $50 each)
-- **Travel/Meetings**: $0 (remote interviews)
-- **Total**: $2,800
-
-### Tools and Materials
-- [x] Zoom for remote interviews
-- [x] Recording software for sessions
-- [x] Miro for synthesis and analysis
-- [x] Interview guide and consent forms
-
-## Risk Assessment
-
-### Research Risks
-| Risk | Probability | Impact | Mitigation Strategy |
-|------|-------------|--------|-------------------|
-| Insufficient participant recruitment | Medium | High | Over-recruit 12 candidates, offer flexible scheduling |
-| Research timeline exceeded | Low | Medium | Build 2-day buffer into schedule |
-| Inconclusive or conflicting findings | Medium | Medium | Focus on patterns across multiple data sources |
-| Key stakeholder unavailable for validation | Low | Low | Schedule validation early, have backup reviewers |
-
-### Mitigation Strategies
-1. **Participant Recruitment Risk**:
-   - **Strategy**: Recruit through developer communities, offer $50 incentive
-   - **Contingency**: Extend to remote developers, reduce interview length
-
-2. **Timeline Risk**:
-   - **Strategy**: Daily progress check-ins, prioritize high-impact activities
-   - **Contingency**: Focus on primary research questions first
-
-## Expected Outcomes
-
-### Research Findings
-[What types of insights do we expect to discover?]
-
-- Clear ranking of workflow pain points with frequency data
-- Current solution landscape and satisfaction levels
-- Collaboration patterns and unmet needs
-- Price sensitivity and adoption criteria
-
-### Impact on Product Development
-[How will findings influence the project?]
-
-- **PRD Impact**: Pain points become problem statements, user needs inform success metrics
-- **Feature Specifications**: Collaboration patterns define sharing features
-- **Technical Decisions**: Current tool analysis informs architecture choices
-- **Timeline Adjustments**: Market readiness affects launch timeline
-
-### Decision Points
-[What decisions will be made based on research?]
-
-- **Go/No-Go**: Sufficient pain points and demand to proceed
-- **Feature Prioritization**: Which pain points to address first
-- **Business Model**: Pricing strategy based on willingness to pay
-- **Target Market**: Refine ideal customer profile
-
-## Communication Plan
-
-### Stakeholder Updates
-- **Frequency**: Daily Slack updates during research week
-- **Format**: Brief status with key insights
-- **Attendees**: Engineering lead, CEO, design team
-
-### Progress Reporting
-- **Daily**: Slack update with interviews completed, key insights
-- **Weekly**: Email summary with preliminary findings
-- **Milestones**: Slack announcement when phases complete
-
-### Final Presentation
-- **Audience**: Full team (8 people)
-- **Format**: 30-minute presentation + Q&A
-- **Duration**: 45 minutes total
-- **Date**: January 30, 2:00 PM
-
-## Validation and Approval
-
-### Review Process
-- [x] Research plan reviewed by stakeholders
-- [x] Methods validated by domain experts
-- [x] Timeline approved by project manager
-- [x] Resources allocated by leadership
-
-### Sign-off
-- **Product Owner**: Jane Smith _________________ Date: Jan 15
-- **Technical Lead**: Mike Johnson _________________ Date: Jan 15
-- **Research Lead**: Sarah Connor _________________ Date: Jan 15
-
----
-
-**Next Steps**: Upon approval, begin participant recruitment and interview scheduling.
-
-**Related Documents**:
-- [Initial Problem Statement](#)
-- [Stakeholder Map](#)
-- [Competitive Analysis Brief](#)
+- [ ] All three primary research questions answered with evidence (or explicitly deferred with rationale).
+- [ ] Raw agent outputs and DDx session IDs captured in the research artifact for re-scoring.
+- [ ] Alignment scoring table and token-cost projection committed.
+- [ ] Recommendation about which skills should use full-doc vs selective injection, with rationale.
+- [ ] At least one named follow-up research direction recorded for future work (multi-model, position, scale).
+- [ ] Findings reviewed by a second HELIX maintainer; conclusions either accepted or contested in writing.
 ``````
 
 </details>
