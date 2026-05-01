@@ -146,6 +146,7 @@ HELIX_REAL_EXAMPLES_PUBLISHABLE = {
     "implementation-plan",
     "runbook",
     "deployment-checklist",
+    "release-notes",
 }
 
 # Branch to pin embedded relative-link rewrites against.
