@@ -1,45 +1,83 @@
 # Technical Design Dependencies
-artifact: technical-design
-prefix: TD
+artifact:
+  name: Technical Design
+  id: technical-design
+  type: document
+  phase: design
 
-inputs:
-  required:
-    - artifact: user-stories
+description: |
+  Story-level implementation design. A TD specifies how a single story will
+  be built — API changes, data model, security considerations — within the
+  bounds of the governing architecture and solution design.
+
+dependencies:
+  requires:
+    - input: User Story
+      type: artifact
       phase: "01-frame"
-      prefix: US
-      same_number: true
-      relationship: "designs implementation for story"
-    - artifact: architecture
+      path: user-stories
+      required: true
+      relationship: "designs implementation for the story"
+    - input: Architecture
+      type: artifact
+      phase: "02-design"
+      path: architecture
+      required: true
       relationship: "follows architectural patterns"
-  optional:
-    - artifact: solution-design
-      prefix: SD
+    - input: Solution Design
+      type: artifact
+      phase: "02-design"
+      path: solution-design
+      required: false
       relationship: "references feature-level design"
-    - artifact: feature-specification
+    - input: Feature Specification
+      type: artifact
       phase: "01-frame"
-      prefix: FEAT
+      path: feature-specification
+      required: false
       relationship: "implements feature requirements"
-
-outputs:
-  produces:
-    - artifact: test-plan
+  enables:
+    - output: Test Plan
+      type: artifact
       phase: "03-test"
-      prefix: TP
-      same_number: true
-      relationship: "test plan validates design"
-    - artifact: contract
+      path: test-plan
+      relationship: "test plan validates the design"
+    - output: Contract
+      type: artifact
+      path: contract
       relationship: "defines API contracts"
 
-completion:
-  automated_checks:
-    - type: file_exists
-    - type: no_markers
-      pattern: "\\[NEEDS CLARIFICATION\\]"
-    - type: section_exists
-      sections:
-        - "API Changes"
-        - "Data Model"
-        - "Security Considerations"
-  manual_checks:
-    - "Acceptance criteria mapped to implementation"
-    - "Edge cases documented"
+output:
+  location: docs/helix/02-design/technical-designs/TD-NNN-*.md
+  format: markdown
+
+validation:
+  required_sections:
+    - api_changes
+    - data_model
+    - security_considerations
+
+  quality_checks:
+    - check: no_unresolved_markers
+      description: No [TBD], [TODO], or [NEEDS CLARIFICATION] markers remain
+      severity: blocking
+    - check: acceptance_mapped
+      description: Acceptance criteria are mapped to specific implementation steps
+      severity: blocking
+    - check: edge_cases_documented
+      description: Edge cases and error paths are documented
+      severity: warning
+
+relationships:
+  informs:
+    - test-plan
+    - contract
+    - implementation-plan
+  referenced_by:
+    - test-plan
+    - implementation-plan
+
+tags:
+  - design
+  - story-level
+  - implementation

@@ -10,21 +10,49 @@ aliases:
 
 ## What it is
 
-_(architecture — description not yet captured in upstream `meta.yml`.)_
+Captures the C4 views the team needs to build and review the system —
+System Context, Container, Component (where helpful), Deployment, and
+Data Flow — plus the quality attributes that constrain the design and
+the architectural decisions that bind it. The architecture document is
+the highest-authority structural artifact in the Design phase: solution
+designs reference it, technical designs follow it, and operational
+artifacts (runbook, monitoring, deployment) trace back to its quality
+attributes.
 
 ## Phase
 
 **[Phase 2 — Design](/reference/glossary/phases/)** — Decide how to build it. Capture trade-offs, contracts, and architecture decisions.
 
+## Output location
+
+`docs/helix/02-design/architecture.md`
+
 ## Relationships
 
 ### Requires (upstream)
 
-_None._
+- [PRD](../prd/) — defines system scope
+- [Feature Specifications](../feature-specification/) — lists features to support
+- [Security Requirements](../security-requirements/) — informs security architecture *(optional)*
+- [Threat Model](../threat-model/) — guides security controls *(optional)*
 
 ### Enables (downstream)
 
-_None._
+- [Solution Design](../solution-design/) — feature-level designs reference architecture
+- [Technical Design](../technical-design/) — implementation details follow architecture
+- [ADR](../adr/) — documents architectural decisions
+
+### Informs
+
+- [Solution Design](../solution-design/)
+- [Technical Design](../technical-design/)
+- [Adr](../adr/)
+
+### Referenced by
+
+- [Deployment Checklist](../deployment-checklist/)
+- [Runbook](../runbook/)
+- [Monitoring Setup](../monitoring-setup/)
 
 ## Generation prompt
 

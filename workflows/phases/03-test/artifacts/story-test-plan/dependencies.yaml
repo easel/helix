@@ -1,43 +1,72 @@
 # Story Test Plan Dependencies
-artifact: story-test-plan
-prefix: TP
+artifact:
+  name: Story Test Plan
+  id: story-test-plan
+  type: document
+  phase: test
 
-inputs:
-  required:
-    - artifact: technical-design
+description: |
+  Story-scoped test plan that proves a single user story's acceptance
+  criteria. Each accepted scenario maps to at least one executable test;
+  the document hands the build phase a deterministic "make these tests
+  pass" contract.
+
+dependencies:
+  requires:
+    - input: Technical Design
+      type: artifact
       phase: "02-design"
-      prefix: TD
-      same_number: true
+      path: technical-design
+      required: true
       relationship: "story test plan validates the bounded technical design"
-    - artifact: user-stories
+    - input: User Story
+      type: artifact
       phase: "01-frame"
-      prefix: US
-      same_number: true
-      relationship: "story test plan proves the story acceptance criteria"
-  optional:
-    - artifact: solution-design
+      path: user-stories
+      required: true
+      relationship: "story test plan proves the story's acceptance criteria"
+    - input: Solution Design
+      type: artifact
       phase: "02-design"
-      prefix: SD
+      path: solution-design
+      required: false
       relationship: "feature-level constraints shape story test coverage"
-
-outputs:
-  produces:
-    - artifact: test-suites
+  enables:
+    - output: Test Suites
+      type: artifact
+      path: test-suites
       relationship: "maps each accepted scenario to executable tests"
-    - artifact: build-issue
-      phase: "04-build"
-      relationship: "build issues make the named tests pass without widening scope"
 
-completion:
-  automated_checks:
-    - type: file_exists
-    - type: no_markers
-      pattern: "\\[NEEDS CLARIFICATION\\]"
-    - type: section_exists
-      sections:
-        - "Acceptance Criteria Test Mapping"
-        - "Executable Proof"
-        - "Build Handoff"
-  manual_checks:
-    - "Every active acceptance criterion has at least one failing test path"
-    - "Setup, data, and edge cases are explicit enough to implement"
+output:
+  location: docs/helix/03-test/test-plans/TP-NNN-*.md
+  format: markdown
+
+validation:
+  required_sections:
+    - acceptance_criteria_test_mapping
+    - executable_proof
+    - build_handoff
+
+  quality_checks:
+    - check: no_unresolved_markers
+      description: No [TBD], [TODO], or [NEEDS CLARIFICATION] markers remain
+      severity: blocking
+    - check: every_ac_has_failing_test
+      description: Every active acceptance criterion has at least one failing test path
+      severity: blocking
+    - check: setup_and_data_explicit
+      description: Setup, data, and edge cases are explicit enough for an implementer to act on
+      severity: blocking
+
+relationships:
+  informs:
+    - test-suites
+    - implementation-plan
+  referenced_by:
+    - test-suites
+    - implementation-plan
+
+tags:
+  - test
+  - story-level
+  - tdd

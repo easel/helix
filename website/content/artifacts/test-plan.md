@@ -28,19 +28,24 @@ provides traceability from requirements to test execution.
 
 ### Requires (upstream)
 
-_None._
+- [Technical Design](../technical-design/) — tests validate design
+- [User Stories](../user-stories/) — tests verify acceptance criteria
+- [Security Requirements](../security-requirements/) — informs security tests *(optional)*
 
 ### Enables (downstream)
 
-_None._
+- [Test Suites](../test-suites/) — actual test implementation
 
 ### Informs
 
+- [Test Suites](../test-suites/)
 - [Implementation Plan](../implementation-plan/)
 
 ### Referenced by
 
-- [Prd](../prd/)
+- [Test Suites](../test-suites/)
+- [Implementation Plan](../implementation-plan/)
+- [Security Tests](../security-tests/)
 
 ## Generation prompt
 

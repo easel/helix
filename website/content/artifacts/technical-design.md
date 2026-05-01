@@ -27,13 +27,23 @@ one story at a time.
 
 ### Requires (upstream)
 
-_None._
+- [User Story](../user-stories/) — designs implementation for the story
+- [Architecture](../architecture/) — follows architectural patterns
+- [Solution Design](../solution-design/) — references feature-level design *(optional)*
+- [Feature Specification](../feature-specification/) — implements feature requirements *(optional)*
 
 ### Enables (downstream)
 
-_None._
+- [Test Plan](../test-plan/) — test plan validates the design
+- [Contract](../contract/) — defines API contracts
 
 ### Informs
+
+- [Test Plan](../test-plan/)
+- [Contract](../contract/)
+- [Implementation Plan](../implementation-plan/)
+
+### Referenced by
 
 - [Test Plan](../test-plan/)
 - [Implementation Plan](../implementation-plan/)

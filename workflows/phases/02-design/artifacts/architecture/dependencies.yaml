@@ -1,42 +1,97 @@
 # Architecture Dependencies
-artifact: architecture
-prefix: ARCH
+artifact:
+  name: Architecture
+  id: architecture
+  type: document
+  phase: design
 
-inputs:
-  required:
-    - artifact: prd
+description: |
+  Captures the C4 views the team needs to build and review the system —
+  System Context, Container, Component (where helpful), Deployment, and
+  Data Flow — plus the quality attributes that constrain the design and
+  the architectural decisions that bind it.
+
+dependencies:
+  requires:
+    - input: PRD
+      type: artifact
       phase: "01-frame"
+      path: prd
+      required: true
       relationship: "defines system scope"
-    - artifact: feature-specification
+    - input: Feature Specifications
+      type: artifact
       phase: "01-frame"
+      path: feature-specification
+      required: true
       relationship: "lists features to support"
-  optional:
-    - artifact: security-requirements
+    - input: Security Requirements
+      type: artifact
       phase: "01-frame"
+      path: security-requirements
+      required: false
       relationship: "informs security architecture"
-    - artifact: threat-model
+    - input: Threat Model
+      type: artifact
       phase: "01-frame"
+      path: threat-model
+      required: false
       relationship: "guides security controls"
-
-outputs:
-  produces:
-    - artifact: solution-design
+  enables:
+    - output: Solution Design
+      type: artifact
+      path: solution-design
       relationship: "feature-level designs reference architecture"
-    - artifact: technical-design
+    - output: Technical Design
+      type: artifact
+      path: technical-design
       relationship: "implementation details follow architecture"
-    - artifact: adr
+    - output: ADR
+      type: artifact
+      path: adr
       relationship: "documents architectural decisions"
 
-completion:
-  automated_checks:
-    - type: file_exists
-    - type: no_markers
-      pattern: "\\[NEEDS CLARIFICATION\\]"
-    - type: section_exists
-      sections:
-        - "System Context"
-        - "Container Diagram"
-        - "Component Diagram"
-  manual_checks:
-    - "Architecture reviewed by tech lead"
-    - "Non-functional requirements addressed"
+output:
+  location: docs/helix/02-design/architecture.md
+  format: markdown
+
+validation:
+  required_sections:
+    - system_context
+    - container_diagram
+    - deployment
+    - data_flow
+    - quality_attributes
+    - decisions_and_tradeoffs
+
+  quality_checks:
+    - check: no_unresolved_markers
+      description: No [TBD], [TODO], or [NEEDS CLARIFICATION] markers remain
+      severity: blocking
+    - check: containers_named_real_tech
+      description: Every container in Level 2 names a real technology, not just a role
+      severity: blocking
+    - check: nfrs_quantified
+      description: Quality attributes have measurable targets (RTO/RPO, p99 latency, throughput)
+      severity: warning
+    - check: deployment_realistic
+      description: Deployment view names actual infrastructure (region, instance count, scaling strategy)
+      severity: warning
+    - check: decisions_traceable
+      description: Major architectural choices link to ADRs or include a decision/tradeoff note
+      severity: warning
+
+relationships:
+  informs:
+    - solution-design
+    - technical-design
+    - adr
+  referenced_by:
+    - deployment-checklist
+    - runbook
+    - monitoring-setup
+
+tags:
+  - design
+  - architecture
+  - c4

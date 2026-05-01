@@ -10,21 +10,38 @@ aliases:
 
 ## What it is
 
-_(implementation-plan — description not yet captured in upstream `meta.yml`.)_
+Scopes the implementation work that will satisfy the test plan and
+follow the technical design. Decomposes work into bounded units that
+the autopilot can execute one bead at a time.
 
 ## Phase
 
 **[Phase 4 — Build](/reference/glossary/phases/)** — Implement against the specs and tests. Capture the implementation plan that scopes the work.
 
+## Output location
+
+`docs/helix/04-build/implementation-plan.md`
+
 ## Relationships
 
 ### Requires (upstream)
 
-_None._
+- [Test Plan](../test-plan/) — implementation makes the tests pass
+- [Technical Design](../technical-design/) — follows the technical design
+- [Test Suites](../test-suites/) — failing tests to make pass *(optional)*
 
 ### Enables (downstream)
 
 _None._
+
+### Informs
+
+- [Test Suites](../test-suites/)
+
+### Referenced by
+
+- [Runbook](../runbook/)
+- [Release Notes](../release-notes/)
 
 ## Generation prompt
 

@@ -51,7 +51,7 @@ _Decide how to build it. Capture trade-offs, contracts, and architecture decisio
 
 {{< cards >}}
   {{< card link="adr" title="Architecture Decision Record" subtitle="An ADR documents a significant architectural decision: the context that drove it, the alternatives considered, the chosen approach, and the consequences. Each…" >}}
-  {{< card link="architecture" title="Architecture" subtitle="(architecture)" >}}
+  {{< card link="architecture" title="Architecture" subtitle="Captures the C4 views the team needs to build and review the system — System Context, Container, Component (where helpful), Deployment, and Data Flow — plus th…" >}}
   {{< card link="contract" title="Contract" subtitle="Normative interface and schema contract that another team can implement against directly, including API, CLI, protocol, event, and data contracts." >}}
   {{< card link="data-design" title="Data Design" subtitle="Design-level data architecture covering entities, stores, access patterns, constraints, and migration strategy." >}}
   {{< card link="proof-of-concept" title="Proof of Concept" subtitle="A minimal working implementation that validates the feasibility and approach of a key technical concept before full development. More substantial than a tech s…" >}}
@@ -78,7 +78,7 @@ _Define how we know it works. Plans, suites, and procedures that bind specs to i
 _Implement against the specs and tests. Capture the implementation plan that scopes the work._
 
 {{< cards >}}
-  {{< card link="implementation-plan" title="Implementation Plan" subtitle="(implementation-plan)" >}}
+  {{< card link="implementation-plan" title="Implementation Plan" subtitle="Scopes the implementation work that will satisfy the test plan and follow the technical design. Decomposes work into bounded units that the autopilot can execu…" >}}
 {{< /cards >}}
 
 ## Phase 5 — Deploy

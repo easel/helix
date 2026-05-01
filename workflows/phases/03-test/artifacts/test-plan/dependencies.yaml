@@ -1,42 +1,71 @@
 # Test Plan Dependencies
-artifact: test-plan
-prefix: TP
+artifact:
+  name: Test Plan
+  id: test-plan
+  type: document
+  phase: test
 
-inputs:
-  required:
-    - artifact: technical-design
+description: |
+  Feature-scoped test plan. Defines test strategy, test cases, and
+  coverage targets that validate the technical design and verify the
+  user-story acceptance criteria.
+
+dependencies:
+  requires:
+    - input: Technical Design
+      type: artifact
       phase: "02-design"
-      prefix: TD
-      same_number: true
+      path: technical-design
+      required: true
       relationship: "tests validate design"
-    - artifact: user-stories
+    - input: User Stories
+      type: artifact
       phase: "01-frame"
-      prefix: US
-      same_number: true
+      path: user-stories
+      required: true
       relationship: "tests verify acceptance criteria"
-  optional:
-    - artifact: security-requirements
+    - input: Security Requirements
+      type: artifact
       phase: "01-frame"
+      path: security-requirements
+      required: false
       relationship: "informs security tests"
-
-outputs:
-  produces:
-    - artifact: test-suites
+  enables:
+    - output: Test Suites
+      type: artifact
+      path: test-suites
       relationship: "actual test implementation"
-    - artifact: build-issue
-      phase: "04-build"
-      relationship: "build issues tracked in ddx bead make the tests pass"
 
-completion:
-  automated_checks:
-    - type: file_exists
-    - type: no_markers
-      pattern: "\\[NEEDS CLARIFICATION\\]"
-    - type: section_exists
-      sections:
-        - "Test Strategy"
-        - "Test Cases"
-        - "Coverage Targets"
-  manual_checks:
-    - "All acceptance criteria have test cases"
-    - "Edge cases covered"
+output:
+  location: docs/helix/03-test/test-plans/TP-NNN-*.md
+  format: markdown
+
+validation:
+  required_sections:
+    - test_strategy
+    - test_cases
+    - coverage_targets
+
+  quality_checks:
+    - check: no_unresolved_markers
+      description: No [TBD], [TODO], or [NEEDS CLARIFICATION] markers remain
+      severity: blocking
+    - check: all_ac_have_test_cases
+      description: All acceptance criteria have at least one test case
+      severity: blocking
+    - check: edge_cases_covered
+      description: Edge cases are covered, not just the happy path
+      severity: warning
+
+relationships:
+  informs:
+    - test-suites
+    - implementation-plan
+  referenced_by:
+    - test-suites
+    - implementation-plan
+    - security-tests
+
+tags:
+  - test
+  - feature-level

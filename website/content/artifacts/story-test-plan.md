@@ -27,11 +27,13 @@ gives Build a precise handoff for one story-sized slice.
 
 ### Requires (upstream)
 
-_None._
+- [Technical Design](../technical-design/) — story test plan validates the bounded technical design
+- [User Story](../user-stories/) — story test plan proves the story's acceptance criteria
+- [Solution Design](../solution-design/) — feature-level constraints shape story test coverage *(optional)*
 
 ### Enables (downstream)
 
-_None._
+- [Test Suites](../test-suites/) — maps each accepted scenario to executable tests
 
 ### Informs
 
@@ -40,7 +42,7 @@ _None._
 
 ### Referenced by
 
-- [Technical Design](../technical-design/)
+- [Test Suites](../test-suites/)
 - [Implementation Plan](../implementation-plan/)
 
 ## Generation prompt

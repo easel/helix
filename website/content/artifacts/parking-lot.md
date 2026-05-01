@@ -26,11 +26,20 @@ HELIX locations and are flagged with dun.parking_lot: true.
 
 ### Requires (upstream)
 
-- [PRD](../prd/) *(optional)*
+- [PRD](../prd/) — captures deferred items that arise during framing *(optional)*
 
 ### Enables (downstream)
 
 _None._
+
+### Informs
+
+- [Improvement Backlog](../improvement-backlog/)
+
+### Referenced by
+
+- [Prd](../prd/)
+- [Improvement Backlog](../improvement-backlog/)
 
 ## Generation prompt
 

@@ -81,6 +81,170 @@ PHASES = {
 
 
 # ---------------------------------------------------------------------------
+# HELIX real-example mapping (PR 1: defined but DISABLED)
+#
+# Each entry maps an artifact slug to the path of HELIX's actual instance of
+# that artifact in `docs/helix/`. When the mapping is enabled (PR 2), the
+# generator embeds the real document as the artifact's worked example,
+# normalized via the helpers below.
+#
+# This dict is the source-of-truth audit list for the alignment review
+# ahead of the PR 2 flip. validate_helix_real_examples() hard-fails the
+# generator if any path is missing — drift in docs/helix/ surfaces loudly.
+
+HELIX_REAL_EXAMPLES = {
+    # Phase 0 — Discover
+    "product-vision":        "docs/helix/00-discover/product-vision.md",
+    # Phase 1 — Frame
+    "prd":                   "docs/helix/01-frame/prd.md",
+    "concerns":              "docs/helix/01-frame/concerns.md",
+    "feature-specification": "docs/helix/01-frame/features/FEAT-002-helix-cli.md",
+    # Phase 2 — Design
+    "architecture":          "docs/helix/02-design/architecture.md",
+    "data-design":           "docs/helix/02-design/data-design.md",
+    "security-architecture": "docs/helix/02-design/security-architecture.md",
+    # ADR-001 is foundational (supervisory control model); most ADRs cite it.
+    "adr":                   "docs/helix/02-design/adr/ADR-001-supervisory-control-model.md",
+    # CONTRACT-001 defines the DDx/HELIX boundary — most-cited downstream.
+    "contract":              "docs/helix/02-design/contracts/CONTRACT-001-ddx-helix-boundary.md",
+    "solution-design":       "docs/helix/02-design/solution-designs/SD-001-helix-supervisory-control.md",
+    "technical-design":      "docs/helix/02-design/technical-designs/TD-002-helix-cli.md",
+    # Phase 3 — Test
+    "test-plan":             "docs/helix/03-test/test-plans/TP-002-helix-cli.md",
+    # Phase 4 — Build
+    "implementation-plan":   "docs/helix/04-build/implementation-plan.md",
+    # Phase 5 — Deploy
+    "runbook":               "docs/helix/05-deploy/runbook.md",
+    "deployment-checklist":  "docs/helix/05-deploy/deployment-checklist.md",
+    "release-notes":         "docs/helix/05-deploy/release-notes.md",
+    "monitoring-setup":      "docs/helix/05-deploy/monitoring-setup.md",
+    # Phase 6 — Iterate
+    "improvement-backlog":   "docs/helix/06-iterate/improvement-backlog.md",
+    "metrics-dashboard":     "docs/helix/06-iterate/metrics-dashboard.md",
+    "security-metrics":      "docs/helix/06-iterate/security-metrics.md",
+}
+
+# Toggle the rendering path. Stays False until PR 2 (the alignment-audit PR).
+HELIX_REAL_EXAMPLES_ENABLED = False
+
+# Branch to pin embedded relative-link rewrites against.
+HELIX_REPO_BLOB_BASE = "https://github.com/easel/helix/blob/main"
+
+
+def validate_helix_real_examples() -> None:
+    """Hard-fail if any HELIX_REAL_EXAMPLES path is missing.
+
+    Stale mappings are not a recoverable condition: if the generator says X
+    is sourced from Y and Y is missing, the site would be semantically
+    wrong. Surfacing this loudly is the drift detection we want.
+    """
+    errors = []
+    for slug, rel_path in HELIX_REAL_EXAMPLES.items():
+        full = ROOT / rel_path
+        if not full.exists():
+            errors.append(f"  - '{slug}' → '{rel_path}' (file not found)")
+    if errors:
+        msg = (
+            "ERROR: stale HELIX example mappings:\n"
+            + "\n".join(errors)
+            + "\n\nFix by either: (a) restoring the missing file, "
+            "(b) updating the mapping in scripts/generate-reference.py, "
+            "or (c) removing the mapping if the artifact no longer has a real example."
+        )
+        print(msg, file=sys.stderr)
+        sys.exit(1)
+
+
+# ---------------------------------------------------------------------------
+# Embed normalization (used by the rendering path that flips on in PR 2)
+
+
+def strip_frontmatter(content: str) -> str:
+    """Strip leading YAML frontmatter (between two --- lines) from content."""
+    if not content.startswith("---\n"):
+        return content
+    end = content.find("\n---\n", 4)
+    if end == -1:
+        return content
+    return content[end + 5:].lstrip("\n")
+
+
+def shift_headings(content: str, by: int = 1) -> str:
+    """Shift every ATX heading down by `by` levels (max H6).
+
+    Skips headings inside fenced code blocks. Setext-style headings
+    (===/---) are left alone — rare in HELIX docs and risky to rewrite.
+    """
+    out = []
+    in_fence = False
+    fence_marker = None
+    for line in content.splitlines(keepends=True):
+        stripped = line.lstrip()
+        if stripped.startswith(("```", "~~~")):
+            marker = stripped[:3]
+            if not in_fence:
+                in_fence = True
+                fence_marker = marker
+            elif stripped.startswith(fence_marker):
+                in_fence = False
+                fence_marker = None
+            out.append(line)
+            continue
+        if not in_fence and line.startswith("#"):
+            # Count existing # marks
+            level = len(line) - len(line.lstrip("#"))
+            if 1 <= level <= 6 and (len(line) > level and line[level] == " "):
+                new_level = min(level + by, 6)
+                out.append("#" * new_level + line[level:])
+                continue
+        out.append(line)
+    return "".join(out)
+
+
+def rewrite_relative_links(content: str, source_path: str, base_url: str = HELIX_REPO_BLOB_BASE) -> str:
+    """Rewrite relative markdown links to absolute repo URLs.
+
+    A link `[text](relative/path.md)` in `source_path` becomes
+    `[text](<base_url>/<resolved-path>)` so that embedded docs link
+    correctly even though they're rendered under a different URL on the site.
+
+    Absolute URLs (http, https), site-absolute paths (/foo), in-page anchors
+    (#section), and mailto: links are left alone.
+    """
+    import os
+
+    source_dir = os.path.dirname(source_path).replace("\\", "/")
+    pattern = re.compile(r"\[([^\]]+)\]\(([^)\s]+)(\s+\"[^\"]*\")?\)")
+
+    def rewrite(m: re.Match) -> str:
+        text = m.group(1)
+        url = m.group(2)
+        title = m.group(3) or ""
+        if url.startswith(("http://", "https://", "/", "#", "mailto:")):
+            return m.group(0)
+        # Split off any anchor
+        if "#" in url:
+            path_part, anchor = url.split("#", 1)
+            anchor = "#" + anchor
+        else:
+            path_part, anchor = url, ""
+        if not path_part:
+            return m.group(0)
+        resolved = os.path.normpath(os.path.join(source_dir, path_part)).replace("\\", "/")
+        return f"[{text}]({base_url}/{resolved}{anchor}{title})"
+
+    return pattern.sub(rewrite, content)
+
+
+def normalize_embedded_doc(content: str, source_path: str) -> str:
+    """Apply all embed normalizations: strip frontmatter, shift headings, rewrite links."""
+    content = strip_frontmatter(content)
+    content = shift_headings(content, by=1)
+    content = rewrite_relative_links(content, source_path)
+    return content
+
+
+# ---------------------------------------------------------------------------
 # Helpers
 
 
@@ -573,6 +737,10 @@ def render_concerns_index(concerns: list) -> str:
 
 
 def main() -> None:
+    # Validate the HELIX_REAL_EXAMPLES mapping before doing anything else.
+    # Hard-fails on stale paths so drift surfaces loudly.
+    validate_helix_real_examples()
+
     artifacts = collect_artifacts()
     concerns = collect_concerns()
 
