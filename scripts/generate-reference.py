@@ -149,6 +149,7 @@ HELIX_REAL_EXAMPLES_PUBLISHABLE = {
     "release-notes",
     "monitoring-setup",
     "improvement-backlog",
+    "metrics-dashboard",
 }
 
 # Branch to pin embedded relative-link rewrites against.
