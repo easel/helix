@@ -139,6 +139,7 @@ HELIX_REAL_EXAMPLES_PUBLISHABLE = {
     "adr",
     "contract",
     "technical-design",
+    "solution-design",
 }
 
 # Branch to pin embedded relative-link rewrites against.

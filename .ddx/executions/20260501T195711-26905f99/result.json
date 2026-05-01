@@ -1,0 +1,21 @@
+{
+  "bead_id": "helix-e26584d7",
+  "attempt_id": "20260501T195711-26905f99",
+  "base_rev": "dae2b996479f7156cb821064fb68d15e9d5bf519",
+  "result_rev": "dae2b996479f7156cb821064fb68d15e9d5bf519",
+  "outcome": "task_failed",
+  "status": "execution_failed",
+  "detail": "harness \"openrouter\": no configured provider matches type \"openrouter\" (available: [])",
+  "harness": "openrouter",
+  "session_id": "eb-c9ca9500",
+  "duration_ms": 2010,
+  "exit_code": 1,
+  "error": "harness \"openrouter\": no configured provider matches type \"openrouter\" (available: [])",
+  "failure_mode": "unknown",
+  "execution_dir": ".ddx/executions/20260501T195711-26905f99",
+  "prompt_file": ".ddx/executions/20260501T195711-26905f99/prompt.md",
+  "manifest_file": ".ddx/executions/20260501T195711-26905f99/manifest.json",
+  "result_file": ".ddx/executions/20260501T195711-26905f99/result.json",
+  "started_at": "2026-05-01T19:57:11.827852275Z",
+  "finished_at": "2026-05-01T19:57:13.83797911Z"
+}
