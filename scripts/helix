@@ -668,6 +668,17 @@ tracker_create() {
 
   refresh_context_digest_for_bead "$id" || return 1
 
+  # supervisory injection counter (helix-9044bc6c)
+  local _supervisory_type=""
+  case ",${labels}," in
+    *,review-finding,*)     _supervisory_type="review-finding" ;;
+    *,alignment-review,*)   _supervisory_type="alignment-review" ;;
+    *,acceptance-failure,*) _supervisory_type="acceptance-failure" ;;
+  esac
+  if [[ -n "$_supervisory_type" ]]; then
+    helix_counter_inc supervisory_injection_count "$_supervisory_type" || true
+  fi
+
   printf '%s\n' "$id"
 }
 
@@ -1195,18 +1206,91 @@ tracker_export() {
 }
 
 # ---------- PID file helpers (hx-407ed8b8) ----------
+#
+# Pid file format (helix-9044bc6c parallel-run mutex):
+#   "<pid> <iso8601-started-at>\n"
+# The legacy single-line "<pid>\n" format is also accepted on read.
 
 _helix_pid_file() {
   printf '%s/helix.pid' "$tracker_dir"
 }
 
-_helix_pid_alive() {
+_helix_pid_field() {
+  local idx="${1:-1}"
   local pid_file
   pid_file="$(_helix_pid_file)"
   [[ -f "$pid_file" ]] || return 1
+  awk -v i="$idx" 'NR==1 { print $i; exit }' "$pid_file" 2>/dev/null
+}
+
+_helix_pid_value() {
+  _helix_pid_field 1
+}
+
+_helix_pid_started() {
+  _helix_pid_field 2
+}
+
+_helix_pid_alive() {
   local pid
-  pid="$(cat "$pid_file" 2>/dev/null)"
+  pid="$(_helix_pid_value 2>/dev/null)" || return 1
   [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null
+}
+
+_helix_pid_write() {
+  local pid="$1" started="${2:-}"
+  [[ -z "$started" ]] && started="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  local pid_file
+  pid_file="$(_helix_pid_file)"
+  mkdir -p "$(dirname "$pid_file")" 2>/dev/null || true
+  printf '%s %s\n' "$pid" "$started" > "$pid_file"
+}
+
+_helix_pid_release() {
+  local our_pid="${1:-$$}"
+  local pid_file
+  pid_file="$(_helix_pid_file)"
+  [[ -f "$pid_file" ]] || return 0
+  local existing
+  existing="$(_helix_pid_value 2>/dev/null || true)"
+  if [[ "$existing" == "$our_pid" ]]; then
+    rm -f "$pid_file"
+  fi
+}
+
+# ---------- Migration observability counters (helix-9044bc6c) ----------
+#
+# Counters live alongside run state in .ddx/run-state.json so a scripted
+# helix run can observe delegation health and supervisory injection rates.
+#
+# Top-level keys:
+#   ddx_delegation_success_count   (int)
+#   ddx_delegation_failure_count   (object keyed by reason class)
+#       reasons: missing_binary, too_old, malformed_json, timeout, other
+#   parallel_run_denied_count      (int)
+#   supervisory_injection_count    (object keyed by injection type)
+#       types: review-finding, alignment-review, acceptance-failure
+helix_counter_inc() {
+  local key="$1" subkey="${2:-}"
+  local state_file="${tracker_dir}/run-state.json"
+  command -v ddx &>/dev/null || return 0
+  mkdir -p "$tracker_dir" 2>/dev/null || true
+  local current='{}'
+  if [[ -f "$state_file" ]]; then
+    current="$(cat "$state_file" 2>/dev/null || printf '{}')"
+    [[ -z "$current" ]] && current='{}'
+  fi
+  local updated=""
+  if [[ -n "$subkey" ]]; then
+    updated="$(printf '%s' "$current" | ddx jq -c \
+      --arg k "$key" --arg s "$subkey" \
+      'setpath([$k, $s]; ((getpath([$k, $s]) // 0) + 1))' 2>/dev/null)" || return 0
+  else
+    updated="$(printf '%s' "$current" | ddx jq -c --arg k "$key" \
+      '.[$k] = ((.[$k] // 0) + 1)' 2>/dev/null)" || return 0
+  fi
+  [[ -z "$updated" ]] && return 0
+  printf '%s\n' "$updated" > "$state_file"
 }
 
 run_start() {
@@ -1215,7 +1299,7 @@ run_start() {
   pid_file="$(_helix_pid_file)"
 
   if _helix_pid_alive; then
-    local pid; pid="$(cat "$pid_file")"
+    local pid; pid="$(_helix_pid_value)"
     summary_line "run already active (pid=%s). Use 'helix stop' first." "$pid"
     return 1
   fi
@@ -1226,7 +1310,7 @@ run_start() {
   # Launch helix run in background with --summary
   "$0" run --summary "$@" &
   local bg_pid=$!
-  printf '%s\n' "$bg_pid" > "$pid_file"
+  _helix_pid_write "$bg_pid"
   summary_line "started (pid=%s, log=%s)" "$bg_pid" "$helix_log"
 }
 
@@ -1240,9 +1324,9 @@ run_stop() {
     return 1
   fi
 
-  local pid; pid="$(cat "$pid_file" 2>/dev/null)"
+  local pid; pid="$(_helix_pid_value 2>/dev/null || true)"
 
-  if ! kill -0 "$pid" 2>/dev/null; then
+  if [[ -z "$pid" ]] || ! kill -0 "$pid" 2>/dev/null; then
     rm -f "$pid_file"
     summary_line "stale PID file removed (pid=%s was not running)" "$pid"
     return 1
@@ -1419,7 +1503,25 @@ run_execute_loop_once() {
   fi
 
   verbose_line "delegating helix run build cycle to ddx agent execute-loop --once"
-  env HELIX_SELECTED_ISSUE="$selected_issue" ddx agent execute-loop "${ddx_flags[@]}"
+  if ! command -v ddx &>/dev/null; then
+    helix_counter_inc ddx_delegation_failure_count missing_binary
+    return 127
+  fi
+  if ! ddx agent execute-loop --help &>/dev/null; then
+    helix_counter_inc ddx_delegation_failure_count too_old
+    return 1
+  fi
+  local _delegation_rc=0
+  env HELIX_SELECTED_ISSUE="$selected_issue" ddx agent execute-loop "${ddx_flags[@]}" \
+    || _delegation_rc=$?
+  if (( _delegation_rc == 0 )); then
+    helix_counter_inc ddx_delegation_success_count
+  elif (( _delegation_rc == 124 )); then
+    helix_counter_inc ddx_delegation_failure_count timeout
+  else
+    helix_counter_inc ddx_delegation_failure_count other
+  fi
+  return "$_delegation_rc"
 }
 
 tracker_dispatch() {
@@ -2907,24 +3009,11 @@ run_status() {
 
   local state_file="${tracker_dir}/run-state.json"
 
-  # Get live tracker counts
-  local tracker_json
-  tracker_json="$(tracker_status --json 2>/dev/null || echo '{}')"
-
-  # Get run state if available
+  # Run state (cheap file read).
   local run_state='{}'
   if [[ -f "$state_file" ]]; then
-    run_state="$(cat "$state_file")"
-  fi
-
-  # Get claimed issues
-  local claimed
-  claimed="$(tracker_list --status in_progress --json 2>/dev/null | ddx jq -c '[.[] | {id, title}]' 2>/dev/null || echo '[]')"
-
-  # Execution history (FEAT-005)
-  local exec_history='[]'
-  if command -v ddx &>/dev/null && ddx exec history --json &>/dev/null 2>&1; then
-    exec_history="$(ddx exec history --json 2>/dev/null | ddx jq -c 'sort_by(.started_at) | reverse | .[0:10] | [.[] | {skill: (.definition_id | ltrimstr("helix:")), artifact: (.artifact_ids | join(",")), status, started_at}]' 2>/dev/null || echo '[]')"
+    run_state="$(cat "$state_file" 2>/dev/null || printf '{}')"
+    [[ -z "$run_state" ]] && run_state='{}'
   fi
 
   # Active run PID check
@@ -2932,21 +3021,138 @@ run_status() {
   local pid_file
   pid_file="$(_helix_pid_file)"
   if _helix_pid_alive; then
-    local active_pid; active_pid="$(cat "$pid_file")"
-    active_run="$(ddx jq -n --arg pid "$active_pid" --arg log "$helix_log" '{pid: ($pid | tonumber), log: $log}')"
+    local active_pid active_started
+    active_pid="$(_helix_pid_value 2>/dev/null || true)"
+    active_started="$(_helix_pid_started 2>/dev/null || true)"
+    active_run="$(ddx jq -n \
+      --arg pid "${active_pid:-0}" \
+      --arg started "${active_started:-}" \
+      --arg log "$helix_log" \
+      '{pid: ($pid | tonumber? // 0), started: $started, log: $log}')"
   elif [[ -f "$pid_file" ]]; then
     rm -f "$pid_file"  # clean stale
   fi
 
   if (( json_flag )); then
+    # Single-pane JSON view (helix-9044bc6c).
+    # Composes blocked-bead, worker, and tracker-list primitives without
+    # any new ddx subcommand. Optimised to invoke at most three ddx calls
+    # plus one jq composition pass to stay under the 200ms target on a
+    # 100-bead tracker. Inputs flow through tempfiles via --slurpfile so
+    # large bead lists do not exceed argv limits.
+    local _scratch
+    _scratch="$(mktemp -d 2>/dev/null || mktemp -d -t helix-status)"
+    trap "rm -rf '$_scratch'" RETURN 2>/dev/null || true
+
+    # Issue every primitive read in parallel and join — this overlaps the
+    # ~30-40ms ddx CLI startup cost across calls so the JSON view stays
+    # under 200ms on a 100-bead tracker.
+    if command -v ddx &>/dev/null; then
+      ( ddx bead status --json 2>/dev/null > "$_scratch/tracker.json" || printf '{}' > "$_scratch/tracker.json" ) &
+      ( ddx bead blocked --json 2>/dev/null > "$_scratch/blocked.json" || printf '[]' > "$_scratch/blocked.json" ) &
+      ( ddx bead list --json 2>/dev/null > "$_scratch/beads.json" || printf '[]' > "$_scratch/beads.json" ) &
+      if ddx agent workers --help &>/dev/null 2>&1; then
+        ( ddx agent workers --json 2>/dev/null > "$_scratch/workers.json" || printf '[]' > "$_scratch/workers.json" ) &
+      else
+        printf '[]' > "$_scratch/workers.json"
+      fi
+      wait
+    else
+      printf '{}' > "$_scratch/tracker.json"
+      printf '[]' > "$_scratch/blocked.json"
+      printf '[]' > "$_scratch/workers.json"
+      printf '[]' > "$_scratch/beads.json"
+    fi
+    [[ -s "$_scratch/tracker.json" ]] || printf '{}' > "$_scratch/tracker.json"
+    [[ -s "$_scratch/blocked.json" ]] || printf '[]' > "$_scratch/blocked.json"
+    [[ -s "$_scratch/workers.json" ]] || printf '[]' > "$_scratch/workers.json"
+    [[ -s "$_scratch/beads.json" ]]   || printf '[]' > "$_scratch/beads.json"
+
+    printf '%s' "$run_state" > "$_scratch/run.json"
+    printf '%s' "$active_run" > "$_scratch/active.json"
+
     ddx jq -n \
-      --argjson tracker "$tracker_json" \
-      --argjson run "$run_state" \
-      --argjson claimed "$claimed" \
-      --argjson recent_actions "$exec_history" \
-      --argjson active_run "$active_run" \
-      '{tracker: $tracker, run: $run, claimed: $claimed, active_run: $active_run, recent_actions: $recent_actions}'
+      --slurpfile run "$_scratch/run.json" \
+      --slurpfile tracker "$_scratch/tracker.json" \
+      --slurpfile blocked "$_scratch/blocked.json" \
+      --slurpfile workers "$_scratch/workers.json" \
+      --slurpfile beads "$_scratch/beads.json" \
+      --slurpfile active_run "$_scratch/active.json" \
+      '
+      def supervisory_type(labels):
+        (labels // []) | map(select(. == "review-finding" or . == "alignment-review" or . == "acceptance-failure")) | .[0] // "unknown";
+      def epoch(ts): try (ts | sub("\\.[0-9]+Z$"; "Z") | fromdateiso8601) catch null;
+      def age_now(updated): (epoch(updated) as $e | if $e == null then 0 else (now - $e | floor) end);
+
+      ($run[0] // {}) as $run |
+      ($tracker[0] // {}) as $tracker |
+      ($blocked[0] // []) as $blocked |
+      ($workers[0] // []) as $workers |
+      ($beads[0] // []) as $beads |
+      ($active_run[0] // null) as $active_run |
+      ($run.attempted_cycles // 0) as $cycle |
+      ($run.stop_reason // "unknown") as $stop |
+      (
+        [ $workers[]? | select(.state == "running") ] | .[0]
+        | if . == null then null
+          else {
+            id: (.bead_id // ""),
+            worker: (.id // ""),
+            harness: (.harness // ""),
+            claim_age_seconds: (((.elapsed_ms // 0) / 1000) | floor),
+            started_at: (.started_at // null)
+          } end
+      ) as $running |
+      (
+        [ $blocked[]? | {
+            id: .id,
+            reason: (
+              (.blocker.kind // "unknown") as $k |
+              if $k == "dependency" then "dep-blocked"
+              elif $k == "retry" or $k == "cooldown" or $k == "retry_after" then "retry-parked"
+              elif $k == "orphaned" or $k == "orphaned_claim" then "orphaned-claim"
+              else $k end
+            ),
+            next_eligible: (.blocker.next_eligible_at // .blocker.retry_after // .blocker.eligible_at // null),
+            age_seconds: age_now(.updated_at)
+          } ]
+      ) as $parked |
+      (
+        [ $beads[]? |
+          select((.labels // []) | any(. == "review-finding" or . == "alignment-review" or . == "acceptance-failure"))
+          | {
+              id: .id,
+              type: supervisory_type(.labels),
+              triggering_cycle: (
+                ((.notes // "") | capture("TRIGGERING_CYCLE=(?<c>[0-9]+)"; "g") | .c | tonumber?) // null
+              ),
+              triggering_bead: (
+                ((.notes // "") | capture("TRIGGERING_BEAD=(?<b>[A-Za-z0-9_-]+)"; "g") | .b) // null
+              ),
+              created_at: (.created_at // null)
+            }
+        ] | sort_by(.created_at // "") | reverse | .[0:20]
+      ) as $injected |
+      {
+        current_cycle: ($cycle | floor),
+        running_bead: $running,
+        parked_beads: $parked,
+        injected_supervisory: $injected,
+        last_stop_reason: $stop,
+        tracker: $tracker,
+        run: $run,
+        active_run: $active_run
+      }
+      '
   else
+    # Get claimed + execution history for text rendering.
+    local tracker_json claimed exec_history='[]'
+    tracker_json="$(tracker_status --json 2>/dev/null || echo '{}')"
+    claimed="$(tracker_list --status in_progress --json 2>/dev/null | ddx jq -c '[.[] | {id, title}]' 2>/dev/null || echo '[]')"
+    if command -v ddx &>/dev/null && ddx exec history --json &>/dev/null 2>&1; then
+      exec_history="$(ddx exec history --json 2>/dev/null | ddx jq -c 'sort_by(.started_at) | reverse | .[0:10] | [.[] | {skill: (.definition_id | ltrimstr("helix:")), artifact: (.artifact_ids | join(",")), status, started_at}]' 2>/dev/null || echo '[]')"
+    fi
+
     printf 'HELIX Status\n'
     printf '============\n\n'
 
@@ -2961,15 +3167,18 @@ run_status() {
     ' 2>/dev/null
 
     # Active run (PID check)
-    local pid_file
-    pid_file="$(_helix_pid_file)"
+    local _pid_file_text
+    _pid_file_text="$(_helix_pid_file)"
     if _helix_pid_alive; then
-      local active_pid; active_pid="$(cat "$pid_file")"
+      local _txt_pid _txt_started
+      _txt_pid="$(_helix_pid_value 2>/dev/null || true)"
+      _txt_started="$(_helix_pid_started 2>/dev/null || true)"
       printf '\nActive Run:\n'
-      printf '  PID:  %s\n' "$active_pid"
-      printf '  Log:  %s\n' "$helix_log"
-    elif [[ -f "$pid_file" ]]; then
-      rm -f "$pid_file"  # clean stale
+      printf '  PID:      %s\n' "${_txt_pid:-?}"
+      [[ -n "$_txt_started" ]] && printf '  Started:  %s\n' "$_txt_started"
+      printf '  Log:      %s\n' "$helix_log"
+    elif [[ -f "$_pid_file_text" ]]; then
+      rm -f "$_pid_file_text"  # clean stale
     fi
 
     # Claimed work
@@ -3232,6 +3441,32 @@ recover_orphaned_issues() {
 }
 
 run_loop() {
+  # ---------- Parallel-run mutex (helix-9044bc6c) ----------
+  # Detect another active `helix run` on this project root before claiming
+  # any bead. Exit 2 with a stable diagnostic so callers can distinguish
+  # mutex denial from other failure modes.
+  require_tracker
+  {
+    local _pid_file _existing_pid _existing_started
+    _pid_file="$(_helix_pid_file)"
+    if [[ -f "$_pid_file" ]]; then
+      _existing_pid="$(_helix_pid_value 2>/dev/null || true)"
+      _existing_started="$(_helix_pid_started 2>/dev/null || true)"
+      if [[ -n "$_existing_pid" && "$_existing_pid" != "$$" ]] \
+         && kill -0 "$_existing_pid" 2>/dev/null; then
+        [[ -z "$_existing_started" ]] && _existing_started="unknown"
+        printf 'helix run: already running (pid=%s, started=%s)\n' \
+          "$_existing_pid" "$_existing_started" >&2
+        helix_counter_inc parallel_run_denied_count
+        exit 2
+      fi
+      # Stale or our own pre-written entry — clear it so we can rewrite.
+      [[ "$_existing_pid" != "$$" ]] && rm -f "$_pid_file"
+    fi
+    _helix_pid_write "$$"
+    trap '_helix_pid_release "$$"' EXIT INT TERM
+  }
+
   local attempted_cycles=0
   local completed_cycles=0
   local post_drain_alignment_ran=0
@@ -3319,7 +3554,16 @@ run_loop() {
 
     local skip_count="${#skipped_issues[@]}"
 
+    # Preserve migration counters and any other prior fields by merging
+    # the freshly-computed run-state on top of existing JSON.
+    local existing='{}'
+    if [[ -f "$state_file" ]]; then
+      existing="$(cat "$state_file" 2>/dev/null || printf '{}')"
+      [[ -z "$existing" ]] && existing='{}'
+    fi
+
     ddx jq -n \
+      --argjson existing "$existing" \
       --arg current_issue "${current_issue_id:-}" \
       --arg focused_epic "${epic_id:-}" \
       --argjson completed_cycles "$completed_cycles" \
@@ -3329,17 +3573,27 @@ run_loop() {
       --arg stop_reason "$stop_reason" \
       --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
       --arg agent "$agent" \
-      '{
-        current_issue: $current_issue,
-        focused_epic: $focused_epic,
-        completed_cycles: $completed_cycles,
-        attempted_cycles: $attempted_cycles,
-        skipped_count: $skipped_count,
-        total_tokens: $total_tokens,
-        stop_reason: $stop_reason,
-        last_run: $timestamp,
-        agent: $agent
-      }' > "$state_file" 2>/dev/null || true
+      '
+        # Migration observability counter defaults (helix-9044bc6c).
+        # Ensure the four documented counters always materialise, even on
+        # runs that did not happen to increment any of them.
+        ($existing + {
+          ddx_delegation_success_count: ($existing.ddx_delegation_success_count // 0),
+          ddx_delegation_failure_count: ($existing.ddx_delegation_failure_count // {}),
+          parallel_run_denied_count:    ($existing.parallel_run_denied_count // 0),
+          supervisory_injection_count:  ($existing.supervisory_injection_count // {})
+        }) + {
+          current_issue: $current_issue,
+          focused_epic: $focused_epic,
+          completed_cycles: $completed_cycles,
+          attempted_cycles: $attempted_cycles,
+          skipped_count: $skipped_count,
+          total_tokens: $total_tokens,
+          stop_reason: $stop_reason,
+          last_run: $timestamp,
+          agent: $agent
+        }
+      ' > "$state_file" 2>/dev/null || true
   }
 
   # Backoff delay for a given attempt count (exponential: 5s, 10s, 20s, 40s cap)
