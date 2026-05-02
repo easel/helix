@@ -1,0 +1,15 @@
+{
+  "project_root": "/work",
+  "attempts": 1,
+  "successes": 0,
+  "failures": 1,
+  "results": [
+    {
+      "bead_id": "hx-mock-0",
+      "harness": "codex",
+      "status": "execution_failed",
+      "detail": "escalation exhausted",
+      "retry_after": "2099-01-01T06:00:00Z"
+    }
+  ]
+}

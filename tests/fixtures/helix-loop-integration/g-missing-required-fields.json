@@ -1,0 +1,12 @@
+{
+  "project_root": "/work",
+  "attempts": 1,
+  "successes": 0,
+  "failures": 1,
+  "results": [
+    {
+      "harness": "codex",
+      "detail": "missing bead_id and status on purpose"
+    }
+  ]
+}

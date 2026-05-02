@@ -1,0 +1,17 @@
+{
+  "project_root": "/work",
+  "attempts": 1,
+  "successes": 0,
+  "failures": 1,
+  "results": [
+    {
+      "bead_id": "hx-mock-0",
+      "harness": "codex",
+      "status": "land_conflict",
+      "detail": "ff-merge not possible",
+      "base_rev": "0000000000000000000000000000000000000000",
+      "result_rev": "2222222222222222222222222222222222222222",
+      "preserve_ref": "refs/ddx/iterations/hx-mock-0/att-002"
+    }
+  ]
+}

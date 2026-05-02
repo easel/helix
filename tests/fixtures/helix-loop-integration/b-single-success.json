@@ -1,0 +1,18 @@
+{
+  "project_root": "/work",
+  "attempts": 1,
+  "successes": 1,
+  "failures": 0,
+  "results": [
+    {
+      "bead_id": "hx-mock-0",
+      "attempt_id": "att-001",
+      "harness": "codex",
+      "status": "success",
+      "detail": "merged",
+      "session_id": "sess-001",
+      "base_rev": "0000000000000000000000000000000000000000",
+      "result_rev": "1111111111111111111111111111111111111111"
+    }
+  ]
+}
