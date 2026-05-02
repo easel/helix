@@ -1,0 +1,18 @@
+{
+  "project_root": "/work",
+  "attempts": 1,
+  "successes": 1,
+  "failures": 0,
+  "future_top_level_field": {"some": "thing"},
+  "another_unknown": [1, 2, 3],
+  "results": [
+    {
+      "bead_id": "hx-mock-0",
+      "status": "success",
+      "harness": "codex",
+      "result_rev": "1111111111111111111111111111111111111111",
+      "future_per_result_field": "ignore me",
+      "experimental_metric": 42
+    }
+  ]
+}
