@@ -5347,6 +5347,194 @@ SCRIPT
   rm -rf "$root"
 }
 
+# ── helix-9044bc6c: single-pane status + parallel-run mutex ─────────
+
+test_status_json_has_required_fields() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 3
+
+  local output
+  output="$(run_helix "$root" status --json 2>/dev/null)"
+
+  # Each of the five required keys must be present (jq -e errors on null/missing).
+  printf '%s' "$output" | ddx jq -e '
+    has("current_cycle") and
+    has("running_bead") and
+    has("parked_beads") and
+    has("injected_supervisory") and
+    has("last_stop_reason")
+  ' >/dev/null || fail "status --json missing required keys"
+
+  # Type contract checks.
+  printf '%s' "$output" | ddx jq -e '(.current_cycle | type) == "number"' >/dev/null \
+    || fail "current_cycle must be a number"
+  printf '%s' "$output" | ddx jq -e '(.running_bead | type) == "object" or (.running_bead | type) == "null"' >/dev/null \
+    || fail "running_bead must be object or null"
+  printf '%s' "$output" | ddx jq -e '(.parked_beads | type) == "array"' >/dev/null \
+    || fail "parked_beads must be an array"
+  printf '%s' "$output" | ddx jq -e '(.injected_supervisory | type) == "array"' >/dev/null \
+    || fail "injected_supervisory must be an array"
+  printf '%s' "$output" | ddx jq -e '(.last_stop_reason | type) == "string"' >/dev/null \
+    || fail "last_stop_reason must be a string"
+
+  # Parked-bead entries (if any) must carry the documented sub-keys.
+  printf '%s' "$output" | ddx jq -e '
+    .parked_beads | all(has("id") and has("reason") and has("next_eligible") and has("age_seconds"))
+  ' >/dev/null || fail "parked_beads entries missing required keys"
+
+  # Injected-supervisory entries (if any) must carry the documented sub-keys.
+  printf '%s' "$output" | ddx jq -e '
+    .injected_supervisory | all(has("id") and has("type") and has("triggering_cycle") and has("triggering_bead"))
+  ' >/dev/null || fail "injected_supervisory entries missing required keys"
+
+  rm -rf "$root"
+}
+
+test_status_json_under_200ms_at_100_beads() {
+  local root
+  root="$(make_workspace)"
+  # Seed 100 open beads.
+  mkdir -p "$root/work/.ddx"
+  local i
+  : > "$root/work/.ddx/beads.jsonl"
+  for ((i = 0; i < 100; i++)); do
+    printf '{"id":"hx-perf-%d","title":"perf %d","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n' "$i" "$i" >> "$root/work/.ddx/beads.jsonl"
+  done
+
+  # Warm up (page caches, ddx jq compile).
+  run_helix "$root" status --json >/dev/null 2>&1 || true
+
+  # Measure with a coarse-grained shell timer (millisecond granularity via date +%s%N).
+  local start_ns end_ns elapsed_ms
+  start_ns="$(date +%s%N)"
+  run_helix "$root" status --json >/dev/null 2>&1
+  end_ns="$(date +%s%N)"
+  elapsed_ms=$(( (end_ns - start_ns) / 1000000 ))
+
+  if (( elapsed_ms >= 200 )); then
+    fail "helix status --json took ${elapsed_ms}ms (>= 200ms) on 100-bead tracker"
+  fi
+  rm -rf "$root"
+}
+
+test_run_parallel_run_mutex_denies_second_invocation() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+
+  # Spin up an "alive" sentinel process whose PID we plant in helix.pid.
+  # Using an external sleep avoids needing a long-lived helix run for the test.
+  sleep 30 &
+  local sentinel_pid=$!
+
+  mkdir -p "$root/work/.ddx"
+  printf '%s 2026-01-01T00:00:00Z\n' "$sentinel_pid" > "$root/work/.ddx/helix.pid"
+
+  # Snapshot the tracker so we can prove the denied run did not mutate it.
+  local tracker_before tracker_after
+  tracker_before="$(cat "$root/work/.ddx/beads.jsonl")"
+
+  # Second `helix run` must exit 2 with the documented stderr message.
+  local stderr_file rc=0
+  stderr_file="$(mktemp)"
+  local start_ns end_ns elapsed_ms
+  start_ns="$(date +%s%N)"
+  run_helix "$root" run --no-auto-review --no-auto-align >/dev/null 2>"$stderr_file" || rc=$?
+  end_ns="$(date +%s%N)"
+  elapsed_ms=$(( (end_ns - start_ns) / 1000000 ))
+
+  local stderr
+  stderr="$(cat "$stderr_file")"
+  rm -f "$stderr_file"
+
+  kill "$sentinel_pid" 2>/dev/null || true
+  wait "$sentinel_pid" 2>/dev/null || true
+
+  if (( rc != 2 )); then
+    printf 'stderr was:\n%s\n' "$stderr" >&2
+    fail "second helix run should exit 2 (got rc=$rc)"
+  fi
+  assert_contains "$stderr" "helix run: already running" "denial message must mention already-running"
+  assert_contains "$stderr" "pid=$sentinel_pid" "denial message must include the lock-holder pid"
+  if (( elapsed_ms >= 1000 )); then
+    fail "denial took ${elapsed_ms}ms (>= 1000ms) — must short-circuit before claiming any bead"
+  fi
+
+  tracker_after="$(cat "$root/work/.ddx/beads.jsonl")"
+  if [[ "$tracker_before" != "$tracker_after" ]]; then
+    fail "denied helix run must not mutate the tracker"
+  fi
+
+  rm -rf "$root"
+}
+
+test_run_state_json_records_migration_counters() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+
+  # Drive a single drain cycle (mock codex closes the issue, then check returns STOP).
+  printf 'STOP\n' > "$root/state/next-actions"
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"; tail -n +2 "$file" > "$file.tmp" || true; mv "$file.tmp" "$file"
+}
+case "$*" in
+  *"implementation action"*)
+    record implement
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(ddx jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *"check action"*) record check; printf 'NEXT_ACTION: %s\n' "$(next_action)" ;;
+  *) record other; echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  run_helix "$root" run --no-auto-review --no-auto-align >/dev/null 2>&1 || true
+
+  local state_file="$root/work/.ddx/run-state.json"
+  [[ -f "$state_file" ]] || fail "run-state.json should be written after helix run"
+
+  ddx jq -e '
+    has("ddx_delegation_success_count") and
+    has("ddx_delegation_failure_count") and
+    has("parallel_run_denied_count") and
+    has("supervisory_injection_count")
+  ' "$state_file" >/dev/null || fail "run-state.json missing migration counter fields"
+
+  # Trigger a parallel-run denial so parallel_run_denied_count increments.
+  sleep 30 &
+  local sentinel=$!
+  printf '%s 2026-01-01T00:00:00Z\n' "$sentinel" > "$root/work/.ddx/helix.pid"
+  run_helix "$root" run --no-auto-review --no-auto-align >/dev/null 2>&1 || true
+  kill "$sentinel" 2>/dev/null || true
+  wait "$sentinel" 2>/dev/null || true
+
+  local denied
+  denied="$(ddx jq -r '.parallel_run_denied_count // 0' "$state_file")"
+  if (( denied < 1 )); then
+    fail "parallel_run_denied_count should have incremented (got $denied)"
+  fi
+
+  rm -rf "$root"
+}
+
+run_test "status --json has required fields" test_status_json_has_required_fields
+run_test "status --json under 200ms at 100 beads" test_status_json_under_200ms_at_100_beads
+run_test "parallel run mutex denies second invocation" test_run_parallel_run_mutex_denies_second_invocation
+run_test "run-state.json records migration counters" test_run_state_json_records_migration_counters
+
 run_test "help includes all commands" test_help_includes_all_commands
 run_test "run prefers tasks over epics" test_run_prefers_tasks_over_epics
 run_test "stop with no active run" test_stop_no_active_run
