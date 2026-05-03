@@ -1,0 +1,60 @@
+{
+  "attempt_id": "20260503T124330-b3ce6801",
+  "bead_id": "helix-13cfe23f",
+  "base_rev": "183656f8543fb3bda6dc79021c548720584f666c",
+  "created_at": "2026-05-03T12:43:30.696827846Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-13cfe23f",
+    "title": "Align HELIX execution contract to shipped DDx execute-loop / execute-bead capabilities",
+    "description": "\u003ccontext-digest\u003e\n\u003cprinciples\u003eDesign for Change · Design for Simplicity · Validate Your Work · Make Intent Explicit · Prefer Reversible Decisions\u003c/principles\u003e\n\u003cconcerns\u003ehugo-hextra | demo-asciinema\u003c/concerns\u003e\n\u003cpractices\u003eHELIX should consume DDx substrate capabilities rather than shadow-implement them · Treat execute-bead as the canonical bounded execution primitive when DDx ships it · Prefer queue cleanup that closes already-satisfied findings instead of carrying stale review debt\u003c/practices\u003e\n\u003cgoverning\u003eCONTRACT-001 · FEAT-011 · TD-011 — HELIX already specifies ddx agent execute-bead as the bounded DDx-managed execution primitive, but live workflow docs and implementation surfaces still mix that contract with direct ddx agent run orchestration.\u003c/governing\u003e\n\u003c/context-digest\u003e\n\nDDX now ships `ddx agent execute-bead \u003cbead-id\u003e [--from \u003crev\u003e] [--no-merge]` locally. Align HELIX governing docs and queue policy to that shipped capability, identify the remaining gap between current HELIX implementation and the contract already written in FEAT-011 / TD-011 / CONTRACT-001, and queue any concrete follow-on implementation work needed to start using execute-bead in the HELIX execution path.\n\nScope:\n- Reconcile HELIX governing docs that still describe direct `ddx agent run` orchestration for bounded bead execution.\n- Distinguish DDx-managed execute-bead flows from plain `ddx agent run` usage for planning, review, and non-managed prompts.\n- Review the outstanding HELIX queue for stale findings already satisfied, findings superseded by execute-bead adoption, and follow-on work that becomes newly relevant once execute-bead is available.\n- Create any follow-on build/test beads needed for actual helix-run / helix-build adoption after the contract is aligned.\n",
+    "acceptance": "Governing HELIX docs identify `ddx agent execute-loop` as the primary queue-drain substrate and `ddx agent execute-bead` as the bounded execution primitive; HELIX bead guidance requires deterministic success-measurement criteria suitable for DDx-managed close-with-evidence; any remaining implementation gap between current HELIX behavior and the shipped DDx execution surfaces is captured as concrete follow-on beads with deterministic acceptance.",
+    "labels": [
+      "helix",
+      "phase:design",
+      "kind:spec",
+      "area:workflow",
+      "area:cli"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-03T12:43:30Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "463186",
+      "events": [
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-01T19:57:10.944421739Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider="
+        },
+        {
+          "actor": "erik",
+          "body": "routing under-specified: pass at least one of Harness/Profile/ModelRef/Model/Provider, or auto-selection inputs\nresult_rev=02a670c683cb3f08b505e9ac6fdd7f8841ac3395\nbase_rev=02a670c683cb3f08b505e9ac6fdd7f8841ac3395\nretry_after=2026-05-02T01:57:11Z",
+          "created_at": "2026-05-01T19:57:11.078877124Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        }
+      ],
+      "execute-loop-heartbeat-at": "2026-05-03T12:43:30.135892874Z",
+      "execute-loop-last-detail": "routing under-specified: pass at least one of Harness/Profile/ModelRef/Model/Provider, or auto-selection inputs",
+      "execute-loop-last-status": "execution_failed",
+      "execute-loop-retry-after": "2026-05-02T01:57:11Z",
+      "spec-id": "CONTRACT-001"
+    }
+  },
+  "paths": {
+    "dir": ".ddx/executions/20260503T124330-b3ce6801",
+    "prompt": ".ddx/executions/20260503T124330-b3ce6801/prompt.md",
+    "manifest": ".ddx/executions/20260503T124330-b3ce6801/manifest.json",
+    "result": ".ddx/executions/20260503T124330-b3ce6801/result.json",
+    "checks": ".ddx/executions/20260503T124330-b3ce6801/checks.json",
+    "usage": ".ddx/executions/20260503T124330-b3ce6801/usage.json",
+    "worktree": "tmp/ddx-exec-wt/.execute-bead-wt-helix-13cfe23f-20260503T124330-b3ce6801"
+  },
+  "prompt_sha": "92bc3d43e3dc69c5573aa7298e737b814211dc0d8bbfc751f773f10ad179cb9b"
+}
