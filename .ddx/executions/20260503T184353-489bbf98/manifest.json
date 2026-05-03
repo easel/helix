@@ -1,0 +1,98 @@
+{
+  "attempt_id": "20260503T184353-489bbf98",
+  "bead_id": "helix-fef22846",
+  "base_rev": "e0e091748636e13109a68a88b5bf03e21af10b2e",
+  "created_at": "2026-05-03T18:43:53.698643283Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-fef22846",
+    "title": "Audit deleted HELIX artifact types for restoration or retirement",
+    "description": "\u003ccontext-digest\u003e\n\u003cprinciples\u003eDesign for Change · Design for Simplicity · Validate Your Work · Make Intent Explicit · Prefer Reversible Decisions\u003c/principles\u003e\n\u003cconcerns\u003ehugo-hextra | demo-asciinema\u003c/concerns\u003e\n\u003cpractices\u003eTheme version: Hextra v0.12.1 — pinned in website/go.mod · Hugo version: 0.159.2 extended — pinned in .github/workflows/pages.yml · Current demos: helix-quickstart (full lifecycle), helix-concerns (drift detection), helix-evolve (requirement threading) · Agent harness: ddx agent run --harness claude — not claude -p\u003c/practices\u003e\n\u003cgoverning\u003eworkflows/README.md — A child review bead exists for each deleted referenced artifact type\u003c/governing\u003e\n\u003c/context-digest\u003e\n\nReview the deleted HELIX artifact types that are still referenced directly or indirectly in current workflow docs. For each artifact type, evaluate its original intent against current HELIX state, decide whether it should be restored, superseded, or retired, and define the minimum acceptable prompt/template bar if it remains part of the workflow surface.",
+    "acceptance": "A child review bead exists for each deleted referenced artifact type; each child is scoped to determine restore vs supersede vs retire and the minimum prompt/template quality bar for that artifact intent",
+    "labels": [
+      "helix",
+      "phase:design",
+      "kind:docs",
+      "area:artifacts",
+      "area:workflow"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-03T18:43:53Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "463186",
+      "events": [
+        {
+          "actor": "erik",
+          "body": "agent made no commits\nresult_rev=de67981a79a27ab8449bf6c475dda677fb25acfc\nbase_rev=de67981a79a27ab8449bf6c475dda677fb25acfc",
+          "created_at": "2026-04-11T01:18:12.728611693Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "no_changes"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-01T19:55:37.555170655Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider="
+        },
+        {
+          "actor": "erik",
+          "body": "routing under-specified: pass at least one of Harness/Profile/ModelRef/Model/Provider, or auto-selection inputs\nresult_rev=ed138eedcefd1b9ffc71684102ed3af8b0d97923\nbase_rev=ed138eedcefd1b9ffc71684102ed3af8b0d97923\nretry_after=2026-05-02T01:55:37Z",
+          "created_at": "2026-05-01T19:55:37.688022084Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"bragi\",\"resolved_model\":\"qwen3.5-27b\",\"fallback_chain\":[],\"actual_power\":5}",
+          "created_at": "2026-05-03T12:43:23.466081115Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=bragi model=qwen3.5-27b"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"attempt_id\":\"20260503T111452-502dc8d7\",\"harness\":\"agent\",\"provider\":\"bragi\",\"model\":\"qwen3.5-27b\",\"input_tokens\":141653,\"output_tokens\":495,\"total_tokens\":142148,\"cost_usd\":0,\"duration_ms\":5310433,\"exit_code\":1}",
+          "created_at": "2026-05-03T12:43:23.508671703Z",
+          "kind": "cost",
+          "source": "ddx agent execute-bead",
+          "summary": "tokens=142148 model=qwen3.5-27b"
+        },
+        {
+          "actor": "ddx",
+          "body": "agent: provider error: provider request timeout: wall-clock 15m0s; request_timeout=15m0s exceeded — override via agent.endpoints.\u003cname\u003e.request_timeout_seconds in .ddx/config.yaml or pass --request-timeout DURATION to execute-bead/execute-loop\nresult_rev=a549cf4cd2fede5154fbfce4ae6a91cf826df143\nbase_rev=a549cf4cd2fede5154fbfce4ae6a91cf826df143\nretry_after=2026-05-03T18:43:23Z",
+          "created_at": "2026-05-03T12:43:23.774071307Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        }
+      ],
+      "execute-loop-heartbeat-at": "2026-05-03T18:43:53.315943018Z",
+      "execute-loop-last-detail": "agent: provider error: provider request timeout: wall-clock 15m0s; request_timeout=15m0s exceeded — override via agent.endpoints.\u003cname\u003e.request_timeout_seconds in .ddx/config.yaml or pass --request-timeout DURATION to execute-bead/execute-loop",
+      "execute-loop-last-status": "execution_failed",
+      "execute-loop-retry-after": "2026-05-03T18:43:23Z",
+      "spec-id": "workflows/README.md"
+    }
+  },
+  "governing": [
+    {
+      "id": "workflows/README.md",
+      "path": "workflows/README.md"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260503T184353-489bbf98",
+    "prompt": ".ddx/executions/20260503T184353-489bbf98/prompt.md",
+    "manifest": ".ddx/executions/20260503T184353-489bbf98/manifest.json",
+    "result": ".ddx/executions/20260503T184353-489bbf98/result.json",
+    "checks": ".ddx/executions/20260503T184353-489bbf98/checks.json",
+    "usage": ".ddx/executions/20260503T184353-489bbf98/usage.json",
+    "worktree": "tmp/ddx-exec-wt/.execute-bead-wt-helix-fef22846-20260503T184353-489bbf98"
+  },
+  "prompt_sha": "8fdeb5cd1164b90f3f31cd7a74a155c6222f755eeb65f2cdc9795019954e76bf"
+}
