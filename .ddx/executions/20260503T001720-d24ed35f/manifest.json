@@ -1,0 +1,90 @@
+{
+  "attempt_id": "20260503T001720-d24ed35f",
+  "bead_id": "helix-5129f35d",
+  "base_rev": "871cbeedd07efb744608d5298b24e7b0d4d6f4b9",
+  "created_at": "2026-05-03T00:17:21.230139584Z",
+  "requested": {
+    "harness": "agent",
+    "model": "cheap",
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-5129f35d",
+    "title": "Resolve CRM request scope against current HELIX repo vision",
+    "description": "\u003ccontext-digest\u003e\n\u003cprinciples\u003eDesign for Change · Design for Simplicity · Validate Your Work · Make Intent Explicit · Prefer Reversible Decisions\u003c/principles\u003e\n\u003cconcerns\u003ehugo-hextra | demo-asciinema\u003c/concerns\u003e\n\u003cpractices\u003eDefine the site's target audience and what content they need · Theme version: Hextra v0.12.1 — pinned in website/go.mod · Identify which workflows need demo reels — prioritize the \"first 5 minutes\" experience · Current demos: helix-quickstart (full lifecycle), helix-concerns (drift detection), helix-evolve (requirement threading), helix-experiment (metric-driven optimization)\u003c/practices\u003e\n\u003cgoverning\u003ehelix.prd — composable cross-cutting concerns (tech stacks, a11y, o11y, i18n) with associated practices. Beads created by triage and evolve must carry a compact context digest (~1000-1500 tokens) summarizing active principles, concerns, practices, relevant ADRs, and governing spec context — making beads self-contained execution units that rarely require upstream file reads. See [[FEAT-006]].\u003c/governing\u003e\n\u003c/context-digest\u003e\n\nThe sparse request asks for a new CRM product, but this repository's governing product vision is for HELIX itself. That is a resolvable scope conflict, not a physics-level blocker.\n\nHigh-autonomy handling:\n- Proceed with greenfield CRM planning beads under provisional spec-id CRM-001.\n- Record a decision about whether this CRM work should live in this repo as an example/demo/planning exercise, or be migrated into a dedicated HELIX-managed project repository.",
+    "acceptance": "1. A decision is recorded on whether the CRM work remains in this repo or moves to a dedicated project repo.\n2. If it moves, the target location or migration plan is linked from the parent epic.\n3. If it stays, the rationale is recorded against the HELIX repo's governing scope.",
+    "parent": "helix-db7d13a9",
+    "labels": [
+      "helix",
+      "phase:build",
+      "kind:escalation",
+      "area:docs",
+      "area:workflow"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-03T00:17:20Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "4117336",
+      "events": [
+        {
+          "actor": "erik",
+          "body": "tier=cheap harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:04:42.82742771Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=standard harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:04:49.053103524Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=smart harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:04:55.556679198Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"tiers_attempted\":[{\"tier\":\"cheap\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"standard\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"smart\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0}],\"winning_tier\":\"exhausted\",\"total_cost_usd\":0,\"wasted_cost_usd\":0}",
+          "created_at": "2026-05-02T13:04:55.596848054Z",
+          "kind": "escalation-summary",
+          "source": "ddx agent execute-loop",
+          "summary": "winning_tier=exhausted attempts=3 total_cost_usd=0.0000 wasted_cost_usd=0.0000"
+        },
+        {
+          "actor": "erik",
+          "body": "execute-loop: all tiers exhausted — no viable provider found",
+          "created_at": "2026-05-02T13:04:55.675905971Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        }
+      ],
+      "execute-loop-heartbeat-at": "2026-05-03T00:17:20.892672332Z",
+      "spec-id": "helix.prd"
+    }
+  },
+  "governing": [
+    {
+      "id": "helix.prd",
+      "path": "docs/helix/01-frame/prd.md",
+      "title": "Product Requirements Document"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260503T001720-d24ed35f",
+    "prompt": ".ddx/executions/20260503T001720-d24ed35f/prompt.md",
+    "manifest": ".ddx/executions/20260503T001720-d24ed35f/manifest.json",
+    "result": ".ddx/executions/20260503T001720-d24ed35f/result.json",
+    "checks": ".ddx/executions/20260503T001720-d24ed35f/checks.json",
+    "usage": ".ddx/executions/20260503T001720-d24ed35f/usage.json",
+    "worktree": "tmp/ddx-exec-wt/.execute-bead-wt-helix-5129f35d-20260503T001720-d24ed35f"
+  }
+}
