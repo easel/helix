@@ -1,0 +1,39 @@
+{
+  "attempt_id": "20260503T150224-10d022ed",
+  "bead_id": "helix-db7d13a9",
+  "base_rev": "adec7b4d6a2902c7239d0eab5745ef5b57898557",
+  "created_at": "2026-05-03T15:02:24.914061648Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-db7d13a9",
+    "title": "Design a CRM",
+    "description": "\u003ccontext-digest\u003e\n\u003cprinciples\u003eDesign for Change · Design for Simplicity · Validate Your Work · Make Intent Explicit · Prefer Reversible Decisions\u003c/principles\u003e\n\u003cconcerns\u003ehugo-hextra | demo-asciinema\u003c/concerns\u003e\n\u003cpractices\u003eDefine the site's target audience and what content they need · Theme version: Hextra v0.12.1 — pinned in website/go.mod · Identify which workflows need demo reels — prioritize the \"first 5 minutes\" experience · Current demos: helix-quickstart (full lifecycle), helix-concerns (drift detection), helix-evolve (requirement threading), helix-experiment (metric-driven optimization)\u003c/practices\u003e\n\u003cgoverning\u003eCRM-001\u003c/governing\u003e\n\u003c/context-digest\u003e\n\nSparse intake request: \"design a CRM\".\n\nInterpretation:\n- Core intent: create the governed planning/design work needed for a new CRM product.\n- Artifact layer affected: frame and design, with downstream decomposition into execution-ready work.\n- Explicit constraints: none beyond high autonomy.\n\nCurrent repo search found no existing CRM artifact stack or matching open bead. The HELIX repo's governing PRD is about HELIX itself, so a separate escalation bead records the repo-scope conflict. Until that is resolved, treat this as greenfield CRM planning work managed through HELIX.\n\nWorking assumptions for downstream beads:\n- B2B web CRM for a small-to-mid-size sales team\n- MVP includes contacts, accounts, leads/opportunities, tasks/activities, notes, pipeline visibility, and basic reporting\n- Multi-user SaaS posture; implementation architecture still to be designed",
+    "acceptance": "1. A governed CRM artifact stack is created through HELIX, starting with frame artifacts and continuing into design and decomposition work.\n2. Downstream beads use provisional spec-id CRM-001 until authoritative CRM frame artifacts establish canonical IDs.\n3. Scope assumptions created from the sparse intake are explicit rather than hidden.",
+    "labels": [
+      "helix",
+      "phase:build",
+      "kind:implementation",
+      "area:artifacts",
+      "area:docs"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-03T15:02:24Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "463186",
+      "execute-loop-heartbeat-at": "2026-05-03T15:02:24.609553326Z",
+      "spec-id": "CRM-001"
+    }
+  },
+  "paths": {
+    "dir": ".ddx/executions/20260503T150224-10d022ed",
+    "prompt": ".ddx/executions/20260503T150224-10d022ed/prompt.md",
+    "manifest": ".ddx/executions/20260503T150224-10d022ed/manifest.json",
+    "result": ".ddx/executions/20260503T150224-10d022ed/result.json",
+    "checks": ".ddx/executions/20260503T150224-10d022ed/checks.json",
+    "usage": ".ddx/executions/20260503T150224-10d022ed/usage.json",
+    "worktree": "tmp/ddx-exec-wt/.execute-bead-wt-helix-db7d13a9-20260503T150224-10d022ed"
+  },
+  "prompt_sha": "96fbc67789ec4b5cb4e49eccbae34a1ab5a6748d13abd24861684653abd420d4"
+}
