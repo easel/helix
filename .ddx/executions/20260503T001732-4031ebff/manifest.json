@@ -1,0 +1,105 @@
+{
+  "attempt_id": "20260503T001732-4031ebff",
+  "bead_id": "helix-f966778d",
+  "base_rev": "bd10b7b724047d59ffe009efd7f5dc7fcc9adf7a",
+  "created_at": "2026-05-03T00:17:32.704468737Z",
+  "requested": {
+    "harness": "agent",
+    "model": "standard",
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-f966778d",
+    "title": "Resolve pre-merge build-gate ownership: DDx implementation or CONTRACT-001 amendment",
+    "description": "CONTRACT-001 'Post-Cycle HELIX Behavior' table asserts DDx owns 'Build gate (pre-merge check)'. Verified on 2026-04-17 that no implementation exists: grep of ddx/cli/internal/agent/*.go for lefthook|cargo check|build-health|BuildGate returns nothing. HELIX today runs cargo check / lefthook run pre-commit post-agent-commit and git reverts on failure (scripts/helix:3629-3654).\n\nTwo possible resolutions, chosen by the contract audit (helix-00e2486f):\n\nOption A — DDx implementation: file a new bead in DDx's own tracker for a pre-land build-gate hook (lefthook / cargo check / repo-declared gate script) that runs before fast-forward merge and aborts the attempt with a preserved ref on failure. HELIX keeps its current gate as a belt-and-suspenders guard until DDx ships.\n\nOption B — CONTRACT-001 amendment: amend the Post-Cycle HELIX Behavior table to move 'Build gate (pre-merge check)' from DDx-owned to HELIX-owned. Keep HELIX's existing implementation; document it in CONTRACT-001 as HELIX's responsibility.\n\nThis bead is absorbed if helix-00e2486f's audit resolves it. Otherwise, whichever option is chosen must produce a code change that makes the contract claim true.",
+    "acceptance": "Either (a) a new DDx-side bead is filed in DDx's tracker with deterministic acceptance for a pre-land build-gate and CONTRACT-001 links to it, OR (b) docs/helix/02-design/contracts/CONTRACT-001-ddx-helix-boundary.md is amended to move 'Build gate (pre-merge check)' from DDx-owned to HELIX-owned in the Post-Cycle table and the contract-audit matrix (helix-00e2486f output) reflects the amendment. Bead closes only when the contract and implementation no longer disagree.",
+    "parent": "helix-e26584d7",
+    "labels": [
+      "helix",
+      "phase:build",
+      "area:cli",
+      "area:workflow",
+      "phase-3-prep"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-03T00:17:31Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "4117336",
+      "events": [
+        {
+          "actor": "erik",
+          "body": "tier=cheap harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:05:59.361540685Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=standard harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:06:05.620933547Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=smart harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:06:11.800475782Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"tiers_attempted\":[{\"tier\":\"cheap\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"standard\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"smart\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0}],\"winning_tier\":\"exhausted\",\"total_cost_usd\":0,\"wasted_cost_usd\":0}",
+          "created_at": "2026-05-02T13:06:11.839037717Z",
+          "kind": "escalation-summary",
+          "source": "ddx agent execute-loop",
+          "summary": "winning_tier=exhausted attempts=3 total_cost_usd=0.0000 wasted_cost_usd=0.0000"
+        },
+        {
+          "actor": "erik",
+          "body": "execute-loop: all tiers exhausted — no viable provider found",
+          "created_at": "2026-05-02T13:06:11.913288872Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"agent\",\"resolved_model\":\"cheap\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T00:17:32.241271327Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=agent model=cheap"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=cheap harness=agent model=cheap probe=ok\norphan model: cheap",
+          "created_at": "2026-05-03T00:17:32.355023922Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        }
+      ],
+      "execute-loop-heartbeat-at": "2026-05-03T00:17:31.630969003Z",
+      "spec-id": "docs/helix/02-design/contracts/CONTRACT-001-ddx-helix-boundary.md"
+    }
+  },
+  "governing": [
+    {
+      "id": "docs/helix/02-design/contracts/CONTRACT-001-ddx-helix-boundary.md",
+      "path": "docs/helix/02-design/contracts/CONTRACT-001-ddx-helix-boundary.md"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260503T001732-4031ebff",
+    "prompt": ".ddx/executions/20260503T001732-4031ebff/prompt.md",
+    "manifest": ".ddx/executions/20260503T001732-4031ebff/manifest.json",
+    "result": ".ddx/executions/20260503T001732-4031ebff/result.json",
+    "checks": ".ddx/executions/20260503T001732-4031ebff/checks.json",
+    "usage": ".ddx/executions/20260503T001732-4031ebff/usage.json",
+    "worktree": "tmp/ddx-exec-wt/.execute-bead-wt-helix-f966778d-20260503T001732-4031ebff"
+  }
+}
