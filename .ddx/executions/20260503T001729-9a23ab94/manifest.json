@@ -1,0 +1,88 @@
+{
+  "attempt_id": "20260503T001729-9a23ab94",
+  "bead_id": "helix-a6087309",
+  "base_rev": "2e9356957c489625f867b4027c22816793dd6188",
+  "created_at": "2026-05-03T00:17:29.438018238Z",
+  "requested": {
+    "harness": "agent",
+    "model": "cheap",
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-a6087309",
+    "title": "Port review and alignment to queue-injected bead model",
+    "description": "Instead of post-cycle hooks, HELIX creates review-finding and alignment-review beads in the tracker. execute-loop picks them up like any other ready bead. Execution produces same evidence bundle. --no-auto-review/--no-auto-align disable injection.",
+    "acceptance": "Review and alignment beads are injected into tracker queue and picked up by execute-loop; --no-auto-review/--no-auto-align control injection not hooks",
+    "parent": "helix-e26584d7",
+    "labels": [
+      "helix",
+      "phase:build",
+      "area:workflow",
+      "area:cli"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-03T00:17:29Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "4117336",
+      "events": [
+        {
+          "actor": "erik",
+          "body": "tier=cheap harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:05:40.399377237Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=standard harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:05:46.598233232Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=smart harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:05:52.844588143Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"tiers_attempted\":[{\"tier\":\"cheap\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"standard\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"smart\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0}],\"winning_tier\":\"exhausted\",\"total_cost_usd\":0,\"wasted_cost_usd\":0}",
+          "created_at": "2026-05-02T13:05:52.895076693Z",
+          "kind": "escalation-summary",
+          "source": "ddx agent execute-loop",
+          "summary": "winning_tier=exhausted attempts=3 total_cost_usd=0.0000 wasted_cost_usd=0.0000"
+        },
+        {
+          "actor": "erik",
+          "body": "execute-loop: all tiers exhausted — no viable provider found",
+          "created_at": "2026-05-02T13:05:52.970328308Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        }
+      ],
+      "execute-loop-heartbeat-at": "2026-05-03T00:17:29.072209952Z",
+      "spec-id": "scripts/helix"
+    }
+  },
+  "governing": [
+    {
+      "id": "scripts/helix",
+      "path": "scripts/helix"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260503T001729-9a23ab94",
+    "prompt": ".ddx/executions/20260503T001729-9a23ab94/prompt.md",
+    "manifest": ".ddx/executions/20260503T001729-9a23ab94/manifest.json",
+    "result": ".ddx/executions/20260503T001729-9a23ab94/result.json",
+    "checks": ".ddx/executions/20260503T001729-9a23ab94/checks.json",
+    "usage": ".ddx/executions/20260503T001729-9a23ab94/usage.json",
+    "worktree": "tmp/ddx-exec-wt/.execute-bead-wt-helix-a6087309-20260503T001729-9a23ab94"
+  }
+}
