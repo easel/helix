@@ -1,0 +1,59 @@
+{
+  "attempt_id": "20260503T150058-e014732c",
+  "bead_id": "helix-e26584d7",
+  "base_rev": "8b98d1357c883922eae39dc6ea64b0d0f36a3db4",
+  "created_at": "2026-05-03T15:00:58.594719708Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-e26584d7",
+    "title": "Phase 3: Refactor HELIX to DDx-powered execution",
+    "acceptance": "helix run calls execute-loop --once --json; all deprecated wrapper logic removed; all 139 tests pass; skills updated to reference execute-loop",
+    "parent": "helix-13cfe23f",
+    "labels": [
+      "helix",
+      "phase:build",
+      "area:cli",
+      "area:testing",
+      "area:workflow"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-03T15:00:58Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "463186",
+      "events": [
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"openrouter\",\"fallback_chain\":[],\"requested_harness\":\"openrouter\"}",
+          "created_at": "2026-05-01T19:57:14.125927323Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=openrouter"
+        },
+        {
+          "actor": "erik",
+          "body": "harness \"openrouter\": no configured provider matches type \"openrouter\" (available: [])\nresult_rev=dae2b996479f7156cb821064fb68d15e9d5bf519\nbase_rev=dae2b996479f7156cb821064fb68d15e9d5bf519\nretry_after=2026-05-02T01:57:14Z",
+          "created_at": "2026-05-01T19:57:14.263774864Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        }
+      ],
+      "execute-loop-heartbeat-at": "2026-05-03T15:00:58.226810208Z",
+      "execute-loop-last-detail": "harness \"openrouter\": no configured provider matches type \"openrouter\" (available: [])",
+      "execute-loop-last-status": "execution_failed",
+      "execute-loop-retry-after": "2026-05-02T01:57:14Z"
+    }
+  },
+  "paths": {
+    "dir": ".ddx/executions/20260503T150058-e014732c",
+    "prompt": ".ddx/executions/20260503T150058-e014732c/prompt.md",
+    "manifest": ".ddx/executions/20260503T150058-e014732c/manifest.json",
+    "result": ".ddx/executions/20260503T150058-e014732c/result.json",
+    "checks": ".ddx/executions/20260503T150058-e014732c/checks.json",
+    "usage": ".ddx/executions/20260503T150058-e014732c/usage.json",
+    "worktree": "tmp/ddx-exec-wt/.execute-bead-wt-helix-e26584d7-20260503T150058-e014732c"
+  },
+  "prompt_sha": "ac8bc523e0d5273bbb45fc746b9825950f6b9e2c68ecf0b0c64c784b45a1ef08"
+}
