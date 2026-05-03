@@ -1,0 +1,22 @@
+{
+  "bead_id": "helix-495f0d72",
+  "attempt_id": "20260503T001726-bc4be0d7",
+  "base_rev": "af88fb4e5ce82c0b75f3681db4098e4ec2dbf7b6",
+  "result_rev": "af88fb4e5ce82c0b75f3681db4098e4ec2dbf7b6",
+  "outcome": "task_failed",
+  "status": "execution_failed",
+  "detail": "orphan model: cheap",
+  "harness": "agent",
+  "model": "cheap",
+  "session_id": "eb-3b1976f8",
+  "duration_ms": 1,
+  "exit_code": 1,
+  "error": "orphan model: cheap",
+  "failure_mode": "unknown",
+  "execution_dir": ".ddx/executions/20260503T001726-bc4be0d7",
+  "prompt_file": ".ddx/executions/20260503T001726-bc4be0d7/prompt.md",
+  "manifest_file": ".ddx/executions/20260503T001726-bc4be0d7/manifest.json",
+  "result_file": ".ddx/executions/20260503T001726-bc4be0d7/result.json",
+  "started_at": "2026-05-03T00:17:26.678757158Z",
+  "finished_at": "2026-05-03T00:17:26.679989989Z"
+}
