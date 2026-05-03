@@ -1,0 +1,85 @@
+{
+  "attempt_id": "20260503T001723-ef3a88b9",
+  "bead_id": "helix-dfddd64b",
+  "base_rev": "373ea7610dd26b523b0ddc4a1257801bb2322f16",
+  "created_at": "2026-05-03T00:17:23.830827147Z",
+  "requested": {
+    "harness": "agent",
+    "model": "cheap",
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-dfddd64b",
+    "title": "Clarify CRM intake target before creating frame/design artifacts",
+    "description": "\u003ccontext-digest\u003e\n\u003cprinciples\u003eDesign for Change · Design for Simplicity · Validate Your Work · Make Intent Explicit · Prefer Reversible Decisions\u003c/principles\u003e\n\u003cconcerns\u003ehugo-hextra | demo-asciinema\u003c/concerns\u003e\n\u003cpractices\u003eDefine the site's target audience and what content they need · Theme version: Hextra v0.12.1 — pinned in website/go.mod · Identify which workflows need demo reels — prioritize the \"first 5 minutes\" experience · Current demos: helix-quickstart (full lifecycle), helix-concerns (drift detection), helix-evolve (requirement threading), helix-experiment (metric-driven optimization)\u003c/practices\u003e\n\u003cgoverning\u003eFEAT-011 — DDx preserve outcomes from bounded execution attempts (for example failed required executions or ratchet regressions) are not physics-level conflicts. They terminate the current DDx-managed attempt and hand control back to HELIX for escalation, follow-on beads, or user input.\u003c/governing\u003e\n\u003c/context-digest\u003e\n\nSparse intake request: \"design a CRM\".\n\nInterpretation at autonomy=medium: the user wants HELIX to seed governed planning work for a new CRM product design effort.\n\nConflict detected during artifact traversal: this repository's higher-authority frame artifacts define HELIX itself as the product (`docs/helix/01-frame/prd.md`, `workflows/README.md`). Creating CRM vision/PRD/design artifacts directly in this repo would therefore contradict the current product scope unless the request is intended as one of the following:\n- a separate CRM project/repository that should use HELIX\n- a HELIX example/demo artifact pack about CRM design\n- a reinterpretation into HELIX product work rather than a CRM product\n\nDeterministic next step: obtain the target-project decision before creating downstream CRM frame or design beads.",
+    "acceptance": "1. The user explicitly chooses whether the CRM work should live in a separate project/repository, in HELIX as an example/demo artifact set, or be reinterpreted as HELIX product work.\n2. The chosen target identifies where governing frame artifacts should live.\n3. Follow-on planning beads can then be created without contradicting `docs/helix/01-frame/prd.md` or `workflows/README.md`.",
+    "parent": "helix-db7d13a9",
+    "labels": [
+      "helix",
+      "phase:frame",
+      "kind:planning",
+      "scope:crm",
+      "area:docs",
+      "area:planning",
+      "area:workflow"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-03T00:17:23Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "4117336",
+      "events": [
+        {
+          "actor": "erik",
+          "body": "tier=cheap harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:05:02.116644854Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=standard harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:05:08.330814597Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=smart harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:05:14.558109624Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"tiers_attempted\":[{\"tier\":\"cheap\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"standard\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"smart\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0}],\"winning_tier\":\"exhausted\",\"total_cost_usd\":0,\"wasted_cost_usd\":0}",
+          "created_at": "2026-05-02T13:05:14.616097611Z",
+          "kind": "escalation-summary",
+          "source": "ddx agent execute-loop",
+          "summary": "winning_tier=exhausted attempts=3 total_cost_usd=0.0000 wasted_cost_usd=0.0000"
+        },
+        {
+          "actor": "erik",
+          "body": "execute-loop: all tiers exhausted — no viable provider found",
+          "created_at": "2026-05-02T13:05:14.692563854Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        }
+      ],
+      "execute-loop-heartbeat-at": "2026-05-03T00:17:23.494372434Z",
+      "spec-id": "FEAT-011"
+    }
+  },
+  "paths": {
+    "dir": ".ddx/executions/20260503T001723-ef3a88b9",
+    "prompt": ".ddx/executions/20260503T001723-ef3a88b9/prompt.md",
+    "manifest": ".ddx/executions/20260503T001723-ef3a88b9/manifest.json",
+    "result": ".ddx/executions/20260503T001723-ef3a88b9/result.json",
+    "checks": ".ddx/executions/20260503T001723-ef3a88b9/checks.json",
+    "usage": ".ddx/executions/20260503T001723-ef3a88b9/usage.json",
+    "worktree": "tmp/ddx-exec-wt/.execute-bead-wt-helix-dfddd64b-20260503T001723-ef3a88b9"
+  }
+}
