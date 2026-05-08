@@ -1,5 +1,5 @@
 ---
-dun:
+ddx:
   id: helix.workflow.concern-resolution
   depends_on:
     - helix.workflow.principles-resolution

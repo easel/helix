@@ -75,7 +75,7 @@ Create a solution design that maps requirements to a concrete approach.
 
 ``````markdown
 ---
-dun:
+ddx:
   id: SD-XXX
   depends_on:
     - FEAT-XXX

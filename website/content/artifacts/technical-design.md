@@ -84,7 +84,7 @@ Create a concise technical design for one user story.
 
 ``````markdown
 ---
-dun:
+ddx:
   id: TD-XXX
   depends_on:
     - US-XXX

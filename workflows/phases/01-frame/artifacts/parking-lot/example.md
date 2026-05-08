@@ -1,5 +1,5 @@
 ---
-dun:
+ddx:
   id: helix.parking-lot
   parking_lot: true
 ---
@@ -12,7 +12,7 @@ Track deferred and future work without cluttering core HELIX artifacts.
 - Out of Scope items do not belong here.
 - Deferred items must include a rationale and revisit trigger.
 - Future items must include a source and expected value.
-- Any parked artifact must set `dun.parking_lot: true`.
+- Any parked artifact must set `ddx.parking_lot: true`.
 
 ## Deferred / Future Items
 

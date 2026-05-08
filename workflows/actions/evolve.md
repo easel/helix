@@ -172,7 +172,7 @@ For each non-conflicting artifact, in authority order (highest first):
 4. For any **new** artifact being written (not an update to an existing file):
    - Confirm the ID was assigned from the scanned-next-ID computed in Phase 2,
      not guessed.
-   - Inspect the dun frontmatter `depends_on` list. For each referenced ID,
+   - Inspect the ddx frontmatter `depends_on` list. For each referenced ID,
      verify the target artifact exists on disk before writing. If a target is
      missing, either remove the dependency or stop and request guidance. Never
      write an artifact with a broken `depends_on` reference.

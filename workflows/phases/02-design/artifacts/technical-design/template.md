@@ -1,5 +1,5 @@
 ---
-dun:
+ddx:
   id: TD-XXX
   depends_on:
     - US-XXX

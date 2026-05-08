@@ -1,5 +1,5 @@
 ---
-dun:
+ddx:
   id: helix.parking-lot
   depends_on:
     - helix.prd
@@ -10,7 +10,7 @@ dun:
 ## Policy
 - Out-of-scope items do not belong here.
 - Deferred items must include rationale and revisit trigger.
-- Any parked artifact must set `dun.parking_lot: true` in its frontmatter.
+- Any parked artifact must set `ddx.parking_lot: true` in its frontmatter.
 
 ## Deferred / Future Items
 

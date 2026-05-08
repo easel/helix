@@ -1,5 +1,5 @@
 ---
-dun:
+ddx:
   id: helix.architecture
   depends_on:
     - helix.prd

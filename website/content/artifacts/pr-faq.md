@@ -83,7 +83,7 @@ Synthesize the source material into a launch-day press release and FAQ using a w
 
 ``````markdown
 ---
-dun:
+ddx:
   id: helix.pr-faq
 ---
 # PR-FAQ: [PRODUCT NAME]
@@ -266,7 +266,7 @@ Use this checklist when reviewing a PR-FAQ artifact:
 
 ``````markdown
 ---
-dun:
+ddx:
   id: helix.pr-faq.example
 ---
 # PR-FAQ: HELIX

@@ -90,7 +90,7 @@ Use template at `.ddx/plugins/helix/workflows/phases/03-test/artifacts/test-plan
 
 ``````markdown
 ---
-dun:
+ddx:
   id: helix.test-plan
   depends_on:
     - helix.architecture

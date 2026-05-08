@@ -1,5 +1,5 @@
 ---
-dun:
+ddx:
   id: SD-XXX
   depends_on:
     - FEAT-XXX

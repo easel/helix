@@ -1,5 +1,5 @@
 ---
-dun:
+ddx:
   id: security-architecture
   depends_on:
     - security-requirements

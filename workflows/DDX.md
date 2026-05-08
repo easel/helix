@@ -200,8 +200,8 @@ ddx adr validate --all
 ```
 
 ADRs capture binding decisions with context, rationale, alternatives, and
-consequences. DDx scaffolds them with correct ID allocation, `dun.id` /
-`dun.depends_on` frontmatter, and required section structure.
+consequences. DDx scaffolds them with correct ID allocation, `ddx.id` /
+`ddx.depends_on` frontmatter, and required section structure.
 
 ### Solution Designs
 

@@ -1,5 +1,5 @@
 ---
-dun:
+ddx:
   id: helix.test-plan
   depends_on:
     - helix.architecture

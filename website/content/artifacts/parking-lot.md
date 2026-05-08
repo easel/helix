@@ -12,7 +12,7 @@ aliases:
 
 Project-level registry for deferred and future work that is kept
 out of the main PRD flow. Parked artifacts remain in their normal
-HELIX locations and are flagged with dun.parking_lot: true.
+HELIX locations and are flagged with ddx.parking_lot: true.
 
 ## Phase
 
@@ -71,7 +71,7 @@ Capture deferred work that should not stay in the active path.
 
 ``````markdown
 ---
-dun:
+ddx:
   id: helix.parking-lot
   depends_on:
     - helix.prd
@@ -82,7 +82,7 @@ dun:
 ## Policy
 - Out-of-scope items do not belong here.
 - Deferred items must include rationale and revisit trigger.
-- Any parked artifact must set `dun.parking_lot: true` in its frontmatter.
+- Any parked artifact must set `ddx.parking_lot: true` in its frontmatter.
 
 ## Deferred / Future Items
 
@@ -112,7 +112,7 @@ dun:
 
 ``````markdown
 ---
-dun:
+ddx:
   id: helix.parking-lot
   parking_lot: true
 ---
@@ -125,7 +125,7 @@ Track deferred and future work without cluttering core HELIX artifacts.
 - Out of Scope items do not belong here.
 - Deferred items must include a rationale and revisit trigger.
 - Future items must include a source and expected value.
-- Any parked artifact must set `dun.parking_lot: true`.
+- Any parked artifact must set `ddx.parking_lot: true`.
 
 ## Deferred / Future Items
 

@@ -1,5 +1,5 @@
 ---
-dun:
+ddx:
   id: improvement-backlog
   depends_on:
     - metrics-dashboard

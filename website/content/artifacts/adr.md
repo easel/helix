@@ -69,7 +69,7 @@ Write a compact ADR that captures one decision, the alternatives, and the conseq
 
 ``````markdown
 ---
-dun:
+ddx:
   id: ADR-XXX
   depends_on:
     - helix.prd

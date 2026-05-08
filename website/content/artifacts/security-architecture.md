@@ -75,7 +75,7 @@ design-level security decisions that shape implementation and testing.
 
 ``````markdown
 ---
-dun:
+ddx:
   id: security-architecture
   depends_on:
     - security-requirements

@@ -88,7 +88,7 @@ For tracker conventions see `ddx bead --help`.
 
 ``````markdown
 ---
-dun:
+ddx:
   id: helix.implementation-plan
   depends_on:
     - helix.test-plan

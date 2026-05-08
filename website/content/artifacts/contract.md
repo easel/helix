@@ -77,7 +77,7 @@ against directly.
 
 ``````markdown
 ---
-dun:
+ddx:
   id: contract
   depends_on:
     - architecture

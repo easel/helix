@@ -1,5 +1,5 @@
 ---
-dun:
+ddx:
   id: helix.workflow.artifact-hierarchy
   depends_on:
     - helix.workflow
@@ -18,7 +18,7 @@ The HELIX workflow uses a consistent artifact naming system that enables:
 
 The workflow also supports a project-level **Parking Lot** registry at
 `docs/helix/parking-lot.md` for deferred and future work. Any artifact can be
-marked with `dun.parking_lot: true` to keep it out of dependency graphs and
+marked with `ddx.parking_lot: true` to keep it out of dependency graphs and
 the main PRD flow while remaining in its normal directory.
 
 ## Scope Boundary

@@ -99,7 +99,7 @@ class RefreshContextDigestsTest(unittest.TestCase):
             adr_dir.mkdir(parents=True)
             (adr_dir / "ADR-777-demo-decision.md").write_text(
                 "---\n"
-                "dun:\n"
+                "ddx:\n"
                 "  id: ADR-777\n"
                 "---\n"
                 "# ADR-777: Digest Assembly Helper\n\n"
@@ -119,7 +119,7 @@ class RefreshContextDigestsTest(unittest.TestCase):
             spec_dir.mkdir(parents=True)
             (spec_dir / "FEAT-999-demo.md").write_text(
                 "---\n"
-                "dun:\n"
+                "ddx:\n"
                 "  id: FEAT-999\n"
                 "---\n"
                 "# Feature Specification: FEAT-999 — Demo\n\n"
@@ -168,7 +168,7 @@ class RefreshContextDigestsTest(unittest.TestCase):
             adr_dir.mkdir(parents=True)
             (adr_dir / "ADR-888-secondary-match.md").write_text(
                 "---\n"
-                "dun:\n"
+                "ddx:\n"
                 "  id: ADR-888\n"
                 "---\n"
                 "# ADR-888: Secondary Match Digest Assembly\n\n"
@@ -188,7 +188,7 @@ class RefreshContextDigestsTest(unittest.TestCase):
             spec_dir.mkdir(parents=True)
             (spec_dir / "FEAT-999-demo.md").write_text(
                 "---\n"
-                "dun:\n"
+                "ddx:\n"
                 "  id: FEAT-999\n"
                 "---\n"
                 "# Feature Specification: FEAT-999 — Demo\n\n"
@@ -248,7 +248,7 @@ class RefreshContextDigestsTest(unittest.TestCase):
             adr_dir.mkdir(parents=True)
             (adr_dir / "ADR-321-project-local-custom-cli.md").write_text(
                 "---\n"
-                "dun:\n"
+                "ddx:\n"
                 "  id: ADR-321\n"
                 "---\n"
                 "# ADR-321: Project-local custom CLI concern\n\n"

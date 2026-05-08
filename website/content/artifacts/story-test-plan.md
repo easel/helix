@@ -92,7 +92,7 @@ Use template at `.ddx/plugins/helix/workflows/phases/03-test/artifacts/story-tes
 
 ``````markdown
 ---
-dun:
+ddx:
   id: helix.story-test-plan
   depends_on:
     - helix.technical-design

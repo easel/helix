@@ -1,5 +1,5 @@
 ---
-dun:
+ddx:
   id: helix.workflow.ratchets
   depends_on:
     - helix.workflow

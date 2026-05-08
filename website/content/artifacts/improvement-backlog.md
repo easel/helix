@@ -69,7 +69,7 @@ Document the prioritized improvement inventory produced from iteration learnings
 
 ``````markdown
 ---
-dun:
+ddx:
   id: improvement-backlog
   depends_on:
     - metrics-dashboard

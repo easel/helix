@@ -1,5 +1,5 @@
 ---
-dun:
+ddx:
   id: metrics-dashboard
   depends_on:
     - metric-definition

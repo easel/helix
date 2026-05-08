@@ -1,5 +1,5 @@
 ---
-dun:
+ddx:
   id: helix.workflow.quickstart
   depends_on:
     - helix.workflow

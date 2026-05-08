@@ -86,7 +86,7 @@ Document the architecture views that the team actually needs to build and review
 
 ``````markdown
 ---
-dun:
+ddx:
   id: helix.architecture
   depends_on:
     - helix.prd

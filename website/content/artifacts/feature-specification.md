@@ -149,7 +149,7 @@ committing.
 
 ``````markdown
 ---
-dun:
+ddx:
   id: FEAT-XXX
   depends_on:
     - helix.prd

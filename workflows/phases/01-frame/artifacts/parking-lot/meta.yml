@@ -9,7 +9,7 @@ artifact:
 description: |
   Project-level registry for deferred and future work that is kept
   out of the main PRD flow. Parked artifacts remain in their normal
-  HELIX locations and are flagged with dun.parking_lot: true.
+  HELIX locations and are flagged with ddx.parking_lot: true.
 
 dependencies:
   requires:

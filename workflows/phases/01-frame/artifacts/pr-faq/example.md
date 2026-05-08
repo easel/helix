@@ -1,5 +1,5 @@
 ---
-dun:
+ddx:
   id: helix.pr-faq.example
 ---
 # PR-FAQ: HELIX

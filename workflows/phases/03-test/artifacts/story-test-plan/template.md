@@ -1,5 +1,5 @@
 ---
-dun:
+ddx:
   id: helix.story-test-plan
   depends_on:
     - helix.technical-design
