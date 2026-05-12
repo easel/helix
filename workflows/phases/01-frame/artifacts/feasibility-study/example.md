@@ -1,85 +1,136 @@
-# Feasibility Study: Delegate Bounded Queue-Drain to DDx
+---
+ddx:
+  id: example.feasibility-study.depositmatch
+  depends_on:
+    - example.opportunity-canvas.depositmatch
+    - example.business-case.depositmatch
+    - example.compliance-requirements.depositmatch
+---
 
-**Feasibility Lead**: HELIX maintainers
+# Feasibility Study: DepositMatch CSV-first Pilot
+
+**Feasibility Lead**: Product and engineering leads
 **Evaluation Timeframe**: 2 weeks
-**Decision Deadline**: 2026-03-27
+**Decision Deadline**: 2026-05-31
 **Status**: Example
-
-> Example scenario reconstructed from HELIX's CONTRACT-001 boundary deliberations. This is illustrative — the authoritative record of the decision lives in `docs/helix/02-design/contracts/CONTRACT-001-ddx-helix-boundary.md` and `docs/helix/02-design/adr/ADR-001-supervisory-control-model.md`.
 
 ## Executive Summary
 
 ### Project Overview
-HELIX maintains a supervisory autopilot (`helix run`) that selects the next bounded action and progresses HELIX-managed work toward done. Until early 2026, HELIX owned its own queue-drain loop: claim a ready bead, dispatch an agent, run pre/post checks, land or revert, repeat. DDx now ships `ddx agent execute-loop`, a single-project queue-drain primitive that performs the same claim-execute-close cycle with isolated worktrees, evidence capture, and runtime metrics.
 
-This study evaluates whether HELIX should retire its in-tree execution mechanics and delegate per-cycle execution to `ddx agent execute-loop --once`, retaining only supervisory wrapping above DDx's bounded primitive.
+DepositMatch is a focused reconciliation workspace for small bookkeeping firms.
+The pilot scope imports CSV bank and invoice exports, suggests matches with
+visible evidence, tracks reviewer decisions, and keeps unresolved deposits in a
+client-scoped exception queue.
 
 ### Recommendation
-**Overall Assessment**: FEASIBLE
-**Decision**: GO
-**Rationale**: DDx's `--once` semantics already return control to HELIX after each bead, preserving the supervisory contract from ADR-001. Delegation removes a parallel execution substrate and lets HELIX focus on workflow semantics: routing, escalation, artifact-flow policy. The remaining risk — drift between HELIX's expectations and DDx's behavior — is mitigated by codifying the boundary in CONTRACT-001 and by making `execute-loop --once --json` the workflow-visible outcome surface.
+
+**Overall Assessment**: CONDITIONALLY FEASIBLE
+**Decision**: CONDITIONAL GO
+**Rationale**: The CSV-first pilot is technically and operationally feasible if
+the first release stays narrow. The highest risks are CSV variability, live
+financial-data handling, and willingness to pay, so the project should proceed
+only with pilot recruiting, compliance review, and explicit success metrics.
+**Confidence**: Medium
 
 ## Feasibility Assessment
 
 ### Technical
+
 - **Assessment**: FEASIBLE
-- **Key requirements**:
-  - DDx exposes a bounded "drain at most one bead, then return" mode (`--once`).
-  - DDx returns enough evidence per attempt for HELIX to make merge/preserve/escalate decisions: bead ID, status, base/result revisions, session ID, retry hints.
-  - DDx owns dirty-tree checkpointing, isolated worktree execution, fast-forward landing, and worktree cleanup so HELIX never touches `git checkout -- .`.
-- **Main risks**:
-  - HELIX wrappers may continue to set selectors (`HELIX_SELECTED_ISSUE`) DDx never honors, producing the illusion of control.
-  - Status semantics (`success` vs `land_conflict` vs `post_run_check_failed`) must stay stable; ad-hoc changes in DDx would break HELIX post-cycle bookkeeping.
-  - Review and alignment behavior must be re-expressed as queue-injected beads, not as HELIX-only post-cycle hooks.
+- **Key requirements**: CSV import and mapping, suggested matching, evidence
+  display, firm/client access boundaries, review log export, and exception
+  queue.
+- **Main risks**: CSV format variability, false-positive matches, and audit log
+  integrity.
+- **Evidence**: Product Vision defines a narrow workflow; Opportunity Canvas
+  keeps v1 out of bank feeds and ledger writeback.
 
 ### Business
-- **Assessment**: FEASIBLE
-- **Market opportunity**: HELIX's positioning is a supervisory layer for spec-driven agent development. Owning a parallel execution substrate dilutes that positioning and slows adoption — every HELIX user pays for HELIX's git mechanics in addition to whatever their platform substrate provides.
-- **Value proposition**: Delegation reinforces "HELIX owns workflow semantics; DDx owns execution mechanics." Operators get one execution lane to trust and reason about, and HELIX docs can point at DDx evidence rather than re-document equivalent internals.
+
+- **Assessment**: HIGH RISK
+- **Market opportunity**: Small bookkeeping firms have a specific weekly
+  reconciliation bottleneck, but segment size and pricing are still planning
+  assumptions.
+- **Value proposition**: Reviewer capacity, visible evidence, and exception
+  ownership are differentiated against spreadsheets and generic matching tools.
+- **Evidence**: Business Case marks TAM/SAM/SOM and pricing as assumptions;
+  Opportunity Canvas requires pilot conversion evidence.
 
 ### Operational
-- **Assessment**: FEASIBLE
-- **Support and deployment needs**: HELIX already requires DDx for tracker, graph, and agent execution. Adding `execute-loop` as a required dependency does not broaden the footprint. The `scripts/helix` orchestrator stays Bash+jq because the workflow logic is mostly pipelines over `ddx` JSON output.
-- **Regulatory requirements**: None — both DDx and HELIX are local developer tools.
+
+- **Assessment**: HIGH RISK
+- **Support and deployment needs**: Pilot onboarding, CSV sampling, per-firm
+  mapping support, deletion requests, incident response, and support access
+  controls.
+- **Regulatory requirements**: FTC Safeguards and state privacy applicability
+  need counsel review before live client financial data is uploaded.
+- **Evidence**: Compliance Requirements identifies financial-data handling,
+  retention, vendor, and counsel-review gaps.
 
 ### Resource
+
 - **Assessment**: FEASIBLE
-- **Budget**: Maintainer time only. No new infrastructure.
-- **Team and timeline**: Maintainers can codify the boundary contract and rewrite `helix run` against `--once` within one planning cycle. The deletion side of the change (HELIX retry/backoff, blocker tracking, orphan worktree recovery, manual unclaim, `git checkout -- .` cleanup) is larger than the addition side.
+- **Budget**: Year-one pilot budget in Business Case: $262,000 across
+  development, infrastructure, go-to-market, and operations.
+- **Team and timeline**: Three-month pilot build is feasible with a focused
+  product/engineering pair and limited support coverage.
+- **Evidence**: Business Case bounds the first investment; Opportunity Canvas
+  keeps bank feeds, ledger writeback, and automatic approval out of scope.
 
 ## Risks
 
 | Risk | Probability | Impact | Mitigation |
 |------|-------------|--------|------------|
-| DDx drift in `execute-loop --once --json` outcome shape breaks HELIX post-cycle bookkeeping | Medium | High | Pin the JSON shape in CONTRACT-001; add a HELIX integration test that fails fast on schema drift |
-| HELIX continues to "predict" which bead DDx will pick, leading to corrupt bookkeeping when the prediction is wrong | Medium | High | Forbid pre-selection; HELIX uses `results[].bead_id` from the cycle output for all post-cycle work |
-| Review and alignment behavior gets re-implemented as HELIX-side hooks instead of queue-injected beads | High | Medium | Validation checklist in CONTRACT-001; reject any wrapper that mutates DDx claim/close behavior |
-| Operators expect the old "HELIX schedules retries" behavior and are confused by `retry-after` cooldowns | Medium | Low | Document ownership transfer; surface DDx cooldown via `ddx bead blocked` instead of a HELIX retry log |
-| DDx changes execution semantics (e.g., switches to multi-bead drain by default) without re-honoring `--once` | Low | High | Treat `--once` as a contract-level commitment; pin in CONTRACT-001 and call it out in DDx upgrade notes |
+| CSV exports vary enough to slow onboarding | High | Medium | Recruit pilots across at least three accounting systems and build explicit column mapping. |
+| Reviewers distrust suggestions | Medium | High | Show evidence before approval and measure accepted suggestion accuracy. |
+| Compliance review expands required controls | Medium | High | Complete legal applicability review before live-data pilot. |
+| Pilot firms do not pay at target pricing | Medium | High | Validate willingness to pay before expanding beyond CSV-first scope. |
 
 ## Alternatives
 
-### Alternative 1: Keep HELIX-owned queue-drain and treat DDx as a per-bead executor
-- **Pros**: HELIX retains direct control over claim/close lifecycle; no boundary contract needed.
-- **Cons**: Two execution substrates compete for ownership of git mechanics, retry policy, and evidence capture. Every DDx improvement must be mirrored in HELIX. Maintenance cost grows with every supported harness.
-- **Feasibility**: Feasible but strategically wrong; preserves the failure mode this study is trying to retire.
+### CSV-first Pilot
 
-### Alternative 2: Have DDx absorb HELIX supervisory behavior (autonomy semantics, escalation, artifact flow)
-- **Pros**: One tool to operate.
-- **Cons**: DDx becomes methodology-bound. HELIX's explicit non-goal — being a generic do-everything platform — is violated. The product vision's separation of "platform substrate" from "workflow methodology" collapses.
-- **Feasibility**: Feasible technically, rejected on positioning grounds.
+- **Pros**: Fastest path to validate reviewer trust, time savings, and
+  willingness to pay without integration dependencies.
+- **Cons**: Requires manual CSV mapping support and does not prove bank-feed
+  integration value.
+- **Feasibility**: CONDITIONALLY FEASIBLE
+- **Decision**: Carry forward
 
-### Alternative 3: Delegate execute-loop but keep a HELIX-side claim shim "just in case"
-- **Pros**: Gradual migration.
-- **Cons**: Two claim paths means two code paths to keep correct. Concurrent local refinement (per ADR-002) becomes harder, not easier, because there are now two writers to the tracker.
-- **Feasibility**: Possible but worse than committing to delegation.
+### Bank-feed and Ledger Integration First
 
-### Recommendation Rationale
-Delegation is the smallest sufficient change that keeps the supervisory promise of `helix run` while removing parallel execution mechanics. The technical primitive HELIX needs (`--once`) already exists in DDx. The only meaningful work is codifying the boundary so future drift is visible.
+- **Pros**: Stronger automation story and richer transaction context.
+- **Cons**: Higher integration complexity, slower learning, larger compliance
+  and support surface.
+- **Feasibility**: HIGH RISK
+- **Decision**: Reject for v1
+
+### Do Nothing / Delay
+
+- **Pros**: Avoids compliance and support burden while market assumptions are
+  weak.
+- **Cons**: Delays learning on the core reviewer-trust problem and leaves pilot
+  firms in manual spreadsheet workflows.
+- **Feasibility**: FEASIBLE but strategically weak
+- **Decision**: Reject
+
+## Decision Framework
+
+| Criterion | Status | Rationale |
+|-----------|--------|-----------|
+| Technical buildability | Pass | CSV-first scope is bounded and avoids complex integrations. |
+| Business value | Risk | Pain is clear, but pricing and obtainable market remain assumptions. |
+| Operational supportability | Risk | CSV onboarding and financial-data handling need explicit procedures. |
+| Compliance readiness | Risk | Counsel review is required before live-data pilot. |
+| Resource availability | Pass | Three-month pilot fits the bounded investment case. |
 
 ## Next Steps
-1. Ratify CONTRACT-001 with the DDx-owned and HELIX-owned responsibility lists explicit, including shared-object meanings (bead, workspace state, execution run, ratchet).
-2. Rewrite `helix run` against `ddx agent execute-loop --once --json`. Delete HELIX retry/backoff, blocker tracking, orphan worktree recovery, `safe_unclaim`, and `git checkout -- .` cleanup.
-3. Move review and alignment from HELIX-side post-cycle hooks to queue-injected beads (`review-finding`, `alignment-review`).
-4. Add a `helix check`-time queue-drift detector so superseded beads never enter DDx's ready queue (per CONTRACT-001 queue-drift ownership).
-5. Land an integration test that fails when `execute-loop --once --json` schema drifts.
+
+1. Confirm five pilot firms and collect sample CSVs before finalizing PRD scope.
+2. Complete legal/compliance applicability review for live financial data.
+3. Turn the CSV import, evidence-backed matching, exception queue, and review
+   log into PRD requirements.
+4. Add pilot success gates: reconciliation time below 3 minutes per client,
+   accepted suggestion accuracy above 95%, and 3 of 5 pilot firms willing to
+   pay target pricing.

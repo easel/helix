@@ -17,6 +17,7 @@ ddx:
 **Overall Assessment**: FEASIBLE | CONDITIONALLY FEASIBLE | NOT FEASIBLE
 **Decision**: GO | CONDITIONAL GO | NO GO
 **Rationale**: [2-3 sentences on the main factors]
+**Confidence**: High | Medium | Low
 
 ## Feasibility Assessment
 
@@ -24,21 +25,25 @@ ddx:
 - **Assessment**: FEASIBLE | HIGH RISK | NOT FEASIBLE
 - **Key requirements**: [Brief list]
 - **Main risks**: [Brief list]
+- **Evidence**: [What supports the assessment]
 
 ### Business
 - **Assessment**: FEASIBLE | HIGH RISK | NOT FEASIBLE
 - **Market opportunity**: [Brief summary]
 - **Value proposition**: [Brief summary]
+- **Evidence**: [What supports the assessment]
 
 ### Operational
 - **Assessment**: FEASIBLE | HIGH RISK | NOT FEASIBLE
 - **Support and deployment needs**: [Brief summary]
 - **Regulatory requirements**: [Brief summary]
+- **Evidence**: [What supports the assessment]
 
 ### Resource
 - **Assessment**: FEASIBLE | HIGH RISK | NOT FEASIBLE
 - **Budget**: [Estimate]
 - **Team and timeline**: [Estimate]
+- **Evidence**: [What supports the assessment]
 
 ## Risks
 
@@ -52,6 +57,13 @@ ddx:
 - **Pros**: [Brief]
 - **Cons**: [Brief]
 - **Feasibility**: [Brief]
+- **Decision**: Carry forward | Reject
+
+### Do Nothing / Delay
+- **Pros**: [Brief]
+- **Cons**: [Brief]
+- **Feasibility**: [Brief]
+- **Decision**: Carry forward | Reject
 
 ## Next Steps
 1. [Action]
