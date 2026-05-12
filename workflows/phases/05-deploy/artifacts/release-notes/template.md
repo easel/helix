@@ -27,6 +27,12 @@ ddx:
 - [second important change]
 - [critical fix or operational improvement]
 
+## Required Actions Summary
+
+- Users: [none or required action]
+- Operators: [none or required action]
+- Support: [none or required action]
+
 ## Changes and Fixes
 
 ### New or Improved

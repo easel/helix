@@ -47,6 +47,14 @@ prompts:
 template:
   file: template.md
 
+example:
+  file: example.md
+
+references:
+  - title: "Keep a Changelog"
+    file: docs/resources/keep-a-changelog.md
+    relationship: "Grounds human-readable release communication grouped by user-impacting change"
+
 workflow:
   creation_order: 4
   review_cycles: 1
