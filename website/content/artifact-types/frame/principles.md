@@ -10,16 +10,75 @@ generated: true
 
 ## Purpose
 
-Cross-cutting design principles that guide judgment calls across all HELIX
-phases. Not workflow rules or process enforcement — these are lenses applied
-when choosing between two valid options.
+Project Principles define the project's durable judgment model. Their unique
+job is to help agents and humans choose between two plausible options when the
+Product Vision, PRD, feature specs, concerns, ADRs, tests, and implementation
+plans do not prescribe an exact answer.
 
-Two-layer model:
-  Layer 1 (HELIX defaults): .ddx/plugins/helix/workflows/principles.md — sensible defaults
-  Layer 2 (Project):        docs/helix/01-frame/principles.md — project-owned
+They are not a second requirements document. They are not a concern catalog.
+They are not ADRs. They are not workflow rules. A good principle changes a
+real decision without pretending to settle every future case.
 
-If the project file exists, it is the sole active source.
-If it does not exist, HELIX defaults are used.
+## Example
+
+<details open>
+<summary>Show a worked example of this artifact</summary>
+
+``````markdown
+---
+ddx:
+  id: example.principles.depositmatch
+  depends_on:
+    - example.product-vision.depositmatch
+    - example.prd.depositmatch
+---
+
+# Project Principles
+
+These principles guide DepositMatch decisions when the Product Vision and PRD
+do not prescribe an exact answer. They are not product requirements, concerns,
+ADRs, workflow rules, or process enforcement.
+
+## Principles
+
+1. **Trust beats automation.** Prefer reviewable suggestions over invisible
+   automation when the two conflict. This changes decisions when a faster match
+   flow would hide evidence from the reviewer.
+
+2. **Exceptions are first-class work.** Prefer an owned exception over an
+   unresolved deposit that sits outside the product. This changes decisions
+   when an edge case could be deferred to a spreadsheet or email thread.
+
+3. **Reviewer speed comes from preserved context.** Prefer workflows that keep
+   deposits, invoices, evidence, and decisions together over workflows that
+   minimize screen count. This changes decisions when a shorter path would make
+   the reviewer rebuild context later.
+
+4. **Start with CSV reality.** Prefer robust import and column-mapping behavior
+   over early accounting-platform integrations. This changes decisions when
+   integration work competes with making pilot firms successful on exported
+   data.
+
+5. **Auditability is part of usability.** Prefer visible history and correction
+   paths over destructive edits. This changes decisions when a direct edit would
+   be simpler but would weaken month-end review.
+
+## Tension Resolution
+
+| When these pull against each other | Resolve by |
+|---|---|
+| **Trust beats automation** vs. **Reviewer speed comes from preserved context** | Show enough evidence for confident review before optimizing batch speed. Speed that reduces trust will not survive pilot use. |
+| **Start with CSV reality** vs. **Reviewer speed comes from preserved context** | Make CSV import dependable first, then improve the review surface with the context those imports provide. |
+| **Exceptions are first-class work** vs. **Auditability is part of usability** | Treat exception assignment, status changes, and follow-up notes as auditable decisions, not lightweight comments. |
+
+## Size Guidance
+
+Keep this file focused on choices the team expects to make repeatedly. If a
+principle becomes a product behavior, move it into the PRD or a feature spec. If
+it becomes a technology decision, move it into Concerns or an ADR.
+``````
+
+</details>
 
 ## Reference
 
@@ -33,6 +92,26 @@ If it does not exist, HELIX defaults are used.
 
 Help the user create a project principles document that guides judgment calls
 across all HELIX phases.
+
+## Purpose
+
+Project Principles define the project&#x27;s durable judgment model. Their unique
+job is to help agents and humans choose between two plausible options when the
+Product Vision, PRD, feature specs, concerns, ADRs, tests, and implementation
+plans do not prescribe an exact answer.
+
+They are not a second requirements document. They are not a concern catalog.
+They are not ADRs. They are not workflow rules. A good principle changes a
+real decision without pretending to settle every future case.
+
+## Reference Anchors
+
+Use these local resource summaries as grounding:
+
+- `docs/resources/agile-manifesto-principles.md` frames principles as durable
+  tradeoff preferences that guide many decisions without becoming procedure.
+- `docs/resources/govuk-design-principles.md` models compact, memorable,
+  decision-changing principles that stay distinct from a rulebook.
 
 ## Bootstrap Flow
 
@@ -68,6 +147,8 @@ Each principle must be:
   the principle would not change any decision, it is not a principle.
 - **Actionable**: An agent or developer reading it should know which option
   to prefer in a concrete scenario.
+- **Tradeoff-shaped**: It should say what to prefer when two valid options
+  compete. &quot;Always do X&quot; is usually a rule, not a principle.
 - **Concise**: One sentence for the principle, one sentence for the
   rationale. If it needs a paragraph, it may be a policy, not a principle.
 
@@ -76,6 +157,21 @@ Reject or flag:
 - Workflow rules (belong in enforcers or ratchets, not principles)
 - Aspirational statements that do not change decisions
 - Principles so broad they apply to every project (&quot;write good code&quot;)
+- Requirements that define product behavior (belong in PRD or feature specs)
+- Technology or quality domains (belong in Concerns)
+- Specific decisions already made (belong in ADRs)
+
+## Boundary Test
+
+For every candidate principle, ask:
+
+| Question | If yes |
+|---|---|
+| Does it define what the product must do? | Move it to the PRD or a feature spec. |
+| Does it name an active quality area, technology stack, or operating concern? | Move it to Concerns. |
+| Does it record a specific decision and alternatives? | Move it to an ADR. |
+| Does it require a mandatory process step? | Move it to workflow rules, enforcers, or ratchets. |
+| Does it only sound virtuous? | Delete it or rewrite it around a real tradeoff. |
 
 ## Size Thresholds
 
@@ -117,8 +213,8 @@ ddx:
 # Project Principles
 
 These principles guide judgment calls across all HELIX phases. They are not
-workflow rules or process enforcement — they are lenses applied when choosing
-between two valid options.
+requirements, concerns, ADRs, workflow rules, or process enforcement. They are
+lenses applied when choosing between two valid options.
 
 This document was bootstrapped from HELIX defaults. You own it now — add,
 modify, reorder, or remove any principle. The only constraint: principles
@@ -128,19 +224,24 @@ semantics).
 ## Principles
 
 1. **Design for change** — Prefer structures that are easy to modify over
-   structures that are easy to describe today.
+   structures that are easy to describe today. This changes decisions when a
+   tidy short-term model would make likely product changes expensive.
 
 2. **Design for simplicity** — Start with the minimal viable approach.
-   Additional complexity requires justification.
+   Additional complexity requires justification. This changes decisions when a
+   generalized solution has no current requirement behind it.
 
 3. **Validate your work** — Every change should be verified through the most
-   appropriate means available (tests, type checks, manual verification).
+   appropriate means available (tests, type checks, manual verification). This
+   changes decisions when speed and evidence pull against each other.
 
 4. **Make intent explicit** — Code, configuration, and documentation should
-   make the *why* visible, not just the *what*.
+   make the *why* visible, not just the *what*. This changes decisions when an
+   implicit convention would save words but hide rationale.
 
 5. **Prefer reversible decisions** — When uncertain, choose the option that
-   is easiest to undo or change later.
+   is easiest to undo or change later. This changes decisions when confidence
+   is low and both options satisfy current requirements.
 
 ## Tension Resolution
 
