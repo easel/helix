@@ -14,7 +14,7 @@ Define what the system should do, for whom, and how success will be measured.
   {{< card link="/artifact-types/frame/principles/" title="Project Principles" subtitle="Cross-cutting design principles that guide judgment calls across all HELIX phases. They are not requirements, concerns, ADRs, workflow rules, or process enforc…" >}}
   {{< card link="/artifact-types/frame/concerns/" title="Project Concerns" subtitle="Declares the project's active cross-cutting concerns: technology stacks, quality attributes, data rules, security posture, UX conventions, operating practices,…" >}}
   {{< card link="/artifact-types/frame/feature-specification/" title="Feature Specification" subtitle="Feature-level authority document that translates PRD requirements into precise behavior, boundaries, functional areas, non-functional expectations, acceptance…" >}}
-  {{< card link="/artifact-types/frame/user-stories/" title="User Stories" subtitle="Standalone design artifacts defining vertical slices of the application. Each story traces a complete user journey from trigger to outcome with acceptance crit…" >}}
+  {{< card link="/artifact-types/frame/user-stories/" title="User Stories" subtitle="Stable design artifacts defining vertical user journeys through feature behavior. Each story traces one persona from trigger to outcome, references parent feat…" >}}
 {{< /cards >}}
 
 ## Supporting Artifacts

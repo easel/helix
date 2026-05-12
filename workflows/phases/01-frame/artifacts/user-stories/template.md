@@ -6,6 +6,7 @@ ddx:
 # US-XXX: [Story Title]
 
 **Feature**: [FEAT-XXX — Feature Name]
+**Feature Requirements**: [REQ-01, REQ-02]
 **Priority**: [P0 | P1 | P2]
 **Status**: [Draft | Review | Approved]
 
@@ -18,8 +19,9 @@ ddx:
 ## Context
 
 [Why this story matters. What's the user's situation before this works? What
-problem are they hitting? This should be 2-4 sentences that give an
-implementer enough background to make judgment calls without asking.]
+problem are they hitting? Which parent feature requirements does this story
+exercise? This should be 2-4 sentences that give an implementer enough
+background to make judgment calls without asking.]
 
 ## Walkthrough
 
@@ -62,6 +64,7 @@ should be able to copy these into a test file.]
 
 - **Stories**: [US-XXX if this story depends on another being done first]
 - **Feature Spec**: [FEAT-XXX]
+- **Feature Requirements**: [REQ-01, REQ-02]
 - **External**: [APIs, services, or data this story requires]
 
 ## Out of Scope

@@ -11,10 +11,14 @@ generated: true
 ## Purpose
 
 User stories are **governing design artifacts**, not throwaway tickets. Each
-story defines a complete vertical slice of the application that is
-independently implementable and testable. Tracker issues reference stories;
-stories don't reference tracker issues. Stories are more stable than the
-implementation beads that fulfill them.
+story defines one persona's complete vertical journey through feature behavior
+that is independently implementable and testable. Tracker issues reference
+stories; stories don't reference tracker issues. Stories are more stable than
+the implementation beads that fulfill them.
+
+The feature spec owns behavior and boundaries. A user story owns a journey
+through that behavior: who starts it, what they do, what the system shows, and
+what outcome proves the slice works.
 
 ## Authoring guidance
 
@@ -28,6 +32,9 @@ implementation beads that fulfill them.
   questions.
 - **Test-first friendly** — acceptance criteria and test scenarios should be
   concrete enough to write tests before writing code.
+- **Traceable to feature behavior** — each story should name the feature
+  requirements it exercises. Do not invent behavior outside the parent feature
+  spec.
 
 <details>
 <summary>Quality checklist from the prompt</summary>
@@ -44,6 +51,7 @@ committing.
 - [ ] Every acceptance criterion is independently testable (one Given/When/Then)
 - [ ] Test scenarios include concrete values, not placeholders
 - [ ] Story links to parent feature spec by ID
+- [ ] Story names the parent feature requirement IDs it exercises
 
 ### Warning
 
@@ -52,6 +60,99 @@ committing.
 - [ ] Test scenarios cover both happy path and at least one edge case
 - [ ] Out of scope excludes something plausible
 - [ ] No compound acceptance criteria (split into separate items)
+- [ ] Story does not invent behavior outside the parent feature spec
+
+</details>
+
+## Example
+
+<details open>
+<summary>Show a worked example of this artifact</summary>
+
+``````markdown
+---
+ddx:
+  id: example.user-story.depositmatch.upload-csv
+  depends_on:
+    - example.feature-specification.depositmatch.csv-import
+---
+
+# US-001: Upload CSV Files for a Client
+
+**Feature**: FEAT-001 - CSV Import and Column Mapping
+**Feature Requirements**: UP-01, UP-02
+**Priority**: P0
+**Status**: Approved
+
+## Story
+
+**As a** Maya, the reconciliation lead
+**I want** to upload bank and invoice CSV files for one client
+**So that** I can start weekly reconciliation from the client's current source
+data without rebuilding the import context by hand.
+
+## Context
+
+Maya receives weekly bank and invoice exports from each client she manages. This
+story covers the first step of FEAT-001: associating one bank deposit CSV and
+one invoice export CSV with the selected client and import session. It exercises
+UP-01 and UP-02 only; mapping, validation, and import summary behavior are
+covered by follow-on stories.
+
+## Walkthrough
+
+1. Maya opens Acme Dental's reconciliation workspace and chooses to start a new
+   import session.
+2. DepositMatch shows bank deposit and invoice export upload controls for Acme
+   Dental.
+3. Maya selects `acme-bank-2026-05-08.csv` and
+   `acme-invoices-2026-05-08.csv`.
+4. DepositMatch accepts both CSV files, associates them with the Acme Dental
+   import session, and opens the mapping review step.
+
+## Acceptance Criteria
+
+- [ ] Given Maya is viewing Acme Dental, when she uploads one valid bank CSV and
+  one valid invoice CSV, then DepositMatch creates one draft import session for
+  Acme Dental and opens mapping review.
+- [ ] Given Maya is viewing Acme Dental, when she uploads a PDF instead of a
+  CSV for either required file, then DepositMatch rejects the file before
+  parsing and keeps the import session in draft.
+- [ ] Given Maya has uploaded both required CSV files, when the files are
+  accepted, then the import session records the client, file names, upload time,
+  and source type for each file.
+
+## Edge Cases
+
+- **Wrong file type**: Reject non-CSV files before parsing and identify which
+  file slot failed.
+- **Missing second file**: Keep the import session in draft until both bank and
+  invoice files are present.
+- **Client changed mid-upload**: Associate accepted files only with the client
+  selected at upload confirmation time.
+
+## Test Scenarios
+
+| Scenario | Input / State | Action | Expected Result |
+|----------|---------------|--------|-----------------|
+| Happy path | Client `Acme Dental`; files `acme-bank-2026-05-08.csv` and `acme-invoices-2026-05-08.csv` | Maya uploads both files | Draft import session is created for Acme Dental and mapping review opens |
+| Wrong file type | Client `Acme Dental`; bank file `statement.pdf`; invoice file `acme-invoices-2026-05-08.csv` | Maya uploads both files | PDF is rejected before parsing; session remains draft |
+| Missing invoice file | Client `Acme Dental`; bank file only | Maya uploads the bank file | Bank file is attached to draft session; mapping review does not open |
+
+## Dependencies
+
+- **Stories**: None.
+- **Feature Spec**: FEAT-001 - CSV Import and Column Mapping.
+- **Feature Requirements**: UP-01, UP-02.
+- **External**: Browser file upload support; no external APIs for v1.
+
+## Out of Scope
+
+- Column mapping.
+- Row-level validation.
+- Match suggestion generation.
+- Saving accepted rows into the review queue.
+``````
 
 </details>
 
@@ -76,10 +177,23 @@ Store at: `docs/helix/01-frame/user-stories/US-NNN-&lt;slug&gt;.md` (one file pe
 ## Purpose
 
 User stories are **governing design artifacts**, not throwaway tickets. Each
-story defines a complete vertical slice of the application that is
-independently implementable and testable. Tracker issues reference stories;
-stories don&#x27;t reference tracker issues. Stories are more stable than the
-implementation beads that fulfill them.
+story defines one persona&#x27;s complete vertical journey through feature behavior
+that is independently implementable and testable. Tracker issues reference
+stories; stories don&#x27;t reference tracker issues. Stories are more stable than
+the implementation beads that fulfill them.
+
+The feature spec owns behavior and boundaries. A user story owns a journey
+through that behavior: who starts it, what they do, what the system shows, and
+what outcome proves the slice works.
+
+## Reference Anchors
+
+Use these local resource summaries as grounding:
+
+- `docs/resources/atlassian-user-stories.md` grounds persona-goal-value story
+  framing and acceptance criteria.
+- `docs/resources/cucumber-executable-specifications.md` grounds observable
+  Given/When/Then acceptance criteria without requiring BDD tooling.
 
 ## Key Principles
 
@@ -93,6 +207,20 @@ implementation beads that fulfill them.
   questions.
 - **Test-first friendly** — acceptance criteria and test scenarios should be
   concrete enough to write tests before writing code.
+- **Traceable to feature behavior** — each story should name the feature
+  requirements it exercises. Do not invent behavior outside the parent feature
+  spec.
+
+## Boundary Test
+
+| If you are writing... | Put it in... |
+|---|---|
+| Product-level scope, personas, priorities, or metrics | PRD |
+| Complete feature behavior, functional areas, and edge cases | Feature Specification |
+| One persona&#x27;s journey through a feature slice | User Story |
+| Component design, data model, API shape, or build approach | Solution/Technical Design |
+| Detailed fixtures, test harnesses, or automation strategy | Story Test Plan |
+| Work assignment, status, or execution notes | DDx bead or runtime issue |
 
 ## Section-by-Section Guidance
 
@@ -104,7 +232,8 @@ internally. The &quot;So that&quot; must name a measurable outcome or business v
 
 ### Context
 This is the background an implementer needs to make judgment calls. Why does
-this story exist? What&#x27;s the user&#x27;s situation? What pain are they hitting?
+this story exist? What&#x27;s the user&#x27;s situation? Which parent feature
+requirements does it exercise? What pain are they hitting?
 2-4 sentences, not a paragraph of filler. Test: would removing this section
 force the implementer to ask a question? If not, it&#x27;s too generic.
 
@@ -136,6 +265,10 @@ edge case from the section above. Name specific values, not placeholders.
 Name other stories this one depends on (by ID), the parent feature spec,
 and any external systems or APIs. If another story must be done first, say so.
 
+### Traceability
+Name the parent feature requirement IDs that the story exercises. If the story
+needs behavior that is not in the feature spec, update the feature spec first.
+
 ### Out of Scope
 What this story explicitly does not cover. Each item should exclude something
 an implementer might reasonably try to include. This prevents scope creep
@@ -155,6 +288,7 @@ committing.
 - [ ] Every acceptance criterion is independently testable (one Given/When/Then)
 - [ ] Test scenarios include concrete values, not placeholders
 - [ ] Story links to parent feature spec by ID
+- [ ] Story names the parent feature requirement IDs it exercises
 
 ### Warning
 
@@ -162,7 +296,8 @@ committing.
 - [ ] At least one edge case is documented
 - [ ] Test scenarios cover both happy path and at least one edge case
 - [ ] Out of scope excludes something plausible
-- [ ] No compound acceptance criteria (split into separate items)</code></pre></details></td></tr>
+- [ ] No compound acceptance criteria (split into separate items)
+- [ ] Story does not invent behavior outside the parent feature spec</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
   id: &quot;[artifact-id]&quot;
@@ -171,6 +306,7 @@ ddx:
 # US-XXX: [Story Title]
 
 **Feature**: [FEAT-XXX — Feature Name]
+**Feature Requirements**: [REQ-01, REQ-02]
 **Priority**: [P0 | P1 | P2]
 **Status**: [Draft | Review | Approved]
 
@@ -183,8 +319,9 @@ ddx:
 ## Context
 
 [Why this story matters. What&#x27;s the user&#x27;s situation before this works? What
-problem are they hitting? This should be 2-4 sentences that give an
-implementer enough background to make judgment calls without asking.]
+problem are they hitting? Which parent feature requirements does this story
+exercise? This should be 2-4 sentences that give an implementer enough
+background to make judgment calls without asking.]
 
 ## Walkthrough
 
@@ -227,6 +364,7 @@ should be able to copy these into a test file.]
 
 - **Stories**: [US-XXX if this story depends on another being done first]
 - **Feature Spec**: [FEAT-XXX]
+- **Feature Requirements**: [REQ-01, REQ-02]
 - **External**: [APIs, services, or data this story requires]
 
 ## Out of Scope
