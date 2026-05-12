@@ -5,8 +5,8 @@ artifact:
   phase: iterate
 
 description: |
-  Iteration-level security posture report covering incident response,
-  vulnerability management, application security, and compliance.
+  Iteration-level security posture report that turns incidents, vulnerabilities,
+  control results, and compliance gaps into trend-backed improvement work.
 
 output:
   location: docs/helix/06-iterate/security-metrics.md
@@ -38,6 +38,20 @@ prompts:
 
 template:
   file: template.md
+
+example:
+  file: example.md
+
+references:
+  - title: "NIST Cybersecurity Measurement Guidance"
+    file: docs/resources/nist-cybersecurity-measurement-guidance.md
+    relationship: "Grounds risk-based, trend-oriented security measurement"
+  - title: "OWASP Application Security Verification Standard"
+    file: docs/resources/owasp-asvs.md
+    relationship: "Grounds application-security control coverage"
+  - title: "Google SRE Incident Management Guide"
+    file: docs/resources/google-sre-incident-management-guide.md
+    relationship: "Grounds incident response measurement and follow-up"
 
 workflow:
   creation_order: 2

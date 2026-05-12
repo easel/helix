@@ -3,7 +3,7 @@ ddx:
   id: "[artifact-id]"
 ---
 
-# Security Metrics — [Iteration / Date Range]
+# Security Metrics - [Iteration / Date Range]
 
 ## Incident Response
 
@@ -37,12 +37,12 @@ ddx:
 
 ## Application Security
 
-| Metric | Value | Trend |
-|--------|-------|-------|
-| SAST findings (new this period) | | |
-| DAST findings (new this period) | | |
-| Dependency vulnerabilities (direct) | | |
-| Security review coverage | | |
+| Metric | Current | Target | Trend |
+|--------|---------|--------|-------|
+| SAST findings (new this period) | | | |
+| DAST findings (new this period) | | | |
+| Dependency vulnerabilities (direct) | | | |
+| Security review coverage | | | |
 
 ## Compliance Status
 

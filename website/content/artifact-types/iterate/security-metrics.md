@@ -10,8 +10,95 @@ generated: true
 
 ## Purpose
 
-Iteration-level security posture report covering incident response,
-vulnerability management, application security, and compliance.
+Iteration-level security posture report that turns incidents, vulnerabilities,
+control results, and compliance gaps into trend-backed improvement work.
+
+## Example
+
+<details open>
+<summary>Show a worked example of this artifact</summary>
+
+``````markdown
+---
+ddx:
+  id: example.security-metrics.depositmatch
+  depends_on:
+    - example.metrics-dashboard.depositmatch
+    - example.monitoring-setup.depositmatch
+    - example.security-tests.depositmatch
+    - example.runbook.depositmatch
+---
+
+# Security Metrics - Pilot Iteration 1
+
+## Incident Response
+
+| Metric | Current | Target | Trend |
+|--------|---------|--------|-------|
+| Mean Time to Detect (MTTD) | baseline: 4 minutes for synthetic telemetry alert | under 5 minutes | baseline set |
+| Mean Time to Respond (MTTR) | baseline: 18 minutes for synthetic import outage | under 30 minutes | baseline set |
+| Incidents resolved within SLA | 1 of 1 synthetic incidents | 100% | baseline set |
+| False-positive alert rate | 1 of 6 security alerts | under 20% | baseline set |
+
+**Incident Summary**
+
+- Total incidents this period: 1 synthetic restricted-telemetry drill.
+- Critical (required immediate response): 0 production incidents.
+- Fully resolved: 1 drill resolved through runbook.
+
+**Root Causes** (critical and high only)
+
+| Root Cause | Count | Mitigation Status |
+|------------|-------|-------------------|
+| none | 0 | no critical/high production incident this period |
+
+## Vulnerability Management
+
+| Metric | Current | Target | Trend |
+|--------|---------|--------|-------|
+| Open critical vulnerabilities | 0 | 0 | baseline set |
+| Open high vulnerabilities | 1 development dependency | 0 before pilot go-live | baseline set |
+| MTTR for critical vulns | not applicable | under 2 business days | baseline set |
+| Patch compliance rate | 94% direct dependencies current | 95% before pilot go-live | baseline set |
+
+## Application Security
+
+| Metric | Current | Target | Trend |
+|--------|---------|--------|-------|
+| SAST findings (new this period) | 2 medium findings, both in non-production code paths | 0 high/critical, medium triaged within 5 days | baseline set |
+| DAST findings (new this period) | not run; staging environment not stable | run before pilot go-live | baseline set |
+| Dependency vulnerabilities (direct) | 1 high, 0 critical | 0 high/critical before pilot go-live | baseline set |
+| Security review coverage | 5 of 5 high-risk controls mapped to tests | 100% high-risk controls | baseline set |
+
+## Compliance Status
+
+| Requirement | Status | Open Gaps | Target Resolution |
+|-------------|--------|-----------|-------------------|
+| FTC Safeguards applicability review | pending counsel | confirm pilot-data obligations | before live customer data |
+| Restricted telemetry policy | implemented in tests, not production-proven | production log scan needs first live run | first pilot day |
+| Support access auditability | implemented in tests | support grant review cadence not exercised | first weekly operations review |
+| Source CSV retention | designed, not verified in production | retention job dry run needed | before second pilot customer |
+
+## Security Posture Trend
+
+- **Overall risk level**: Medium - Trend: baseline set.
+- **Summary**: Security controls are test-mapped, but go-live remains blocked
+  by one high dependency vulnerability, pending counsel review, and unproven
+  production log scanning.
+
+## Recommendations
+
+Each recommendation must be specific enough to create a tracker issue.
+
+| Recommendation | Priority | Rationale | Expected Impact |
+|----------------|----------|-----------|-----------------|
+| Upgrade or replace the high-risk direct dependency before pilot go-live | High | Direct high vulnerability violates go-live target | Removes release blocker |
+| Run DAST against stable staging once deployment checklist passes | High | DAST has no baseline yet | Establishes API/browser attack-surface baseline |
+| Exercise source CSV retention job with pilot fixtures | Medium | Retention control is designed but not production-verified | Reduces data-retention uncertainty |
+| Add weekly support grant review to routine operations evidence | Medium | Support access control is test-covered but not operationally exercised | Improves support-access audit confidence |
+``````
+
+</details>
 
 ## Reference
 
@@ -33,6 +120,16 @@ Create a security metrics report for one iteration.
 - Compliance audit findings, if applicable
 - Previous security metrics report for trend comparison
 
+## Reference Anchors
+
+Use these local resource summaries as grounding:
+
+- `docs/resources/nist-cybersecurity-measurement-guidance.md` grounds
+  risk-based, trend-oriented security measurement.
+- `docs/resources/owasp-asvs.md` grounds application-security control coverage.
+- `docs/resources/google-sre-incident-management-guide.md` grounds incident
+  response measurement and follow-up.
+
 ## Produced Output
 - `docs/helix/06-iterate/security-metrics.md`
 
@@ -42,6 +139,8 @@ Report on security posture across four areas: incident response, vulnerability
 management, application security, and compliance. For each area, state the
 current value, the target, and the trend. Do not repeat raw data in prose —
 summarize what the numbers mean and what action they justify.
+Separate production security metrics from product outcome metrics unless the
+security signal directly changes operational risk.
 
 Trend comparison against the previous period is required. If no prior report
 exists, note the baseline and set targets for the next iteration.
@@ -55,6 +154,7 @@ recommendations (&quot;improve security posture&quot;) are not acceptable.
 - [ ] At least one recommendation per area that is actionable as a tracker issue
 - [ ] Root cause included for any critical or high-severity incidents
 - [ ] Report covers the same iteration period as `metrics-dashboard.md`
+- [ ] Raw scanner or incident output is summarized, not pasted wholesale
 
 Use the template at `.ddx/plugins/helix/workflows/phases/06-iterate/artifacts/security-metrics/template.md`.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
@@ -62,7 +162,7 @@ ddx:
   id: &quot;[artifact-id]&quot;
 ---
 
-# Security Metrics — [Iteration / Date Range]
+# Security Metrics - [Iteration / Date Range]
 
 ## Incident Response
 
@@ -96,12 +196,12 @@ ddx:
 
 ## Application Security
 
-| Metric | Value | Trend |
-|--------|-------|-------|
-| SAST findings (new this period) | | |
-| DAST findings (new this period) | | |
-| Dependency vulnerabilities (direct) | | |
-| Security review coverage | | |
+| Metric | Current | Target | Trend |
+|--------|---------|--------|-------|
+| SAST findings (new this period) | | | |
+| DAST findings (new this period) | | | |
+| Dependency vulnerabilities (direct) | | | |
+| Security review coverage | | | |
 
 ## Compliance Status
 

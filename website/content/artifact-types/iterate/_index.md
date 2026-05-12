@@ -18,5 +18,5 @@ Measure, align, and improve. Close the feedback loop back into the planning stra
 ## Supporting Artifacts
 
 {{< cards >}}
-  {{< card link="/artifact-types/iterate/security-metrics/" title="Security Metrics" subtitle="Iteration-level security posture report covering incident response, vulnerability management, application security, and compliance." >}}
+  {{< card link="/artifact-types/iterate/security-metrics/" title="Security Metrics" subtitle="Iteration-level security posture report that turns incidents, vulnerabilities, control results, and compliance gaps into trend-backed improvement work." >}}
 {{< /cards >}}
