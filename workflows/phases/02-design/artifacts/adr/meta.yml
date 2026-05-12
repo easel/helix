@@ -78,6 +78,17 @@ prompts:
 template:
   file: template.md
 
+example:
+  file: example.md
+
+references:
+  - title: "Architectural Decision Records"
+    file: docs/resources/adr-github-organization.md
+    relationship: "Grounds ADRs as single-decision records with rationale, tradeoffs, and consequences"
+  - title: "Google Cloud Architecture Decision Records Overview"
+    file: docs/resources/google-cloud-architecture-decision-records.md
+    relationship: "Grounds ADR traceability to implementation context and architecture evolution"
+
 workflow:
   review_cycles: 1
   approval_required: true
