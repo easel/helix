@@ -7,8 +7,8 @@ artifact:
   phase: discover
 
 description: |
-  Synthesis document validating problem-solution fit.
-  Final artifact before go/no-go decision on proceeding to Frame.
+  Discover synthesis gate for problem, customer, value, solution concept,
+  metrics, advantage, and go/no-go readiness.
 
 output:
   location: docs/helix/00-discover/opportunity-canvas.md
@@ -40,6 +40,26 @@ validation:
     - check: decision_documented
       description: Go/No-Go decision with rationale
       severity: blocking
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+example:
+  file: example.md
+
+references:
+  - title: "Strategyzer Value Proposition Canvas"
+    file: docs/resources/strategyzer-value-proposition-canvas.md
+    relationship: "Grounds customer jobs, pains, gains, pain relievers, and gain creators"
+  - title: "LEANSTACK Lean Canvas"
+    file: docs/resources/leanstack-lean-canvas.md
+    relationship: "Grounds problem-first validation, key metrics, and unfair advantage"
+  - title: "SBA Market Research and Competitive Analysis"
+    file: docs/resources/sba-market-research-competitive-analysis.md
+    relationship: "Grounds customer, demand, pricing, and competitive evidence expectations"
 
 workflow:
   creation_order: 4
