@@ -32,33 +32,33 @@ Agents do better work with context they can trust. HELIX is a document disciplin
 
 <div class="helix-section-kicker">How it works</div>
 
-## A loop around the artifact spine
+## Intent becomes implementation
 
-HELIX does not start with a queue, tool, or agent harness. It starts with a
-coherent stack of documents. The alignment skill reviews that stack, proposes
-updates, creates implementation plans, and hands bounded work to whichever
-runtime the team chooses.
+HELIX treats every change as a change to the artifact graph. Humans provide
+intent; the alignment skill propagates it through the authority order, turns the
+updated artifacts into an implementation plan, and hands bounded work to the
+runtime.
 
 <div class="helix-home-grid helix-loop-steps">
   <a class="helix-home-card" href="artifact-types">
-    <span class="helix-card-label">1 · Write</span>
-    <strong>Create the core artifact spine</strong>
-    <span>Start with Product Vision, PRD, Principles, Concerns, specs, designs, tests, and implementation plans.</span>
-  </a>
-  <a class="helix-home-card" href="skills">
-    <span class="helix-card-label">2 · Review</span>
-    <strong>Run alignment against authority order</strong>
-    <span>Find drift between intent, requirements, designs, proof, and execution handoff before work compounds.</span>
-  </a>
-  <a class="helix-home-card" href="platforms">
-    <span class="helix-card-label">3 · Execute</span>
-    <strong>Use the runtime that fits the team</strong>
-    <span>Operate manually, interactively in Claude or Codex, through DDx queues, or inside Databricks workflows.</span>
+    <span class="helix-card-label">1 · Intent</span>
+    <strong>Provide intent to evolve artifacts</strong>
+    <span>Start with a product change, constraint, bug, metric, or decision. HELIX records it at the right level of the document spine.</span>
   </a>
   <a class="helix-home-card" href="artifacts">
-    <span class="helix-card-label">4 · Learn</span>
-    <strong>Feed evidence back into the stack</strong>
-    <span>Reviews, metrics, and implementation results update the documents rather than living as tool exhaust.</span>
+    <span class="helix-card-label">2 · Propagate</span>
+    <strong>Carry changes through authority order</strong>
+    <span>Vision, PRDs, specs, designs, tests, and plans stay coherent because higher-order artifacts govern downstream updates.</span>
+  </a>
+  <a class="helix-home-card" href="skills">
+    <span class="helix-card-label">3 · Plan</span>
+    <strong>Turn aligned artifacts into bounded work</strong>
+    <span>The alignment skill identifies drift, closes gaps, and produces implementation plans that a runtime can execute.</span>
+  </a>
+  <a class="helix-home-card" href="platforms">
+    <span class="helix-card-label">4 · Implement</span>
+    <strong>Execute, then feed evidence back</strong>
+    <span>DDx, Claude, Codex, Databricks, or a manual workflow does the work. Results update the artifacts so the next pass starts with better context.</span>
   </a>
 </div>
 
@@ -68,9 +68,9 @@ runtime the team chooses.
 
 <section class="helix-home-section">
 
-<div class="helix-section-kicker">Worked example</div>
+<div class="helix-section-kicker">Live artifact spine</div>
 
-## See HELIX govern itself
+## HELIX's own artifacts, wired together
 
 <div class="helix-authority-graph helix-annotated-graph" aria-label="HELIX governing artifact relationship graph">
   <div class="helix-catalog-label">

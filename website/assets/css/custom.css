@@ -843,7 +843,11 @@ main :where(a:not(.hextra-card):not(.helix-home-card):not(.helix-graph-node)):ho
 
 .helix-authority-graph {
   position: relative;
+  left: 50%;
+  width: min(calc(100vw - 3rem), 86rem);
+  max-width: calc(100vw - 3rem);
   margin-top: 1.5rem;
+  transform: translateX(-50%);
   min-height: 34rem;
   overflow: hidden;
   padding: clamp(1rem, 2vw, 1.35rem);
@@ -1023,6 +1027,7 @@ main :where(a:not(.hextra-card):not(.helix-home-card):not(.helix-graph-node)):ho
 
 /* Homepage artifact map: annotate the same double-helix form used in the hero. */
 .helix-annotated-graph {
+  height: clamp(43rem, 58vw, 49rem);
   min-height: 43rem;
 }
 
@@ -1034,15 +1039,25 @@ main :where(a:not(.hextra-card):not(.helix-home-card):not(.helix-graph-node)):ho
   position: absolute;
   top: 8.2rem;
   left: 50%;
+  z-index: 0;
+  display: grid;
+  height: 22.75rem;
+  min-height: 22.75rem;
+  place-items: center;
   transform: translateX(-50%);
   width: 13rem;
+  min-width: 13rem;
   opacity: 0.9;
+  overflow: visible;
   pointer-events: none;
 }
 
 .helix-graph-visual svg {
+  display: block;
   width: 13rem;
   height: 22.75rem;
+  max-width: none;
+  overflow: visible;
 }
 
 .helix-catalog-label {
@@ -1507,10 +1522,15 @@ main :where(blockquote) {
   }
 
   .helix-authority-graph {
+    left: auto;
     display: grid;
     grid-template-columns: 1fr;
     gap: 0.75rem;
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
     min-height: 0;
+    transform: none;
     border-radius: 22px;
   }
 

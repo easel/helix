@@ -27,9 +27,9 @@ than replacing it with generic cards or a table.
 The graph appears immediately after the "How it works" cards, under:
 
 ```markdown
-<div class="helix-section-kicker">Worked example</div>
+<div class="helix-section-kicker">Live artifact spine</div>
 
-## See HELIX govern itself
+## HELIX's own artifacts, wired together
 ```
 
 The explanatory paragraph above the graph was removed because the graph itself
@@ -126,3 +126,43 @@ Future refinement should focus on:
 
 The baseline to preserve is the relationship model: catalog context, central
 double helix, ordered governing artifacts, human/agent iteration roles.
+
+## Required sizing hints
+
+The graph is an absolutely positioned stage. It must keep explicit dimensions so
+the central helix and surrounding nodes do not collapse or reflow as ordinary
+document content.
+
+Required CSS contract:
+
+```css
+.helix-authority-graph {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.helix-annotated-graph {
+  height: clamp(43rem, 58vw, 49rem);
+  min-height: 43rem;
+}
+
+.helix-graph-visual {
+  position: absolute;
+  display: grid;
+  width: 13rem;
+  min-width: 13rem;
+  height: 22.75rem;
+  min-height: 22.75rem;
+  place-items: center;
+  overflow: visible;
+}
+
+.helix-graph-visual svg {
+  display: block;
+  width: 13rem;
+  height: 22.75rem;
+  max-width: none;
+  overflow: visible;
+}
+```
