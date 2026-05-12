@@ -23,5 +23,5 @@ Decide how to build it. Capture trade-offs, contracts, and architecture decision
   {{< card link="/artifact-types/design/data-design/" title="Data Design" subtitle="Design-level data architecture covering entities, stores, access patterns, constraints, and migration strategy." >}}
   {{< card link="/artifact-types/design/proof-of-concept/" title="Proof of Concept" subtitle="Minimal working implementation that validates a risky technical concept end-to-end before production design or build commitment." >}}
   {{< card link="/artifact-types/design/security-architecture/" title="Security Architecture" subtitle="Design-level security architecture that maps trust boundaries, controls, and security decisions to implementation and testing." >}}
-  {{< card link="/artifact-types/design/tech-spike/" title="Technical Spike" subtitle="Time-boxed technical investigation to explore unknowns, validate approaches, or reduce technical risk before committing to implementation. Produces concrete te…" >}}
+  {{< card link="/artifact-types/design/tech-spike/" title="Technical Spike" subtitle="Time-boxed investigation that answers one technical question with evidence before implementation." >}}
 {{< /cards >}}

@@ -5,7 +5,7 @@ ddx:
 
 # Technical Spike: {{spike_title}}
 
-**Spike ID**: {{spike_id}} | **Lead**: {{spike_lead}} | **Time Budget**: {{time_budget}} | **Status**: In Progress | Completed
+**Spike ID**: {{spike_id}} | **Lead**: {{spike_lead}} | **Time Budget**: {{time_budget}} | **Status**: [In Progress | Completed]
 
 ## Objective
 
@@ -70,3 +70,8 @@ ddx:
 - **Concern Impact**: [Does this recommend adopting, rejecting, or modifying a
   concern? If so, an ADR should ratify the decision and the project concern
   document should be updated accordingly.]
+
+## Artifacts
+
+- [Fixture, branch, benchmark, prototype, notes, or other evidence produced by
+  the spike]
