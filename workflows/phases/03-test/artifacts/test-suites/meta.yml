@@ -5,8 +5,8 @@ artifact:
   phase: test
 
 description: |
-  Organized set of executable or manual test suites grouped by scope,
-  ownership, runtime, and evidence expectations.
+  Inventory of executable test suites with boundaries, coverage ownership,
+  commands, runtime expectations, and evidence outputs.
 
 output:
   location: docs/helix/03-test/test-suites.md
@@ -34,6 +34,20 @@ prompts:
 
 template:
   file: template.md
+
+example:
+  file: example.md
+
+references:
+  - title: "Practical Test Pyramid"
+    file: docs/resources/fowler-practical-test-pyramid.md
+    relationship: "Grounds suite balance across unit, integration, and end-to-end coverage"
+  - title: "Google Test Sizes"
+    file: docs/resources/google-test-sizes.md
+    relationship: "Grounds runtime and dependency expectations for suite grouping"
+  - title: "OpenAPI Specification"
+    file: docs/resources/openapi-specification.md
+    relationship: "Grounds API contract suites generated or checked against interface contracts"
 
 relationships:
   informed_by:
