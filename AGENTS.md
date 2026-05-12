@@ -75,6 +75,7 @@ bash tests/validate-skills.sh
 
 python3 scripts/generate-reference.py  # Regenerate /artifact-types/ and /concerns/ from workflows/
 python3 scripts/publish-artifacts.py   # Publish docs/helix/ into /artifacts/
+python3 scripts/publish-resources.py   # Publish docs/resources/ into /research/
 bash website/scripts/serve-local.sh    # Serve the microsite at http://eitri:1315/helix/
 ```
 

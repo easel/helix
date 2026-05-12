@@ -10,9 +10,13 @@ generated: true
 
 ## Purpose
 
-A **north star document** that keeps direction, value, and success criteria
-clear. Every downstream artifact — PRD, specs, designs, tests — traces back to
-this document. If the vision is vague, everything built on it drifts.
+A **north star document** that makes the product's direction transferable. Its
+unique job is to answer four questions before any PRD exists: who is this for,
+what alternative do they use today, what future state are we trying to create,
+and how will we know the direction is working?
+
+Every downstream artifact — PRD, specs, designs, tests — traces back to this
+document. If the vision is vague, everything built on it drifts.
 
 ## Authoring guidance
 
@@ -33,6 +37,8 @@ Product vision is for *direction*. If you find yourself writing about:
 | This content | Belongs in |
 |---|---|
 | Methodology, activities, authority order | `.ddx/plugins/helix/workflows/README.md`, activities glossary |
+| Market sizing, revenue model, investment rationale | `00-discover/business-case.md` |
+| Competitor analysis or feature-by-feature comparison | `00-discover/competitive-analysis.md` |
 | Principles or judgment lenses | `01-frame/principles.md` |
 | Risks (likelihood × impact) | `01-frame/risk-register.md` (master), PRD risks (PRD-scoped) |
 | Non-goals, "what we won't build" | `01-frame/prd.md` |
@@ -123,7 +129,7 @@ the workspace.
 |-----------|-------------|
 | Who | Bookkeeping firms with 5-25 employees serving recurring small-business clients |
 | Pain | Reconciliation is manual, repetitive, and hard to audit across clients |
-| Current Solution | Bank exports, accounting reports, spreadsheets, and email follow-up |
+| Current Solution | QuickBooks or Xero exports, bank reports, spreadsheets, and email follow-up |
 | Why They Switch | Client volume has grown faster than reviewer capacity, and spreadsheet trails are too fragile for monthly close |
 
 ## Key Value Propositions
@@ -138,7 +144,7 @@ the workspace.
 
 | Metric | Target |
 |--------|--------|
-| Primary KPI | Median weekly reconciliation time below 3 minutes per client after 60 days |
+| Primary KPI | Median weekly reconciliation time below 3 minutes per client by the second month of use |
 | Match accuracy | Accepted suggestions remain above 95% in reviewer audit samples |
 | Exception handling | 90% of unresolved deposits have an owner and next action within one business day |
 
@@ -165,7 +171,8 @@ month-end pressure accumulates.
 <tr><th>HELIX documents</th><td><a href="https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/00-discover/product-vision.md"><code>docs/helix/00-discover/product-vision.md</code></a></td></tr>
 <tr><th>Generation prompt</th><td><details><summary>Show the full generation prompt</summary><pre><code># Product Vision Prompt
 
-Create a concise product vision that aligns stakeholders on mission, direction, and value.
+Create a concise product vision that aligns stakeholders on direction before
+requirements, design, and delivery work begin.
 
 ## Storage Location
 
@@ -173,9 +180,21 @@ Store at: `docs/helix/00-discover/product-vision.md`
 
 ## Purpose
 
-A **north star document** that keeps direction, value, and success criteria
-clear. Every downstream artifact — PRD, specs, designs, tests — traces back to
-this document. If the vision is vague, everything built on it drifts.
+A **north star document** that makes the product&#x27;s direction transferable. Its
+unique job is to answer four questions before any PRD exists: who is this for,
+what alternative do they use today, what future state are we trying to create,
+and how will we know the direction is working?
+
+Every downstream artifact — PRD, specs, designs, tests — traces back to this
+document. If the vision is vague, everything built on it drifts.
+
+## Reference Anchors
+
+Use these references as grounding, not as extra sections to copy:
+
+- `docs/resources/product-vision-board.md` captures target group, needs, product direction, and business goals. HELIX uses the same strategic ingredients but keeps detailed business justification in the Business Case.
+- `docs/resources/geoffrey-moore-positioning.md` forces the vision to name the target customer, need, category, benefit, and primary alternative.
+- `docs/resources/atlassian-vision-creation.md` frames vision as the shared picture of the future that aligns stakeholders before strategy and execution.
 
 ## Template Adherence
 
@@ -194,6 +213,8 @@ Product vision is for *direction*. If you find yourself writing about:
 | This content | Belongs in |
 |---|---|
 | Methodology, activities, authority order | `.ddx/plugins/helix/workflows/README.md`, activities glossary |
+| Market sizing, revenue model, investment rationale | `00-discover/business-case.md` |
+| Competitor analysis or feature-by-feature comparison | `00-discover/competitive-analysis.md` |
 | Principles or judgment lenses | `01-frame/principles.md` |
 | Risks (likelihood × impact) | `01-frame/risk-register.md` (master), PRD risks (PRD-scoped) |
 | Non-goals, &quot;what we won&#x27;t build&quot; | `01-frame/prd.md` |
@@ -350,6 +371,7 @@ Use this checklist when reviewing a product vision artifact:
 - [ ] Value propositions map to customer benefits, not internal capabilities
 - [ ] Success metrics are measurable and time-bound
 - [ ] Why Now section names a specific change, not a vague opportunity
+- [ ] Business case details, competitor matrices, requirements, and technical choices are left to their own artifacts
 - [ ] No implementation details (technology choices, architecture) — those belong in design</code></pre></details></td></tr>
 </tbody>
 </table>

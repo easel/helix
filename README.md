@@ -28,6 +28,15 @@ The local review site lives at `http://eitri:1315/helix/`. Keep `/helix` in
 review URLs; root paths such as `http://eitri:1315/artifact-types/...` are not
 the local site shape and should be treated as invalid.
 
+Regenerate published site content after changing artifact types, project
+artifacts, or resource summaries:
+
+```bash
+python3 scripts/generate-reference.py
+python3 scripts/publish-artifacts.py
+python3 scripts/publish-resources.py
+```
+
 ## The Seven Activities
 
 HELIX names seven kinds of work in software development:

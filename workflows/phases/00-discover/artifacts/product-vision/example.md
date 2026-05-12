@@ -44,7 +44,7 @@ the workspace.
 |-----------|-------------|
 | Who | Bookkeeping firms with 5-25 employees serving recurring small-business clients |
 | Pain | Reconciliation is manual, repetitive, and hard to audit across clients |
-| Current Solution | Bank exports, accounting reports, spreadsheets, and email follow-up |
+| Current Solution | QuickBooks or Xero exports, bank reports, spreadsheets, and email follow-up |
 | Why They Switch | Client volume has grown faster than reviewer capacity, and spreadsheet trails are too fragile for monthly close |
 
 ## Key Value Propositions
@@ -59,7 +59,7 @@ the workspace.
 
 | Metric | Target |
 |--------|--------|
-| Primary KPI | Median weekly reconciliation time below 3 minutes per client after 60 days |
+| Primary KPI | Median weekly reconciliation time below 3 minutes per client by the second month of use |
 | Match accuracy | Accepted suggestions remain above 95% in reviewer audit samples |
 | Exception handling | 90% of unresolved deposits have an owner and next action within one business day |
 
