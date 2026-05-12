@@ -17,6 +17,7 @@ ddx:
 - **Concerns**: [Main worries]
 - **Success Criteria**: [What success looks like to them]
 - **Communication**: [Preferred engagement method]
+- **Contact Channel**: [Slack group / meeting / ticket queue / role alias]
 
 ## Secondary Stakeholders (Variable Influence/Interest)
 
@@ -25,6 +26,7 @@ ddx:
 - **Interest**:
 - **Influence**:
 - **Engagement Level**: [Inform | Consult | Collaborate]
+- **Contact Channel**:
 
 ## RACI Matrix
 
