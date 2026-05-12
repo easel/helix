@@ -10,5 +10,5 @@ Implement against the specs and tests. Capture the implementation plan that scop
 ## Core Artifacts
 
 {{< cards >}}
-  {{< card link="/artifact-types/build/implementation-plan/" title="Implementation Plan" subtitle="Build-phase plan that decomposes approved design into implementation slices, sequencing, ownership, validation gates, and evidence expectations." >}}
+  {{< card link="/artifact-types/build/implementation-plan/" title="Implementation Plan" subtitle="Build-phase plan that decomposes approved design into implementation slices, sequencing, ownership, validation gates, and evidence expectations. It turns story…" >}}
 {{< /cards >}}

@@ -6,7 +6,9 @@ artifact:
 
 description: |
   Build-phase plan that decomposes approved design into implementation slices,
-  sequencing, ownership, validation gates, and evidence expectations.
+  sequencing, ownership, validation gates, and evidence expectations. It turns
+  story, design, and test artifacts into execution-ready build work without
+  reopening product or design decisions.
 
 output:
   location: docs/helix/04-build/implementation-plan.md
@@ -17,7 +19,7 @@ validation:
   required_sections:
     - scope
     - implementation_slices
-    - sequencing
+    - issue_decomposition
     - validation_plan
     - risks_and_rollbacks
 
@@ -35,12 +37,21 @@ prompts:
 template:
   file: template.md
 
+example:
+  file: example.md
+
+references:
+  - title: "Google Engineering Practices: Small CLs"
+    file: docs/resources/google-small-cls.md
+    relationship: "Grounds small, reviewable, rollback-friendly implementation slices with related tests"
+
 relationships:
   informed_by:
     - prd
     - solution-design
     - technical-design
     - test-plan
+    - story-test-plan
   informs:
     - release-notes
     - deployment-checklist
