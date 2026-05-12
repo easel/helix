@@ -12,12 +12,13 @@ ddx:
 
 - [Rule for ordering work]
 - [Rule for handling safety or risk]
+- [How confidence and effort affect ordering]
 
 ## Backlog Items
 
-| Priority | Item | Evidence | Tracker Ref | Why Now | Status |
-|----------|------|----------|-------------|---------|--------|
-| P1 | [item] | [metric or finding] | [bead ID] | [reason] | [open/blocked] |
+| Rank | Priority | Item | Evidence | Tracker or Follow-Up Target | Why Now | Confidence | Effort | Status |
+|------|----------|------|----------|-----------------------------|---------|------------|--------|--------|
+| 1 | P1 | [item] | [metric or finding] | [bead ID or explicit target] | [reason] | [high/med/low] | [S/M/L] | [open/blocked] |
 
 ## Selection for Next Iteration
 

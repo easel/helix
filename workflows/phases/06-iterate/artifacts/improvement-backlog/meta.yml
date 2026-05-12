@@ -6,7 +6,9 @@ artifact:
 
 description: |
   Prioritized improvement inventory derived from iteration learnings and
-  tracker-backed follow-up work.
+  tracker-backed follow-up work. It turns metric dashboards, feedback,
+  incidents, and retrospectives into ordered candidates for future execution
+  without becoming the live tracker itself.
 
 output:
   location: docs/helix/06-iterate/improvement-backlog.md
@@ -35,6 +37,14 @@ prompts:
 
 template:
   file: template.md
+
+example:
+  file: example.md
+
+references:
+  - title: "Intercom RICE Prioritization"
+    file: docs/resources/intercom-rice-prioritization.md
+    relationship: "Grounds evidence-backed ranking by impact, confidence, effort, and reach"
 
 workflow:
   creation_order: 4
