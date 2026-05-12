@@ -15,22 +15,28 @@ ddx:
 ## Required Controls
 
 ### Authentication
-- [Control]
+- [Control and acceptance criteria]
 
 ### Authorization
-- [Control]
+- [Control and acceptance criteria]
 
 ### Data Protection
-- [Control]
+- [Control and acceptance criteria]
 
 ### Privacy
-- [Control]
+- [Control and acceptance criteria]
 
 ### Input Validation
-- [Control]
+- [Control and acceptance criteria]
 
 ### Logging and Audit
-- [Control]
+- [Control and acceptance criteria]
+
+## Requirements Matrix
+
+| ID | Requirement | Source | Risk Level | Verification |
+|----|-------------|--------|------------|--------------|
+| SEC-001 | [Requirement] | [Risk/compliance/ASVS] | High/Medium/Low | [Test/evidence] |
 
 ## Compliance Requirements
 **Applicable Regulations**: [List]
