@@ -30,5 +30,5 @@ Define what the system should do, for whom, and how success will be measured.
   {{< card link="/artifact-types/frame/security-requirements/" title="Security Requirements" subtitle="Testable security requirements for authentication, authorization, data protection, privacy, validation, logging, compliance, and risk controls." >}}
   {{< card link="/artifact-types/frame/stakeholder-map/" title="Stakeholder Map" subtitle="Stakeholder and decision-rights map for roles, interests, influence, engagement, RACI ownership, communication cadence, and escalation paths." >}}
   {{< card link="/artifact-types/frame/threat-model/" title="Threat Model" subtitle="Structured analysis of assets, data flows, trust boundaries, STRIDE threats, risk, mitigations, owners, and verification hooks." >}}
-  {{< card link="/artifact-types/frame/validation-checklist/" title="Validation Checklist" subtitle="Comprehensive checklist to validate Frame phase completeness, quality, and readiness for Design phase. Ensures all deliverables meet standards and stakeholders…" >}}
+  {{< card link="/artifact-types/frame/validation-checklist/" title="Validation Checklist" subtitle="Frame exit gate that verifies completeness, consistency, traceability, evidence, stakeholder review, and readiness to enter Design." >}}
 {{< /cards >}}
