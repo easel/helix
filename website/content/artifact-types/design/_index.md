@@ -12,7 +12,7 @@ Decide how to build it. Capture trade-offs, contracts, and architecture decision
 {{< cards >}}
   {{< card link="/artifact-types/design/architecture/" title="Architecture" subtitle="Captures the C4 views the team needs to build and review the system — System Context, Container, Component (where helpful), Deployment, and Data Flow — plus th…" >}}
   {{< card link="/artifact-types/design/adr/" title="Architecture Decision Record" subtitle="An ADR documents a significant architectural decision: the context that drove it, the alternatives considered, the chosen approach, and the consequences. Each…" >}}
-  {{< card link="/artifact-types/design/contract/" title="Contract" subtitle="Normative interface and schema contract that another team can implement against directly, including API, CLI, protocol, event, and data contracts." >}}
+  {{< card link="/artifact-types/design/contract/" title="Contract" subtitle="Normative interface and schema contract that another team can implement against directly, including API, CLI, protocol, event, and data contracts. Contracts ow…" >}}
   {{< card link="/artifact-types/design/solution-design/" title="Solution Design" subtitle="Feature-level solution design that explains the chosen approach for a feature or cross-component capability. It maps requirements to a concrete system shape, e…" >}}
   {{< card link="/artifact-types/design/technical-design/" title="Technical Design" subtitle="Story-specific technical design that details HOW to implement a single user story within the context of the broader solution architecture. This enables vertica…" >}}
 {{< /cards >}}

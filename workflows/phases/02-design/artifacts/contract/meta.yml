@@ -8,6 +8,9 @@ artifact:
 description: |
   Normative interface and schema contract that another team can implement
   against directly, including API, CLI, protocol, event, and data contracts.
+  Contracts own exact fields, commands, payloads, compatibility rules, examples,
+  and error semantics; they do not own product scope or internal implementation
+  design.
 
 output:
   location: docs/helix/02-design/contracts/CONTRACT-{id}-{name}.md
@@ -44,6 +47,17 @@ prompts:
 
 template:
   file: template.md
+
+example:
+  file: example.md
+
+references:
+  - title: "OpenAPI Specification"
+    file: docs/resources/openapi-specification.md
+    relationship: "Grounds exact API surface, schemas, responses, examples, and validation"
+  - title: "RFC 9457 Problem Details for HTTP APIs"
+    file: docs/resources/rfc-9457-problem-details.md
+    relationship: "Grounds structured HTTP error semantics and recovery guidance"
 
 workflow:
   creation_order: 2
