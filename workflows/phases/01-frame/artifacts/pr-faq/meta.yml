@@ -7,12 +7,8 @@ artifact:
   phase: frame
 
 description: |
-  A working-backwards artifact pairing a launch-day press release with an
-  internal FAQ. The press release forces the team to commit to a concrete
-  customer outcome before any design or implementation; the FAQ surfaces the
-  hard questions — economics, feasibility, adoption, regulatory exposure —
-  that the PRD will then have to answer. HELIX uses the PR-FAQ as a focus
-  and validation step between the Product Vision and the PRD.
+  Working-backwards launch narrative and internal FAQ that test customer
+  outcome, mechanism, autonomy boundary, feasibility, economics, and scope.
 
 output:
   location: docs/helix/01-frame/pr-faq.md

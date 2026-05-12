@@ -67,6 +67,9 @@ ddx:
   id: example.pr-faq.depositmatch
   depends_on:
     - example.product-vision.depositmatch
+    - example.opportunity-canvas.depositmatch
+    - example.feasibility-study.depositmatch
+    - example.compliance-requirements.depositmatch
 ---
 # PR-FAQ: DepositMatch
 
