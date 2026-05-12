@@ -9,10 +9,25 @@ Store at: `docs/helix/01-frame/features/FEAT-NNN-<name>.md`
 
 ## Purpose
 
-A feature spec defines the **scope and requirements** for one major
-capability. It sits between the PRD (which defines what the product needs)
-and user stories (which define vertical slices for implementation). The
-feature spec owns requirements; user stories own the user journey.
+A feature spec is the **feature-level authority for behavior and boundaries**.
+It translates PRD requirements into precise feature behavior, functional areas,
+acceptance criteria, non-functional expectations, edge cases, and
+feature-specific success measures.
+
+It sits between the PRD (which defines product scope) and user stories (which
+define vertical slices through the feature). The feature spec owns feature
+behavior. User stories own user journeys. Solution and technical designs own
+how the behavior will be built.
+
+## Reference Anchors
+
+Use these local resource summaries as grounding:
+
+- `docs/resources/ibm-requirements-management.md` grounds traceable,
+  prioritized, verifiable requirements.
+- `docs/resources/cucumber-executable-specifications.md` grounds concrete
+  examples as readable acceptance specifications without prescribing
+  implementation or tooling.
 
 ## Key Principles
 
@@ -21,6 +36,8 @@ feature spec owns requirements; user stories own the user journey.
   explains why the change is needed; it should not be the only organizing frame.
 - **Scope, not solution** — describe what the feature must do, not how to
   build it. Implementation details belong in design docs.
+- **Behavior, not journey** — specify feature behavior and acceptance criteria.
+  Put end-to-end user flow narrative in user stories.
 - **One feature, one spec** — if a spec covers two independent capabilities,
   split it.
 - **Functional areas before requirements** — when a feature spans multiple
@@ -35,8 +52,22 @@ feature spec owns requirements; user stories own the user journey.
   content. Stories are separate files with their own lifecycle.
 - **Testable requirements** — every functional requirement should be
   verifiable. If you can't describe how to test it, it's too vague.
+- **Concrete acceptance examples** — add examples for important rules,
+  permissions, errors, and edge cases. They should show observable behavior,
+  not internal steps.
 - **Leave unknowns explicit** — use Open Questions at the bottom rather than
   inventing detail you don't have.
+
+## Boundary Test
+
+| If you are writing... | Put it in... |
+|---|---|
+| Product goals, personas, launch priority, or product-level metrics | PRD |
+| Feature behavior, boundaries, acceptance criteria, and edge cases | Feature Specification |
+| A vertical user journey through one or more feature requirements | User Story |
+| Component choices, data model, APIs, or implementation approach | Solution/Technical Design |
+| Detailed test cases, fixtures, or automation strategy | Test Plan or Story Test Plan |
+| Build sequencing and work slices | Implementation Plan |
 
 ## Section-by-Section Guidance
 
@@ -84,6 +115,12 @@ must do — user stories describe how users interact with these capabilities.
 If a requirement mentions two areas joined by "and", split it unless the
 relationship between those areas is itself the requirement.
 
+### Acceptance Criteria
+Capture observable examples for the highest-risk or most important
+requirements. Use concise Given/When/Then phrasing if it helps, but do not
+require Cucumber tooling. Each example should identify the requirement it
+validates and the expected result.
+
 ### Non-Functional Requirements
 Every NFR needs a specific target. "Must be fast" is not a requirement.
 "95th percentile response under 200ms" is. Only include NFRs relevant to
@@ -126,6 +163,7 @@ committing.
 - [ ] Similar domain objects are separated before requirements are written
 - [ ] Functional requirements are grouped by area when a flat list would mix unrelated scopes
 - [ ] Every functional requirement is testable
+- [ ] Acceptance criteria cover the highest-risk requirements with observable examples
 - [ ] Non-functional requirements have specific numeric targets
 - [ ] User stories are referenced by ID (not duplicated inline)
 - [ ] Dependencies name specific feature IDs and external systems
