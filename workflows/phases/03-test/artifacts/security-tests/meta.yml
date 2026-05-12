@@ -5,8 +5,8 @@ artifact:
   phase: test
 
 description: |
-  Security-focused test coverage for authentication, authorization, input
-  handling, dependency risk, data protection, and abuse cases.
+  Security verification matrix that maps material threats and controls to
+  executable tests, evidence, and residual-risk decisions.
 
 output:
   location: docs/helix/03-test/security-tests.md
@@ -34,6 +34,20 @@ prompts:
 
 template:
   file: template.md
+
+example:
+  file: example.md
+
+references:
+  - title: "OWASP Application Security Verification Standard"
+    file: docs/resources/owasp-asvs.md
+    relationship: "Grounds verifiable application security controls"
+  - title: "OWASP Web Security Testing Guide"
+    file: docs/resources/owasp-wstg.md
+    relationship: "Grounds concrete web and API security test scenarios"
+  - title: "OWASP Threat Modeling Cheat Sheet"
+    file: docs/resources/owasp-threat-modeling-cheat-sheet.md
+    relationship: "Grounds threat-to-test traceability"
 
 relationships:
   informed_by:

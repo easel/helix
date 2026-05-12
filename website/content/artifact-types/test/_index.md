@@ -17,7 +17,7 @@ Define how we know it works. Plans, suites, and procedures that bind specs to im
 ## Supporting Artifacts
 
 {{< cards >}}
-  {{< card link="/artifact-types/test/security-tests/" title="Security Tests" subtitle="Security-focused test coverage for authentication, authorization, input handling, dependency risk, data protection, and abuse cases." >}}
+  {{< card link="/artifact-types/test/security-tests/" title="Security Tests" subtitle="Security verification matrix that maps material threats and controls to executable tests, evidence, and residual-risk decisions." >}}
   {{< card link="/artifact-types/test/test-procedures/" title="Test Procedures" subtitle="Step-by-step procedures for executing planned tests, recording evidence, and making pass/fail decisions consistently." >}}
   {{< card link="/artifact-types/test/test-suites/" title="Test Suites" subtitle="Organized set of executable or manual test suites grouped by scope, ownership, runtime, and evidence expectations." >}}
 {{< /cards >}}
