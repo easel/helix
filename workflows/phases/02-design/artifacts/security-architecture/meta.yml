@@ -41,6 +41,20 @@ prompts:
 template:
   file: template.md
 
+example:
+  file: example.md
+
+references:
+  - title: "OWASP Application Security Verification Standard"
+    file: docs/resources/owasp-asvs.md
+    relationship: "Grounds verifiable application security controls"
+  - title: "OWASP Threat Modeling Cheat Sheet"
+    file: docs/resources/owasp-threat-modeling-cheat-sheet.md
+    relationship: "Grounds trust boundaries, data flows, threats, assumptions, and mitigations"
+  - title: "NIST Privacy Framework"
+    file: docs/resources/nist-privacy-framework.md
+    relationship: "Grounds privacy-risk controls and data-processing constraints"
+
 workflow:
   creation_order: 2
   review_cycles: 2
