@@ -12,6 +12,7 @@ ddx:
 - Deployment window: [date and time]
 - Release owner: [name]
 - Rollback owner: [name]
+- Supporting artifacts: [implementation plan, runbook, monitoring, release notes]
 
 ## Pre-Deploy Checks
 
@@ -51,3 +52,4 @@ ddx:
 - Decision: [Go / Hold / Roll Back]
 - Decision time: [timestamp]
 - Notes: [exceptions, deferred checks, follow-up]
+- Follow-up owner: [name]

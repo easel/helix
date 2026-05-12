@@ -43,6 +43,17 @@ prompts:
 template:
   file: template.md
 
+example:
+  file: example.md
+
+references:
+  - title: "Google SRE: Release Engineering"
+    file: docs/resources/google-sre-release-engineering.md
+    relationship: "Grounds repeatable, staged, evidence-based releases with explicit rollback paths"
+  - title: "Microsoft Azure Well-Architected Framework"
+    file: docs/resources/microsoft-azure-well-architected-framework.md
+    relationship: "Grounds operational readiness, reliability, and deployment risk checks"
+
 workflow:
   creation_order: 1
   review_cycles: 1
