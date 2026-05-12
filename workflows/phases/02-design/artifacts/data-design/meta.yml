@@ -8,35 +8,6 @@ description: |
   Design-level data architecture covering entities, stores, access patterns,
   constraints, and migration strategy.
 
-dependencies:
-  requires:
-    - input: Architecture
-      type: artifact
-      path: architecture
-      required: true
-    - input: Solution Design
-      type: artifact
-      path: solution-design
-      required: false
-      note: "Feature-level context when the data design belongs to one feature"
-    - input: Technical Design
-      type: artifact
-      path: technical-design
-      required: false
-      note: "Story-level context when one slice changes the data model"
-    - input: Security Architecture
-      type: artifact
-      path: security-architecture
-      required: false
-      note: "Control and classification constraints that shape storage or retention"
-  enables:
-    - output: Technical Design
-      type: artifact
-      phase: design
-    - output: Test Plan
-      type: artifact
-      phase: test
-
 output:
   location: docs/helix/02-design/data-design.md
   format: markdown

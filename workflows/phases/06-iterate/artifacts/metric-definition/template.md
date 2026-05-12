@@ -1,3 +1,8 @@
+---
+ddx:
+  id: "[artifact-id]"
+---
+
 # Metric Definition: [NAME]
 
 > Store at `docs/helix/06-iterate/metrics/[NAME].yaml`

@@ -13,39 +13,6 @@ description: |
   This enables vertical slicing by providing implementation details for
   one story at a time.
 
-dependencies:
-  requires:
-    - input: User Story
-      type: artifact
-      pattern: "US-XXX-*.md"
-      phase: frame
-      required: true
-
-    - input: Solution Design
-      type: artifact
-      pattern: "SD-XXX-*.md"
-      phase: design
-      required: true
-      note: "Parent feature's solution design"
-
-    - input: Feature Specification
-      type: artifact
-      pattern: "FEAT-XXX-*.md"
-      phase: frame
-      required: false
-      note: "For additional context"
-
-  enables:
-    - output: Story Test Plan
-      type: artifact
-      pattern: "TP-XXX-*.md"
-      phase: test
-
-    - output: Story Build Issue
-      type: issue
-      pattern: "tracker issue labeled helix,phase:build,story:US-XXX"
-      phase: build
-
 output:
   location: docs/helix/02-design/technical-designs/TD-{id}-{name}.md
   format: markdown

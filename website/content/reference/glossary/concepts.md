@@ -139,7 +139,7 @@ Ratchet definitions live in `workflows/ratchets.md` and floor fixtures are commi
 
 ## Area Taxonomy
 
-Areas scope which [concerns](/docs/glossary/concerns) apply to which beads:
+Areas scope which [concerns](/concerns/) apply to which beads:
 
 | Area | Typical scope | Example concerns |
 |------|--------------|-----------------|

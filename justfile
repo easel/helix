@@ -3,6 +3,10 @@
 # Run all tests
 test: test-cli test-deploy-artifacts test-state-rules test-skills test-context-digests test-demo-fixtures test-install
 
+# Serve the HELIX microsite at the canonical local review URL.
+website-serve:
+    bash website/scripts/serve-local.sh
+
 # Run CLI wrapper tests
 test-cli:
     bash tests/helix-cli.sh

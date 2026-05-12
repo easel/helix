@@ -1,9 +1,8 @@
 ---
 ddx:
-  id: helix.test-plan
-  depends_on:
-    - helix.architecture
+  id: "[artifact-id]"
 ---
+
 # Test Plan
 
 ## Testing Strategy

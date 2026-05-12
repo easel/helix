@@ -18,30 +18,6 @@ description: |
   If the project file exists, it is the sole active source.
   If it does not exist, HELIX defaults are used.
 
-dependencies:
-  requires:
-    - input: PRD
-      type: artifact
-      path: prd
-      required: false
-    - input: Product Vision
-      type: artifact
-      required: false
-
-  enables:
-    - output: Architecture decisions
-      type: artifact
-      phase: design
-    - output: Solution designs
-      type: artifact
-      phase: design
-    - output: Implementation guidance
-      type: artifact
-      phase: build
-    - output: Review criteria
-      type: artifact
-      phase: build
-
 output:
   location: docs/helix/01-frame/principles.md
   format: markdown

@@ -7,71 +7,142 @@ aliases:
   - /docs/skills
 ---
 
-HELIX publishes agent skills that mirror the CLI commands. Skills are the
-interface between AI agents and the HELIX workflow — each skill describes
-when to activate and what to do.
+HELIX's durable skill surface is one alignment-and-planning skill. It packages
+the methodology, artifact catalog, and authority-order rules so an AI runtime
+can inspect project artifacts, identify drift, and propose the next safe plan.
 
-## Installed Skills
+The skill is not a queue runner, tracker, commit tool, or implementation loop.
+Those capabilities belong to the runtime that embeds HELIX.
 
-| Skill | CLI Command | Purpose |
-|-------|-------------|---------|
-| `helix-run` | `helix run` | Supervisory autopilot |
-| `helix-build` | `helix build` | One bounded implementation pass |
-| `helix-check` | `helix check` | Queue-health decision |
-| `helix-frame` | `helix frame` | Requirements and feature specs |
-| `helix-design` | `helix design` | Design document creation |
-| `helix-evolve` | `helix evolve` | Thread changes through artifact stack |
-| `helix-review` | `helix review` | Fresh-eyes post-implementation review |
-| `helix-align` | `helix align` | Top-down reconciliation audit |
-| `helix-polish` | `helix polish` | Issue refinement |
-| `helix-triage` | `helix triage` | Create well-structured issues |
-| `helix-next` | `helix next` | Show recommended next issue |
-| `helix-experiment` | `helix experiment` | Metric-driven optimization |
-| `helix-commit` | `helix commit` | Commit with build gate |
-| `helix-worker` | `helix run` (background) | Launch and monitor background runs |
-| `helix-backfill` | `helix backfill` | Reconstruct missing docs |
+## Core skill contract
 
-### Aliases
+### Purpose
 
-- `helix-implement` -> `helix-build`
-- `helix-plan` -> `helix-design`
+The alignment-and-planning skill reconciles a project's governing artifacts. It
+starts from an explicit scope or operator question, reads the relevant Markdown
+artifact set, compares artifacts by authority order, and returns an actionable
+plan for restoring coherence.
 
-## Skill Structure
+Use it to answer questions such as:
 
-Each skill lives in `skills/<name>/SKILL.md` with YAML frontmatter:
+- Which upstream artifact authorizes or blocks a proposed change?
+- Which PRDs, feature specs, designs, tests, or deployment notes are stale?
+- Which contradictions need a human decision before implementation?
+- Which artifacts should be created, amended, or retired next?
+- Which work items are safe for a runtime to execute after planning completes?
+
+### Inputs
+
+The skill expects access to:
+
+- A scope, question, repository path, artifact path, or work-item reference.
+- The HELIX artifact-type catalog from `workflows/phases/*/artifacts/`.
+- The project's concrete governing artifacts, commonly under `docs/helix/`.
+- Any project tracker metadata that links work items to specs, parents, or
+  context digests.
+- Runtime constraints, such as whether file writes are allowed or whether the
+  operator only wants a read-only plan.
+
+### Outputs
+
+The skill produces:
+
+- A concise alignment finding for the requested scope.
+- The authority chain used to evaluate the scope.
+- Drift, gaps, stale artifacts, and contradictions, grouped by impact.
+- Open questions that require human authority rather than model inference.
+- A plan for artifact edits, new work items, or runtime execution handoff.
+- Optional Markdown edits when the operator explicitly authorizes writes.
+
+### Authority order
+
+HELIX planning is authority-ordered. Higher-level intent governs lower-level
+documents and implementation plans. When artifacts conflict, the skill should
+prefer the highest applicable authority and treat lower-level disagreement as
+drift to reconcile.
+
+The expected order is:
+
+1. Product vision and principles.
+2. PRDs and requirements.
+3. Feature specs and user stories.
+4. Designs and implementation plans.
+5. Tests, examples, deployment notes, and operational records.
+6. Code and generated outputs.
+
+If the repository defines a more specific authority order, the skill should use
+that project-local rule and report that it did so.
+
+### Open-question behavior
+
+The skill must not invent product decisions to close gaps. When authority is
+missing, ambiguous, or contradictory, it should stop at a planning boundary and
+surface the question explicitly.
+
+Good open questions name:
+
+- The conflicting or missing artifacts.
+- The decision only a human or upstream artifact can make.
+- The downstream work that should wait for the answer.
+- The smallest artifact update that would unblock execution.
+
+### Runtime expectations
+
+A runtime embedding the skill should provide only a small capability set:
+
+- Read Markdown and repository files.
+- Search for artifact references and linked work items.
+- Present findings and plans to an operator.
+- Write Markdown only after approval or according to the runtime's governance
+  rules.
+- Hand execution-ready work to the runtime's own queue, tracker, or agent loop.
+
+The runtime remains responsible for claims, locks, background workers, commits,
+pull requests, CI, measurement, and deployment. HELIX supplies the planning
+contract those actions should respect.
+
+## Legacy mirrored skills
+
+Older HELIX packages include `helix-*` skills that mirror CLI commands. They
+are transitional compatibility surfaces for runtimes that still expose HELIX as
+command-shaped operations. They are not the core methodology contract.
+
+| Legacy skill | Runtime boundary |
+|--------------|------------------|
+| `helix-run` | Queue-drain supervision around a runtime loop |
+| `helix-build` | One bounded runtime implementation pass |
+| `helix-check` | Queue-health routing after ready work drains |
+| `helix-frame` | Requirements drafting surface now covered by planning |
+| `helix-design` | Design drafting surface now covered by planning |
+| `helix-evolve` | Artifact-threading surface now covered by planning |
+| `helix-review` | Post-implementation review surface |
+| `helix-align` | Closest legacy name for the core alignment/planning skill |
+| `helix-polish` | Runtime work-item refinement |
+| `helix-triage` | Runtime work-item creation |
+| `helix-next` | Runtime queue recommendation |
+| `helix-experiment` | Runtime optimization loop |
+| `helix-commit` | Runtime commit and gate workflow |
+| `helix-worker` | Runtime background process management |
+| `helix-backfill` | Recovery workflow for missing documentation |
+
+Aliases such as `helix-implement` and `helix-plan` are also legacy
+compatibility names. New public documentation and integrations should lead with
+the alignment-and-planning contract, then describe any runtime-specific wrappers
+as packaging details.
+
+## Packaging shape
+
+Current repository packages still use `skills/<name>/SKILL.md` files with YAML
+front matter:
 
 ```yaml
 ---
-name: helix-build
-description: 'Execute one bounded HELIX build pass.'
-argument-hint: "[issue-id|scope]"
+name: helix-align
+description: 'Run a HELIX alignment and planning review for a selected scope.'
+argument-hint: "[scope]"
 ---
 ```
 
-Skills reference shared workflow resources from `workflows/` for action
-prompts, templates, and conventions.
-
-## Installation Modes
-
-### Plugin Mode (recommended)
-
-```bash
-claude --plugin-dir /path/to/helix
-```
-
-Skills are auto-discovered from `skills/`. No manual steps needed.
-
-### Symlink Mode (legacy)
-
-```bash
-scripts/install-local-skills.sh
-```
-
-Creates symlinks in `~/.claude/skills/` and `~/.agents/skills/`.
-
-## Naming Convention
-
-- Public skill names are `helix-<command>`
-- `<command>` must match the CLI subcommand exactly
-- Every published SKILL.md declares `name` and `description`
-- Skills accepting a trailing argument declare `argument-hint`
+That file format is a packaging mechanism, not the methodology itself. A
+Claude Code skill, Codex skill, DDx plugin, Databricks integration, or manual
+operator guide should all wrap the same alignment-and-planning contract.

@@ -1,9 +1,8 @@
 ---
 ddx:
-  id: contract
-  depends_on:
-    - architecture
+  id: "[artifact-id]"
 ---
+
 # Contract
 
 **Contract ID**: [CONTRACT-XXX | API-XXX]

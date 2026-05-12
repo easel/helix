@@ -155,7 +155,7 @@ that fully addresses the problem.
 ---
 
 These eight principles are the *why* of HELIX. The [Use HELIX](/use/)
-section describes the *how* — the workflow, the autopilot loop, the
+section describes the *how* — the workflow, the alignment loop, the
 recipes. The [Artifacts](/artifacts/) catalog and the
 [Concerns](/concerns/) library are how those principles get expressed in
 practice.

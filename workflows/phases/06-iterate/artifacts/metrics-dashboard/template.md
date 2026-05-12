@@ -1,9 +1,8 @@
 ---
 ddx:
-  id: metrics-dashboard
-  depends_on:
-    - metric-definition
+  id: "[artifact-id]"
 ---
+
 # Metrics Dashboard: [iteration or release]
 
 **Review Window**: [start date - end date]

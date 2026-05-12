@@ -1,9 +1,8 @@
 ---
 ddx:
-  id: SD-XXX
-  depends_on:
-    - FEAT-XXX
+  id: "[artifact-id]"
 ---
+
 # Solution Design
 
 **Feature**: [[FEAT-XXX]] | **Artifact**: `docs/helix/02-design/solution-designs/SD-XXX-[name].md`

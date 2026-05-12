@@ -18,3 +18,4 @@ generated: true
 - [Feature Specification: FEAT-009 — Team Onboarding Workflow](FEAT-009-team-onboarding/)
 - [Feature Specification: FEAT-010 — Testing Strategy Templates](FEAT-010-testing-strategy-templates/)
 - [FEAT-011: Slider Autonomy Control](FEAT-011-slider-autonomy/)
+- [Feature Specification: FEAT-012 — Public Microsite IA](FEAT-012-public-microsite-ia/)

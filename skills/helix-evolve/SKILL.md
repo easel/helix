@@ -1,42 +1,41 @@
 ---
 name: helix-evolve
-description: 'Thread any change — addition, removal, or amendment — through the artifact stack. Use when governing docs need updating: requirements change, features are added or dropped, specs are amended, or incidents reveal needed changes.'
+description: Thread additions, removals, amendments, and incident learnings through the HELIX artifact stack.
 argument-hint: '"requirement description" [--scope S] [--artifact ID] [--from source]'
 ---
 
 # Evolve: Propagate Changes Through the Artifact Stack
 
-When a governing artifact needs to change — whether adding a capability,
-removing a component, amending a spec, or responding to an incident — this
-skill threads the change through the full artifact stack from vision down
-to tracker issues.
+When a governing artifact needs to change, this skill threads the change
+through the full artifact stack from vision down to executable follow-up work.
+It applies equally to additions, removals, amendments, and incident-driven
+requirements.
 
-**Rule of thumb**: if the change touches or should touch an SD, ADR, TP, or
-PRD document, use evolve. This applies equally to additions, removals, and
-amendments. The doc-first rule is symmetric — removing a system from a design
-document requires the same artifact propagation as adding one.
+Rule of thumb: if the change touches or should touch a requirements, design,
+decision, or test-plan artifact, use evolve. The doc-first rule is symmetric:
+removing a system from a design requires the same artifact propagation as
+adding one.
 
 ## When to Use
 
-- A new feature is requested or a capability needs to be added
-- A system, dependency, or capability is being **dropped or excluded**
-- An incident or bug reveals a missing constraint or policy
-- An existing spec needs amendment (new acceptance criteria, changed behavior)
-- Customer feedback identifies a gap in the current design
-- A dependency or constraint changes (new library, API version, compliance rule)
-- **Any change to the set of systems/components in a multi-system design**
-  (e.g., dropping a database from a benchmark suite, removing a connector)
-- A decision changes scope (V1 → post-V1 deferral, or vice versa)
+- a new feature is requested or a capability needs to be added
+- a system, dependency, or capability is being dropped or excluded
+- an incident or bug reveals a missing constraint or policy
+- an existing specification needs amendment
+- customer feedback identifies a gap in the current design
+- a dependency or constraint changes
+- a decision changes scope, such as moving work into or out of the current release
 
-## What It Does
+## Methodology
 
-1. Analyzes the requirement and identifies affected subsystems
-2. Discovers which governing artifacts need updating
-3. Detects conflicts with existing artifacts and open work
-4. Updates artifacts in authority order (vision → specs → designs → test plans)
-5. Creates properly triaged tracker issues for implementation
-6. Wires dependencies to existing open issues
-7. Produces an evolution report with conflicts flagged for human resolution
+1. Analyze the requirement and identify affected product areas.
+2. Discover which governing artifacts need updating.
+3. Detect conflicts with existing artifacts and open work.
+4. Update artifacts in authority order: vision, requirements, feature specs,
+   designs, decisions, test plans, and implementation plans.
+5. Create properly shaped follow-up work for implementation and verification.
+6. Wire dependencies to existing open work where ordering matters.
+7. Produce an evolution report with conflicts flagged for human resolution.
 
 ## Examples
 
@@ -54,15 +53,20 @@ helix evolve --artifact SD-017 "Verification engine needs loom support for concu
 helix evolve --from incident "INC-042: ingest pipeline needs circuit breakers to prevent cascade failure"
 
 # Removal / exclusion
-helix evolve --artifact SD-022 "Drop StarRocks from the competitive benchmark suite — unreliable results"
+helix evolve --artifact SD-022 "Drop StarRocks from the competitive benchmark suite - unreliable results"
 
 # Scope change
 helix evolve "Defer SD-026 bridge adapters to post-V1"
 ```
 
-## References
+## Running with DDx
+
+When DDx supplies the HELIX runtime, use these references:
 
 - Action prompt: `.ddx/plugins/helix/workflows/actions/evolve.md`
 - Authority order: `.ddx/plugins/helix/workflows/actions/implementation.md` (Authority Order section)
 - Triage validation: `scripts/tracker.sh` (tracker_validate_create)
 - Tracker conventions: see `ddx bead --help` (DDx FEAT-004)
+
+DDx-specific output should include tracker issues with governing artifact links,
+acceptance criteria, dependencies, and labels appropriate for queue execution.

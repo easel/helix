@@ -7,7 +7,7 @@ aliases:
   - /docs/workflow
 ---
 
-HELIX names seven kinds of work in software development: Discover, Frame,
+HELIX names seven activities in software development: Discover, Frame,
 Design, Test, Build, Deploy, Iterate. Each owns a set of [artifact
 types](/artifact-types/) and is connected to the others through an
 [authority order](/reference/glossary/activities/) that resolves conflicts

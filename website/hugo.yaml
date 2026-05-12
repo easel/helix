@@ -1,6 +1,6 @@
 baseURL: https://documentdrivendx.github.io/helix/
 locale: en-us
-title: HELIX — A document-driven methodology for AI-assisted software development
+title: HELIX
 
 module:
   imports:
@@ -24,20 +24,26 @@ menu:
     - name: Artifacts
       pageRef: /artifacts
       weight: 2
-    - name: Artifact Types
+    - name: Types
       pageRef: /artifact-types
       weight: 3
+    - name: Skills
+      pageRef: /skills
+      weight: 4
     - name: Concerns
       pageRef: /concerns
-      weight: 4
+      weight: 5
     - name: Use HELIX
       pageRef: /use
-      weight: 5
+      weight: 6
+    - name: Platforms
+      pageRef: /platforms
+      weight: 7
     - name: Reference
       pageRef: /reference
-      weight: 6
+      weight: 8
     - name: GitHub
-      url: https://github.com/easel/helix
+      url: https://github.com/DocumentDrivenDX/helix
       weight: 10
       params:
         icon: github
@@ -57,5 +63,4 @@ params:
     displayPoweredBy: false
 
   editURL:
-    enable: true
-    base: https://github.com/easel/helix/edit/main/website/content
+    enable: false

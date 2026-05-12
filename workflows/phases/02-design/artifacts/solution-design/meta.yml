@@ -13,33 +13,6 @@ description: |
   system shape, evaluates alternatives, and defines the decomposition that
   story-level technical designs should inherit.
 
-dependencies:
-  requires:
-    - input: Feature Specification
-      type: artifact
-      pattern: "FEAT-XXX-*.md"
-      phase: frame
-      required: true
-
-    - input: Product Requirements Document
-      type: artifact
-      pattern: "prd.md"
-      phase: frame
-      required: false
-      note: "Project-level framing when the feature affects core product behavior"
-
-  enables:
-    - output: Technical Design
-      type: artifact
-      pattern: "TD-XXX-*.md"
-      phase: design
-      note: "Story-level slice design derived from the chosen solution"
-
-    - output: Story Test Plan
-      type: artifact
-      pattern: "TP-XXX-*.md"
-      phase: test
-
 output:
   location: docs/helix/02-design/solution-designs/SD-{id}-{name}.md
   format: markdown

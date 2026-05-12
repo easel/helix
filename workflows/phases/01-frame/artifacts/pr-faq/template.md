@@ -1,7 +1,8 @@
 ---
 ddx:
-  id: helix.pr-faq
+  id: "[artifact-id]"
 ---
+
 # PR-FAQ: [PRODUCT NAME]
 
 <!--
@@ -9,6 +10,12 @@ This artifact has two halves: a launch-day press release (~350 words) and an
 internal FAQ. Write it as if the product ships tomorrow. The press release is
 customer-facing; the FAQ is internal and confronts the hard questions. If you
 can't write a credible PR-FAQ, the team doesn't yet understand the problem.
+
+The press release stays customer-facing and concise. The internal sections
+capture the reusable product argument: thesis, mechanism, quality model,
+decision or autonomy boundary, hard questions, and downstream projection.
+Keep internal mechanics out of the customer narrative unless they directly
+explain customer value.
 -->
 
 ## Press Release
@@ -64,6 +71,43 @@ can't write a credible PR-FAQ, the team doesn't yet understand the problem.
 [WHERE TO GET IT, WHAT IT COSTS, WHAT PLATFORMS, WHAT REGIONS, WHEN, HOW TO SIGN UP.]
 
 ---
+
+## Internal Product Argument
+
+### Core Thesis
+
+[ONE SENTENCE. A PLAIN, FALSIFIABLE CLAIM ABOUT WHY THIS PRODUCT SHOULD EXIST.]
+
+### Mechanism
+
+[ONE PARAGRAPH EXPLAINING WHAT MAKES THE THESIS TRUE. NAME THE SYSTEM BEHAVIOR, CONTEXT LAYER, WORKFLOW, DATA MODEL, OR CONTROL LOOP THAT PRODUCES THE OUTCOME.]
+
+### Quality Model
+
+<!--
+Name the attributes that must be true for the mechanism to work. These should
+be specific enough to become PRD requirements or validation criteria.
+-->
+
+| Attribute | Meaning | How We Know |
+|---|---|---|
+| [ATTRIBUTE] | [WHAT IT MEANS IN THIS PRODUCT] | [EVIDENCE OR CHECK] |
+| [ATTRIBUTE] | [WHAT IT MEANS IN THIS PRODUCT] | [EVIDENCE OR CHECK] |
+| [ATTRIBUTE] | [WHAT IT MEANS IN THIS PRODUCT] | [EVIDENCE OR CHECK] |
+
+### Decision / Autonomy Boundary
+
+<!--
+Use this for any product that automates, delegates, recommends, or changes who
+decides what. Define the boundary without teaching the system to defer
+everything.
+-->
+
+[WHAT THE SYSTEM MAY DECIDE OR DO ON ITS OWN.]
+
+[WHAT ASSUMPTIONS IT MAY RECORD AND CONTINUE WITH.]
+
+[WHAT DECISIONS REQUIRE HUMAN JUDGMENT, APPROVAL, OR A SEPARATE DECISION ARTIFACT.]
 
 ## FAQ
 
@@ -125,6 +169,14 @@ answer. If they don't, the FAQ is too soft.
 
 [THE MINIMUM SHAPE OF V1 THAT VALIDATES THE THESIS.]
 
+#### What must be true for the core thesis to hold?
+
+[THE QUALITY MODEL IN OPERATIONAL TERMS. NAME WHAT WOULD MAKE THE PRODUCT'S CLAIM FALSE.]
+
+#### Where can the system keep moving, and where must it stop?
+
+[THE DECISION OR AUTONOMY BOUNDARY. DISTINGUISH SAFE FORWARD PROGRESS, REVERSIBLE ASSUMPTIONS, DECOMPOSITION, AND TRUE HUMAN DECISION POINTS.]
+
 #### Who else has to ship something for this to work?
 
 [EXTERNAL TEAMS, VENDORS, REGULATORY APPROVALS, OR CUSTOMERS. WHAT'S THE COMMITMENT STATUS.]
@@ -151,10 +203,28 @@ answer. If they don't, the FAQ is too soft.
 
 [QUANTITATIVE TARGETS THAT INFORM THE PRD'S SUCCESS METRICS.]
 
+## Downstream Projection
+
+<!--
+Name where this argument should appear next. For a public site, list the pages
+that should derive from this PR-FAQ. For product development, list the PRD,
+principles, feature specs, research plans, or decision artifacts that should
+inherit the thesis.
+-->
+
+| Target | What It Should Inherit | Owner / Status |
+|---|---|---|
+| [TARGET ARTIFACT OR PAGE] | [THESIS, MECHANISM, QUALITY MODEL, FAQ ANSWER] | [OWNER / STATUS] |
+| [TARGET ARTIFACT OR PAGE] | [THESIS, MECHANISM, QUALITY MODEL, FAQ ANSWER] | [OWNER / STATUS] |
+
 ## Review Checklist
 
 Use this checklist when reviewing a PR-FAQ artifact:
 
+- [ ] Core thesis is a single plain-language claim, not a slogan
+- [ ] Mechanism explains why the thesis should be true
+- [ ] Quality model names attributes that can become requirements or checks
+- [ ] Decision / autonomy boundary distinguishes progress, assumptions, decomposition, and human decision points
 - [ ] Press release names a specific customer segment, not "users" or "teams"
 - [ ] Press release reads as a real wire-service story — no marketing fluff
 - [ ] Press release stays under ~350 words
@@ -169,5 +239,6 @@ Use this checklist when reviewing a PR-FAQ artifact:
 - [ ] Internal FAQ confronts unit economics or pricing plausibility
 - [ ] Internal FAQ states explicit kill criteria
 - [ ] Internal FAQ names experiments or validation steps required before commit
+- [ ] Downstream projection lists the artifacts or public pages that should inherit the argument
 - [ ] No `[TBD]`, `[TODO]`, or `[NEEDS CLARIFICATION]` markers remain
 - [ ] PR-FAQ is consistent with the governing Product Vision

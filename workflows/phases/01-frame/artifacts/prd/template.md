@@ -1,7 +1,8 @@
 ---
 ddx:
-  id: helix.prd
+  id: "[artifact-id]"
 ---
+
 # Product Requirements Document
 
 ## Summary

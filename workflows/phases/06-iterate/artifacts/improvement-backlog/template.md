@@ -1,9 +1,8 @@
 ---
 ddx:
-  id: improvement-backlog
-  depends_on:
-    - metrics-dashboard
+  id: "[artifact-id]"
 ---
+
 # Improvement Backlog
 
 **Iteration**: [iteration or release]

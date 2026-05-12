@@ -1,9 +1,8 @@
 ---
 ddx:
-  id: helix.architecture
-  depends_on:
-    - helix.prd
+  id: "[artifact-id]"
 ---
+
 # Architecture Diagrams
 
 ## Level 1: System Context

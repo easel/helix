@@ -19,7 +19,7 @@ _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 - [Project Concerns](/artifacts/concerns/)
 - [Product Requirements Document](/artifacts/prd/)
 - [Project Principles](/artifacts/principles/)
-- [features](/artifacts/features/) _(11 items)_
+- [features](/artifacts/features/) _(12 items)_
 
 ## Design
 
@@ -30,8 +30,9 @@ _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 - [adr](/artifacts/adr/) _(2 items)_
 - [contracts](/artifacts/contracts/) _(5 items)_
 - [decisions](/artifacts/decisions/) _(2 items)_
+- [hero image concepts](/artifacts/hero-image-concepts/) _(1 item)_
 - [solution designs](/artifacts/solution-designs/) _(2 items)_
-- [technical designs](/artifacts/technical-designs/) _(3 items)_
+- [technical designs](/artifacts/technical-designs/) _(4 items)_
 
 ## Test
 
@@ -58,5 +59,5 @@ _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 - [HELIX Prompt Iteration Protocol and Evaluation Rubric](/artifacts/prompt-iteration-protocol/)
 - [Research: Principles Injection Strategy Effectiveness](/artifacts/research-principles-injection-2026-04-05/)
 - [Security Metrics — HELIX 2026-Q2 (post-`v0.3.3`)](/artifacts/security-metrics/)
-- [alignment reviews](/artifacts/alignment-reviews/) _(7 items)_
+- [alignment reviews](/artifacts/alignment-reviews/) _(8 items)_
 - [decisions](/artifacts/decisions/) _(3 items)_

@@ -8,27 +8,6 @@ description: |
   Iteration-level security posture report covering incident response,
   vulnerability management, application security, and compliance.
 
-dependencies:
-  requires:
-    - input: Security Monitoring and Incident Data
-      type: external
-      required: true
-    - input: Vulnerability Scan Results
-      type: external
-      required: true
-    - input: Compliance Audit Findings
-      type: external
-      required: false
-    - input: Previous Security Metrics Report
-      type: external
-      required: false
-  enables:
-    - output: Improvement Backlog
-      type: artifact
-      phase: iterate
-    - output: Planning beads
-      type: issue
-
 output:
   location: docs/helix/06-iterate/security-metrics.md
   format: markdown

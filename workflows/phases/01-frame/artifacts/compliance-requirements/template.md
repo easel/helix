@@ -1,3 +1,8 @@
+---
+ddx:
+  id: "[artifact-id]"
+---
+
 # Compliance Requirements
 
 **Project**: [Project Name]

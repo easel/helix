@@ -11,13 +11,6 @@ description: |
   out of the main PRD flow. Parked artifacts remain in their normal
   HELIX locations and are flagged with ddx.parking_lot: true.
 
-dependencies:
-  requires:
-    - input: PRD
-      type: artifact
-      path: prd
-      required: false
-
 output:
   location: docs/helix/parking-lot.md
   format: markdown

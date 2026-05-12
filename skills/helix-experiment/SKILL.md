@@ -1,48 +1,46 @@
 ---
 name: helix-experiment
-description: Autonomous experiment loop for metric-driven optimization. Use when asked to "run autoresearch", "optimize X in a loop", or "experiment with X".
+description: Run an autonomous metric-driven optimization loop for an explicit goal.
 argument-hint: "[issue-id|goal]"
 disable-model-invocation: true
 ---
 
 # Experiment
 
-Autonomous metric-optimization loop: try ideas, keep what works, discard what
-doesn't, repeat until converged or interrupted.
+Run a metric-optimization loop: try ideas, keep what works, discard what does
+not, and repeat until converged or interrupted.
 
 ## When to Use
 
-- Performance tuning (test speed, latency, throughput)
-- Size optimization (bundle size, binary size, memory usage)
-- ML training optimization (loss, accuracy, bits-per-byte)
-- Any measurable optimization target on existing, tested code
+- performance tuning such as test speed, latency, or throughput
+- size optimization such as bundle size, binary size, or memory usage
+- model or training optimization such as loss, accuracy, or bits per byte
+- any measurable optimization target on existing, tested code
 
-## Steps
+## Methodology
 
-1. **Start or resume** — invoke the experiment action. On first run, it sets up
-   the session (branch, benchmark script, session doc, baseline). On subsequent
-   runs, it reads existing session state and continues.
-
-2. **Loop** — after each iteration, re-invoke the experiment action. Do not
-   stop unless:
-   - `EXPERIMENT_STATUS: CONVERGED` — the metric has stabilized
-   - `EXPERIMENT_STATUS: NO_IMPROVEMENT` — 5 consecutive non-improvements
-   - The user interrupts or redirects
-
-3. **Steer** — incorporate user messages into the next hypothesis. Finish the
+1. **Start or resume** — establish the optimization goal, baseline, metric,
+   allowed scope, and session log. On subsequent runs, continue from the
+   existing session state.
+2. **Loop** — after each iteration, evaluate the metric and decide whether to
+   continue, revert, or keep the change.
+3. **Stop conditions** — stop when the metric converges, repeated iterations do
+   not improve it, or the user interrupts or redirects.
+4. **Steer** — incorporate user messages into the next hypothesis. Finish the
    current iteration before changing direction.
-
-4. **Close** — when done, invoke with `--close` to squash-merge the experiment
-   branch, update ratchet floors, and close the issue.
+5. **Close** — when done, land the chosen changes, update metric floors or
+   expectations where appropriate, and close the associated work item.
 
 ## Constraints
 
-- Only modify files declared in scope
-- All existing tests must pass after every edit — tests are the specification
-- Prefer simpler solutions over marginal complexity gains
-- Do not change test expectations
+- Only modify files declared in scope.
+- Existing tests remain the specification and must continue to pass when validating.
+- Prefer simpler solutions over marginal complexity gains.
+- Do not change test expectations to manufacture an improvement.
 
-## References
+## Running with DDx
+
+When DDx supplies the HELIX runtime, use these references:
 
 - Action prompt: `.ddx/plugins/helix/workflows/actions/experiment.md`
 - Session doc template: `.ddx/plugins/helix/workflows/templates/autoresearch-session.md`
@@ -50,3 +48,8 @@ doesn't, repeat until converged or interrupted.
 - Metric definition template: `.ddx/plugins/helix/workflows/templates/metric-definition.yaml`
 - Ratchet integration: `.ddx/plugins/helix/workflows/ratchets.md`
 - Autoresearch ecosystem: compatible with pi-autoresearch JSONL protocol
+
+DDx status markers include:
+
+- `EXPERIMENT_STATUS: CONVERGED`
+- `EXPERIMENT_STATUS: NO_IMPROVEMENT`

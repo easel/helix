@@ -8,29 +8,6 @@ description: |
   Service-specific operational procedures for on-call response, rollback,
   recovery, and routine maintenance tied to a deployed system.
 
-dependencies:
-  requires:
-    - input: Architecture
-      type: artifact
-      path: architecture
-      required: false
-      note: "Service boundaries and dependencies operators must understand"
-    - input: Deployment Checklist
-      type: artifact
-      path: deployment-checklist
-      required: false
-      note: "Release-time checks and rollback entrypoints that the runbook operationalizes"
-    - input: Monitoring Setup
-      type: artifact
-      path: monitoring-setup
-      required: false
-      note: "Signals, dashboards, and alerts that trigger triage and escalation"
-    - input: Security Architecture
-      type: artifact
-      path: security-architecture
-      required: false
-      note: "Service-specific security response constraints when incident handling differs from default policy"
-
 output:
   location: docs/helix/05-deploy/runbook.md
   format: markdown

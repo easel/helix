@@ -8,23 +8,6 @@ description: |
   Prioritized improvement inventory derived from iteration learnings and
   tracker-backed follow-up work.
 
-dependencies:
-  requires:
-    - input: Metrics Dashboard
-      type: artifact
-      path: metrics-dashboard
-      required: true
-    - input: Security Metrics
-      type: artifact
-      path: security-metrics
-      required: true
-    - input: Tracker issues
-      type: external
-      required: true
-  enables:
-    - output: Planning beads
-      type: issue
-
 output:
   location: docs/helix/06-iterate/improvement-backlog.md
   format: markdown

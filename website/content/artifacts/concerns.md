@@ -10,6 +10,7 @@ generated: true
 
 ## Active Concerns
 - hugo-hextra (microsite)
+- product-microsite-ia (microsite)
 - demo-asciinema (demo)
 - e2e-playwright (testing)
 
@@ -39,6 +40,20 @@ Examples:
 - **Hugo version**: 0.159.2 extended — pinned in `.github/workflows/pages.yml`
 - **Deployment**: GitHub Pages at `documentdrivendx.github.io/helix/`
 - **Custom shortcode**: `asciinema.html` for terminal recording embeds
+
+### product-microsite-ia
+- **Reader modes**: evaluators, new users, active HELIX users, and contributors
+- **Top-level sections**: Why explains the thesis, Use gets a user productive,
+  Types explains methodology objects, Reference provides exact lookup, and
+  Artifacts exposes HELIX's own governing documents
+- **Artifact Types navigation**: activity order is the primary ordering model;
+  core artifacts are visible immediately within each activity; supporting
+  artifacts stay in activity context with lighter treatment or inline
+  disclosure
+- **Navigation contract**: left navigation shows site hierarchy and active
+  location; right navigation shows headings for the current page only
+- **Proof path**: public examples, source artifacts, and deterministic checks
+  must support product claims about shared memory and trustworthy context
 
 ### demo-asciinema
 - **Current demos**: `helix-quickstart` (full lifecycle), `helix-concerns` (drift detection), `helix-evolve` (requirement threading), `helix-experiment` (metric-driven optimization)

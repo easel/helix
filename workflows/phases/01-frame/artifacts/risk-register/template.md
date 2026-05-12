@@ -1,3 +1,8 @@
+---
+ddx:
+  id: "[artifact-id]"
+---
+
 # Risk Register
 
 **Status**: [Draft | Review | Approved]

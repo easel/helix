@@ -14,41 +14,6 @@ description: |
   that the PRD will then have to answer. HELIX uses the PR-FAQ as a focus
   and validation step between the Product Vision and the PRD.
 
-dependencies:
-  requires:
-    - input: Product Vision
-      type: artifact
-      phase: "00-discover"
-      path: product-vision
-      required: true
-      relationship: "sets the long-term direction the PR-FAQ commits to a customer outcome within"
-    - input: Opportunity Canvas
-      type: artifact
-      phase: "00-discover"
-      path: opportunity-canvas
-      required: false
-      relationship: "frames the customer problem and segment"
-    - input: Business Case
-      type: artifact
-      phase: "00-discover"
-      path: business-case
-      required: false
-      relationship: "informs the economic FAQs"
-
-  enables:
-    - output: PRD
-      type: artifact
-      path: prd
-      relationship: "the press release outcome and FAQ open questions seed the PRD's problem statement, scope, and risks"
-    - output: Stakeholder Map
-      type: artifact
-      path: stakeholder-map
-      relationship: "internal FAQ surfaces who needs to be in the loop"
-    - output: Principles
-      type: artifact
-      path: principles
-      relationship: "customer commitments from the press release inform design principles"
-
 output:
   location: docs/helix/01-frame/pr-faq.md
   format: markdown
@@ -56,6 +21,11 @@ output:
 
 validation:
   required_sections:
+    - internal_product_argument
+    - core_thesis
+    - mechanism
+    - quality_model
+    - decision_autonomy_boundary
     - press_release_headline
     - press_release_subhead
     - press_release_summary
@@ -67,8 +37,25 @@ validation:
     - availability
     - external_faqs
     - internal_faqs
+    - downstream_projection
 
   quality_checks:
+    - check: core_thesis_plain
+      description: Core thesis is a single plain-language claim, not a slogan or list of features
+      severity: blocking
+
+    - check: mechanism_explicit
+      description: Mechanism explains why the thesis should be true and can seed PRD requirements or research validation
+      severity: blocking
+
+    - check: quality_model_actionable
+      description: Quality model names attributes with observable evidence or checks, not vague virtues
+      severity: blocking
+
+    - check: decision_autonomy_boundary_controlled
+      description: Decision/autonomy boundary distinguishes safe progress, reversible assumptions, decomposition, and human decision points
+      severity: blocking
+
     - check: press_release_names_specific_customer
       description: Press release names a specific customer segment and use case, not a generic "users"
       severity: blocking
@@ -113,6 +100,10 @@ validation:
       description: Availability, pricing, and timelines use specific dates and numbers, not "soon" or "competitive"
       severity: warning
 
+    - check: downstream_projection_explicit
+      description: Downstream projection names the artifacts or public pages that should inherit the PR-FAQ argument
+      severity: blocking
+
   automated_checks:
     - pattern: "\\[TBD\\]|\\[TODO\\]|\\[NEEDS CLARIFICATION"
       expected: 0
@@ -143,23 +134,42 @@ prompts:
   generation: prompt.md
   review: |
     Review this PR-FAQ for:
-    1. Whether the press release commits to a specific customer outcome
-    2. Whether the customer quote sounds like a real customer, not marketing
-    3. Whether the FAQ confronts the actual hard questions (economics, feasibility, adoption)
-    4. Whether kill criteria and v1 scope boundaries are explicit
-    5. Whether the open questions and experiments are concrete enough to seed a PRD
+    1. Whether the core thesis is a single plain-language claim
+    2. Whether the mechanism explains why the thesis should be true
+    3. Whether the quality model can become requirements or checks
+    4. Whether the decision/autonomy boundary avoids both overreach and lazy escalation
+    5. Whether the press release commits to a specific customer outcome
+    6. Whether the customer quote sounds like a real customer, not marketing
+    7. Whether the FAQ confronts the actual hard questions (economics, feasibility, adoption)
+    8. Whether kill criteria and v1 scope boundaries are explicit
+    9. Whether the open questions and experiments are concrete enough to seed a PRD
+    10. Whether downstream projection targets are explicit enough to prevent parallel copy drift
 
 template:
   file: template.md
   sections:
     - press_release: "Write the headline last; it should be the sharpest line in the document"
+    - internal_product_argument: "Owns the reusable thesis, mechanism, quality model, and decision/autonomy boundary"
+    - core_thesis: "One sentence; plain, falsifiable, and reusable"
+    - mechanism: "Name what makes the thesis true"
+    - quality_model: "Attributes with evidence or checks"
+    - decision_autonomy_boundary: "Define progress, assumptions, decomposition, and human decision points"
     - the_problem: "Use the customer's words, not yours"
     - customer_quote: "Make it about the outcome, not the product"
     - internal_faqs: "If a question feels uncomfortable to write, it belongs here"
+    - downstream_projection: "List the artifacts or public pages that should inherit this argument"
+
+references:
+  - title: "Amazon / AWS Working Backwards PR-FAQ"
+    file: docs/resources/amazon-working-backwards-prfaq.md
+    relationship: "Primary source for press release as a concise customer narrative and FAQ split between customer and internal questions"
+  - title: "Working Backwards PR-FAQ Template Guidance"
+    file: docs/resources/working-backwards-prfaq-template.md
+    relationship: "Independent template guidance for customer-backward framing, review, and iteration"
 
 examples:
   - file: example.md
-    description: Sample PR-FAQ for a fictional small-business invoicing tool that auto-reconciles against bank deposits
+    description: Sample PR-FAQ for DepositMatch, derived from the product vision and PRD examples
 
 workflow:
   creation_order: 0.5

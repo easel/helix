@@ -1,0 +1,50 @@
+artifact:
+  name: Test Procedures
+  id: test-procedures
+  type: document
+  phase: test
+
+description: |
+  Step-by-step procedures for executing planned tests, recording evidence,
+  and making pass/fail decisions consistently.
+
+output:
+  location: docs/helix/03-test/test-procedures.md
+  format: markdown
+  naming: test-procedures.md
+
+validation:
+  required_sections:
+    - scope
+    - prerequisites
+    - procedures
+    - evidence_capture
+    - pass_fail_rules
+
+  quality_checks:
+    - check: procedures_reproducible
+      description: Procedures must be specific enough for another operator to repeat
+      severity: blocking
+    - check: evidence_expectations_clear
+      description: Each procedure should state what evidence proves the result
+      severity: blocking
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+relationships:
+  informed_by:
+    - test-plan
+    - story-test-plan
+  informs:
+    - test-suites
+
+tags:
+  - test
+  - procedures
+  - evidence
+
+version: 1.0.0

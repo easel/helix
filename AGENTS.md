@@ -75,7 +75,12 @@ bash tests/validate-skills.sh
 
 python3 scripts/generate-reference.py  # Regenerate /artifact-types/ and /concerns/ from workflows/
 python3 scripts/publish-artifacts.py   # Publish docs/helix/ into /artifacts/
+bash website/scripts/serve-local.sh    # Serve the microsite at http://eitri:1315/helix/
 ```
+
+The local microsite review server must use the `/helix` base path. Do not
+restart it at the domain root; paths such as
+`http://eitri:1315/artifact-types/...` are invalid for local review.
 
 ## Operational Guide
 

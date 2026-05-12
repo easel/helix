@@ -1,7 +1,7 @@
 ---
 title: "Test Plan: TP-002-helix-cli"
 slug: TP-002-helix-cli
-weight: 350
+weight: 380
 activity: "Test"
 source: "03-test/test-plans/TP-002-helix-cli.md"
 generated: true

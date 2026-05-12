@@ -6,7 +6,7 @@ aliases:
 ---
 
 Cross-cutting concerns are a core concept in HELIX. They capture technology
-choices, quality requirements, and conventions that cut across phases, beads,
+choices, quality requirements, and conventions that cut across activities, beads,
 and artifacts — and they do it declaratively, so agents can load the right
 context without being told twice.
 
@@ -26,7 +26,7 @@ Concerns are that mechanism.
 
 ## How They Work
 
-1. **Declare** — During [Frame](/docs/workflow#phases), list active concerns
+1. **Declare** — During [Frame](/use/workflow/#the-seven-activities), list active concerns
    in `docs/helix/01-frame/concerns.md`
 2. **Filter** — Each concern declares which areas it applies to (`all`, `ui`,
    `api`, `data`, `infra`, `cli`)
@@ -83,7 +83,7 @@ consists of two files:
 | **demo-asciinema** | Scripted terminal recordings, Docker reproducibility |
 | **demo-playwright** | Browser demo recordings with Playwright video capture |
 
-See the [full concerns catalog](/docs/glossary/concerns) for detailed
+See the [full concerns catalog](/concerns/) for detailed
 component listings and all available concerns.
 
 ## Drift Detection
@@ -93,8 +93,8 @@ project is straying from its declared technology choices. For example, the
 `typescript-bun` concern flags `npm run` instead of `bun run`, `eslint`
 instead of Biome, and `jest` instead of `bun:test`.
 
-HELIX checks for drift signals during [review](/docs/glossary/actions#review)
-and [align](/docs/glossary/actions#align), reporting findings that keep the
+HELIX checks for drift signals during [review](/reference/glossary/actions/#review)
+and [align](/reference/glossary/actions/#align), reporting findings that keep the
 project honest to its own decisions.
 
 ## The Knowledge Chain
@@ -109,7 +109,7 @@ Spike/POC (gather evidence)
       → Context Digest (injected into beads)
 ```
 
-When a referenced ADR is superseded, [polish](/docs/glossary/actions#polish)
+When a referenced ADR is superseded, [polish](/reference/glossary/actions/#polish)
 flags the affected concern for re-evaluation — ensuring that decisions
 propagate forward rather than silently going stale.
 
@@ -127,5 +127,5 @@ concerns:
 | **align** | Flags concern drift across all layers |
 | **frame** | Concern selection happens during framing |
 
-See the [full concerns reference](/docs/glossary/concerns) for the complete
+See the [full concerns reference](/concerns/) for the complete
 library catalog and project configuration format.

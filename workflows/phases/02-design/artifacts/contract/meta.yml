@@ -9,36 +9,6 @@ description: |
   Normative interface and schema contract that another team can implement
   against directly, including API, CLI, protocol, event, and data contracts.
 
-dependencies:
-  requires:
-    - input: Architecture
-      type: artifact
-      path: architecture
-      required: false
-      note: "System context for shared boundaries and interface ownership"
-    - input: Solution Design
-      type: artifact
-      path: solution-design
-      required: false
-      note: "Feature-level approach when the contract belongs to one feature"
-    - input: Technical Design
-      type: artifact
-      path: technical-design
-      required: false
-      note: "Story-level slice context when the contract is local to one bounded change"
-    - input: ADR
-      type: artifact
-      path: adr
-      required: false
-      note: "Decision rationale when the contract encodes a selected boundary or policy"
-  enables:
-    - output: Test Plan
-      type: artifact
-      phase: test
-    - output: Technical Design
-      type: artifact
-      phase: design
-
 output:
   location: docs/helix/02-design/contracts/CONTRACT-{id}-{name}.md
   format: markdown

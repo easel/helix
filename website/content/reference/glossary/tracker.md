@@ -26,7 +26,7 @@ A bead is a work item — the atomic unit of tracked work in HELIX.
 | **parent** | Parent epic or issue ID |
 | **deps** | Dependency list — issues that must close before this one is ready |
 | **acceptance** | Deterministic criteria that define "done" |
-| **description** | Full description, often prefixed with a [context digest](/docs/glossary/concepts#context-digest) |
+| **description** | Full description, often prefixed with a [context digest](/reference/glossary/concepts/#context-digest) |
 | **notes** | Execution notes appended during work |
 
 ## Labels
@@ -64,7 +64,7 @@ Labels are organizational conventions for triage and traceability.
 | `area:infra` | Infrastructure/deployment work |
 | `area:cli` | CLI tool work |
 
-Area labels are required for [concern](/docs/glossary/concerns) filtering to work. `helix polish` assigns them to unlabeled beads.
+Area labels are required for [concern](/concerns/) filtering to work. `helix polish` assigns them to unlabeled beads.
 
 ### Traceability Labels
 
@@ -113,7 +113,7 @@ ddx bead blocked --json
 
 ## Queue Control
 
-The tracker queue drives the [supervisory loop](/docs/workflow):
+The tracker queue drives the [workflow loop](/use/workflow/):
 
 1. `helix check` inspects the ready queue and recommends the next action
 2. `helix build` claims and executes one ready issue

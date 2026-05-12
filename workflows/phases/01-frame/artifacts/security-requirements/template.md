@@ -1,3 +1,8 @@
+---
+ddx:
+  id: "[artifact-id]"
+---
+
 # Security Requirements
 
 **Project**: [Project Name]

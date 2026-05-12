@@ -1,7 +1,7 @@
 ---
 title: "Implementation Plan — 2026-04-11 Live Queue Snapshot"
 slug: implementation-plan-2026-04-11-snapshot
-weight: 360
+weight: 390
 activity: "Build"
 source: "04-build/implementation-plan-2026-04-11-snapshot.md"
 generated: true

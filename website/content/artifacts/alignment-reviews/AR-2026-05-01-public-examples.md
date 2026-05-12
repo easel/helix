@@ -1,7 +1,7 @@
 ---
 title: "Alignment Review: Public Examples Audit"
 slug: AR-2026-05-01-public-examples
-weight: 520
+weight: 550
 activity: "Iterate"
 source: "06-iterate/alignment-reviews/AR-2026-05-01-public-examples.md"
 generated: true

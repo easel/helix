@@ -12,36 +12,6 @@ description: |
   or reduce technical risk before committing to implementation. Produces
   concrete technical insights to inform architecture and design decisions.
 
-dependencies:
-  requires:
-    - input: Technical uncertainty identified
-      type: external
-      required: true
-    - input: Solution design context
-      type: artifact
-      path: solution-design
-      required: false
-    - input: Architecture principles
-      type: artifact
-      path: principles
-      phase: frame
-      required: true
-
-  enables:
-    - output: Technical feasibility validation
-      type: insight
-      required: true
-    - output: Architecture refinement
-      type: artifact
-      path: architecture
-    - output: Implementation approach
-      type: artifact
-      path: implementation-plan
-      phase: build
-    - output: Risk mitigation
-      type: artifact
-      path: adr
-
 output:
   location: docs/helix/02-design/spikes/
   format: markdown

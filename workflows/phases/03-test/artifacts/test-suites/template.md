@@ -1,3 +1,8 @@
+---
+ddx:
+  id: "[artifact-id]"
+---
+
 # Test Suite Structure
 
 **Project**: [Project Name]

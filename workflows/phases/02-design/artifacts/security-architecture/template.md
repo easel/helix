@@ -1,11 +1,8 @@
 ---
 ddx:
-  id: security-architecture
-  depends_on:
-    - security-requirements
-    - threat-model
-    - architecture
+  id: "[artifact-id]"
 ---
+
 # Security Architecture
 
 **Scope**: [system or subsystem]

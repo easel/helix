@@ -1,3 +1,8 @@
+---
+ddx:
+  id: "[artifact-id]"
+---
+
 # Test Procedures
 
 ## Pre-Test Setup

@@ -1,3 +1,8 @@
+---
+ddx:
+  id: "[artifact-id]"
+---
+
 # Research Plan: {{research_topic}}
 
 **Research Lead**: {{research_lead}}

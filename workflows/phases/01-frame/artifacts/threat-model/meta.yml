@@ -11,38 +11,6 @@ description: |
   STRIDE methodology. Maps threats to system components, assesses
   risk, and defines mitigation strategies.
 
-dependencies:
-  requires:
-    - input: Product Requirements Document
-      type: artifact
-      path: prd
-      required: true
-    - input: Security Requirements
-      type: artifact
-      path: security-requirements
-      required: true
-    - input: User Stories
-      type: artifact
-      path: user-stories
-      required: true
-    - input: System architecture
-      type: external
-      required: true
-    - input: Data flow diagrams
-      type: external
-      required: true
-
-  enables:
-    - output: Security Design Requirements
-      type: artifact
-      phase: design
-    - output: Security Controls Specification
-      type: artifact
-      phase: design
-    - output: Security Test Scenarios
-      type: artifact
-      phase: test
-
 output:
   location: docs/helix/01-frame/threat-model.md
   format: markdown

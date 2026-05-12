@@ -1,9 +1,8 @@
 ---
 ddx:
-  id: helix.story-test-plan
-  depends_on:
-    - helix.technical-design
+  id: "[artifact-id]"
 ---
+
 # Story Test Plan: TP-XXX-[story-name]
 
 ## Story Reference

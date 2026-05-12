@@ -13,28 +13,6 @@ description: |
   Stories are stable governing references — tracker issues reference them,
   not the other way around.
 
-dependencies:
-  requires:
-    - input: PRD
-      type: artifact
-      path: prd
-      required: true
-    - input: Feature specifications
-      type: artifact
-      path: feature-specification
-      required: true
-
-  enables:
-    - output: Solution designs
-      type: artifact
-      phase: design
-    - output: Test cases
-      type: artifact
-      phase: test
-    - output: Tracker issues
-      type: tracker
-      phase: build
-
 output:
   location: docs/helix/01-frame/user-stories/
   format: markdown

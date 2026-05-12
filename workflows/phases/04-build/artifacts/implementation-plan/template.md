@@ -1,9 +1,8 @@
 ---
 ddx:
-  id: helix.implementation-plan
-  depends_on:
-    - helix.test-plan
+  id: "[artifact-id]"
 ---
+
 # Build Plan
 
 ## Scope

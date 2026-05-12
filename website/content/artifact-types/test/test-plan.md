@@ -1,0 +1,154 @@
+---
+title: "Test Plan"
+linkTitle: "Test Plan"
+slug: test-plan
+phase: "Test"
+artifactRole: "core"
+weight: 10
+generated: true
+---
+
+## Purpose
+
+The project-level test plan defines the testing strategy for the full
+project: test levels and scope, framework choices, coverage targets,
+critical paths, test data strategy, infrastructure requirements, and
+sequencing. It drives failing tests before implementation begins and
+provides traceability from requirements to test execution.
+
+## Reference
+
+<table class="helix-reference-table">
+<tbody>
+<tr><th>Activity</th><td><a href="/reference/glossary/activities/"><strong>Test</strong></a> — Define how we know it works. Plans, suites, and procedures that bind specs to implementation.</td></tr>
+<tr><th>Default location</th><td><code>docs/helix/03-test/test-plan.md</code></td></tr>
+<tr><th>Requires</th><td><em>None</em></td></tr>
+<tr><th>Enables</th><td><em>None</em></td></tr>
+<tr><th>Informs</th><td><a href="/artifact-types/build/implementation-plan/">Implementation Plan</a></td></tr>
+<tr><th>Referenced by</th><td><a href="/artifact-types/frame/prd/">PRD</a></td></tr>
+<tr><th>HELIX documents</th><td><a href="https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/03-test/test-plans/TP-002-helix-cli.md"><code>docs/helix/03-test/test-plans/TP-002-helix-cli.md</code></a></td></tr>
+<tr><th>Generation prompt</th><td><details><summary>Show the full generation prompt</summary><pre><code># Test Plan Generation Prompt
+
+Create the project-level test plan for the Test phase. Keep it concise, but include the minimum structure needed to drive failing tests before implementation.
+
+## Storage Location
+
+`docs/helix/03-test/test-plan.md`
+
+## What to Include
+
+- test levels and scope
+- framework choices only where they matter
+- coverage targets and critical paths
+- test data strategy
+- sequencing, dependencies, and infrastructure needs
+- risks that can block test execution
+
+## Keep In Mind
+
+- tests are the executable specification
+- every test should trace to a requirement or story
+- do not add generic testing doctrine that the template already implies
+
+Use template at `.ddx/plugins/helix/workflows/phases/03-test/artifacts/test-plan/template.md`.</code></pre></details></td></tr>
+<tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
+ddx:
+  id: &quot;[artifact-id]&quot;
+---
+
+# Test Plan
+
+## Testing Strategy
+
+**Goals**: [Primary objective] | [Quality gates]
+**Out of Scope**: [Excluded areas]
+
+### Test Levels
+
+| Level | Coverage Target | Priority |
+|-------|-----------------|----------|
+| Contract | [Target] | P0/P1 |
+| Integration | [Target] | P0/P1 |
+| Unit | [Target] | P0/P1 |
+| E2E | [Target] | P0/P1 |
+
+### Frameworks
+
+| Type | Framework | Reason |
+|------|-----------|--------|
+| Contract | [Framework] | [Why] |
+| Integration | [Framework] | [Why] |
+| Unit | [Framework] | [Why] |
+| E2E | [Framework] | [Why] |
+
+## Test Data
+
+| Type | Strategy |
+|------|----------|
+| Fixtures | [Static data approach] |
+| Factories | [Dynamic generation] |
+| Mocks | [External service mocking] |
+
+## Coverage Requirements
+
+| Metric | Target | Minimum | Enforcement |
+|--------|--------|---------|-------------|
+| Line | 80% | 70% | CI blocks |
+| Critical | 100% | 100% | Required |
+
+### Critical Paths (P0)
+
+1. [Auth flow]
+2. [Core transaction]
+3. [Data persistence]
+4. [Error handling]
+
+### Secondary Paths (P1-P2)
+
+- P1: [Secondary features] | P2: [Edge cases, rare scenarios]
+
+## Implementation Order
+1. [What must be written first and why]
+2. [What follows]
+3. [What can wait]
+
+## Infrastructure
+
+| Requirement | Specification |
+|-------------|---------------|
+| CI Tool | [Tool, version] |
+| Test DB | [Type, seeding, cleanup] |
+| Services | [Required services] |
+
+## Risks
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Flaky tests | High | Retry logic, isolation |
+| Slow execution | Med | Parallelize |
+
+**Known Gaps**: [Limitations and accepted risks]
+
+## Build Handoff
+
+**Commands**: `[test command]` | `[coverage command]`
+**Priority**: [Recommended order]
+
+## Review Checklist
+
+Use this checklist when reviewing a test plan:
+
+- [ ] Test levels cover contract, integration, unit, and E2E with coverage targets
+- [ ] Framework choices are justified and consistent with project concerns
+- [ ] Critical paths (P0) are identified and have 100% coverage requirements
+- [ ] Test data strategy covers fixtures, factories, and mocks
+- [ ] Coverage requirements have both targets and minimums with enforcement rules
+- [ ] Implementation order is justified — what must be tested first and why
+- [ ] Infrastructure requirements are specific (tool versions, service deps)
+- [ ] Risks include flaky test mitigation and slow execution strategies
+- [ ] Known gaps are documented with accepted risk rationale
+- [ ] Build handoff commands are concrete and runnable
+- [ ] Test plan traces back to acceptance criteria from governing feature specs
+- [ ] No untested P0 requirement — every P0 acceptance criterion has a test</code></pre></details></td></tr>
+</tbody>
+</table>

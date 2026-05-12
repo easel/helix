@@ -1,3 +1,8 @@
+---
+ddx:
+  id: "[artifact-id]"
+---
+
 # Security Metrics — [Iteration / Date Range]
 
 ## Incident Response

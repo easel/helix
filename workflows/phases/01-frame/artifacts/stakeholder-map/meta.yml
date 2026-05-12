@@ -11,23 +11,6 @@ description: |
   their influence, interests, and engagement strategies. Includes RACI
   matrix for clear accountability.
 
-dependencies:
-  requires:
-    - input: Project charter or initiative
-      type: external
-      required: true
-    - input: Organizational structure
-      type: external
-      required: true
-
-  enables:
-    - output: Communication plan
-      type: artifact
-      phase: all
-    - output: Risk mitigation strategies
-      type: artifact
-      phase: frame
-
 output:
   location: docs/helix/01-frame/stakeholder-map.md
   format: markdown

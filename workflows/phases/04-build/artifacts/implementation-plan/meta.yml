@@ -1,0 +1,53 @@
+artifact:
+  name: Implementation Plan
+  id: implementation-plan
+  type: document
+  phase: build
+
+description: |
+  Build-phase plan that decomposes approved design into implementation slices,
+  sequencing, ownership, validation gates, and evidence expectations.
+
+output:
+  location: docs/helix/04-build/implementation-plan.md
+  format: markdown
+  naming: implementation-plan.md
+
+validation:
+  required_sections:
+    - scope
+    - implementation_slices
+    - sequencing
+    - validation_plan
+    - risks_and_rollbacks
+
+  quality_checks:
+    - check: slices_bounded
+      description: Implementation slices should be small enough for independent execution and review
+      severity: blocking
+    - check: validation_attached
+      description: Each slice should name the validation or evidence required for completion
+      severity: blocking
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+relationships:
+  informed_by:
+    - prd
+    - solution-design
+    - technical-design
+    - test-plan
+  informs:
+    - release-notes
+    - deployment-checklist
+
+tags:
+  - build
+  - implementation
+  - planning
+
+version: 1.0.0

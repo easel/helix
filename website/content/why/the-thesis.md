@@ -77,7 +77,10 @@ only the team can answer — the alignment plan surfaces it and waits.
 ## Read more
 
 The load-bearing ideas behind these commitments are documented in
-[Principles](/why/principles/). The full type catalog is in
+[Principles](/why/principles/). The research basis for the claims above is
+collected in [Research Foundations](/research/), including the methodology for
+time-boxed investigation, the bibliography HELIX borrows from, and published
+research-derived artifacts. The full type catalog is in
 [Artifact Types](/artifact-types/); this project's actual instances are in
 [Artifacts](/artifacts/). The cross-cutting standards layer is in
 [Concerns](/concerns/). When you're ready to build, [Use HELIX](/use/)

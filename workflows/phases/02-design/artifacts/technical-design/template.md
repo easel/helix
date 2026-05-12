@@ -1,10 +1,8 @@
 ---
 ddx:
-  id: TD-XXX
-  depends_on:
-    - US-XXX
-    - ADR-XXX
+  id: "[artifact-id]"
 ---
+
 # Technical Design: TD-XXX-[story-name]
 
 **User Story**: [[US-XXX]] | **Feature**: [[FEAT-XXX]] | **Solution Design**: [[SD-XXX]]

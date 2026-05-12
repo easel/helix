@@ -1,22 +1,22 @@
 ---
 name: helix-release
-description: 'Cut a HELIX plugin release: verify, build site, record demos, tag, push, create GitHub release.'
+description: Cut a HELIX plugin release with verification, site build, tag, push, and release publication.
 argument-hint: "<version>"
 ---
 
 # Release
 
 Cut a versioned HELIX plugin release with full verification, site build,
-optional demo recording, GitHub tag, and GitHub Release creation.
+optional demo recording, Git tag, and GitHub Release creation.
 
-This is a **contributor tool** for releasing the HELIX plugin itself — not part
-of the HELIX workflow that downstream users consume.
+This is a contributor tool for releasing the HELIX package itself, not part of
+the HELIX methodology that downstream users consume.
 
 ## When to Use
 
-- Cutting a new version of the HELIX plugin
-- The user says "release", "cut a release", "ship it", "tag a release"
-- After a batch of work is done and needs to go out as a versioned milestone
+- cutting a new version of the HELIX plugin
+- the user says "release", "cut a release", "ship it", or "tag a release"
+- after a batch of work is done and needs to go out as a versioned milestone
 
 ## Version Convention
 
@@ -24,45 +24,54 @@ HELIX uses semver with a `v` prefix: `v0.2.0`, `v0.2.1`, `v0.3.0`.
 
 - **Patch** (0.2.x): bug fixes, doc updates, demo re-recordings, config tweaks
 - **Minor** (0.x.0): new features, new actions, workflow model changes, new skills
-- **Major** (x.0.0): breaking changes to the workflow contract or CLI interface
+- **Major** (x.0.0): breaking changes to the workflow contract or interface
 
 Pre-1.0, all releases are minor or patch.
 
-## Release Checklist
+## Methodology
 
-Execute these steps in order. Stop and report if any step fails.
+1. Run the required project quality gates.
+2. Build and verify the public site.
+3. Re-record demos only when scripts changed or the user explicitly asks.
+4. Bump version metadata.
+5. Generate a changelog from changes since the previous tag.
+6. Commit and tag the release.
+7. Push, monitor CI, and do not publish a release with broken CI.
+8. Create the GitHub Release.
+9. Perform post-release verification.
 
-### Step 1 — Pre-flight checks
+## Output
+
+```text
+RELEASE_STATUS: COMPLETE|FAILED|PARTIAL
+RELEASE_VERSION: vX.Y.Z
+RELEASE_URL: https://github.com/DocumentDrivenDX/helix/releases/tag/vX.Y.Z
+SITE_DEPLOYED: YES|NO|PENDING
+DEMOS_RECORDED: N of M
+CI_STATUS: PASS|FAIL
+```
+
+## Running with DDx
+
+Release is primarily repository automation rather than a DDx-managed workflow,
+but the current HELIX project release uses these concrete commands.
+
+Pre-flight checks:
 
 ```bash
 just test                           # helix-cli.sh + validate-skills.sh
 helix doctor                        # installation health
 ```
 
-If tests fail, fix before proceeding.
-
-### Step 2 — Build and verify the website
+Build and verify the website:
 
 ```bash
 cd website && hugo --gc --minify && cd ..
-```
-
-If site content changed materially, run Playwright e2e tests:
-
-```bash
 cd website && npx playwright test && cd ..
-```
-
-If baselines are stale, update and commit:
-
-```bash
 cd website && npx playwright test --update-snapshots && cd ..
 ```
 
-### Step 3 — Record demos (if needed)
-
-Only re-record if demo scripts changed since last recording or the user
-explicitly asks. Check staleness:
+Check demo staleness:
 
 ```bash
 for demo in docs/demos/helix-*/demo.sh; do
@@ -80,7 +89,7 @@ for demo in docs/demos/helix-*/demo.sh; do
 done
 ```
 
-To record a demo:
+Record a demo:
 
 ```bash
 docker build -t helix-demo-<name> docs/demos/<name>/
@@ -92,12 +101,11 @@ docker run --rm \
   -e DEMO_MODEL=claude-sonnet-4-6 \
   helix-demo-<name>
 
-# Copy newest recording to site
 cp docs/demos/<name>/recordings/$(ls -t docs/demos/<name>/recordings/*.cast | head -1) \
    website/static/demos/<name>.cast
 ```
 
-### Step 4 — Version bump
+Version bump:
 
 ```bash
 current=$(grep 'HELIX_VERSION=' scripts/helix | cut -d'"' -f2)
@@ -106,12 +114,11 @@ new="$ARGUMENTS"  # or determine from change scope
 sed -i "s/HELIX_VERSION=\"$current\"/HELIX_VERSION=\"$new\"/" scripts/helix
 sed -i "s/\"version\": \"$current\"/\"version\": \"$new\"/" .claude-plugin/plugin.json
 
-# Verify
 grep HELIX_VERSION scripts/helix
 grep '"version"' .claude-plugin/plugin.json
 ```
 
-### Step 5 — Generate changelog
+Generate changelog:
 
 ```bash
 prev_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
@@ -120,9 +127,7 @@ if [[ -n "$prev_tag" ]]; then
 fi
 ```
 
-Categorize into: Features, Fixes, Documentation, Other.
-
-### Step 6 — Commit and tag
+Commit and tag:
 
 ```bash
 git add scripts/helix .claude-plugin/plugin.json
@@ -135,21 +140,15 @@ git commit -m "Release v$new
 git tag -a "v$new" -m "v$new: <one-line summary>"
 ```
 
-### Step 7 — Push and monitor CI
+Push and monitor CI:
 
 ```bash
 git push origin main "v$new"
-
-# Monitor test workflow
 gh run watch $(gh run list --workflow test.yml --limit 1 --json databaseId -q '.[0].databaseId')
-
-# Monitor pages deploy (auto-triggers on tag)
 gh run watch $(gh run list --workflow pages.yml --limit 1 --json databaseId -q '.[0].databaseId')
 ```
 
-If CI fails, fix, re-tag, re-push. Do NOT create a release with broken CI.
-
-### Step 8 — Create GitHub Release
+Create GitHub Release:
 
 ```bash
 gh release create "v$new" \
@@ -158,23 +157,10 @@ gh release create "v$new" \
   --verify-tag
 ```
 
-Add `--prerelease` for rc/beta tags.
-
-### Step 9 — Post-release verification
+Post-release verification:
 
 ```bash
 gh release view "v$new"
 curl -sI https://documentdrivendx.github.io/helix/ | head -5
 bash scripts/helix version
-```
-
-## Output
-
-```
-RELEASE_STATUS: COMPLETE|FAILED|PARTIAL
-RELEASE_VERSION: vX.Y.Z
-RELEASE_URL: https://github.com/DocumentDrivenDX/helix/releases/tag/vX.Y.Z
-SITE_DEPLOYED: YES|NO|PENDING
-DEMOS_RECORDED: N of M
-CI_STATUS: PASS|FAIL
 ```

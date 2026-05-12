@@ -54,4 +54,5 @@ Concerns are how HELIX answers "every project needs this kind of consistency" wi
   {{< card link="demo-asciinema" title="Demo Reels (Asciinema)" subtitle="all" >}}
   {{< card link="demo-playwright" title="Demo Reels (Playwright)" subtitle="ui, frontend" >}}
   {{< card link="hugo-hextra" title="Microsite (Hugo + Hextra)" subtitle="all" >}}
+  {{< card link="product-microsite-ia" title="Product Microsite IA" subtitle="site, docs, frontend" >}}
 {{< /cards >}}

@@ -7,10 +7,11 @@ aliases:
   - /docs/cli
 ---
 
-The `helix` CLI is a shell orchestrator that sits on top of DDx primitives.
-It delegates work-item storage to `ddx bead` and agent dispatch to
-`ddx agent`, adding supervisory intelligence on top. New workflows should
-prefer `helix input` for intake and `ddx agent execute-loop` for queue drain.
+The `helix` CLI is a compatibility shell orchestrator that sits on top of DDx
+primitives. It delegates work-item storage to `ddx bead` and agent dispatch to
+`ddx agent`, adding HELIX artifact discipline around runtime execution. New
+workflows should prefer `helix input` for intake and `ddx agent execute-loop`
+for queue drain.
 
 ## Commands
 

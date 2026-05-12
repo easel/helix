@@ -41,7 +41,7 @@ Product vision is for *direction*. If you find yourself writing about:
 ## Key Principles
 
 - **Be concise** — keep the mission to 1-2 sentences.
-- **Be specific** ��� name target customers, name competitors, state measurable
+- **Be specific** — name target customers, name competitors, state measurable
   outcomes. Placeholders and hedging ("various users", "significant impact")
   are not acceptable.
 - **Be compelling** — connect the vision to real customer pain and a concrete

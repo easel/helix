@@ -11,32 +11,6 @@ description: |
   Covers security user stories, compliance mapping, risk assessment,
   and testable acceptance criteria for security controls.
 
-dependencies:
-  requires:
-    - input: Product Requirements Document
-      type: artifact
-      path: prd
-      required: true
-    - input: User Stories
-      type: artifact
-      path: user-stories
-      required: true
-    - input: Business requirements
-      type: external
-      required: true
-    - input: Compliance policies
-      type: external
-      required: true
-
-  enables:
-    - output: Solution Design (security sections)
-      type: artifact
-      path: solution-design
-      phase: design
-    - output: Security Testing Strategy
-      type: artifact
-      phase: test
-
 output:
   location: docs/helix/01-frame/security-requirements.md
   format: markdown

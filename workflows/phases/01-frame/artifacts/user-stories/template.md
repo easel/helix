@@ -1,9 +1,8 @@
 ---
 ddx:
-  id: US-XXX
-  depends_on:
-    - FEAT-XXX
+  id: "[artifact-id]"
 ---
+
 # US-XXX: [Story Title]
 
 **Feature**: [FEAT-XXX — Feature Name]

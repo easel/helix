@@ -22,28 +22,6 @@ description: |
   sequencing. It drives failing tests before implementation begins and
   provides traceability from requirements to test execution.
 
-dependencies:
-  requires:
-    - input: Architecture / Solution Design
-      type: artifact
-      pattern: "SD-[0-9]{3}-*.md"
-      phase: design
-      required: false
-      note: "Provides component boundaries that shape test scope"
-
-    - input: Feature Specifications
-      type: artifact
-      pattern: "FEAT-[0-9]{3}-*.md"
-      phase: frame
-      required: false
-      note: "Source of acceptance criteria that tests must trace to"
-
-  enables:
-    - output: Build Phase Issues
-      type: issue
-      pattern: "tracker issue labeled helix,phase:build"
-      phase: build
-
 output:
   location: docs/helix/03-test/test-plan.md
   format: markdown

@@ -29,6 +29,7 @@ from __future__ import annotations
 import re
 import shutil
 import sys
+import html
 from pathlib import Path
 
 import yaml
@@ -44,39 +45,104 @@ LEGACY_GLOSSARY = CONTENT_ROOT / "reference" / "glossary"
 PHASES = {
     "00-discover": {
         "num": 0,
+        "slug": "discover",
         "label": "Discover",
         "summary": "Validate that an opportunity is worth pursuing before committing to a development cycle.",
     },
     "01-frame": {
         "num": 1,
+        "slug": "frame",
         "label": "Frame",
         "summary": "Define what the system should do, for whom, and how success will be measured.",
     },
     "02-design": {
         "num": 2,
+        "slug": "design",
         "label": "Design",
         "summary": "Decide how to build it. Capture trade-offs, contracts, and architecture decisions.",
     },
     "03-test": {
         "num": 3,
+        "slug": "test",
         "label": "Test",
         "summary": "Define how we know it works. Plans, suites, and procedures that bind specs to implementation.",
     },
     "04-build": {
         "num": 4,
+        "slug": "build",
         "label": "Build",
         "summary": "Implement against the specs and tests. Capture the implementation plan that scopes the work.",
     },
     "05-deploy": {
         "num": 5,
+        "slug": "deploy",
         "label": "Deploy",
         "summary": "Ship to users with appropriate operational support, monitoring, and rollback plans.",
     },
     "06-iterate": {
         "num": 6,
+        "slug": "iterate",
         "label": "Iterate",
         "summary": "Measure, align, and improve. Close the feedback loop back into the planning strand.",
     },
+}
+
+CORE_ARTIFACTS = {
+    "00-discover": ["product-vision"],
+    "01-frame": ["prd", "principles", "concerns", "feature-specification", "user-stories"],
+    "02-design": ["architecture", "adr", "contract", "solution-design", "technical-design"],
+    "03-test": ["test-plan", "story-test-plan"],
+    "04-build": ["implementation-plan"],
+    "05-deploy": ["deployment-checklist", "release-notes"],
+    "06-iterate": ["metric-definition", "metrics-dashboard", "improvement-backlog"],
+}
+
+SUPPORTING_ARTIFACTS = {
+    "00-discover": ["business-case", "competitive-analysis", "opportunity-canvas"],
+    "01-frame": [
+        "compliance-requirements",
+        "feasibility-study",
+        "feature-registry",
+        "parking-lot",
+        "pr-faq",
+        "research-plan",
+        "risk-register",
+        "security-requirements",
+        "stakeholder-map",
+        "threat-model",
+        "validation-checklist",
+    ],
+    "02-design": ["data-design", "proof-of-concept", "security-architecture", "tech-spike"],
+    "03-test": ["security-tests", "test-procedures", "test-suites"],
+    "04-build": [],
+    "05-deploy": ["monitoring-setup", "runbook"],
+    "06-iterate": ["security-metrics"],
+}
+
+ARTIFACT_WEIGHTS = {
+    slug: phase["num"] * 100 + idx
+    for phase_key, phase in PHASES.items()
+    for idx, slug in enumerate(
+        CORE_ARTIFACTS.get(phase_key, []) + SUPPORTING_ARTIFACTS.get(phase_key, []),
+        start=10,
+    )
+}
+
+CORE_NAV_ORDER = [
+    slug
+    for phase_key in PHASES
+    for slug in CORE_ARTIFACTS.get(phase_key, [])
+]
+
+CORE_NAV_WEIGHTS = {
+    slug: idx * 10 + 10
+    for idx, slug in enumerate(CORE_NAV_ORDER)
+}
+
+SIDEBAR_TITLES = {
+    "adr": "ADR",
+    "pr-faq": "PR-FAQ",
+    "prd": "PRD",
 }
 
 
@@ -293,6 +359,39 @@ def humanize(slug: str) -> str:
     return slug.replace("-", " ").replace("_", " ").title()
 
 
+def sidebar_title(name: str, slug: str) -> str:
+    if slug in SIDEBAR_TITLES:
+        return SIDEBAR_TITLES[slug]
+    words = name.split()
+    if len(words) <= 3:
+        return name
+    return humanize(slug)
+
+
+def is_core_artifact(art: dict) -> bool:
+    return art["slug"] in CORE_ARTIFACTS.get(art["phase_key"], [])
+
+
+def is_supporting_artifact(art: dict) -> bool:
+    return art["slug"] in SUPPORTING_ARTIFACTS.get(art["phase_key"], [])
+
+
+def artifact_url(slug: str, slug_to_url: dict[str, str]) -> str:
+    return slug_to_url.get(slug, f"/artifact-types/{slug}/")
+
+
+def artifact_output_path(art: dict) -> Path:
+    return Path(art["phase"]["slug"]) / f"{art['slug']}.md"
+
+
+def artifact_page_weight(art: dict) -> int:
+    slug = art["slug"]
+    phase = art["phase"]
+    if is_core_artifact(art):
+        return ARTIFACT_WEIGHTS.get(slug, phase["num"] * 100 + 10) - phase["num"] * 100
+    return ARTIFACT_WEIGHTS.get(slug, phase["num"] * 100 + 90) - phase["num"] * 100
+
+
 def yaml_quote(value: str) -> str:
     """Safe YAML double-quoted scalar."""
     return '"' + value.replace("\\", "\\\\").replace('"', '\\"') + '"'
@@ -303,6 +402,134 @@ def card_subtitle(text: str, limit: int = 160) -> str:
     if len(text) > limit:
         text = text[: limit - 1].rstrip() + "…"
     return text.replace('"', "&quot;")
+
+
+def extract_markdown_section(md: str, heading: str) -> str:
+    """Extract a top-level H2 section body from markdown."""
+    if not md:
+        return ""
+    pattern = re.compile(
+        rf"^##\s+{re.escape(heading)}\s*\n(?P<body>.*?)(?=^##\s+|\Z)",
+        re.IGNORECASE | re.MULTILINE | re.DOTALL,
+    )
+    match = pattern.search(md)
+    return match.group("body").strip() if match else ""
+
+
+def compact_markdown(md: str, max_chars: int = 900) -> str:
+    """Keep prompt-derived guidance readable without dumping the full prompt."""
+    md = md.strip()
+    if len(md) <= max_chars:
+        return md
+    cut = md[:max_chars].rsplit("\n", 1)[0].rstrip()
+    return cut + "\n\n_Additional guidance continues in the full prompt below._"
+
+
+def render_inline_relationships(items: list, all_slugs: set, slug_to_url: dict[str, str]) -> str:
+    if not items:
+        return "_None_"
+    links = []
+    for r in items:
+        slug = r["slug"]
+        name = sidebar_title(r["name"], slug) if slug in all_slugs else r["name"]
+        label = f"[{name}]({artifact_url(slug, slug_to_url)})" if slug in all_slugs else name
+        if r.get("required") is False:
+            label += " *(optional)*"
+        links.append(label)
+    return "<br>".join(links)
+
+
+def render_html_relationships(items: list, all_slugs: set, slug_to_url: dict[str, str]) -> str:
+    if not items:
+        return "<em>None</em>"
+    links = []
+    for r in items:
+        slug = r["slug"]
+        name = html.escape(sidebar_title(r["name"], slug) if slug in all_slugs else r["name"])
+        if slug in all_slugs:
+            label = f'<a href="{html.escape(artifact_url(slug, slug_to_url))}">{name}</a>'
+        else:
+            label = name
+        if r.get("required") is False:
+            label += " <em>(optional)</em>"
+        links.append(label)
+    return "<br>".join(links)
+
+
+def render_reference_row(label: str, value: str) -> str:
+    return (
+        "<tr>"
+        f"<th>{html.escape(label)}</th>"
+        f"<td>{value}</td>"
+        "</tr>"
+    )
+
+
+def render_reference_details(summary: str, content: str) -> str:
+    return (
+        "<details>"
+        f"<summary>{html.escape(summary)}</summary>"
+        f"<pre><code>{html.escape(content.strip())}</code></pre>"
+        "</details>"
+    )
+
+
+def render_helix_document_links(slug: str) -> str:
+    rel_path = HELIX_REAL_EXAMPLES.get(slug)
+    if not rel_path:
+        return ""
+    full_path = ROOT / rel_path
+    if not full_path.exists():
+        return ""
+    url = f"{HELIX_REPO_BLOB_BASE}/{rel_path}"
+    return f'<a href="{html.escape(url)}"><code>{html.escape(rel_path)}</code></a>'
+
+
+def render_artifact_reference_section(
+    art: dict,
+    phase: dict,
+    output: str,
+    rels: dict,
+    all_slugs: set,
+    slug_to_url: dict[str, str],
+) -> list[str]:
+    out: list[str] = []
+    out.append("## Reference")
+    out.append("")
+    out.append("<table class=\"helix-reference-table\">")
+    out.append("<tbody>")
+    out.append(render_reference_row(
+        "Activity",
+        (
+            f'<a href="/reference/glossary/activities/"><strong>{html.escape(phase["label"])}</strong></a>'
+            f" — {html.escape(phase['summary'])}"
+        ),
+    ))
+    if output:
+        out.append(render_reference_row("Default location", f"<code>{html.escape(output)}</code>"))
+    out.append(render_reference_row("Requires", render_html_relationships(rels["requires"], all_slugs, slug_to_url)))
+    out.append(render_reference_row("Enables", render_html_relationships(rels["enables"], all_slugs, slug_to_url)))
+    if rels["informs"]:
+        out.append(render_reference_row("Informs", render_html_relationships(rels["informs"], all_slugs, slug_to_url)))
+    if rels["referenced_by"]:
+        out.append(render_reference_row("Referenced by", render_html_relationships(rels["referenced_by"], all_slugs, slug_to_url)))
+    helix_docs = render_helix_document_links(art["slug"])
+    if helix_docs:
+        out.append(render_reference_row("HELIX documents", helix_docs))
+    if art["prompt"]:
+        out.append(render_reference_row(
+            "Generation prompt",
+            render_reference_details("Show the full generation prompt", art["prompt"]),
+        ))
+    if art["template"]:
+        out.append(render_reference_row(
+            "Template",
+            render_reference_details("Show the template structure", art["template"]),
+        ))
+    out.append("</tbody>")
+    out.append("</table>")
+    out.append("")
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -394,16 +621,16 @@ def get_output_location(meta: dict, deps: dict) -> str:
     return (out.get("location") or "").strip()
 
 
-def render_relationship_list(items: list, all_slugs: set) -> str:
+def render_relationship_list(items: list, all_slugs: set, slug_to_url: dict[str, str]) -> str:
     if not items:
         return "_None._"
     lines = []
     for r in items:
         slug = r["slug"]
-        name = r["name"]
+        name = sidebar_title(r["name"], slug) if slug in all_slugs else r["name"]
         rel = r.get("relationship", "")
         required = r.get("required", True)
-        link = f"[{name}](../{slug}/)" if slug in all_slugs else name
+        link = f"[{name}]({artifact_url(slug, slug_to_url)})" if slug in all_slugs else name
         line = f"- {link}"
         if rel:
             line += f" — {rel}"
@@ -413,171 +640,172 @@ def render_relationship_list(items: list, all_slugs: set) -> str:
     return "\n".join(lines)
 
 
-def render_artifact_page(art: dict, all_slugs: set) -> str:
+def render_artifact_page(art: dict, all_slugs: set, slug_to_url: dict[str, str]) -> str:
     slug = art["slug"]
     phase = art["phase"]
     name = get_artifact_name(art["meta"], art["deps"], slug)
     desc = get_artifact_description(art["meta"], art["deps"])
     rels = get_relationships(art["meta"], art["deps"])
     output = get_output_location(art["meta"], art["deps"])
+    purpose = extract_markdown_section(art["prompt"], "Purpose")
+    key_principles = extract_markdown_section(art["prompt"], "Key Principles")
+    lane = extract_markdown_section(art["prompt"], "Stay in Your Lane")
+    checklist = extract_markdown_section(art["prompt"], "Quality Checklist")
 
-    weight = phase["num"] * 100  # within-phase order is alphabetical by Hugo
+    weight = artifact_page_weight(art)
 
     out: list[str] = []
     out.append("---")
     out.append(f"title: {yaml_quote(name)}")
+    out.append(f"linkTitle: {yaml_quote(sidebar_title(name, slug))}")
     out.append(f"slug: {slug}")
     out.append(f"phase: {yaml_quote(phase['label'])}")
+    out.append(f"artifactRole: {yaml_quote('core' if is_core_artifact(art) else 'supporting')}")
     out.append(f"weight: {weight}")
     out.append("generated: true")
-    out.append("aliases:")
-    out.append(f"  - /reference/glossary/artifacts/{slug}")
     out.append("---")
     out.append("")
 
-    out.append("## What it is")
+    out.append("## Purpose")
     out.append("")
-    out.append(desc or f"_({slug} — description not yet captured in upstream `meta.yml`.)_")
-    out.append("")
-
-    out.append("## Activity")
-    out.append("")
-    out.append(
-        f"**[{phase['label']}](/reference/glossary/activities/)** "
-        f"— {phase['summary']}"
-    )
-    out.append("")
-
-    if output:
-        out.append("## Output location")
+    if purpose:
+        out.append(compact_markdown(purpose, 900))
         out.append("")
-        out.append(f"`{output}`")
+    else:
+        out.append(desc or f"_({slug} — description not yet captured in upstream `meta.yml`.)_")
         out.append("")
 
-    out.append("## Relationships")
-    out.append("")
-    out.append("### Requires (upstream)")
-    out.append("")
-    out.append(render_relationship_list(rels["requires"], all_slugs))
-    out.append("")
-    out.append("### Enables (downstream)")
-    out.append("")
-    out.append(render_relationship_list(rels["enables"], all_slugs))
-    out.append("")
-    if rels["informs"]:
-        out.append("### Informs")
+    if key_principles:
+        out.append("## Authoring guidance")
         out.append("")
-        out.append(render_relationship_list(rels["informs"], all_slugs))
-        out.append("")
-    if rels["referenced_by"]:
-        out.append("### Referenced by")
-        out.append("")
-        out.append(render_relationship_list(rels["referenced_by"], all_slugs))
+        out.append(compact_markdown(key_principles, 1000))
         out.append("")
 
-    if art["prompt"]:
-        out.append("## Generation prompt")
-        out.append("")
-        out.append("The agent prompt that produces this artifact.")
-        out.append("")
+    if lane:
         out.append("<details>")
-        out.append("<summary>Show the full generation prompt</summary>")
+        out.append("<summary>Boundaries: what belongs elsewhere</summary>")
+        out.append("")
+        out.append(lane)
+        out.append("")
+        out.append("</details>")
+        out.append("")
+
+    if checklist:
+        out.append("<details>")
+        out.append("<summary>Quality checklist from the prompt</summary>")
+        out.append("")
+        out.append(compact_markdown(checklist, 1200))
+        out.append("")
+        out.append("</details>")
+        out.append("")
+
+    if art["example"]:
+        out.append("## Example")
+        out.append("")
+        out.append("<details open>")
+        out.append("<summary>Show a worked example of this artifact</summary>")
         out.append("")
         out.append("``````markdown")
-        out.append(art["prompt"].strip())
+        out.append(art["example"].strip())
         out.append("``````")
         out.append("")
         out.append("</details>")
         out.append("")
 
-    if art["template"]:
-        out.append("## Template")
-        out.append("")
-        out.append("<details>")
-        out.append("<summary>Show the template structure</summary>")
-        out.append("")
-        out.append("``````markdown")
-        out.append(art["template"].strip())
-        out.append("``````")
-        out.append("")
-        out.append("</details>")
-        out.append("")
-
-    out.append("## Example")
-    out.append("")
-
-    # Resolution order:
-    #   1. HELIX_REAL_EXAMPLES (if enabled and slug is in PUBLISHABLE)
-    #   2. hand-authored example.md
-    #   3. fallback "no example yet"
-    real_example_rendered = False
-    if (
-        HELIX_REAL_EXAMPLES_ENABLED
-        and slug in HELIX_REAL_EXAMPLES_PUBLISHABLE
-        and slug in HELIX_REAL_EXAMPLES
-    ):
-        rel_path = HELIX_REAL_EXAMPLES[slug]
-        full_path = ROOT / rel_path
-        if full_path.exists():
-            raw = full_path.read_text()
-            embedded = normalize_embedded_doc(raw, rel_path)
-            blob_url = f"{HELIX_REPO_BLOB_BASE}/{rel_path}"
-            out.append(
-                f"This example is HELIX's actual {name.lower()}, sourced from "
-                f"[`{rel_path}`]({blob_url}). It shows how this artifact is "
-                "used in a live methodology project; it may include "
-                "project-specific context."
-            )
-            out.append("")
-            out.append(embedded.strip())
-            out.append("")
-            real_example_rendered = True
-
-    if not real_example_rendered:
-        if art["example"]:
-            out.append("<details>")
-            out.append("<summary>Show a worked example of this artifact</summary>")
-            out.append("")
-            out.append("``````markdown")
-            out.append(art["example"].strip())
-            out.append("``````")
-            out.append("")
-            out.append("</details>")
-        else:
-            out.append(
-                "_No worked example captured yet. The prompt and template "
-                "above describe the canonical structure._"
-            )
-        out.append("")
+    out.extend(render_artifact_reference_section(art, phase, output, rels, all_slugs, slug_to_url))
 
     return "\n".join(out)
 
 
-def render_artifacts_index(artifacts: list) -> str:
+def render_sidebar_separator(title: str, weight: int) -> str:
+    out: list[str] = []
+    out.append("---")
+    out.append(f"title: {yaml_quote(title)}")
+    out.append(f"weight: {weight}")
+    out.append("generated: true")
+    out.append("sidebar:")
+    out.append("  separator: true")
+    out.append("---")
+    out.append("")
+    return "\n".join(out)
+
+
+def append_artifact_cards(out: list[str], artifacts: list[dict], slug_to_url: dict[str, str]) -> None:
+    out.append("{{< cards >}}")
+    for art in artifacts:
+        slug = art["slug"]
+        name = get_artifact_name(art["meta"], art["deps"], slug)
+        desc = get_artifact_description(art["meta"], art["deps"]) or slug
+        out.append(
+            f'  {{{{< card link="{artifact_url(slug, slug_to_url)}" '
+            f'title="{name}" subtitle="{card_subtitle(desc, 160)}" >}}}}'
+        )
+    out.append("{{< /cards >}}")
+    out.append("")
+
+
+def render_artifacts_index(artifacts: list, slug_to_url: dict[str, str]) -> str:
+    artifact_by_slug = {a["slug"]: a for a in artifacts}
+    core_artifacts = [artifact_by_slug[s] for s in CORE_NAV_ORDER if s in artifact_by_slug]
+
     out: list[str] = []
     out.append("---")
     out.append("title: Artifact Types")
+    out.append("linkTitle: Types")
     out.append("weight: 3")
     out.append("generated: true")
-    out.append("aliases:")
-    out.append("  - /docs/glossary/artifacts")
-    out.append("  - /reference/glossary/artifacts")
     out.append("---")
     out.append("")
     out.append(
         "HELIX defines a catalog of **artifact types** — categories of governing "
-        "document, each with a template, an authoring prompt, and quality criteria. "
-        "Every project applying HELIX produces concrete artifacts that instantiate "
-        "these types. (For this project's actual artifacts, see "
-        "[/artifacts/](/artifacts/).)"
+        "document, each with a template, an authoring prompt, metadata, and quality "
+        "criteria. Every project applying HELIX produces concrete artifacts that "
+        "instantiate these types. Artifact types are reusable methodology content; "
+        "they are not tied to DDx or any other runtime."
+    )
+    out.append("")
+    out.append("There are two related public landing paths:")
+    out.append("")
+    out.append("- [/artifact-types/](/artifact-types/) is the reusable catalog: document shapes, prompts, and quality rules.")
+    out.append("- [/artifacts/](/artifacts/) is the worked example: HELIX's own governing artifacts, authored from the catalog under `docs/helix/`.")
+    out.append("")
+    out.append(
+        "The [HELIX skill](/skills/) uses this catalog and the authority order to "
+        "find drift between concrete artifacts and propose a plan for restoring alignment."
     )
     out.append("")
     out.append(
-        "Types are grouped below by the **activity** they belong to in the HELIX "
-        "loop. The activities — Discover, Frame, Design, Test, Build, Deploy, "
-        "Iterate — run continuously, not sequentially. Any of them can be active "
-        "at any time; changes flow up and down through the [authority order]"
-        "(/why/principles/#3-authority-order-governs-reconciliation)."
+        "Browse by activity. Each activity lists the core artifacts first, then "
+        "the supporting artifacts teams use when they need more detail, risk "
+        "control, or operational depth."
+    )
+    out.append("")
+
+    out.append("{{< cards >}}")
+    for phase in PHASES.values():
+        out.append(
+            f'  {{{{< card link="{phase["slug"]}" title="{phase["label"]}" '
+            f'subtitle="{card_subtitle(phase["summary"], 140)}" >}}}}'
+        )
+    out.append("{{< /cards >}}")
+    out.append("")
+
+    return "\n".join(out)
+
+
+def render_activity_index(artifacts: list, slug_to_url: dict[str, str]) -> str:
+    out: list[str] = []
+    out.append("---")
+    out.append("title: By Activity")
+    out.append("linkTitle: By Activity")
+    out.append("weight: 500")
+    out.append("generated: true")
+    out.append("---")
+    out.append("")
+    out.append(
+        "The activity view shows the full artifact catalog in HELIX flow order. "
+        "Each activity lists the core artifacts first, followed by supporting "
+        "artifacts used when the project needs more evidence or control."
     )
     out.append("")
 
@@ -592,14 +820,57 @@ def render_artifacts_index(artifacts: list) -> str:
         out.append("")
         out.append(f"_{phase['summary']}_")
         out.append("")
-        out.append("{{< cards >}}")
-        for a in by_phase[phase_key]:
-            name = get_artifact_name(a["meta"], a["deps"], a["slug"])
-            desc = get_artifact_description(a["meta"], a["deps"]) or f"({a['slug']})"
-            sub = card_subtitle(desc, 160)
-            out.append(f'  {{{{< card link="{a["slug"]}" title="{name}" subtitle="{sub}" >}}}}')
-        out.append("{{< /cards >}}")
+
+        phase_artifacts = {a["slug"]: a for a in by_phase[phase_key]}
+        core = [phase_artifacts[s] for s in CORE_ARTIFACTS.get(phase_key, []) if s in phase_artifacts]
+        supporting = [phase_artifacts[s] for s in SUPPORTING_ARTIFACTS.get(phase_key, []) if s in phase_artifacts]
+        supporting.extend(
+            a for a in by_phase[phase_key]
+            if a["slug"] not in set(CORE_ARTIFACTS.get(phase_key, []) + SUPPORTING_ARTIFACTS.get(phase_key, []))
+        )
+
+        if core:
+            out.append("### Core Artifacts")
+            out.append("")
+            append_artifact_cards(out, core, slug_to_url)
+
+        if supporting:
+            out.append("### Supporting Artifacts")
+            out.append("")
+            append_artifact_cards(out, supporting, slug_to_url)
+
+    return "\n".join(out)
+
+
+def render_activity_phase_index(phase_key: str, phase: dict, artifacts: list, slug_to_url: dict[str, str]) -> str:
+    phase_artifacts = {a["slug"]: a for a in artifacts if a["phase_key"] == phase_key}
+    core = [phase_artifacts[s] for s in CORE_ARTIFACTS.get(phase_key, []) if s in phase_artifacts]
+    supporting = [phase_artifacts[s] for s in SUPPORTING_ARTIFACTS.get(phase_key, []) if s in phase_artifacts]
+    supporting.extend(
+        a for a in phase_artifacts.values()
+        if a["slug"] not in set(CORE_ARTIFACTS.get(phase_key, []) + SUPPORTING_ARTIFACTS.get(phase_key, []))
+    )
+
+    out: list[str] = []
+    out.append("---")
+    out.append(f"title: {yaml_quote(phase['label'])}")
+    out.append(f"linkTitle: {yaml_quote(phase['label'])}")
+    out.append(f"weight: {phase['num'] * 10 + 10}")
+    out.append("generated: true")
+    out.append("---")
+    out.append("")
+    out.append(phase["summary"])
+    out.append("")
+
+    if core:
+        out.append("## Core Artifacts")
         out.append("")
+        append_artifact_cards(out, core, slug_to_url)
+
+    if supporting:
+        out.append("## Supporting Artifacts")
+        out.append("")
+        append_artifact_cards(out, supporting, slug_to_url)
 
     return "\n".join(out)
 
@@ -805,6 +1076,10 @@ def main() -> None:
     concerns = collect_concerns()
 
     all_slugs = {a["slug"] for a in artifacts}
+    slug_to_url = {
+        a["slug"]: f"/artifact-types/{artifact_output_path(a).with_suffix('').as_posix()}/"
+        for a in artifacts
+    }
 
     # Wipe and recreate destination directories
     if ARTIFACTS_DEST.exists():
@@ -815,12 +1090,23 @@ def main() -> None:
         shutil.rmtree(CONCERNS_DEST)
     CONCERNS_DEST.mkdir(parents=True)
 
-    # Per-artifact pages
+    # Activity section pages must live at the same route parent as their leaf
+    # artifact pages. Hextra derives open/sidebar state from the content tree;
+    # if activity indexes live elsewhere, leaf pages become dead ends.
+    for phase_key, phase in PHASES.items():
+        phase_dest = ARTIFACTS_DEST / phase["slug"]
+        phase_dest.mkdir(parents=True, exist_ok=True)
+        (phase_dest / "_index.md").write_text(
+            render_activity_phase_index(phase_key, phase, artifacts, slug_to_url)
+        )
+
     for a in artifacts:
-        (ARTIFACTS_DEST / f"{a['slug']}.md").write_text(render_artifact_page(a, all_slugs))
+        output_path = ARTIFACTS_DEST / artifact_output_path(a)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(render_artifact_page(a, all_slugs, slug_to_url))
 
     # Artifacts index
-    (ARTIFACTS_DEST / "_index.md").write_text(render_artifacts_index(artifacts))
+    (ARTIFACTS_DEST / "_index.md").write_text(render_artifacts_index(artifacts, slug_to_url))
 
     # Per-concern pages
     for c in concerns:

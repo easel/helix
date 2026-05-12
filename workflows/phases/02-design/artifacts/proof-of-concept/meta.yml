@@ -12,35 +12,6 @@ description: |
   of a key technical concept before full development. More substantial than a
   tech spike, focusing on end-to-end validation of technical approaches.
 
-dependencies:
-  requires:
-    - input: Technical approach defined
-      type: artifact
-      path: solution-design
-      required: true
-    - input: Architecture decisions made
-      type: artifact
-      path: adr
-      required: false
-    - input: Key technical risks identified
-      type: external
-      required: true
-
-  enables:
-    - output: Implementation validation
-      type: validation
-      required: true
-    - output: Refined technical approach
-      type: artifact
-      path: solution-design
-    - output: Implementation guidance
-      type: artifact
-      path: implementation-plan
-      phase: build
-    - output: Technical constraints documentation
-      type: artifact
-      path: contracts
-
 output:
   location: docs/helix/02-design/proofs-of-concept/
   format: markdown

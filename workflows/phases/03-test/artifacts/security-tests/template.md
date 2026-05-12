@@ -1,3 +1,8 @@
+---
+ddx:
+  id: "[artifact-id]"
+---
+
 # Security Test Suite
 
 **Project**: [Project Name]

@@ -11,25 +11,6 @@ description: |
   and ownership throughout the project lifecycle. Single source of
   truth for feature identification and tracking.
 
-dependencies:
-  requires:
-    - input: PRD
-      type: artifact
-      path: prd
-      required: true
-    - input: Feature specifications
-      type: artifact
-      path: feature-specification
-      required: false
-
-  enables:
-    - output: Implementation planning
-      type: artifact
-      phase: build
-    - output: Release planning
-      type: artifact
-      phase: deploy
-
 output:
   location: docs/helix/01-frame/feature-registry.md
   format: markdown

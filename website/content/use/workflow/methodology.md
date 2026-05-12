@@ -5,11 +5,12 @@ aliases:
   - /docs/workflow/methodology
 ---
 
-HELIX is an opinionated methodology for agentic software development. Named
-after the double helix of DNA, it encodes the idea that **planning and
-execution are two complementary strands** that happen simultaneously and feed
-back into each other. Neither is primary. Neither is sequential. They
-intertwine.
+HELIX is an opinionated, runtime-neutral methodology for AI-assisted
+software development. Named after the double helix of DNA, it encodes the
+idea that **planning and execution are two complementary strands** that feed
+back into each other. The methodology defines the artifact graph, authority
+order, lifecycle phases, and alignment practice; your chosen platform owns
+the runtime mechanics.
 
 ## Why HELIX Exists
 
@@ -27,15 +28,16 @@ abstraction, with documentation as the shared context layer.**
 
 HELIX operates as two interleaved cycles:
 
-- **Planning helix**: review, plan, validate — creates and refines beads
-  (tracked work items)
-- **Execution helix**: execute, measure, report — claims beads, does work,
-  records results, creates follow-on beads
+- **Planning helix**: review, plan, validate — creates and refines the
+  artifacts that describe what should be true.
+- **Execution helix**: apply, measure, report — uses those artifacts to
+  guide implementation, review outcomes, and feed new evidence back into
+  planning.
 
-These cycles run concurrently. A human can refine specs while an agent builds
-features. New requirements flow through the planning helix while implementation
-advances through the execution helix. The tracker is the shared state between
-them.
+These cycles can run concurrently. A human can refine specs while an agent
+builds features. New requirements flow through the planning helix while
+implementation advances through the execution helix. The shared state is the
+artifact graph plus whatever tracker, queue, or runtime your platform uses.
 
 ## Progressive Abstraction Layers
 
@@ -56,18 +58,21 @@ Higher layers govern lower layers. Source code reflects what exists, not what
 should exist. When layers disagree, HELIX resolves by escalating to the
 governing source — not by guessing from code alone.
 
-## Phases
+## Seven Phases
 
-Work moves through five phases. These are not a sequential pipeline — teams
-regularly loop back as they learn.
+Work moves through seven phases. These are not a sequential pipeline — teams
+regularly loop back as they learn — but each phase has a distinct job in the
+artifact graph.
 
 | Phase | Description | Key Activities |
 |-------|-------------|----------------|
 | **Discover** | Explore the problem space | Market analysis, competitive review, stakeholder research |
 | **Frame** | Decompose the problem into structured artifacts | Vision, PRD, Feature Specs, Acceptance Criteria |
-| **Plan** | Encode requirements as testable assertions | Convert acceptance criteria into executable tests |
-| **Build / Iterate** | Red-green-refactor against tests | Implement code to pass tests, respecting cross-cutting concerns |
-| **Polish** | Systematic optimization against metrics | Hypothesis-driven improvement, adversarial review, gap analysis |
+| **Design** | Decide how the system should change | Technical designs, solution designs, ADRs, interface contracts |
+| **Test** | Encode requirements as testable assertions | Test plans, acceptance tests, verification strategy |
+| **Build** | Implement against the governing artifacts | Code changes, reviews, integration, concern compliance |
+| **Deploy** | Release and operate the result | Runbooks, rollout plans, operational evidence |
+| **Iterate** | Improve from measured outcomes | Retrospectives, research updates, optimization, follow-on planning |
 
 ## Multi-Directional Workflow
 
@@ -83,9 +88,10 @@ HELIX is **not top-down**. Changes can enter at any layer:
   unstructured feedback ("I don't like how this looks"), and HELIX determines
   which abstraction layer the feedback applies to.
 
-All of these flows use the same commands: `helix evolve` threads changes
-through the artifact stack, `helix align` reconciles drift, and `helix run`
-picks up the implementation work.
+All of these flows use the same authority order. The alignment-and-planning
+skill helps reconcile drift and recommend the next safe planning action.
+Runtime commands, queue operations, and CLI wrappers may automate parts of
+the flow on a specific platform, but they are not the methodology itself.
 
 ## Artifact Graph
 
@@ -100,7 +106,7 @@ Vision ──→ PRD ──→ Feature Specs ──→ Acceptance Criteria
                                     │
 ADRs ←── Cross-cutting Concerns ────┘
   │
-  └──→ Context Digests ──→ Execution Beads
+  └──→ Context Digests ──→ Runtime Work Context
 ```
 
 This graph enables:
@@ -108,8 +114,8 @@ This graph enables:
 - **Impact analysis** — when an artifact changes, identify which others are
   affected
 - **Reconciliation** — verify that dependent artifacts remain consistent
-- **Context synthesis** — a bead can pull in its full governance chain
-  automatically
+- **Context synthesis** — a runtime can pull in the governance chain needed
+  for a specific change
 
 ## Cross-Cutting Concerns
 
@@ -121,16 +127,22 @@ multiple features:
 - **Quality attributes**: accessibility, observability, internationalization
 - **Conventions**: linting, formatting, naming, error handling
 
-Concerns are declared in the project and folded into every execution bead via
-context digests, so agents respect them without being reminded.
+Concerns are declared in the project and folded into the work context through
+context digests or an equivalent platform mechanism, so agents respect them
+without being reminded in every prompt.
 
-## Adversarial Review
+## Review and Alignment
 
-HELIX encourages adversarial review as a core practice:
+HELIX encourages independent review and alignment as core practices:
 
 - After an agent completes work, a different agent (or different AI model)
   examines it against the artifact hierarchy
 - Reviews check: Does the implementation match the spec? Does the spec still
   align with the PRD? Are cross-cutting concerns respected?
-- Review findings become new beads in the tracker, feeding back into the
-  planning helix
+- Review findings become artifact amendments, tracker work, or platform
+  tasks, feeding back into the planning helix
+
+The portable alignment skill is the main HELIX surface here. It is where the
+methodology inspects artifact consistency, identifies drift, and helps humans
+choose whether to refine the plan, update artifacts, select a platform task,
+or continue implementation.

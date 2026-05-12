@@ -13,28 +13,6 @@ description: |
   .ddx/plugins/helix/workflows/concerns/. Each concern declares area scope and associated
   practices that flow into context digests on beads.
 
-dependencies:
-  requires:
-    - input: PRD
-      type: artifact
-      path: prd
-      required: false
-    - input: Principles
-      type: artifact
-      path: principles
-      required: false
-
-  enables:
-    - output: Context Digest
-      type: reference
-      path: context-digest
-    - output: Solution Design
-      type: artifact
-      phase: design
-    - output: ADRs
-      type: artifact
-      phase: design
-
 output:
   location: docs/helix/01-frame/concerns.md
   format: markdown

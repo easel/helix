@@ -21,42 +21,6 @@ description: |
   criteria to concrete failing tests, names the required setup and data, and
   gives Build a precise handoff for one story-sized slice.
 
-dependencies:
-  requires:
-    - input: User Story
-      type: artifact
-      pattern: "US-[0-9]{3}-*.md"
-      phase: frame
-      required: true
-      note: "Source of story acceptance criteria and scope boundaries"
-
-    - input: Technical Design
-      type: artifact
-      pattern: "TD-[0-9]{3}-*.md"
-      phase: design
-      required: true
-      note: "Defines the story slice and implementation shape under test"
-
-    - input: Solution Design
-      type: artifact
-      pattern: "SD-[0-9]{3}-*.md"
-      phase: design
-      required: false
-      note: "Provides feature-level constraints when the story is part of a broader capability"
-
-  enables:
-    - output: Test Suites
-      type: artifact
-      pattern: "tests/**/*"
-      phase: test
-      note: "Executable failing tests derived from the mapped scenarios"
-
-    - output: Build Phase Issues
-      type: issue
-      pattern: "tracker issue labeled helix,phase:build,story:US-[0-9]{3}"
-      phase: build
-      note: "Implementation work that makes the governed tests pass"
-
 output:
   location: docs/helix/03-test/test-plans/TP-{id}-{name}.md
   format: markdown

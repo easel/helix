@@ -16,47 +16,6 @@ description: |
   artifacts (runbook, monitoring, deployment) trace back to its quality
   attributes.
 
-dependencies:
-  requires:
-    - input: PRD
-      type: artifact
-      phase: "01-frame"
-      path: prd
-      required: true
-      relationship: "defines system scope"
-    - input: Feature Specifications
-      type: artifact
-      phase: "01-frame"
-      path: feature-specification
-      required: true
-      relationship: "lists features the architecture must support"
-    - input: Security Requirements
-      type: artifact
-      phase: "01-frame"
-      path: security-requirements
-      required: false
-      relationship: "informs trust boundaries and security architecture"
-    - input: Threat Model
-      type: artifact
-      phase: "01-frame"
-      path: threat-model
-      required: false
-      relationship: "guides security control placement in the architecture"
-
-  enables:
-    - output: Solution Design
-      type: artifact
-      path: solution-design
-      relationship: "feature-level designs reference and refine the architecture"
-    - output: Technical Design
-      type: artifact
-      path: technical-design
-      relationship: "story-level implementation details follow the architecture"
-    - output: ADR
-      type: artifact
-      path: adr
-      relationship: "documents architectural decisions captured as the architecture is authored"
-
 output:
   location: docs/helix/02-design/architecture.md
   format: markdown

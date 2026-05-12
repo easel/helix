@@ -1,0 +1,52 @@
+artifact:
+  name: Security Tests
+  id: security-tests
+  type: document
+  phase: test
+
+description: |
+  Security-focused test coverage for authentication, authorization, input
+  handling, dependency risk, data protection, and abuse cases.
+
+output:
+  location: docs/helix/03-test/security-tests.md
+  format: markdown
+  naming: security-tests.md
+
+validation:
+  required_sections:
+    - scope
+    - test_matrix
+    - abuse_cases
+    - evidence
+    - residual_risk
+
+  quality_checks:
+    - check: risks_mapped_to_tests
+      description: Each material security risk should map to at least one concrete test or explicit residual-risk decision
+      severity: blocking
+    - check: evidence_recorded
+      description: Security test results should include reproducible commands, tool output, or review evidence
+      severity: blocking
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+relationships:
+  informed_by:
+    - security-requirements
+    - threat-model
+    - security-architecture
+  informs:
+    - test-plan
+    - security-metrics
+
+tags:
+  - test
+  - security
+  - verification
+
+version: 1.0.0

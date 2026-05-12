@@ -8,20 +8,6 @@ description: |
   Iteration-level metrics summary that compares current values to a prior
   baseline and answers whether the latest change improved the system.
 
-dependencies:
-  requires:
-    - input: Metric Definitions
-      type: artifact
-      path: metrics
-      required: true
-    - input: Measurement Results
-      type: external
-      required: true
-  enables:
-    - output: Improvement Backlog
-      type: artifact
-      phase: iterate
-
 output:
   location: docs/helix/06-iterate/metrics-dashboard.md
   format: markdown

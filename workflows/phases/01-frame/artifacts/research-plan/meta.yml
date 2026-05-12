@@ -12,26 +12,6 @@ description: |
   spaces, or validating assumptions before committing to detailed specifications.
   Used when the problem domain is unclear or requires investigation.
 
-dependencies:
-  requires:
-    - input: Problem or opportunity identified
-      type: external
-      required: true
-    - input: Uncertainty or knowledge gaps identified
-      type: external
-      required: true
-
-  enables:
-    - output: PRD (informed by research)
-      type: artifact
-      path: prd
-    - output: Feature specifications (evidence-based)
-      type: artifact
-      path: feature-specification
-    - output: Feasibility study
-      type: artifact
-      path: feasibility-study
-
 output:
   location: docs/helix/01-frame/research-plan.md
   format: markdown

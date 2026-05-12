@@ -1,3 +1,8 @@
+---
+ddx:
+  id: "[artifact-id]"
+---
+
 # Project Principles
 
 These principles guide judgment calls across all HELIX phases. They are not

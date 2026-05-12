@@ -71,7 +71,7 @@ Requires: git, jq, node, npm, ddx, helix CLI.
 
 ## Concerns: Preventing Technology Drift
 
-Demonstrates how [concerns](/docs/glossary/concerns) keep agents on the declared technology stack. A Bun/TypeScript project declares `typescript-bun` as its concern. The agent builds with Bun-native tools, then a deliberate drift (vitest import) is introduced and caught by concern-aware review.
+Demonstrates how [concerns](/concerns/) keep agents on the declared technology stack. A Bun/TypeScript project declares `typescript-bun` as its concern. The agent builds with Bun-native tools, then a deliberate drift (vitest import) is introduced and caught by concern-aware review.
 
 {{< asciinema src="helix-concerns" >}}
 

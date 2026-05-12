@@ -1,3 +1,8 @@
+---
+ddx:
+  id: "[artifact-id]"
+---
+
 # Feasibility Study: {{project_name}}
 
 **Decision Deadline**: {{decision_deadline}}

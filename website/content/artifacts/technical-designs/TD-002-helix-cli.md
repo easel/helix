@@ -1,7 +1,7 @@
 ---
 title: "Technical Design: TD-002-helix-cli"
 slug: TD-002-helix-cli
-weight: 310
+weight: 330
 activity: "Design"
 source: "02-design/technical-designs/TD-002-helix-cli.md"
 generated: true

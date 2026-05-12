@@ -1,3 +1,8 @@
+---
+ddx:
+  id: "[artifact-id]"
+---
+
 # Frame Phase Validation Checklist
 
 **Status**: [ ] Not Started | [ ] In Progress | [ ] Complete

@@ -8,26 +8,6 @@ description: |
   Service-specific observability and alerting setup required before or during
   rollout.
 
-dependencies:
-  requires:
-    - input: Deployment Checklist
-      type: artifact
-      path: deployment-checklist
-      required: false
-      note: "Release steps and readiness conditions that monitoring must cover"
-    - input: Architecture
-      type: artifact
-      path: architecture
-      required: false
-      note: "Service boundaries and dependencies that affect signal design"
-  enables:
-    - output: Deployment Verification
-      type: artifact
-      phase: deploy
-    - output: Metrics Dashboard
-      type: artifact
-      phase: iterate
-
 output:
   location: docs/helix/05-deploy/monitoring-setup.md
   format: markdown

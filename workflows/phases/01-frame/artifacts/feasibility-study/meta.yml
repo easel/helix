@@ -12,34 +12,6 @@ description: |
   operational, and resource dimensions. Used to validate that a proposed
   solution is achievable before committing significant resources.
 
-dependencies:
-  requires:
-    - input: Problem statement defined
-      type: external
-      required: true
-    - input: High-level solution approach identified
-      type: external
-      required: false
-    - input: Resource constraints known
-      type: external
-      required: true
-
-  enables:
-    - output: Go/No-Go decision
-      type: decision
-      required: true
-    - output: Risk-adjusted project plan
-      type: artifact
-      path: prd
-    - output: Technical constraints for design
-      type: artifact
-      phase: design
-
-  relates_to:
-    - research-plan
-    - risk-register
-    - principles
-
 output:
   location: docs/helix/01-frame/feasibility-study.md
   format: markdown

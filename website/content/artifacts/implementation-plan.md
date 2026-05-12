@@ -1,7 +1,7 @@
 ---
 title: "Build Plan — Slider Autonomy (FEAT-011)"
 slug: implementation-plan
-weight: 370
+weight: 400
 activity: "Build"
 source: "04-build/implementation-plan.md"
 generated: true

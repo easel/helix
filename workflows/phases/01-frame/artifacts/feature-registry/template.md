@@ -1,3 +1,8 @@
+---
+ddx:
+  id: "[artifact-id]"
+---
+
 # Feature Registry
 
 **Status**: [Active | Archived]

@@ -10,25 +10,6 @@ description: |
   Comprehensive identification, assessment, and management of project risks.
   Includes both threats and opportunities with mitigation strategies and ownership.
 
-dependencies:
-  requires:
-    - input: PRD
-      type: artifact
-      path: prd
-      required: false
-    - input: Stakeholder Map
-      type: artifact
-      path: stakeholder-map
-      required: false
-
-  enables:
-    - output: Risk mitigation plans
-      type: artifact
-      phase: all
-    - output: Contingency planning
-      type: artifact
-      phase: build
-
 output:
   location: docs/helix/01-frame/risk-register.md
   format: markdown

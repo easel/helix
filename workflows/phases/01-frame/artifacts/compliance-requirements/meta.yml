@@ -11,41 +11,6 @@ description: |
   Identifies applicable regulations, maps requirements to implementation
   controls, and defines a compliance validation plan.
 
-dependencies:
-  requires:
-    - input: Product Requirements Document
-      type: artifact
-      path: prd
-      required: true
-    - input: Security Requirements
-      type: artifact
-      path: security-requirements
-      required: true
-    - input: Stakeholder Map
-      type: artifact
-      path: stakeholder-map
-      required: false
-    - input: Business context
-      type: external
-      required: true
-    - input: Regulatory landscape
-      type: external
-      required: true
-    - input: Legal counsel input
-      type: external
-      required: true
-
-  enables:
-    - output: Compliance Design Constraints
-      type: artifact
-      phase: design
-    - output: Security Controls Requirements
-      type: artifact
-      phase: design
-    - output: Audit Requirements
-      type: artifact
-      phase: deploy
-
 output:
   location: docs/helix/01-frame/compliance-requirements.md
   format: markdown

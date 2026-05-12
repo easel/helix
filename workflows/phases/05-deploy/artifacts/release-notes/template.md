@@ -1,3 +1,8 @@
+---
+ddx:
+  id: "[artifact-id]"
+---
+
 # Release Notes - [Release / Version]
 
 ## Release Scope

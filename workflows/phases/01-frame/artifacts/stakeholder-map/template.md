@@ -1,3 +1,8 @@
+---
+ddx:
+  id: "[artifact-id]"
+---
+
 # Stakeholder Map
 
 **Status**: [Draft | Review | Approved]

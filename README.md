@@ -16,6 +16,18 @@ a tracker, or a runtime.
 
 ![HELIX Quickstart Demo](docs/demos/helix-quickstart/recordings/helix-quickstart.gif)
 
+## Local Microsite Review
+
+Use the standard startup script when reviewing the Hugo site locally:
+
+```bash
+bash website/scripts/serve-local.sh
+```
+
+The local review site lives at `http://eitri:1315/helix/`. Keep `/helix` in
+review URLs; root paths such as `http://eitri:1315/artifact-types/...` are not
+the local site shape and should be treated as invalid.
+
 ## The Seven Activities
 
 HELIX names seven kinds of work in software development:

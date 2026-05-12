@@ -1,10 +1,8 @@
 ---
 ddx:
-  id: ADR-XXX
-  depends_on:
-    - helix.prd
-    - helix.architecture
+  id: "[artifact-id]"
 ---
+
 # ADR-[NUMBER]: [Title]
 
 | Date | Status | Deciders | Related | Confidence |

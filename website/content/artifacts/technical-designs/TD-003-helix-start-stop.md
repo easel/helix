@@ -1,7 +1,7 @@
 ---
 title: "Technical Design: TD-003 — helix start/stop"
 slug: TD-003-helix-start-stop
-weight: 320
+weight: 340
 activity: "Design"
 source: "02-design/technical-designs/TD-003-helix-start-stop.md"
 generated: true

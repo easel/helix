@@ -9,7 +9,7 @@ aliases:
 
 # HELIX Actions
 
-Actions are bounded supervisory commands that drive HELIX execution. Each action does one thing and exits. The `helix run` supervisor chains them based on queue state.
+Actions are bounded workflow commands and compatibility entrypoints. Each action does one thing and exits. Runtime queue drain belongs to DDx or another execution surface; HELIX keeps the artifact and alignment semantics explicit.
 
 ## Execution Actions
 
@@ -80,7 +80,7 @@ Create or refine product vision, PRD, feature specs, and user stories.
 | **Prompt** | `workflows/actions/frame.md` |
 | **Modifies** | `docs/helix/00-discover/`, `docs/helix/01-frame/`, tracker |
 
-Operates at authority levels 1-3. Also bootstraps [principles](/docs/glossary/concepts#principles) and [concerns](/docs/glossary/concerns) if missing.
+Operates at authority levels 1-3. Also bootstraps [principles](/reference/glossary/concepts/#principles) and [concerns](/concerns/) if missing.
 
 ### design
 
@@ -128,7 +128,7 @@ Create tracker issues with proper governing artifact references.
 | **Command** | `helix triage "title" [--type task\|chore\|decision]` |
 | **Modifies** | Tracker |
 
-Assembles a [context digest](/docs/glossary/concepts#context-digest) and prepends it to the bead description.
+Assembles a [context digest](/reference/glossary/concepts/#context-digest) and prepends it to the bead description.
 
 ---
 

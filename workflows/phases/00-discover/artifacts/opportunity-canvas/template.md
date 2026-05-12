@@ -1,3 +1,8 @@
+---
+ddx:
+  id: "[artifact-id]"
+---
+
 # Opportunity Canvas
 
 ## Problem Statement

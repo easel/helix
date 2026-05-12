@@ -1,10 +1,8 @@
 ---
 ddx:
-  id: helix.parking-lot
-  depends_on:
-    - helix.prd
-  parking_lot: true
+  id: "[artifact-id]"
 ---
+
 # Parking Lot (Deferred / Future Work)
 
 ## Policy

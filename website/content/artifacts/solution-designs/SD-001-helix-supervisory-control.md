@@ -1,7 +1,7 @@
 ---
 title: "Solution Design"
 slug: SD-001-helix-supervisory-control
-weight: 290
+weight: 310
 activity: "Design"
 source: "02-design/solution-designs/SD-001-helix-supervisory-control.md"
 generated: true

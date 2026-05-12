@@ -85,6 +85,42 @@ test.describe('Artifacts', () => {
     // Hugo aliases are HTML redirects; either 200 (rendered) or 3xx (redirect) is acceptable
     expect([200, 301, 302, 308]).toContain(response.status())
   })
+
+  test('artifact type leaf pages keep parent activity navigation', async ({ page }) => {
+    await page.setViewportSize({ width: 1800, height: 1000 })
+    const sidebar = page.locator('aside').first()
+    const artifactTypeLink = (path: string) => sidebar.locator(`a[href$="${path}"]`)
+
+    await page.goto('/artifact-types/frame/prd/')
+    await expect(artifactTypeLink('/artifact-types/frame/')).toBeVisible()
+    await expect(artifactTypeLink('/artifact-types/frame/prd/')).toBeVisible()
+    await expect(artifactTypeLink('/artifact-types/frame/feature-specification/')).toBeVisible()
+    await expect(artifactTypeLink('/artifact-types/frame/pr-faq/')).toBeVisible()
+    await expect(artifactTypeLink('/artifact-types/frame/prd/')).toHaveClass(
+      /hextra-sidebar-active-item/,
+    )
+    await expect(
+      artifactTypeLink('/artifact-types/frame/prd/')
+        .locator('xpath=ancestor::li[1]')
+        .locator('a[href^="#"]')
+        .first(),
+    ).toBeHidden()
+
+    await page.goto('/artifact-types/frame/pr-faq/')
+    await expect(artifactTypeLink('/artifact-types/frame/')).toBeVisible()
+    await expect(artifactTypeLink('/artifact-types/frame/prd/')).toBeVisible()
+    await expect(artifactTypeLink('/artifact-types/frame/feature-specification/')).toBeVisible()
+    await expect(artifactTypeLink('/artifact-types/frame/pr-faq/')).toBeVisible()
+    await expect(artifactTypeLink('/artifact-types/frame/pr-faq/')).toHaveClass(
+      /hextra-sidebar-active-item/,
+    )
+    await expect(
+      artifactTypeLink('/artifact-types/frame/pr-faq/')
+        .locator('xpath=ancestor::li[1]')
+        .locator('a[href^="#"]')
+        .first(),
+    ).toBeHidden()
+  })
 })
 
 test.describe('Concerns', () => {

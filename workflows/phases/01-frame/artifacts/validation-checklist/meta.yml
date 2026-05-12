@@ -11,25 +11,6 @@ description: |
   and readiness for Design phase. Ensures all deliverables meet standards
   and stakeholders are aligned.
 
-dependencies:
-  requires:
-    - input: All Frame artifacts
-      type: artifact
-      path: all
-      required: true
-    - input: Exit gates criteria
-      type: configuration
-      path: exit-gates.yml
-      required: true
-
-  enables:
-    - output: Phase gate approval
-      type: decision
-      phase: frame
-    - output: Design phase kickoff
-      type: milestone
-      phase: design
-
 output:
   location: docs/helix/01-frame/validation-checklist.md
   format: markdown

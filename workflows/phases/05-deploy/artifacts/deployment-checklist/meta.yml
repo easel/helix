@@ -9,14 +9,6 @@ description: |
   technical go/no-go checks, rollout verification, and rollback triggers for a
   service deployment.
 
-dependencies:
-  requires:
-    - input: Implementation Plan
-      type: artifact
-      path: implementation-plan
-      required: false
-      note: "Build completion context and sequencing constraints that affect deployment"
-
 output:
   location: docs/helix/05-deploy/deployment-checklist.md
   format: markdown

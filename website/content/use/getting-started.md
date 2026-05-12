@@ -7,160 +7,97 @@ aliases:
   - /docs/getting-started
 ---
 
-Get HELIX installed and running your first supervised build session.
+Start with the artifacts. HELIX is a methodology, an artifact-type catalog, and
+one alignment/planning skill. It can run in any agent runtime that can read and
+write Markdown in your repository.
 
-## DDx and HELIX
+You do not need a HELIX server, a HELIX tracker, or a HELIX-owned execution
+loop to start. Those can be supplied by your runtime. DDx is the reference
+runtime integration, not the definition of HELIX.
 
-HELIX is built on [DDx](https://documentdrivendx.github.io/ddx/) (Document-Driven
-Development eXperience), a platform for AI-assisted development. DDx
-provides the foundation: a **document library** for managing governing artifacts
-like specs and designs, a **work tracker** (`ddx bead`) for issue management with
-dependencies and claims, an **agent harness** (`ddx agent`) for dispatching AI
-models with token tracking, and an **execution engine** (`ddx exec`) for recording
-structured evidence of what happened.
+## The Core Flow
 
-HELIX adds the methodology on top — the development phases
-(Frame → Design → Test → Build → Deploy → Iterate), the authority order that
-resolves conflicts between artifacts, the bounded execution loop that decides
-what to do next, and the skills that turn all of this into agent instructions.
-You install DDx first, then install HELIX as a DDx package.
+1. **Adopt the artifact shape.** Use the [artifact catalog](/artifact-types/) to
+   decide which project artifacts matter for your current phase: vision, PRD,
+   feature specs, design decisions, test plans, runbooks, metrics, and reports.
+2. **Create or collect your governing documents.** Put the highest-authority
+   artifacts first: product vision, PRD, feature specs, and the design artifacts
+   that explain current decisions. Existing Markdown docs are valid inputs.
+3. **Invoke the HELIX alignment/planning skill.** Ask your agent/runtime to use
+   HELIX to reconcile the artifact stack, identify drift, and propose the next
+   bounded planning or implementation step.
+4. **Let your runtime execute the work.** The runtime can be DDx, Claude Code,
+   Codex, Databricks Genie, a CI workflow, or a local agent harness. HELIX
+   supplies the method and artifact discipline; the runtime supplies queueing,
+   execution, review, and evidence capture.
 
-## Install
+The simplest prompt is enough:
 
-First, install DDx:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/DocumentDrivenDX/ddx/main/install.sh | bash
+```text
+Use HELIX to review this repository top down. Start from the product vision,
+check the downstream artifacts for drift, and propose the next bounded change.
 ```
 
-Then install HELIX:
+For new work, make the planning request explicit:
 
-```bash
-ddx install helix
+```text
+Use HELIX to frame "Build a REST API for managing bookmarks". Create the
+governing artifacts first, then identify the smallest safe implementation step.
 ```
-
-You'll also need [Claude Code](https://claude.ai/claude-code) (or another
-agent CLI like `codex`), plus `bash` and `git`.
-
-## Start Building
-
-Start by shaping your request into governed HELIX work:
-
-```bash
-helix input "Build a REST API for managing bookmarks"
-```
-
-`helix input` is the preferred intake surface for new work. It turns sparse
-intent into the governing artifacts and tracker beads that HELIX and DDx use
-downstream.
 
 ## Understand the Artifact Hierarchy
 
-After framing, your project has governing artifacts at different zoom levels:
+HELIX resolves conflicts by authority order. Higher-level artifacts govern
+lower-level artifacts:
 
-```
+```text
 Product Vision          "What is this and why?"
-  └── PRD               "What must it do?"
-       └── Feature Spec  "What exactly does this feature do?"
-            └── Bead     "One unit of work to implement it"
+  -> PRD                "What must it do?"
+     -> Feature Spec    "What exactly does this feature do?"
+        -> Design       "How will it work?"
+           -> Work Item "What is the next bounded change?"
 ```
 
-Higher levels govern lower levels. If a feature spec contradicts the PRD,
-the PRD wins. HELIX enforces this automatically — you don't need to remember
-the hierarchy, but understanding it helps you steer effectively.
+If a feature spec contradicts the PRD, the PRD wins. If a design contradicts a
+feature spec, the feature spec wins. The alignment skill exists to find those
+conflicts before implementation spreads them through the codebase.
 
-## Add Work to the Tracker
+## What Your Runtime Must Provide
 
-HELIX works from a tracker queue. After framing, you can add specific work
-items:
+HELIX is intentionally small. A compatible runtime only needs to provide a few
+capabilities:
 
-```
-> /helix-triage "Add user authentication with OAuth"
-```
+- Read and write Markdown artifacts in the repository.
+- Preserve links between requirements, designs, work items, and evidence.
+- Run an agent against a bounded scope.
+- Record what changed and what remains unresolved.
 
-This creates a well-structured bead with acceptance criteria, spec references,
-and a context digest that tells the implementing agent everything it needs to
-know. You can also add beads directly:
+Everything else is integration detail. Some teams use a tracker, some use pull
+requests, some use notebooks or workspace tasks. HELIX should make those systems
+more coherent without becoming one of them.
+
+## Using DDx
+
+DDx is the reference runtime integration for HELIX. It provides a document
+library, a dependency-aware tracker, an agent harness, and execution evidence.
+Use DDx when you want a ready-made queue and review loop around HELIX artifacts.
 
 ```bash
-ddx bead create "Add OAuth login flow" --type task \
-  --labels helix,phase:build --set spec-id=FEAT-001 \
-  --acceptance "OAuth login redirects to provider and returns a session token"
+curl -fsSL https://raw.githubusercontent.com/DocumentDrivenDX/ddx/main/install.sh | bash
+ddx install helix
 ```
 
-## Run the Autopilot
+After that, DDx-owned commands such as `ddx bead`, `ddx agent execute-loop`, and
+the transitional `helix` CLI wrappers can drive HELIX-shaped work.
 
-Once framing or triage has produced execution-ready beads, drain the queue with DDx:
+See [Using HELIX with DDx](../ddx-runtime/) for the DDx-specific path.
 
-```bash
-ddx agent execute-loop
-```
+## Explore the Catalog and Examples
 
-This is the primary execution path. DDx claims ready beads, executes the
-bounded work, records evidence, and closes completed items. `helix run` and
-`helix build` still exist as compatibility wrappers for operators who prefer
-the older HELIX-owned entrypoints.
-
-## Interactive Commands
-
-Inside a Claude Code session, HELIX skills are available as slash commands.
-You can invoke them at any time to steer the work:
-
-| Command | What it does |
-|---------|-------------|
-| `/helix-input "build a bookmarks API"` | Shape sparse intent into governed HELIX work |
-| `/helix-run` | Compatibility autopilot wrapper over DDx queue drain |
-| `/helix-build` | Compatibility wrapper for one bounded implementation pass |
-| `/helix-frame` | Create vision, PRD, and feature specs |
-| `/helix-design auth` | Design a subsystem through iterative refinement |
-| `/helix-review` | Fresh-eyes review of recent work |
-| `/helix-evolve "add OAuth"` | Thread a new requirement through the artifact stack |
-| `/helix-check` | What should happen next? |
-| `/helix-align` | Top-down reconciliation review |
-| `/helix-triage "Fix login bug"` | Create a well-structured tracker issue |
-| `/helix-status` | Queue health and lifecycle snapshot |
-| `/helix-experiment` | Metric-driven optimization loop |
-| `/helix-polish` | Refine issues before implementation |
-
-You can also just describe what you want in natural language — Claude
-understands HELIX context and will invoke the right skills:
-
-```
-> The auth module needs OAuth support. Thread that through the specs and design.
-> Review the last commit for security issues.
-> What should we work on next?
-```
-
-## Background Execution (CLI)
-
-For long-running work, CI integration, or scripting, prefer the DDx-managed
-execution path:
-
-```bash
-helix input "Build a REST API for managing bookmarks"
-ddx agent execute-loop                # Primary queue-drain surface
-ddx agent execute-loop --once         # One bounded drain pass
-```
-
-Compatibility wrappers remain available:
-
-```bash
-helix run --agent claude --summary    # Compatibility autopilot wrapper
-helix build                           # Compatibility bounded build wrapper
-helix start                           # Daemon mode with PID file
-helix status                          # Check progress
-helix stop                            # Stop the daemon
-```
-
-Or run the queue-drain command directly:
-
-```bash
-ddx agent execute-loop                # Drain the ready queue until it stops
-ddx agent execute-loop --once         # Stop after one bounded pass
-```
-
-## Next Steps
-
-- Read about the [HELIX workflow](../workflow) and how phases work
-- See the full [CLI reference](../cli) for automation and scripting
-- Watch the [demo reels](../demos) of HELIX in action
+- Browse the [artifact-type catalog](/artifact-types/) for templates,
+  generation prompts, and expected relationships.
+- Review the projected [HELIX self-artifacts](/artifacts/) to see HELIX applied
+  to itself.
+- Read [Why HELIX](/why/) for the principles behind the methodology layer.
+- Continue to [The Workflow](../workflow/) for the lifecycle phases and where
+  alignment fits.
