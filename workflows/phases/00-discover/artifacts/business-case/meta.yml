@@ -7,8 +7,8 @@ artifact:
   phase: discover
 
 description: |
-  Investment justification with market sizing, ROI projections,
-  and risk assessment. Informs go/no-go decision.
+  Investment case for go/no-go decisions: market sizing, cost, return,
+  alternatives, risk, and strategic fit.
 
 output:
   location: docs/helix/00-discover/business-case.md
@@ -36,6 +36,23 @@ validation:
     - check: risks_mitigated
       description: Each risk has mitigation strategy
       severity: blocking
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+example:
+  file: example.md
+
+references:
+  - title: "APM Business Case Guidance"
+    file: docs/resources/apm-business-case.md
+    relationship: "Grounds benefits, costs, risks, alternatives, and preferred-option rationale"
+  - title: "SBA Market Research and Competitive Analysis"
+    file: docs/resources/sba-market-research-competitive-analysis.md
+    relationship: "Grounds market sizing, pricing, demand, and competitive evidence expectations"
 
 workflow:
   creation_order: 2
