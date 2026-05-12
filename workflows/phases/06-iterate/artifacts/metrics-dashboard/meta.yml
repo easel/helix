@@ -6,7 +6,9 @@ artifact:
 
 description: |
   Iteration-level metrics summary that compares current values to a prior
-  baseline and answers whether the latest change improved the system.
+  baseline and answers whether the latest change improved, regressed, or stayed
+  within noise. It interprets existing metric definitions; it does not redefine
+  metrics or choose backlog priorities.
 
 output:
   location: docs/helix/06-iterate/metrics-dashboard.md
@@ -38,6 +40,14 @@ prompts:
 
 template:
   file: template.md
+
+example:
+  file: example.md
+
+references:
+  - title: "Google SRE: Monitoring Distributed Systems"
+    file: docs/resources/google-sre-monitoring-distributed-systems.md
+    relationship: "Grounds dashboard summaries as interpreted quantitative signals with clear sources"
 
 workflow:
   creation_order: 1

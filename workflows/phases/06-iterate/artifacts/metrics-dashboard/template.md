@@ -23,6 +23,11 @@ ddx:
 |--------|----------|---------|-----------|--------|--------|
 | [name] | [value] | [value] | [higher/lower] | [pass/fail/noise] | [metric definition or report] |
 
+## Interpretation Rules
+
+- [How tolerance/noise is applied]
+- [What creates a follow-up]
+
 ## Trend Notes
 
 - [Trend or anomaly]
