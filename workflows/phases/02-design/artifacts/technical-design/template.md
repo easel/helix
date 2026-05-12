@@ -13,6 +13,7 @@ ddx:
 - Use for one vertical slice or one bounded implementation story
 - Must inherit the broader approach from the parent solution design
 - Do not redefine cross-component architecture here; that belongs in `SD-XXX`
+- Governing artifacts: [User Story, Solution Design, Contracts, Concerns]
 
 ## Acceptance Criteria
 
@@ -34,10 +35,12 @@ ddx:
 ### Modified: [Component Name]
 - **Current State**: [What exists]
 - **Changes**: [What changes]
+- **Files**: `[path]`
 
 ### New: [Component Name]
 - **Purpose**: [Why needed]
 - **Interfaces**: Input: [receives] / Output: [produces]
+- **Files**: `[path]`
 
 ## API/Interface Design
 

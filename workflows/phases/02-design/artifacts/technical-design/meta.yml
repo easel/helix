@@ -11,7 +11,8 @@ description: |
   Story-specific technical design that details HOW to implement a single
   user story within the context of the broader solution architecture.
   This enables vertical slicing by providing implementation details for
-  one story at a time.
+  one story at a time: changed components, files, interfaces, data model,
+  tests, migration/rollback, and implementation sequence.
 
 output:
   location: docs/helix/02-design/technical-designs/TD-{id}-{name}.md
@@ -109,6 +110,17 @@ template:
     - api_design: "Interface specifications"
     - data_model: "Schema changes"
     - testing_approach: "How to verify"
+
+example:
+  file: example.md
+
+references:
+  - title: "Google Engineering Practices: Small CLs"
+    file: docs/resources/google-small-cls.md
+    relationship: "Grounds bounded story-level implementation slices with tests and rollback"
+  - title: "Cucumber Executable Specifications"
+    file: docs/resources/cucumber-executable-specifications.md
+    relationship: "Grounds acceptance-criteria-to-test mapping"
 
 workflow:
   creation_order: 1  # First artifact in design phase for a story
