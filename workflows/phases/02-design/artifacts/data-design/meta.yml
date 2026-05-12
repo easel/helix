@@ -42,6 +42,14 @@ prompts:
 template:
   file: template.md
 
+example:
+  file: example.md
+
+references:
+  - title: "Fowler Evolutionary Database Design"
+    file: docs/resources/fowler-evolutionary-database-design.md
+    relationship: "Grounds schema evolution, versioned migrations, data movement, and rollback expectations"
+
 workflow:
   creation_order: 2
   review_cycles: 1-2
