@@ -7,8 +7,8 @@ artifact:
   phase: discover
 
 description: |
-  Market landscape mapping and differentiation strategy.
-  Identifies competitive positioning and sustainable advantages.
+  Market landscape and positioning analysis. Identifies direct rivals,
+  substitutes, competitive pressure, and defensible differentiation.
 
 output:
   location: docs/helix/00-discover/competitive-analysis.md
@@ -17,6 +17,7 @@ output:
 validation:
   required_sections:
     - market_landscape
+    - competitive_forces
     - competitor_profiles
     - feature_comparison
     - differentiation_strategy
@@ -33,6 +34,23 @@ validation:
     - check: differentiators_specific
       description: Differentiators are concrete, not vague
       severity: warning
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+example:
+  file: example.md
+
+references:
+  - title: "SBA Market Research and Competitive Analysis"
+    file: docs/resources/sba-market-research-competitive-analysis.md
+    relationship: "Grounds market, competitor, pricing, and demand evidence expectations"
+  - title: "HBS Five Forces"
+    file: docs/resources/hbs-five-forces.md
+    relationship: "Grounds competitive pressure, substitutes, entrants, buyers, and positioning"
 
 workflow:
   creation_order: 2
