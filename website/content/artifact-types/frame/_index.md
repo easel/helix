@@ -10,7 +10,7 @@ Define what the system should do, for whom, and how success will be measured.
 ## Core Artifacts
 
 {{< cards >}}
-  {{< card link="/artifact-types/frame/prd/" title="Product Requirements Document" subtitle="The PRD is the foundational business document that defines the problem, solution vision, success metrics, and requirements. It serves as the single source of t…" >}}
+  {{< card link="/artifact-types/frame/prd/" title="Product Requirements Document" subtitle="Product-scope authority document that translates vision into prioritized, measurable requirements, success metrics, non-goals, assumptions, and acceptance sket…" >}}
   {{< card link="/artifact-types/frame/principles/" title="Project Principles" subtitle="Cross-cutting design principles that guide judgment calls across all HELIX phases. Not workflow rules or process enforcement — these are lenses applied when ch…" >}}
   {{< card link="/artifact-types/frame/concerns/" title="Project Concerns" subtitle="Declares the project's active cross-cutting concerns (tech stacks, quality attributes, conventions) and any project-specific overrides. Concerns are composable…" >}}
   {{< card link="/artifact-types/frame/feature-specification/" title="Feature Specification" subtitle="Detailed specifications for each feature including functional and non-functional requirements, constraints, and edge cases. Broad product surface, workflow, IA…" >}}

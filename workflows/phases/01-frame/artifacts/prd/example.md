@@ -70,6 +70,9 @@ too heavily on individual reviewer habits.
 
 ## Requirements
 
+Each requirement traces to the Product Vision goal of reducing routine weekly
+reconciliation time while preserving reviewer trust and exception ownership.
+
 ### Must Have (P0)
 
 1. Import bank deposit CSV files and invoice export CSV files for a client.
