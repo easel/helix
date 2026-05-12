@@ -109,7 +109,18 @@ template:
 
 examples:
   - file: example.md
-    description: HELIX's own architecture document, sourced from docs/helix/02-design/architecture.md when the example mapping is enabled
+    description: DepositMatch architecture using C4 views, measurable quality attributes, and decision traceability
+
+references:
+  - title: "C4 Model"
+    file: docs/resources/c4-model.md
+    relationship: "Grounds context, container, component, and deployment views as audience-specific structural diagrams"
+  - title: "SEI Reasoning About Software Quality Attributes"
+    file: docs/resources/sei-quality-attribute-scenarios.md
+    relationship: "Grounds measurable quality attributes and tradeoff reasoning"
+  - title: "Microsoft Azure Well-Architected Framework"
+    file: docs/resources/microsoft-azure-well-architected-framework.md
+    relationship: "Grounds cross-cutting reliability, security, operations, performance, and cost tradeoffs"
 
 workflow:
   creation_order: 1
