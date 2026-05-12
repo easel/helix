@@ -20,7 +20,7 @@ Define what the system should do, for whom, and how success will be measured.
 ## Supporting Artifacts
 
 {{< cards >}}
-  {{< card link="/artifact-types/frame/compliance-requirements/" title="Compliance Requirements" subtitle="Comprehensive regulatory and compliance requirements analysis. Identifies applicable regulations, maps requirements to implementation controls, and defines a c…" >}}
+  {{< card link="/artifact-types/frame/compliance-requirements/" title="Compliance Requirements" subtitle="Obligation-to-control map for applicable regulations, standards, contractual duties, data handling, owners, evidence, and validation." >}}
   {{< card link="/artifact-types/frame/feasibility-study/" title="Feasibility Study" subtitle="A systematic analysis of project viability across technical, business, operational, and resource dimensions. Used to validate that a proposed solution is achie…" >}}
   {{< card link="/artifact-types/frame/feature-registry/" title="Feature Registry" subtitle="Central registry tracking all features, their status, dependencies, and ownership throughout the project lifecycle. Single source of truth for feature identifi…" >}}
   {{< card link="/artifact-types/frame/parking-lot/" title="Parking Lot" subtitle="Project-level registry for deferred and future work that is kept out of the main PRD flow. Parked artifacts remain in their normal HELIX locations and are flag…" >}}
