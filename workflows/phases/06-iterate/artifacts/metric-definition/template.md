@@ -15,6 +15,7 @@ direction: [lower|higher]
 command: [repeatable shell command]
 output_pattern: "[regex with capture group]"
 tolerance: [noise band, e.g. "5%" or "100ms"]
+interpretation: [How to read meaningful changes]
 labels:
   [key]: [value]
 ```

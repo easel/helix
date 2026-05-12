@@ -6,7 +6,9 @@ artifact:
 
 description: |
   Reusable metric contract that defines what is measured, how it is measured,
-  expected directionality, and how results feed ratchets or dashboards.
+  expected directionality, command semantics, tolerance, labels, and how results
+  feed ratchets or dashboards. A metric definition owns one measurement, not a
+  dashboard or improvement decision.
 
 output:
   location: docs/helix/06-iterate/metrics/[name].yaml
@@ -34,6 +36,14 @@ prompts:
 
 template:
   file: template.md
+
+example:
+  file: example.md
+
+references:
+  - title: "Google SRE: Monitoring Distributed Systems"
+    file: docs/resources/google-sre-monitoring-distributed-systems.md
+    relationship: "Grounds metric definitions as precise quantitative signals with clear interpretation"
 
 relationships:
   informs:

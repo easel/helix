@@ -10,8 +10,50 @@ generated: true
 
 ## Purpose
 
-Reusable metric contract that defines what is measured, how it is measured,
-expected directionality, and how results feed ratchets or dashboards.
+Metric Definition is the **single-measurement contract**. Its unique job is to
+define exactly what is measured, how to collect it, what unit it uses, whether
+higher or lower is better, what tolerance applies, and how dashboards,
+ratchets, experiments, or monitoring should interpret it.
+
+It is not a dashboard, alert policy, or improvement backlog item. Those artifacts
+consume metric definitions.
+
+## Example
+
+<details open>
+<summary>Show a worked example of this artifact</summary>
+
+``````markdown
+---
+ddx:
+  id: example.metric-definition.depositmatch.csv-import-validation-seconds
+  depends_on:
+    - example.test-plan.depositmatch
+    - example.deployment-checklist.depositmatch.csv-import
+---
+
+# Metric Definition: csv-import-validation-seconds
+
+> Store at `docs/helix/06-iterate/metrics/csv-import-validation-seconds.yaml`
+
+```yaml
+name: csv-import-validation-seconds
+description: Time required to validate and summarize a representative DepositMatch CSV import fixture totaling 10,000 rows.
+unit: seconds
+direction: lower
+command: pnpm metric:csv-import-validation -- --fixture fixtures/import/acme-10000-rows
+output_pattern: "METRIC csv-import-validation-seconds=([0-9]+\\.?[0-9]*)"
+tolerance: "5%"
+interpretation: A value above 5 seconds violates the FEAT-001 performance target and should create an improvement backlog item unless the fixture changed.
+labels:
+  product: depositmatch
+  feature: FEAT-001
+  area: import
+  signal: latency
+```
+``````
+
+</details>
 
 ## Reference
 
@@ -26,12 +68,38 @@ expected directionality, and how results feed ratchets or dashboards.
 
 Create one reusable metric definition.
 
+## Purpose
+
+Metric Definition is the **single-measurement contract**. Its unique job is to
+define exactly what is measured, how to collect it, what unit it uses, whether
+higher or lower is better, what tolerance applies, and how dashboards,
+ratchets, experiments, or monitoring should interpret it.
+
+It is not a dashboard, alert policy, or improvement backlog item. Those artifacts
+consume metric definitions.
+
+## Reference Anchors
+
+Use this local resource summary as grounding:
+
+- `docs/resources/google-sre-monitoring-distributed-systems.md` grounds metric
+  definitions as precise quantitative signals with clear interpretation.
+
 ## Focus
 Define the metric as the authoritative source for ratchets, dashboards, experiments, and monitoring.
 
 Keep the definition minimal: required fields are `name`, `description`, `unit`, `direction`, and `command`. Add `output_pattern`, `tolerance`, and `labels` only when needed.
 
 The command must be deterministic, repeatable, and free of side effects or external service dependencies. Prefer `METRIC &lt;name&gt;=&lt;value&gt;` output unless an `output_pattern` is required.
+
+## Boundary Test
+
+| If you are writing... | Put it in... |
+|---|---|
+| One metric&#x27;s unit, command, direction, tolerance, and labels | Metric Definition |
+| A view comparing multiple metrics over time | Metrics Dashboard |
+| A decision about what to improve next | Improvement Backlog |
+| Production alerting or runbook behavior | Monitoring Setup / Runbook |
 
 ## Completion Criteria
 - All required fields are populated.
@@ -54,6 +122,7 @@ direction: [lower|higher]
 command: [repeatable shell command]
 output_pattern: &quot;[regex with capture group]&quot;
 tolerance: [noise band, e.g. &quot;5%&quot; or &quot;100ms&quot;]
+interpretation: [How to read meaningful changes]
 labels:
   [key]: [value]
 ```</code></pre></details></td></tr>
