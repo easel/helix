@@ -37,10 +37,10 @@ errors, and saturation.
 
 ## HELIX Usage
 
-This resource informs the Metric Definition artifact. HELIX uses it to keep
-metric contracts precise about what is measured, how it is measured, how to
-interpret directionality, and how downstream dashboards or ratchets should use
-the value.
+This resource informs Metric Definition, Metrics Dashboard, and Monitoring
+Setup artifacts. HELIX uses it to keep metric contracts precise about what is
+measured, how it is measured, how to interpret directionality, and how
+dashboards, alerts, and ratchets should use the value.
 
 ## Authority Boundary
 

@@ -44,6 +44,14 @@ prompts:
 template:
   file: template.md
 
+example:
+  file: example.md
+
+references:
+  - title: "Google SRE: Monitoring Distributed Systems"
+    file: docs/resources/google-sre-monitoring-distributed-systems.md
+    relationship: "Grounds operational signals, dashboards, alerting, and the four golden signals"
+
 workflow:
   creation_order: 2
   review_cycles: 1
