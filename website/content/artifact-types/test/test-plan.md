@@ -10,11 +10,130 @@ generated: true
 
 ## Purpose
 
-The project-level test plan defines the testing strategy for the full
-project: test levels and scope, framework choices, coverage targets,
-critical paths, test data strategy, infrastructure requirements, and
-sequencing. It drives failing tests before implementation begins and
-provides traceability from requirements to test execution.
+The Test Plan is the **project-level verification strategy**. Its unique job is
+to define test levels, coverage targets, critical paths, data strategy,
+infrastructure, sequencing, risks, and build handoff commands before
+implementation starts.
+
+It does not contain every story-specific test case. Story Test Plans own the
+exact executable checks for one story. The Test Plan owns the portfolio: what
+must be covered, where confidence should come from, and how CI enforces it.
+
+## Example
+
+<details open>
+<summary>Show a worked example of this artifact</summary>
+
+``````markdown
+---
+ddx:
+  id: example.test-plan.depositmatch
+  depends_on:
+    - example.prd.depositmatch
+    - example.feature-specification.depositmatch.csv-import
+    - example.user-story.depositmatch.upload-csv
+    - example.contract.depositmatch.import-session-api
+---
+
+# Test Plan
+
+## Testing Strategy
+
+**Goals**: Prove CSV import, traceability, security boundaries, and critical
+reviewer paths before implementation is accepted. | **Quality gates**: P0
+requirements and accepted contracts block merge when failing.
+**Out of Scope**: Bank feeds, accounting API sync, payroll, inventory, tax
+workflows, and match-scoring optimization beyond FEAT-001.
+**Traceability Source**: PRD P0 requirements, FEAT-001, US-001, API-001, and
+active concerns.
+
+### Test Levels
+
+| Level | Coverage Target | Priority |
+|-------|-----------------|----------|
+| Contract | 100% of API-001 success and error semantics | P0 |
+| Integration | 100% of FEAT-001 import-session persistence and source-file storage paths | P0 |
+| Unit | 90% line coverage for import upload, mapping, validation, and evidence services; 100% branch coverage for validation rules | P0/P1 |
+| E2E | One happy path and one rejection path for each P0 reviewer import workflow | P0 |
+
+### Frameworks
+
+| Type | Framework | Reason |
+|------|-----------|--------|
+| Contract | HTTP contract tests against Fastify with API-001 fixtures | Verifies independent API behavior and problem-details errors |
+| Integration | API test runner with PostgreSQL 16 test container and S3-compatible fake | Exercises transaction, storage, and repository boundaries |
+| Unit | Vitest for TypeScript services and React components | Fast feedback on parsing, validation, and UI state |
+| E2E | Playwright desktop browser tests | Verifies reviewer import workflow and accessible upload controls |
+
+## Test Data
+
+| Type | Strategy |
+|------|----------|
+| Fixtures | Versioned CSV fixtures for valid Acme Dental imports, missing amount column, malformed amount, duplicate source identifier, and non-CSV upload |
+| Factories | Client, import session, and authenticated firm-user factories for API and integration tests |
+| Mocks | S3-compatible fake for source-file storage; no bank or accounting API mocks in v1 |
+
+## Coverage Requirements
+
+| Metric | Target | Minimum | Enforcement |
+|--------|--------|---------|-------------|
+| Service line coverage | 90% | 85% | CI blocks on `pnpm test:coverage` |
+| Validation branch coverage | 100% | 100% | CI blocks validation package coverage |
+| Contract coverage | 100% API-001 success/errors | 100% | CI blocks contract test suite |
+| Critical reviewer workflows | 100% P0 happy/rejection paths | 100% | CI blocks Playwright smoke suite |
+
+### Critical Paths (P0)
+
+1. Upload valid bank and invoice CSV files for one client.
+2. Reject missing, oversized, or non-CSV files before parsing.
+3. Preserve source file metadata for accepted uploads.
+4. Keep raw financial row values out of analytics and application logs.
+5. Open mapping review only after a draft session is created.
+
+### Secondary Paths (P1-P2)
+
+- P1: saved mapping reuse, row-level validation, import summary confirmation.
+- P2: large fixture performance and abandoned draft-session cleanup.
+
+## Implementation Order
+
+1. Contract tests for API-001 success and problem-details errors.
+2. Repository and storage integration tests for draft sessions and source files.
+3. Unit tests for upload service and UI upload state.
+4. Playwright P0 upload happy path and rejection path.
+5. Coverage gate wiring and fixture documentation.
+
+## Infrastructure
+
+| Requirement | Specification |
+|-------------|---------------|
+| CI Tool | GitHub Actions with Node 20 and PostgreSQL 16 service |
+| Test DB | PostgreSQL 16 container; recreate schema per integration suite |
+| Services | S3-compatible fake for source-file storage; Playwright browser install |
+| Secrets | Test-only storage credentials; no production financial data in fixtures |
+
+## Risks
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| CSV fixtures become unrealistic | High | Collect pilot exports and add anonymized fixtures before paid launch |
+| E2E upload tests become flaky | Med | Keep E2E suite to P0 paths; validate detailed file cases at contract/integration layers |
+| Coverage target encourages shallow tests | Med | Require traceability to FEAT/US/API IDs in test names or metadata |
+
+**Known Gaps**: Match suggestion accuracy tests wait for FEAT-002. Accessibility
+coverage starts with upload controls and expands during mapping/review stories.
+
+## Build Handoff
+
+**Commands**: `pnpm test` | `pnpm test:coverage` | `pnpm test:e2e`
+**Priority**: API contract tests first, then integration tests, then unit/UI,
+then P0 E2E smoke.
+
+**Blocking Gate**: All P0 contract, integration, security, and E2E tests pass;
+coverage minimums hold; no raw financial fixture values appear in logs.
+``````
+
+</details>
 
 ## Reference
 
@@ -30,6 +149,26 @@ provides traceability from requirements to test execution.
 <tr><th>Generation prompt</th><td><details><summary>Show the full generation prompt</summary><pre><code># Test Plan Generation Prompt
 
 Create the project-level test plan for the Test phase. Keep it concise, but include the minimum structure needed to drive failing tests before implementation.
+
+## Purpose
+
+The Test Plan is the **project-level verification strategy**. Its unique job is
+to define test levels, coverage targets, critical paths, data strategy,
+infrastructure, sequencing, risks, and build handoff commands before
+implementation starts.
+
+It does not contain every story-specific test case. Story Test Plans own the
+exact executable checks for one story. The Test Plan owns the portfolio: what
+must be covered, where confidence should come from, and how CI enforces it.
+
+## Reference Anchors
+
+Use these local resource summaries as grounding:
+
+- `docs/resources/google-test-sizes.md` grounds test levels by scope,
+  isolation, dependencies, and CI enforcement.
+- `docs/resources/fowler-practical-test-pyramid.md` grounds balanced coverage
+  across fast focused tests and fewer broad end-to-end tests.
 
 ## Storage Location
 
@@ -48,7 +187,17 @@ Create the project-level test plan for the Test phase. Keep it concise, but incl
 
 - tests are the executable specification
 - every test should trace to a requirement or story
+- coverage targets should be risk-based and enforced, not decorative
 - do not add generic testing doctrine that the template already implies
+
+## Boundary Test
+
+| If you are writing... | Put it in... |
+|---|---|
+| Overall test levels, coverage targets, data strategy, CI gates | Test Plan |
+| One story&#x27;s concrete test cases and fixtures | Story Test Plan |
+| Feature behavior or acceptance criteria | Feature Specification or User Story |
+| Implementation sequencing for code changes | Implementation Plan |
 
 Use template at `.ddx/plugins/helix/workflows/phases/03-test/artifacts/test-plan/template.md`.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
@@ -62,15 +211,16 @@ ddx:
 
 **Goals**: [Primary objective] | [Quality gates]
 **Out of Scope**: [Excluded areas]
+**Traceability Source**: [PRD / FEAT / US artifacts that drive the plan]
 
 ### Test Levels
 
 | Level | Coverage Target | Priority |
 |-------|-----------------|----------|
-| Contract | [Target] | P0/P1 |
-| Integration | [Target] | P0/P1 |
-| Unit | [Target] | P0/P1 |
-| E2E | [Target] | P0/P1 |
+| Contract | [Target and scope] | P0/P1 |
+| Integration | [Target and scope] | P0/P1 |
+| Unit | [Target and scope] | P0/P1 |
+| E2E | [Target and scope] | P0/P1 |
 
 ### Frameworks
 
@@ -133,6 +283,8 @@ ddx:
 
 **Commands**: `[test command]` | `[coverage command]`
 **Priority**: [Recommended order]
+
+**Blocking Gate**: [What must pass before implementation is considered done]
 
 ## Review Checklist
 
