@@ -86,6 +86,17 @@ prompts:
 template:
   file: template.md
 
+example:
+  file: example.md
+
+references:
+  - title: "Cucumber Executable Specifications"
+    file: docs/resources/cucumber-executable-specifications.md
+    relationship: "Grounds acceptance criteria as observable executable examples"
+  - title: "Google Testing Blog: Test Sizes"
+    file: docs/resources/google-test-sizes.md
+    relationship: "Grounds story test levels by scope, dependency, and execution cost"
+
 workflow:
   creation_order: 2
   review_cycles: 1-2

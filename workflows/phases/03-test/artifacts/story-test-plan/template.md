@@ -10,10 +10,12 @@ ddx:
 **User Story**: [[US-XXX-[story-name]]]
 **Technical Design**: [[TD-XXX-[story-name]]]
 **Related Solution Design**: [[SD-XXX-[feature-name]]] or N/A
+**Project Test Plan**: [[test-plan]]
 
 ## Scope and Objective
 
 **Goal**: [What this story must prove before build starts]
+**Blocking Gate**: [Command or suite that must pass for this story]
 
 **In Scope**
 - [Bounded behavior this TP governs]
@@ -70,6 +72,7 @@ ddx:
 - [ ] Every in-scope acceptance criterion has passing evidence
 - [ ] Named commands or test files exist and run
 - [ ] Out-of-scope coverage remains explicitly deferred rather than silently skipped
+- [ ] The story can fail red before implementation and pass green after implementation
 
 ## Review Checklist
 
