@@ -139,94 +139,86 @@ Use hextra `{{< cards >}}` / `{{< card >}}` for the top-level index. Each artifa
 - Full worked example in a fenced code block or blockquote
 - "Template" and "Prompt" links in a small footer row
 
-### Navigation labels (post-reorganization)
+---
 
-See Site Architecture section below.
+## Conceptual model — kinds of work, not steps
+
+The seven HELIX activities (Discover, Frame, Design, Test, Build, Deploy, Iterate) name kinds of work, connected by an authority order. Work moves between them in every direction. Layout decisions across the site should reflect this:
+
+- **No "Phase N" prefixes.** Activity names stand on their own. Numeric ordering in directory names is a reading convenience.
+- **Cross-activity links surface authority and dependency**, not "previous" / "next." A failing test points at a design gap; a metric points at a PRD; never at an adjacent step.
+- **No left-to-right pipelines in visualizations.** Prefer radial, grid, or table layouts. Arrows that imply temporal order are misleading.
+- **The DNA double-helix metaphor is the shape to lean on.** Two strands, intertwined, both moving, both load-bearing.
+
+Where activities are listed, group artifacts under the activity name without a number prefix (e.g., `## Discover`, not `## Phase 0 — Discover`).
 
 ---
 
-## Site Architecture — Reorganization Plan
+## Site Architecture (current state)
 
-### Problem with current structure
+The microsite has six top-level sections, ordered by typical reader journey:
 
-The current top nav (Docs, Background, Workflow, CLI Reference, Skills, Glossary, Demos) buries the Glossary — which is the conceptual core of HELIX — at position 6. "Background" and "Workflow" are opaque labels. First-time visitors have no clear path.
+| Section | Purpose | Audience |
+|---|---|---|
+| `/why/` | What HELIX is, the thesis, principles | First-time visitor evaluating |
+| `/artifacts/` | This project's actual governing artifacts (HELIX's own dogfood) | Reader wanting a worked example |
+| `/artifact-types/` | HELIX's catalog of artifact categories (PRD, ADR, vision, etc.) | Practitioner looking up a type |
+| `/concerns/` | Cross-cutting concerns catalog | Practitioner selecting standards |
+| `/use/` | Getting started, workflow guide | Adopter onboarding |
+| `/reference/` | Glossary (activities, actions, concepts), CLI, skills | Practitioner reference |
 
-### Proposed navigation (3 top-level sections)
+### The Artifacts vs. Artifact Types split
 
-```
-Home  |  Learn  |  Reference  |  Demos  |  GitHub
-```
+This split is load-bearing:
 
-#### Home (`/`)
-Current home page + hero SVG. No change to content, big change to visual impact.
+- **Artifact type** = a category HELIX defines (template + prompt + quality criteria + position in the authority order). Methodology-level. Reusable across projects.
+- **Artifact** = an instance in a specific project (a real markdown file written from a type's template).
 
-#### Learn (`/docs/learn/`)
-Audience: someone evaluating HELIX or onboarding. Linear reading path.
+`/artifact-types/` documents the categories; `/artifacts/` shows what they look like in practice. Each artifact-type page links to its instances in this project; each artifact instance links back to its type.
 
-```
-Learn/
-  Getting Started          (← current /docs/getting-started)
-  How HELIX Works          (← current /docs/background — renamed)
-  The Autopilot Loop       (← current /docs/workflow — renamed)
-  Cross-Cutting Concerns   (← current /docs/workflow/concerns)
-```
+### Content generation
 
-#### Reference (`/docs/reference/`)
-Audience: practitioner looking something up. The **Glossary promoted to top-level reference hub**.
+Two deterministic generators produce machine-authored content; never edit the output directly:
 
-```
-Reference/
-  Glossary/
-    Phases                 (← current /docs/glossary/phases)
-    Artifacts/             (← EXPANDED — per-artifact subpages, new)
-      _index.md            (card grid of all artifacts)
-      prd/
-      parking-lot/
-      feasibility-study/
-      … (all ~30 artifact types)
-    Actions                (← current /docs/glossary/actions)
-    Concepts               (← current /docs/glossary/concepts)
-    Concerns               (← current /docs/glossary/concerns)
-    Tracker                (← current /docs/glossary/tracker)
-  CLI Reference            (← current /docs/cli)
-  Skills                   (← current /docs/skills)
-```
+| Generator | Source | Destination |
+|---|---|---|
+| `scripts/generate-reference.py` | `workflows/phases/*/artifacts/*/` (types + concerns) | `website/content/artifact-types/`, `website/content/concerns/` |
+| `scripts/publish-artifacts.py` | `docs/helix/` (this project's instances) | `website/content/artifacts/` |
 
-#### Demos (`/docs/demos/`)
-Current `/docs/demos/` — unchanged.
+Both wipe their destinations before each run and emit byte-identical output for identical input. Both are project-agnostic — `--source`, `--dest`, `--project` flags let other HELIX-shaped projects reuse them.
 
-### URL migration
+### Navigation labels
 
-All old URLs redirect to new ones via Hugo aliases in front matter. Existing links from GitHub README don't break.
+| Menu label | Path | Notes |
+|---|---|---|
+| Why HELIX | `/why` | Thesis + principles + who it's for |
+| Artifacts | `/artifacts` | This project's actual instances, activity-grouped |
+| Artifact Types | `/artifact-types` | Catalog of categories, activity-grouped |
+| Concerns | `/concerns` | Cross-cutting concerns catalog |
+| Use HELIX | `/use` | Getting started + workflow |
+| Reference | `/reference` | Glossary, CLI, skills |
+| GitHub | external | Source link |
 
-### Nav weight assignments (hugo.yaml)
+### URL conventions
 
-```yaml
-menu:
-  main:
-    - name: Learn
-      pageRef: /docs/learn
-      weight: 1
-    - name: Reference
-      pageRef: /docs/reference
-      weight: 2
-    - name: Demos
-      pageRef: /docs/demos
-      weight: 3
-    - name: GitHub
-      url: https://github.com/DocumentDrivenDX/helix
-      weight: 10
-      params:
-        icon: github
-```
+- No phase-number prefix in URLs (`/artifacts/product-vision/`, not `/artifacts/00-discover/product-vision/`).
+- Activity affiliation surfaces in page frontmatter (`activity: Discover`) and landing-page grouping, not in URLs.
+- All old URLs redirect via Hugo aliases (`/docs/glossary/phases` → `/reference/glossary/activities` etc.). Pre-existing inbound links don't break.
 
 ---
 
-## Implementation Sequence
+## Reusable layout patterns
 
-1. **Hero SVG** — inline SVG partial in `website/layouts/partials/hero-visual.html`, referenced from `_index.md`. Delivers immediate visual impact with zero content changes.
-2. **Glossary expansion** — PR 1: convert `artifacts.md` to `artifacts/_index.md` + 6 subpages that already have upstream `example.md`. PR 2+: remaining artifact types by phase.
-3. **Site reorganization** — PR after glossary is stable. Move files, add Hugo aliases, update `hugo.yaml` nav, update internal links.
+Where the same concept appears across pages, prefer a shortcode or partial over repeated prose:
+
+| Pattern | Implementation | Where used |
+|---|---|---|
+| Activity callout | `{{< activity name="Discover" >}}` (shortcode, TBD) | Activity affiliation on artifact pages |
+| Loop visualization | Hero SVG partial; ASCII fallback for content pages | Workflow page, activities glossary |
+| Card grid by activity | `{{< cards >}}` (hextra-native) | Artifact-type landing, artifact instance landing |
+| Source identity callout | Generated by `publish-artifacts.py` (preserves the source `ddx:` block) | Every artifact instance page |
+
+Repeated phrases like "Phase 0 — Discover" or "the autopilot loop" should never appear as inlined prose — surface them through templates so they update in one place.
 
 ---
 

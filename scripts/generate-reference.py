@@ -37,7 +37,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ARTIFACTS_SRC = ROOT / "workflows" / "phases"
 CONCERNS_SRC = ROOT / "workflows" / "concerns"
 CONTENT_ROOT = ROOT / "website" / "content"
-ARTIFACTS_DEST = CONTENT_ROOT / "artifacts"
+ARTIFACTS_DEST = CONTENT_ROOT / "artifact-types"
 CONCERNS_DEST = CONTENT_ROOT / "concerns"
 LEGACY_GLOSSARY = CONTENT_ROOT / "reference" / "glossary"
 
@@ -440,10 +440,10 @@ def render_artifact_page(art: dict, all_slugs: set) -> str:
     out.append(desc or f"_({slug} — description not yet captured in upstream `meta.yml`.)_")
     out.append("")
 
-    out.append("## Phase")
+    out.append("## Activity")
     out.append("")
     out.append(
-        f"**[Phase {phase['num']} — {phase['label']}](/reference/glossary/phases/)** "
+        f"**[{phase['label']}](/reference/glossary/activities/)** "
         f"— {phase['summary']}"
     )
     out.append("")
@@ -556,8 +556,8 @@ def render_artifact_page(art: dict, all_slugs: set) -> str:
 def render_artifacts_index(artifacts: list) -> str:
     out: list[str] = []
     out.append("---")
-    out.append("title: Artifacts")
-    out.append("weight: 2")
+    out.append("title: Artifact Types")
+    out.append("weight: 3")
     out.append("generated: true")
     out.append("aliases:")
     out.append("  - /docs/glossary/artifacts")
@@ -565,17 +565,19 @@ def render_artifacts_index(artifacts: list) -> str:
     out.append("---")
     out.append("")
     out.append(
-        "Every HELIX project produces a graph of governing artifacts — "
-        "documents that define what to build, why, how, and how to verify it. "
-        "When artifacts disagree, the [authority order](/why/principles/#3-authority-order-governs-reconciliation) "
-        "governs: vision over requirements, requirements over design, design "
-        "over code."
+        "HELIX defines a catalog of **artifact types** — categories of governing "
+        "document, each with a template, an authoring prompt, and quality criteria. "
+        "Every project applying HELIX produces concrete artifacts that instantiate "
+        "these types. (For this project's actual artifacts, see "
+        "[/artifacts/](/artifacts/).)"
     )
     out.append("")
     out.append(
-        "Each artifact below has its own page with description, relationships "
-        "to other artifacts, the generation prompt, the template structure, "
-        "and (where available) a worked example."
+        "Types are grouped below by the **activity** they belong to in the HELIX "
+        "loop. The activities — Discover, Frame, Design, Test, Build, Deploy, "
+        "Iterate — run continuously, not sequentially. Any of them can be active "
+        "at any time; changes flow up and down through the [authority order]"
+        "(/why/principles/#3-authority-order-governs-reconciliation)."
     )
     out.append("")
 
@@ -586,7 +588,7 @@ def render_artifacts_index(artifacts: list) -> str:
     for phase_key, phase in PHASES.items():
         if phase_key not in by_phase:
             continue
-        out.append(f"## Phase {phase['num']} — {phase['label']}")
+        out.append(f"## {phase['label']}")
         out.append("")
         out.append(f"_{phase['summary']}_")
         out.append("")

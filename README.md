@@ -1,24 +1,45 @@
 # HELIX
 
-A supervisory autopilot for AI-assisted software delivery. HELIX enforces
-specification-first, test-first discipline through structured phases — framing
-the problem, designing the solution, writing failing tests, building the
-implementation, and iterating with real feedback. Humans set direction and make
-judgment calls; AI agents do the heavy lifting under HELIX's supervision.
+A document discipline for AI-assisted software development. HELIX is a
+methodology and artifact catalog: templates for the documents your project
+needs at every level — vision, requirements, design, tests, deploy, metrics —
+plus a single alignment skill that keeps them in sync as the work moves.
 
-HELIX is built on [DDx](https://documentdrivendx.github.io/ddx/) (Document-Driven
-Development eXperience), a platform for AI-assisted development. DDx
-provides the foundation that HELIX runs on: a document library for governing
-artifacts, a work tracker for issue management, an agent harness for dispatching
-AI models, and an execution engine for recording what happened. HELIX adds the
-methodology layer — the phases, the authority order, the bounded execution loop,
-and the skills that turn governing documents into working software.
+HELIX runs on runtimes. [DDx](https://documentdrivendx.github.io/ddx/) is
+the reference runtime — it provides the agent runtime, the tracker, and the
+execution loop that turn aligned artifacts into running code. Databricks Genie
+and Claude Code are target runtimes. HELIX itself is content (templates,
+prompts, methodology spec) plus the alignment skill. It does not ship a CLI,
+a tracker, or a runtime.
 
-**[Documentation](https://documentdrivendx.github.io/helix/)** · **[Demo Reels](https://documentdrivendx.github.io/helix/docs/demos/)** · **[Getting Started](https://documentdrivendx.github.io/helix/docs/getting-started/)**
+**[Documentation](https://documentdrivendx.github.io/helix/)** · **[Demo Reels](https://documentdrivendx.github.io/helix/demos/)** · **[Getting Started](https://documentdrivendx.github.io/helix/use/getting-started/)**
 
 ![HELIX Quickstart Demo](docs/demos/helix-quickstart/recordings/helix-quickstart.gif)
 
-## Install
+## The Seven Activities
+
+HELIX names seven kinds of work in software development:
+
+| Activity | Owns artifact types like… |
+|---|---|
+| **Discover** | Product vision, business case, competitive analysis, opportunity canvas |
+| **Frame** | PRD, feature specifications, user stories, principles, cross-cutting requirements |
+| **Design** | Architecture, ADRs, solution designs, technical designs, contracts |
+| **Test** | Test plans, story test plans, security tests |
+| **Build** | Implementation plan, executed work in the runtime's tracker |
+| **Deploy** | Runbook, deployment checklist, monitoring setup, release notes |
+| **Iterate** | Metric definitions, metrics dashboard, improvement backlog |
+
+Activities are connected by an **authority order** — vision governs PRD,
+PRD governs features, features govern designs, designs govern tests, tests
+govern code. When two artifacts disagree, the higher one wins. Work moves
+between activities in every direction: a failing test reveals a missing
+requirement; a production metric revises the PRD; a vision update propagates
+downstream.
+
+## Install (DDx Runtime)
+
+The fastest path to running HELIX is the DDx runtime.
 
 First, install [DDx](https://documentdrivendx.github.io/ddx/):
 
@@ -26,114 +47,80 @@ First, install [DDx](https://documentdrivendx.github.io/ddx/):
 curl -fsSL https://raw.githubusercontent.com/DocumentDrivenDX/ddx/main/install.sh | bash
 ```
 
-Then install HELIX:
+Then install HELIX as a DDx plugin:
 
 ```bash
 ddx install helix
 ```
 
-You'll also need [Claude Code](https://claude.ai/claude-code) (or another
-agent CLI like `codex`), plus `bash` and `git`.
+This adds HELIX's artifact-type catalog and alignment skill to your DDx
+project. You'll also want an agent runtime —
+[Claude Code](https://claude.ai/claude-code) or `codex` — plus `git`.
+
+Other runtimes (Databricks Genie, Claude Code as a standalone skill) are in
+progress.
 
 ## Quick Start
 
-Start by shaping sparse intent into governed HELIX work:
+Shape intent into governed work, then let DDx drain the ready queue:
 
 ```bash
 helix input "Build a REST API for managing bookmarks"
-```
-
-Then let DDx drain the execution-ready queue:
-
-```bash
 ddx agent execute-loop
 ```
 
-`helix input` is the preferred intake surface for new work. `ddx agent execute-loop`
-is the primary queue-drain command for execution-ready beads. `helix run` and
-`helix build` remain available as compatibility wrappers for operators who
-still want HELIX-owned execution entrypoints.
+The first command runs HELIX's alignment skill against your project's
+artifacts, identifies what needs to change to support the new intent, and
+emits work items in the DDx tracker. The second runs DDx's bounded execution
+loop, dispatching agents to drain the queue. As work happens, the alignment
+skill keeps the governing artifacts in sync.
 
-### Interactive commands
-
-Inside a Claude Code session, HELIX skills are available as slash commands:
+Inside a Claude Code session, HELIX skills are available as slash commands.
+Skill consolidation is in progress; today's working surface:
 
 | Command | What it does |
-|---------|-------------|
-| `/helix-input "build a bookmarks API"` | Shape sparse intent into governed HELIX work |
-| `/helix-run` | Compatibility autopilot wrapper over DDx queue drain |
-| `/helix-build` | Compatibility wrapper for one bounded implementation pass |
-| `/helix-frame` | Create vision, PRD, and feature specs |
-| `/helix-design auth` | Design a subsystem through iterative refinement |
+|---|---|
+| `/helix-input "build a bookmarks API"` | Shape intent into governed work items |
+| `/helix-align` | Reconcile the artifact tree top-down; emit a plan |
+| `/helix-frame` | Create or refine vision, PRD, feature specs |
+| `/helix-design auth` | Iteratively design a subsystem |
+| `/helix-evolve "add OAuth"` | Thread a new requirement through the artifacts |
 | `/helix-review` | Fresh-eyes review of recent work |
-| `/helix-evolve "add OAuth"` | Thread a new requirement through the artifact stack |
-| `/helix-check` | What should happen next? |
-| `/helix-align` | Top-down reconciliation review |
-| `/helix-triage "Fix login bug"` | Create a well-structured tracker issue |
-| `/helix-status` | Queue health and lifecycle snapshot |
 
-### CLI (automation and scripting)
+## Where the Artifacts Live
 
-For automation and scripting, prefer the DDx-managed queue-drain path:
+HELIX project artifacts live under `docs/helix/`:
 
-```bash
-helix input "Build a REST API for managing bookmarks"
-ddx agent execute-loop                # Primary queue-drain surface
-ddx agent execute-loop --once         # One bounded drain pass
+```
+docs/helix/
+├── 00-discover/    # Vision, business case, competitive analysis
+├── 01-frame/       # PRD, feature specs, user stories
+├── 02-design/      # Architecture, ADRs, solution designs, technical designs
+├── 03-test/        # Test plans
+├── 04-build/       # Implementation plans, executed work evidence
+├── 05-deploy/      # Runbooks, monitoring, release notes
+└── 06-iterate/     # Metrics, improvement backlog, alignment reviews
 ```
 
-Compatibility wrappers remain available:
+Numeric prefixes are a reading-order convention. They do not imply that
+activities run in sequence — they don't.
 
-```bash
-helix run --agent claude --summary    # Compatibility autopilot wrapper
-helix build                           # Compatibility bounded build wrapper
-helix start                           # Daemon mode with PID file
-helix status                          # Check progress
-helix stop                            # Stop the daemon
-```
+## Where to Read Next
 
-## Phases
+- [The Thesis](https://documentdrivendx.github.io/helix/why/the-thesis/) — what HELIX is and what it's for
+- [Activities](https://documentdrivendx.github.io/helix/reference/glossary/activities/) — the seven kinds of work, with examples
+- [Artifact Types](https://documentdrivendx.github.io/helix/artifact-types/) — the catalog of templates and prompts
+- [Artifacts](https://documentdrivendx.github.io/helix/artifacts/) — this project's own governing documents, as a worked example
+- [Workflow](https://documentdrivendx.github.io/helix/use/workflow/) — how the alignment loop runs
 
-HELIX guides work through six phases. Each phase produces governing
-artifacts that drive the next:
+## DDx as Runtime
 
-0. **Discover** (optional) — Validate the opportunity
-1. **Frame** — Define the problem and establish context
-2. **Design** — Architect the solution approach
-3. **Test** — Write failing tests that define behavior
-4. **Build** — Implement code to make tests pass
-5. **Deploy** — Release to production with monitoring
-6. **Iterate** — Learn and improve for the next cycle
+[DDx](https://documentdrivendx.github.io/ddx/) is where execution lives. DDx
+provides the work tracker (beads), the agent dispatch harness, the
+execution-evidence store, the document graph, and the queue-drain loop. HELIX
+provides the methodology, the artifact catalog, and the alignment skill that
+runs on top.
 
-## How it works
-
-1. You shape intent into governed work with `helix input`
-2. HELIX creates or updates governing artifacts (vision → requirements → design → tests)
-3. The tracker breaks work into issues with acceptance criteria
-4. `ddx agent execute-loop` drains execution-ready work from the queue
-5. Reviews catch bugs that implementation blindness misses
-6. The loop continues until the queue drains or human input is needed
-
-The key insight: **documents drive the agents**. Requirements define what to
-build. Designs define how. Tests define done. The tracker sequences the work.
-HELIX orchestrates the agents to follow this chain — and stops them when they
-drift.
-
-## Workflow Contract
-
-The HELIX methodology lives in `workflows/` and covers:
-
-- [Workflow Overview](workflows/README.md) — phases, authority order, execution model
-- [Execution Guide](workflows/EXECUTION.md) — operator flow, queue control, loop behavior
-- [Reference Card](workflows/REFERENCE.md) — quick lookup for actions and concepts
-- Tracker: `ddx bead --help` — issue management conventions
-
-## DDx Platform
-
-HELIX is built on [DDx](https://documentdrivendx.github.io/ddx/) — a
-platform for AI-assisted development. DDx provides the document library, work
-tracker, agent harness, and execution engine. HELIX provides the methodology,
-phases, authority order, and supervisory skills.
-
-See [DDx Methodology](workflows/DDX.md) for the artifact graph, authority
-hierarchy, evolution model, and agent context model.
+The split is intentional: HELIX is portable methodology + content. DDx is one
+runtime that knows how to run that content. Other runtimes can run the
+same content with their own per-runtime packages.

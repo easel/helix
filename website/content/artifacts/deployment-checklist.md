@@ -1,138 +1,14 @@
 ---
-title: "Deployment Checklist"
+title: "Deployment Checklist — HELIX Plugin and Website Release"
 slug: deployment-checklist
-phase: "Deploy"
-weight: 500
+weight: 420
+activity: "Deploy"
+source: "05-deploy/deployment-checklist.md"
 generated: true
-aliases:
-  - /reference/glossary/artifacts/deployment-checklist
 ---
-
-## What it is
-
-Short, execution-ready release readiness checklist that captures the
-technical go/no-go checks, rollout verification, and rollback triggers for a
-service deployment.
-
-## Phase
-
-**[Phase 5 — Deploy](/reference/glossary/phases/)** — Ship to users with appropriate operational support, monitoring, and rollback plans.
-
-## Output location
-
-`docs/helix/05-deploy/deployment-checklist.md`
-
-## Relationships
-
-### Requires (upstream)
-
-- [Implementation Plan](../implementation-plan/) *(optional)*
-
-### Enables (downstream)
-
-_None._
-
-### Informs
-
-- [Monitoring Setup](../monitoring-setup/)
-
-## Generation prompt
-
-The agent prompt that produces this artifact.
-
-<details>
-<summary>Show the full generation prompt</summary>
-
-``````markdown
-# Deployment Checklist Generation Prompt
-
-Create a concise, service-specific deployment checklist for this release.
-
-## Focus
-
-- Keep the checklist short enough to use during the release itself.
-- Include only the checks that materially change the technical go/no-go decision.
-- Make rollout verification and rollback triggers explicit.
-- Point to supporting artifacts such as `monitoring-setup` or `runbook`
-  instead of duplicating them.
-- Avoid communication boilerplate, launch marketing tasks, or generic
-  enterprise release wish lists.
-
-## Completion Criteria
-
-- Prerequisites and owners are explicit.
-- Rollout verification names the signals or commands that prove health.
-- Rollback triggers and rollback entrypoint are explicit.
-- The final decision section makes the release auditable.
-``````
-
-</details>
-
-## Template
-
-<details>
-<summary>Show the template structure</summary>
-
-``````markdown
-# Deployment Checklist
+# Deployment Checklist — HELIX Plugin and Website Release
 
 ## Release Scope
-
-- Service or component: [name]
-- Version or commit: [tag or SHA]
-- Deployment window: [date and time]
-- Release owner: [name]
-- Rollback owner: [name]
-
-## Pre-Deploy Checks
-
-| Area | Check | Evidence or Command | Status |
-|------|-------|---------------------|--------|
-| Build | [CI, tests, approvals] | [link or command] | [ ] |
-| Config | [Secrets, flags, env vars] | [link or command] | [ ] |
-| Data | [Migrations, backups, compatibility] | [link or command] | [ ] |
-| Ops | [Dashboards, alerts, on-call] | [link or command] | [ ] |
-
-## Rollout Plan
-
-| Stage | Action | Exit Condition |
-|-------|--------|----------------|
-| Staging | [deploy and validate] | [what must be true] |
-| Initial production | [first step or canary] | [what must be true] |
-| Full rollout | [complete rollout] | [what must be true] |
-
-## Verification Checks
-
-| Signal or Check | Expected Result | Evidence or Command | Status |
-|-----------------|-----------------|---------------------|--------|
-| [health check] | [healthy value] | [command or dashboard] | [ ] |
-| [error rate] | [threshold] | [dashboard or query] | [ ] |
-| [latency] | [threshold] | [dashboard or query] | [ ] |
-| [critical user journey] | [pass condition] | [test or observation] | [ ] |
-
-## Rollback Triggers
-
-| Trigger | Threshold or Condition | Immediate Action | Owner |
-|---------|------------------------|------------------|-------|
-| [trigger] | [threshold] | [rollback step or runbook] | [name] |
-| [trigger] | [threshold] | [rollback step or runbook] | [name] |
-
-## Go or No-Go Decision
-
-- Decision: [Go / Hold / Roll Back]
-- Decision time: [timestamp]
-- Notes: [exceptions, deferred checks, follow-up]
-``````
-
-</details>
-
-## Example
-
-This example is HELIX's actual deployment checklist, sourced from [`docs/helix/05-deploy/deployment-checklist.md`](https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/05-deploy/deployment-checklist.md). It shows how this artifact is used in a live methodology project; it may include project-specific context.
-
-## Deployment Checklist — HELIX Plugin and Website Release
-
-### Release Scope
 
 - Service or component: HELIX plugin (`.claude-plugin/`, `skills/`,
   `workflows/`, `bin/helix`, `scripts/helix`) and the public website
@@ -143,7 +19,7 @@ This example is HELIX's actual deployment checklist, sourced from [`docs/helix/0
 - Release owner: HELIX maintainer cutting the tag.
 - Rollback owner: Same operator (single-operator release flow).
 
-### Pre-Deploy Checks
+## Pre-Deploy Checks
 
 | Area | Check | Evidence or Command | Status |
 |------|-------|---------------------|--------|
@@ -159,7 +35,7 @@ This example is HELIX's actual deployment checklist, sourced from [`docs/helix/0
 | Ops | Release notes draft exists and references the tag | `docs/helix/05-deploy/release-notes.md` | [ ] |
 | Ops | Demos still record cleanly | `cd website && bash record-demos.sh` (when demos changed in the release) | [ ] |
 
-### Rollout Plan
+## Rollout Plan
 
 | Stage | Action | Exit Condition |
 |-------|--------|----------------|
@@ -169,7 +45,7 @@ This example is HELIX's actual deployment checklist, sourced from [`docs/helix/0
 | Website rollout | GitHub Actions builds the site from the tagged commit and publishes to GitHub Pages | Pages workflow run succeeds; public URL serves the new content |
 | Full rollout | Smoke-test the public site for the released artifact pages | Critical pages (`/`, `/why/`, `/use/`, `/artifacts/<each>/`) return 200 |
 
-### Verification Checks
+## Verification Checks
 
 | Signal or Check | Expected Result | Evidence or Command | Status |
 |-----------------|-----------------|---------------------|--------|
@@ -179,7 +55,7 @@ This example is HELIX's actual deployment checklist, sourced from [`docs/helix/0
 | `helix run` against a sample bead succeeds | `NEXT_ACTION` is one of the documented values | `helix run --dry-run` in a sample repo | [ ] |
 | No regressions in deterministic tests | All pass | `bash tests/helix-cli.sh && bash tests/validate-skills.sh` against the tag | [ ] |
 
-### Rollback Triggers
+## Rollback Triggers
 
 | Trigger | Threshold or Condition | Immediate Action | Owner |
 |---------|------------------------|------------------|-------|
@@ -188,7 +64,7 @@ This example is HELIX's actual deployment checklist, sourced from [`docs/helix/0
 | Wrapper-CLI test suite regressed in CI on the tag | `tests/helix-cli.sh` fails on the tag in CI | Revert the offending change in a follow-up tag; do not silently amend the released tag | Operator |
 | Critical artifact-reference page renders empty | A `HELIX_REAL_EXAMPLES_PUBLISHABLE` slug ships with a missing example | Patch release that flips the slug back off in `scripts/generate-reference.py` | Operator |
 
-### Go or No-Go Decision
+## Go or No-Go Decision
 
 - Decision: [Go / Hold / Roll Back]
 - Decision time: [ISO-8601 timestamp]

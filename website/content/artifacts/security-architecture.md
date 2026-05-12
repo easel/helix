@@ -1,148 +1,28 @@
 ---
-title: "Security Architecture"
+title: "Security Architecture — DDx Agent Execution Surface"
 slug: security-architecture
-phase: "Design"
-weight: 200
+weight: 280
+activity: "Design"
+source: "02-design/security-architecture.md"
 generated: true
-aliases:
-  - /reference/glossary/artifacts/security-architecture
 ---
 
-## What it is
+> **Source identity** (from `02-design/security-architecture.md`):
 
-Design-level security architecture that maps trust boundaries, controls,
-and security decisions to implementation and testing.
-
-## Phase
-
-**[Phase 2 — Design](/reference/glossary/phases/)** — Decide how to build it. Capture trade-offs, contracts, and architecture decisions.
-
-## Output location
-
-`docs/helix/02-design/security-architecture.md`
-
-## Relationships
-
-### Requires (upstream)
-
-- [Security Requirements](../security-requirements/)
-- [Threat Model](../threat-model/)
-- [System Architecture](../architecture/)
-
-### Enables (downstream)
-
-_None._
-
-### Informs
-
-- [Technical Design](../technical-design/)
-- [Test Plan](../test-plan/)
-- [Security Tests](../security-tests/)
-
-## Generation prompt
-
-The agent prompt that produces this artifact.
-
-<details>
-<summary>Show the full generation prompt</summary>
-
-``````markdown
-# Security Architecture Generation Prompt
-Document the security architecture patterns, trust boundaries, controls, and
-design-level security decisions that shape implementation and testing.
-
-## Focus
-- Start from security requirements and the threat model.
-- Define trust boundaries, control points, identity, data protection, logging,
-  monitoring, and residual risk.
-- Map threats to controls and controls to tests.
-- Keep the artifact at the design level; do not drift into code or deployment
-  instructions.
-
-## Completion Criteria
-- Threats and controls are linked.
-- Identity and access decisions are explicit.
-- Data protection and monitoring decisions are explicit.
-- The document is specific enough to guide implementation and testing.
-``````
-
-</details>
-
-## Template
-
-<details>
-<summary>Show the template structure</summary>
-
-``````markdown
----
+```yaml
 ddx:
   id: security-architecture
   depends_on:
-    - security-requirements
-    - threat-model
     - architecture
----
-# Security Architecture
+```
 
-**Scope**: [system or subsystem]
-**Status**: [draft | complete]
-
-## Decision
-
-[Summarize the security architecture approach and the main security controls.]
-
-## Trust Boundaries
-
-| Boundary | Assets | Trust Change | Control |
-|----------|--------|--------------|---------|
-| [name] | [asset] | [how trust changes] | [control] |
-
-## Control Mapping
-
-| Threat / Risk | Control | Implementation Surface | Verification |
-|---------------|---------|-------------------------|--------------|
-| [risk] | [control] | [component or interface] | [test or check] |
-
-## Identity and Access
-
-- Authentication:
-- Authorization:
-- Session or token handling:
-
-## Data Protection
-
-- Data at rest:
-- Data in transit:
-- Secrets and key handling:
-
-## Logging and Monitoring
-
-- Security events:
-- Alerting:
-- Audit trail:
-
-## Residual Risk
-
-- [Known risk and why it remains]
-
-## Security Test Hooks
-
-- [Test or validation that proves the control exists]
-``````
-
-</details>
-
-## Example
-
-This example is HELIX's actual security architecture, sourced from [`docs/helix/02-design/security-architecture.md`](https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/02-design/security-architecture.md). It shows how this artifact is used in a live methodology project; it may include project-specific context.
-
-## Security Architecture — DDx Agent Execution Surface
+# Security Architecture — DDx Agent Execution Surface
 
 **Scope**: `ddx-server` and the agent-execution surface that HELIX delegates
 to (`ddx agent execute-bead`, `ddx agent execute-loop`, `ddx server workers`).
 **Status**: Complete
 
-### Decision
+## Decision
 
 The agent-execution surface is a **local-first developer service** with no
 inbound network exposure by default. Trust originates with the operator's
@@ -166,7 +46,7 @@ The primary controls are:
 4. Make every agent invocation produce a durable execution record
    (`.ddx/exec-runs.d/<run-id>/`) so privilege use is auditable.
 
-### Trust Boundaries
+## Trust Boundaries
 
 | Boundary | Assets | Trust Change | Control |
 |----------|--------|--------------|---------|
@@ -177,7 +57,7 @@ The primary controls are:
 | Tailscale (`tsnet`) → `ddx-server` (opt-in) | Same control plane, over WireGuard | Identity-bound mesh access | Tailscale ACLs restrict to operator's tailnet; service still trusts only the authenticated identity |
 | Repo working tree → git remote | Bead bodies, execution evidence, logs | Repo content becomes public (or org-visible) on push | Contract: no secrets in beads, evidence, or logs; pre-commit hooks scan for known secret patterns |
 
-### Control Mapping
+## Control Mapping
 
 | Threat / Risk | Control | Implementation Surface | Verification |
 |---------------|---------|-------------------------|--------------|
@@ -190,7 +70,7 @@ The primary controls are:
 | Cross-model verification bypass | `helix run --review-agent <other>` routes review to a second model when configured | `helix run` review pass | TP-002 cross-model review test |
 | Tailscale identity drift | Tailscale ACLs are the only authorization for non-loopback access | `tsnet` sidecar config | Operator-owned tailnet ACL; verified by tailnet admin, not by the service |
 
-### Identity and Access
+## Identity and Access
 
 - **Authentication**: No service-level password or OAuth surface. Local
   access is loopback-only and authenticated by UNIX user identity. Remote
@@ -206,7 +86,7 @@ The primary controls are:
   startup and held in process memory only. No persistent token store; no
   refresh flow; no on-disk credential cache.
 
-### Data Protection
+## Data Protection
 
 - **Data at rest**:
   - `.ddx/beads.jsonl` and `.ddx/exec-runs.jsonl` are plain JSONL under git.
@@ -228,7 +108,7 @@ The primary controls are:
   - Operator rotation is out-of-band: revoke at the provider, update env,
     restart `ddx-server`.
 
-### Logging and Monitoring
+## Logging and Monitoring
 
 - **Security events**: Worker process start/stop, claim acquisitions, claim
   releases, orphan-recovery sweeps, model-call failures (with provider name
@@ -241,7 +121,7 @@ The primary controls are:
   durable evidence directory. The `events[]` array on each bead provides a
   per-bead audit trail of state transitions.
 
-### Residual Risk
+## Residual Risk
 
 - **Operator-introduced secrets in bead bodies**: The contract is "no
   secrets in beads," but enforcement is contract + pre-commit, not service-
@@ -257,7 +137,7 @@ The primary controls are:
   Mitigation is the loopback-default posture: opting in is an explicit
   operator action.
 
-### Security Test Hooks
+## Security Test Hooks
 
 - TP-002 covers tracker write-safety: claim atomicity, orphan recovery,
   unclaim semantics, and supersession.

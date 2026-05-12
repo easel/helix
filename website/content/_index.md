@@ -16,7 +16,7 @@ A methodology for&nbsp;<br class="sm:hx-block hx-hidden" />AI-assisted software.
 {{< /hextra/hero-headline >}}
 
 {{< hextra/hero-subtitle >}}
-Seven phases. A graph of governing artifacts.&nbsp;<br class="sm:hx-block hx-hidden" />Cross-cutting concerns that travel with the work.
+A document discipline for AI-assisted development.&nbsp;<br class="sm:hx-block hx-hidden" />Templates for the artifacts your project needs — and one skill that catches drift before it spreads.
 {{< /hextra/hero-subtitle >}}
 
 <div class="hx-mt-8">

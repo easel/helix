@@ -8,6 +8,10 @@ A test-driven development workflow with AI-assisted collaboration for building h
 
 > **Quick Links**: [DDx Methodology](DDX.md) | [Quick Start Guide](QUICKSTART.md) | [Visual Overview](diagrams/workflow-overview.md) | [Reference Card](REFERENCE.md) | [Execution Guide](EXECUTION.md) | [Artifact Flow](diagrams/artifact-flow.md) | [Quality Ratchets](ratchets.md)
 
+## Core Metaphor
+
+The double helix of DNA has two strands wound around each other; neither leads, neither follows. HELIX adopts that shape for software development. The **document strand** holds intent, design, and tests. The **execution strand** turns those into running code. HELIX is the discipline of the document strand. A runtime — DDx, an agent runtime, anything that reads and writes files — runs the execution strand.
+
 ## Overview
 
 HELIX enforces Test-Driven Development (TDD) through a structured phase approach where tests are written BEFORE implementation. This ensures quality is built-in from the start and specifications are executable. Human creativity and AI capabilities collaborate throughout, with tests serving as the contract between design and implementation.

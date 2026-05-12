@@ -7,23 +7,53 @@ aliases:
   - /docs/workflow
 ---
 
-HELIX organizes software delivery into six phases, governed by an authority
-hierarchy that ensures upstream artifacts always take precedence.
+HELIX names seven kinds of work in software development: Discover, Frame,
+Design, Test, Build, Deploy, Iterate. Each owns a set of [artifact
+types](/artifact-types/) and is connected to the others through an
+[authority order](/reference/glossary/activities/) that resolves conflicts
+between artifacts.
 
-## Phases
+```
+       ╭──── Discover ────╮
+       │                  ↓
+   Iterate ←─── Frame ───→ Design
+       ↑                  ↓
+       ╰── Deploy ←── Build ←── Test
+```
 
-| Phase | Purpose | Key Commands |
-|-------|---------|-------------|
-| **Frame** | Define the problem — vision, PRD, feature specs, user stories | `helix frame` |
-| **Design** | Architect the solution — ADRs, solution designs, technical designs | `helix design` |
-| **Test** | Write failing tests that define behavior | (implicit in build) |
-| **Build** | Implement code to make tests pass | `helix build`, `helix run` |
-| **Deploy** | Release to production with monitoring | (future) |
-| **Iterate** | Learn, review, align, and improve | `helix review`, `helix align` |
+Work moves between activities in every direction. The activity names
+describe *what kind* of work; they don't impose an order on when it happens.
+
+### How changes flow
+
+Changes can enter at any activity:
+
+- **Top-down** — a vision revision propagates into PRD, features, designs, tests, code.
+- **Bottom-up** — implementation reveals a missing requirement; the spec gets a refinement.
+- **Middle-out** — a design exposes a conflict between two features; both specs update.
+- **Lateral** — a deploy-time observability gap surfaces an ADR question.
+
+The alignment skill keeps these flows coherent. It walks the artifacts when
+invoked, identifies drift in any direction, and produces a plan to close it.
+
+## The Seven Activities
+
+| Activity | Purpose | Primary Artifacts |
+|---|---|---|
+| **Discover** | Validate the opportunity | Product vision, business case, competitive analysis |
+| **Frame** | Define what to build | PRD, feature specs, user stories, principles |
+| **Design** | Decide how to build it | Architecture, ADRs, solution designs, technical designs |
+| **Test** | Encode the contract as failing tests | Test plans, story test plans |
+| **Build** | Implement to make tests pass | Implementation plan + executed work |
+| **Deploy** | Make it observable in production | Runbook, monitoring, deployment checklist |
+| **Iterate** | Close the loop with real signal | Metrics, improvement backlog, alignment reviews |
+
+Each activity owns a set of [artifact types](/artifact-types/). The actual
+artifacts a project produces appear under [Artifacts](/artifacts/).
 
 ## Authority Order
 
-When artifacts disagree, HELIX uses this hierarchy:
+When artifacts disagree, HELIX resolves conflicts **up** the order:
 
 1. **Product Vision** — what the product should become
 2. **Product Requirements** — what must be built
@@ -34,75 +64,52 @@ When artifacts disagree, HELIX uses this hierarchy:
 7. **Implementation Plans** — build sequencing
 8. **Source Code** — current state (not source of truth)
 
-Higher layers govern lower layers. Source code reflects what exists, not what
-should exist. If a higher layer is missing, HELIX does not infer intent from
-lower layers.
+Higher layers govern lower layers. Source code reflects what exists, not
+what should exist. If a higher layer is missing, HELIX does not infer
+intent from lower layers — the alignment skill flags the gap instead.
 
-## The Supervisory Loop
+## The Alignment Skill
 
-`helix run` is the supervisory autopilot. It continuously:
+HELIX ships a single skill that operates the loop. Given the current
+artifacts and (optionally) a new intent, it:
 
-1. **Checks** the tracker for ready work
-2. **Selects** the highest-leverage bounded next action
-3. **Executes** one pass (build, design, polish, align, etc.)
-4. **Reviews** the result with cross-model verification
-5. **Repeats** until human input is needed or no work remains
+1. **Walks** the governing artifacts top-down through the authority order
+2. **Identifies** drift, gaps, and contradictions across activities
+3. **Produces** a plan describing the artifact updates needed to restore
+   coherence, ordered by authority
 
-The autopilot uses the principle of least power — prefer refining existing
-artifacts over creating new ones, prefer polishing issues over implementing
-from incomplete specs.
+The plan is the output. A runtime (DDx, Databricks Genie, Claude Code,
+anything that reads markdown) executes it — creating work items,
+dispatching agents, recording evidence. HELIX itself does not execute work.
 
-### When HELIX Stops
+### When the alignment skill produces an open question
 
-HELIX stops and asks for human input when:
+The skill stops short of plans when:
 
-- Authority is missing (no governing spec for the work)
-- Ambiguity cannot be resolved from existing artifacts
+- Authority is missing (no governing artifact for the work)
+- Ambiguity cannot be resolved from existing documents
 - Product judgment or prioritization is needed
 - A decision requires stakeholder approval
-- No actionable work remains in the tracker
 
-### Trigger Rules
+In these cases the plan flags the open question and waits. Humans answer
+at the right altitude; the loop resumes when authority is restored.
 
-| Condition | HELIX Action |
-|-----------|-------------|
-| Ready governed work exists | `build` — bounded implementation |
-| Specs changed with open issues | `polish` — refine issues first |
-| Requirement change detected | `evolve` or `design` before build |
-| Queue drained | `check` — decide next action |
-| Periodic interval | `align` — reconciliation audit |
-| Build complete | `review` — fresh-eyes cross-model review |
+## How a Cycle Goes
 
-## Tracker-First Execution
+A typical iteration:
 
-The tracker (`ddx bead`) is the steering wheel. Users direct agents by:
+1. **Intent enters** somewhere — a feature request, a metric flag, an
+   incident, a refactor itch
+2. **Alignment runs** against current artifacts; produces a plan describing
+   which activities are affected
+3. **Runtime executes** the plan, creating concrete work items in
+   whatever tracker the runtime provides
+4. **Artifacts update** as work happens — vision revisions, new feature
+   specs, fresh ADRs, additional tests, code changes
+5. **Iterate captures** what happened — metrics, alignment reviews,
+   improvement backlog
+6. **Intent enters again** — feeding the next pass
 
-- Creating issues with priorities and acceptance criteria
-- Setting dependencies between work items
-- Approving or blocking work through tracker state
-- Closing completed work
-
-Agents read tracker state and execute. The mental model:
-
-```
-User <-> Tracker <-> helix run (background)
-```
-
-## Epic Focus Mode
-
-When `helix run` picks an epic, it stays focused:
-
-1. Decompose the epic into child tasks
-2. Implement children one at a time
-3. Review the epic when children complete
-4. Only move to the next scope after the epic finishes or is blocked
-
-## Cross-Model Verification
-
-When configured, HELIX alternates AI models for adversarial review:
-
-- **Primary agent** handles reasoning-heavy work (frame, design, evolve, align, review)
-- **Alternate agent** handles mechanical work (build, polish, check)
-
-This ensures different models review each other's output, catching blind spots
-that self-review misses.
+The loop does not "finish." It runs continuously, with the alignment skill
+catching drift before it accumulates and the runtime executing work
+between alignment passes.

@@ -1,130 +1,17 @@
 ---
-title: "Data Design"
+title: "Data Design — HELIX Bead Tracker"
 slug: data-design
-phase: "Design"
-weight: 200
+weight: 240
+activity: "Design"
+source: "02-design/data-design.md"
 generated: true
-aliases:
-  - /reference/glossary/artifacts/data-design
 ---
-
-## What it is
-
-Design-level data architecture covering entities, stores, access patterns,
-constraints, and migration strategy.
-
-## Phase
-
-**[Phase 2 — Design](/reference/glossary/phases/)** — Decide how to build it. Capture trade-offs, contracts, and architecture decisions.
-
-## Output location
-
-`docs/helix/02-design/data-design.md`
-
-## Relationships
-
-### Requires (upstream)
-
-- [Architecture](../architecture/)
-- [Solution Design](../solution-design/) *(optional)*
-- [Technical Design](../technical-design/) *(optional)*
-- [Security Architecture](../security-architecture/) *(optional)*
-
-### Enables (downstream)
-
-_None._
-
-### Informs
-
-- [Technical Design](../technical-design/)
-- [Test Plan](../test-plan/)
-
-## Generation prompt
-
-The agent prompt that produces this artifact.
-
-<details>
-<summary>Show the full generation prompt</summary>
-
-``````markdown
-# Data Design Generation Prompt
-Document the data model and access patterns needed to support the design.
-
-## Focus
-- Name the main entities, stores, and key fields.
-- Make relationships, lifecycle, and integrity constraints explicit.
-- Capture the main access patterns and their performance or consistency needs.
-- Note privacy, classification, retention, and protection consequences where they
-  materially shape the design.
-- Define migration and rollback expectations for schema or storage changes.
-- Avoid drifting into implementation-specific query or ORM code.
-
-## Completion Criteria
-- The model is understandable to another engineer without reading code.
-- Key data decisions and constraints are explicit.
-- Access patterns and migration strategy are concrete enough to guide
-  implementation and tests.
-``````
-
-</details>
-
-## Template
-
-<details>
-<summary>Show the template structure</summary>
-
-``````markdown
-# Data Design
-
-## Data Summary
-
-- Scope: [What feature, subsystem, or workflow this data design supports]
-- Storage systems: [Database, queue, cache, object store]
-- Main concerns: [Consistency, scale, retention, privacy, migration]
-
-## Entities and Stores
-
-| Entity or Store | Purpose | Key Fields | Volume / Growth | Notes |
-|-----------------|---------|------------|-----------------|-------|
-| [Name] | [What it represents] | [Important fields] | [Expected scale] | [Business rules or constraints] |
-
-## Relationships
-
-| From | To | Type | Cardinality | On Delete |
-|------|----|------|-------------|-----------|
-| [Entity1] | [Entity2] | [1:N, N:M] | [Required/Optional] | [CASCADE/RESTRICT/SET NULL] |
-
-## Access Patterns and Constraints
-
-| Access Pattern | Frequency | Performance Need | Supporting Index or Cache |
-|----------------|-----------|------------------|---------------------------|
-| [Read or write path] | [Rate] | [Latency or throughput target] | [Index, partition, cache] |
-
-## Validation and Security
-
-| Field or Data Type | Rules / Classification | Protection or Error Handling |
-|--------------------|------------------------|------------------------------|
-| [Field] | [Constraints or classification] | [Masking, encryption, validation, retention] |
-
-## Migration Strategy
-
-- Tooling: [Migration framework]
-- Approach: [Schema rollout and rollback strategy]
-- Backfill or cleanup: [If needed]
-``````
-
-</details>
-
-## Example
-
-This example is HELIX's actual data design, sourced from [`docs/helix/02-design/data-design.md`](https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/02-design/data-design.md). It shows how this artifact is used in a live methodology project; it may include project-specific context.
-
-## Data Design — HELIX Bead Tracker
+# Data Design — HELIX Bead Tracker
 
 **Scope**: The `.ddx/beads.jsonl` issue tracker that anchors HELIX execution.
 **Status**: Complete
 
-### Data Summary
+## Data Summary
 
 - Scope: The bead tracker — HELIX's only durable execution-state store. Beads
   are work units (issues, tasks, epics, planning notes) governed by upstream
@@ -136,13 +23,13 @@ This example is HELIX's actual data design, sourced from [`docs/helix/02-design/
   mutate during a live `helix run`), stale-claim recovery, deterministic
   ready/blocked queries, append history preserved in `events`, and forward-
   compatible schema evolution without breaking existing tooling.
-- Authority: [CONTRACT-001](https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/02-design/contracts/CONTRACT-001-ddx-helix-boundary.md)
+- Authority: [CONTRACT-001](contracts/CONTRACT-001-ddx-helix-boundary.md)
   (`ddx bead` and `.ddx/beads.jsonl` belong to DDx; HELIX consumes via the
-  CLI), [ADR-002](https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/02-design/adr) (tracker write safety model — referenced where
-  available), and [API-001](https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/02-design/contracts/API-001-helix-tracker-mutation.md)
+  CLI), [ADR-002](adr/) (tracker write safety model — referenced where
+  available), and [API-001](contracts/API-001-helix-tracker-mutation.md)
   (HELIX-side mutation surface).
 
-### Entities and Stores
+## Entities and Stores
 
 | Entity or Store | Purpose | Key Fields | Volume / Growth | Notes |
 |-----------------|---------|------------|-----------------|-------|
@@ -151,7 +38,7 @@ This example is HELIX's actual data design, sourced from [`docs/helix/02-design/
 | Claim metadata (embedded fields) | Single-writer guard for active execution | `claimed-at` (ISO-8601 UTC), `claimed-pid`, `claimed-machine`, `owner` | One slot per in-progress bead | Cleared by `--unclaim`, `close`, or orphan-recovery sweep |
 | Execution-eligibility metadata | Distinguishes execution-ready beads from refinement/superseded ones | `execution-eligible`, `superseded-by`, `replaces` | Sparse — most beads do not need it | Drives `ddx bead list --execution-ready` |
 
-### Relationships
+## Relationships
 
 | From | To | Type | Cardinality | On Delete |
 |------|----|------|-------------|-----------|
@@ -160,7 +47,7 @@ This example is HELIX's actual data design, sourced from [`docs/helix/02-design/
 | Bead | Governing artifact (`spec-id`) | governed-by | N:1 (optional path string) | No delete propagation — `spec-id` is a path, not a foreign key; drift is surfaced via review |
 | Bead | Bead (`superseded-by` / `replaces`) | supersession | N:1 (optional) | Supersession redirects readiness queries; original bead remains for audit |
 
-### Access Patterns and Constraints
+## Access Patterns and Constraints
 
 | Access Pattern | Frequency | Performance Need | Supporting Index or Cache |
 |----------------|-----------|------------------|---------------------------|
@@ -170,7 +57,7 @@ This example is HELIX's actual data design, sourced from [`docs/helix/02-design/
 | Orphan-recovery sweep (claims older than `HELIX_ORPHAN_THRESHOLD`, default 7200s) | Periodic during long runs | Bounded; touches only stale claims | Filter on `claimed-at` age + dead-PID check |
 | `helix status` snapshot (counts by status, focused-epic view) | Operator-initiated, ad hoc | Sub-second | Reuses the open-list scan |
 
-### Validation and Security
+## Validation and Security
 
 | Field or Data Type | Rules / Classification | Protection or Error Handling |
 |--------------------|------------------------|------------------------------|
@@ -183,7 +70,7 @@ This example is HELIX's actual data design, sourced from [`docs/helix/02-design/
 | `events[]` payloads | Append-only history | Never rewritten by HELIX; corruption is recoverable from git history |
 | File-level access | Repo-relative; readable by anyone with repo read access | Treat as public-ish: do not store secrets, customer data, or credentials |
 
-### Migration Strategy
+## Migration Strategy
 
 - Tooling: `ddx bead` is the only sanctioned writer. Schema evolution is
   managed downstream in DDx; HELIX consumes through the published CLI

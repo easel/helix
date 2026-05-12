@@ -3,32 +3,37 @@ title: The Thesis
 weight: 3
 ---
 
-HELIX is the **methodology layer** for AI-assisted software delivery —
-seven phases, a graph of artifacts, and a set of cross-cutting concerns
-that travel with the work. It runs on [DDx](https://github.com/easel/ddx),
-the platform substrate that owns agent execution, the bead/tracker
-primitives, and the bounded queue-drain loop. The two together give you
-supervised autonomy: AI agents that do real work, on artifacts you can
-audit, with human judgment exactly where it matters.
+HELIX is the **methodology layer** for AI-assisted software development.
+It packages seven kinds of work — Discover, Frame, Design, Test, Build,
+Deploy, Iterate — as a catalog of artifact types and prompts, with one
+skill that keeps the resulting documents aligned. The execution
+runtime — agent runtime, tracker, queue control — is somebody else's
+job. DDx is the reference runtime; Databricks Genie, Claude Code, and
+others can run HELIX with their own per-runtime packages. The two layers together
+give you supervised autonomy: AI agents doing real work, on artifacts you
+can audit, with human judgment exactly where it matters.
 
 ## Three structural commitments
 
-### Phases and artifacts give the work its shape
+### Activities and artifacts give the work its shape
 
-A HELIX project moves through [seven
-phases](/reference/glossary/phases/): Discover, Frame, Design, Test,
-Build, Deploy, Iterate. Each phase produces a specific set of
-[artifacts](/artifacts/) — vision documents in Discover, PRDs and
-feature specs in Frame, ADRs and contracts in Design, test plans in
-Test, code in Build, runbooks in Deploy, alignment reviews in Iterate.
+A HELIX project produces artifacts across seven
+[activities](/reference/glossary/activities/): **Discover, Frame, Design,
+Test, Build, Deploy, Iterate**. Each owns a specific set of [artifact
+types](/artifact-types/) — vision documents in Discover, PRDs and feature
+specs in Frame, ADRs and designs in Design, test plans in Test,
+implementation work in Build, runbooks and monitoring in Deploy,
+alignment reviews and metrics in Iterate.
 
-Forty-three artifact types in total, each with a defined role, a generation
-prompt, a template, and a place in the [authority
+The activities are connected by authority. A vision change propagates
+downstream; a failing test reveals a missing requirement; a production
+metric revises the PRD. Forty-plus artifact types each have a defined
+role, an authoring prompt, a template, and a place in the [authority
 order](/why/principles/#3-authority-order-governs-reconciliation). When
-an artifact is missing or stale, HELIX knows which phase produces it. When
-two artifacts disagree, the higher-authority one wins.
+an artifact is missing or stale, HELIX knows which activity produces it.
+When two artifacts disagree, the higher one wins.
 
-### Concerns inject standards across phases
+### Concerns inject standards across activities
 
 [Cross-cutting concerns](/concerns/) — accessibility requirements, the
 project's tech stack, observability strategy, security posture — are
@@ -41,19 +46,17 @@ This is HELIX's answer to "every project needs consistency" without
 forcing any specific tech stack on the framework itself. The standards
 are project-owned. The injection mechanism is universal.
 
-### Supervision wraps DDx's execution loop
+### One alignment skill closes the loop
 
-`helix run` wraps DDx's `agent execute-loop` with supervisory behavior.
-DDx claims ready beads, dispatches agents, captures execution evidence,
-and closes work on merge. HELIX decides which beads are ready, which is
-the highest leverage to claim next, when to stop for a human decision,
-and which model to assign. The platform is the engine; HELIX is the
-operator.
+HELIX ships a single skill that reads a project's governing artifacts,
+identifies drift, gaps, and contradictions, and produces a plan to close
+them. It runs against any HELIX-shaped artifact tree on any runtime
+that can read and write markdown. The runtime executes the plan; HELIX
+just keeps the documents honest.
 
-When something requires human judgment that the system cannot make for
-itself — authority missing, ambiguity beyond automation, a product
-question only the team can answer — the loop halts and tells the
-operator exactly what is needed and why.
+When something requires human judgment the system cannot make for itself
+— authority missing, ambiguity beyond automation, a product question
+only the team can answer — the alignment plan surfaces it and waits.
 
 ## What this shape buys you
 
@@ -63,9 +66,9 @@ operator exactly what is needed and why.
 - **Durable knowledge.** Documents survive sessions, model upgrades, and
   team turnover. Institutional memory lives in the repository, not in
   someone's head.
-- **Steerable autonomy.** The autopilot does work; the human steers via
-  tracker state and gate decisions. The slider between manual and
-  autonomous is per-task — set per bead, per phase, per project.
+- **Runtime portability.** The same methodology + content runs on DDx,
+  Databricks Genie, Claude Code, or a plain agent shell. Pick the
+  runtime; keep the discipline.
 - **Compounding feedback.** Every bead leaves execution evidence. Every
   review leaves findings. Every change updates downstream artifacts. The
   knowledge that produces good work next time is captured by the work
@@ -73,9 +76,10 @@ operator exactly what is needed and why.
 
 ## Read more
 
-The eight load-bearing ideas behind these commitments are documented in
-[Principles](/why/principles/). The full artifact catalog is in
+The load-bearing ideas behind these commitments are documented in
+[Principles](/why/principles/). The full type catalog is in
+[Artifact Types](/artifact-types/); this project's actual instances are in
 [Artifacts](/artifacts/). The cross-cutting standards layer is in
-[Concerns](/concerns/). When you're ready to build, [Use
-HELIX](/use/) walks through installing, defining your project's first
-artifacts, and running your first supervised build.
+[Concerns](/concerns/). When you're ready to build, [Use HELIX](/use/)
+walks through installing, defining your project's first artifacts, and
+running your first alignment pass.

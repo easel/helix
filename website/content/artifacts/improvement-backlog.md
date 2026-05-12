@@ -1,114 +1,22 @@
 ---
-title: "Improvement Backlog"
+title: "Improvement Backlog — HELIX 2026-Q2"
 slug: improvement-backlog
-phase: "Iterate"
-weight: 600
+weight: 560
+activity: "Iterate"
+source: "06-iterate/improvement-backlog.md"
 generated: true
-aliases:
-  - /reference/glossary/artifacts/improvement-backlog
 ---
 
-## What it is
+> **Source identity** (from `06-iterate/improvement-backlog.md`):
 
-Prioritized improvement inventory derived from iteration learnings and
-tracker-backed follow-up work.
-
-## Phase
-
-**[Phase 6 — Iterate](/reference/glossary/phases/)** — Measure, align, and improve. Close the feedback loop back into the planning strand.
-
-## Output location
-
-`docs/helix/06-iterate/improvement-backlog.md`
-
-## Relationships
-
-### Requires (upstream)
-
-- [Metrics Dashboard](../metrics-dashboard/)
-- [Security Metrics](../security-metrics/)
-
-### Enables (downstream)
-
-_None._
-
-### Informs
-
-- Tracker Issues
-
-## Generation prompt
-
-The agent prompt that produces this artifact.
-
-<details>
-<summary>Show the full generation prompt</summary>
-
-``````markdown
-# Improvement Backlog Generation Prompt
-Document the prioritized improvement inventory produced from iteration learnings.
-
-## Focus
-- Turn the current iteration's learnings into a ranked list of follow-up work.
-- Prefer concrete tracker-backed items over vague TODOs.
-- Use metrics, feedback, and retrospective findings as evidence.
-- Make the next selection obvious by sorting by priority and impact.
-- Link each item to the relevant bead, report, or supporting artifact.
-
-## Completion Criteria
-- The inventory is prioritized.
-- Every item has an evidence source.
-- The next iteration candidates are explicit.
-``````
-
-</details>
-
-## Template
-
-<details>
-<summary>Show the template structure</summary>
-
-``````markdown
----
+```yaml
 ddx:
   id: improvement-backlog
   depends_on:
     - metrics-dashboard
----
-# Improvement Backlog
+```
 
-**Iteration**: [iteration or release]
-**Source Learnings**: [metrics, feedback, retrospective, incident review]
-
-## Prioritization Rules
-
-- [Rule for ordering work]
-- [Rule for handling safety or risk]
-
-## Backlog Items
-
-| Priority | Item | Evidence | Tracker Ref | Why Now | Status |
-|----------|------|----------|-------------|---------|--------|
-| P1 | [item] | [metric or finding] | [bead ID] | [reason] | [open/blocked] |
-
-## Selection for Next Iteration
-
-- [Chosen item]
-- [Why it wins the next slot]
-
-## Review Checklist
-
-- [ ] Each item cites evidence
-- [ ] Tracker references are included
-- [ ] Ordering is deterministic
-``````
-
-</details>
-
-## Example
-
-This example is HELIX's actual improvement backlog, sourced from [`docs/helix/06-iterate/improvement-backlog.md`](https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/06-iterate/improvement-backlog.md). It shows how this artifact is used in a live methodology project; it may include project-specific context.
-
-## Improvement Backlog — HELIX 2026-Q2
+# Improvement Backlog — HELIX 2026-Q2
 
 **Iteration**: 2026-Q2 (post-`v0.3.3`)
 **Source Learnings**: `docs/helix/06-iterate/alignment-reviews/AR-2026-05-01-public-examples.md`,
@@ -117,7 +25,7 @@ This example is HELIX's actual improvement backlog, sourced from [`docs/helix/06
 recent `tests/helix-cli.sh` regression history,
 the active concerns roster (`hugo-hextra`, `demo-asciinema`, `e2e-playwright`).
 
-### Prioritization Rules
+## Prioritization Rules
 
 - Rank by **authority leverage**: items that shore up CONTRACT-001 alignment
   or fix authority-inversion risks rank above cosmetic improvements.
@@ -129,7 +37,7 @@ the active concerns roster (`hugo-hextra`, `demo-asciinema`, `e2e-playwright`).
 - Safety / supply-chain risk items take priority over feature work. None
   are currently flagged in `security-metrics.md`.
 
-### Backlog Items
+## Backlog Items
 
 | Priority | Item | Evidence | Tracker Ref | Why Now | Status |
 |----------|------|----------|-------------|---------|--------|
@@ -142,7 +50,7 @@ the active concerns roster (`hugo-hextra`, `demo-asciinema`, `e2e-playwright`).
 | P3 | Demo-recording inventory refresh under `demo-asciinema` | `demo-asciinema` concern; demos may have drifted from current CLI surface | helix-39fc1526 and successors | Public demos should match shipped behavior post-`v0.3.3` | open |
 | P3 | Forge-agent discovery scaffolding | `eff9742` "chore: add forge agent discovery tracker issue" | The bead created in that commit | Listed as a known known-issue in `release-notes.md`; no current path to consume it | open |
 
-### Selection for Next Iteration
+## Selection for Next Iteration
 
 - **Chosen item**: P1 — Author HELIX-real worked examples for the 12
   descoped artifact slugs. This iterate cycle is consuming them as the
@@ -154,7 +62,7 @@ the active concerns roster (`hugo-hextra`, `demo-asciinema`, `e2e-playwright`).
   exercising the relocate-meta-decision-doc pattern that several other
   cleanups will reuse.
 
-### Review Checklist
+## Review Checklist
 
 - [x] Each item cites evidence
 - [x] Tracker references are included (or marked as "pending bead" where

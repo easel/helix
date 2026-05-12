@@ -1,44 +1,80 @@
 # Agent Instructions
 
-This is the HELIX repository — the canonical source for the HELIX workflow
-methodology, action prompts, skills, CLI, and execution contract.
+This is the HELIX repository — the canonical source for the HELIX methodology,
+artifact-type catalog, and (in progress) a single alignment skill. HELIX is
+content + one skill; execution lives in a runtime (DDx today, Databricks
+Genie and Claude Code in progress).
 
-This project uses the **built-in HELIX tracker** for issue tracking.
-Issues are stored in `.ddx/beads.jsonl` — one JSON object per line.
+The governing artifacts of HELIX-the-project live under `docs/helix/`.
+Methodology specifications and shared templates live under `workflows/`. Both
+are authoritative; the artifact-type catalog (`workflows/phases/*/artifacts/`)
+is the canonical shape, and `docs/helix/` is the worked example of HELIX
+applied to itself.
 
-The workflow definitions live under `workflows/`. Treat those docs as
-the source of truth for the workflow contract.
+This project uses the DDx tracker for execution work. Issues live in
+`.ddx/beads.jsonl` — one JSON object per line.
+
+## Direction note
+
+HELIX is collapsing in scope. The eventual deliverable is methodology +
+artifact templates + one alignment-and-planning skill. The current set of
+`helix-*` CLI commands and `skills/helix-*` directories is mostly legacy;
+queue control, beads, and execution belong to the runtime (DDx). See
+`docs/helix/00-discover/product-vision.md` and `docs/helix/01-frame/prd.md`
+for the target shape. The Quick Reference below is what works **today** while
+the collapse proceeds — many of those commands will be removed.
 
 ## Quick Reference
 
+DDx-owned (the runtime primitives — these stay):
+
 ```bash
 ddx bead ready           # Find available tracked work
-ddx bead ready --execution # Find execution-safe work for helix run
+ddx bead ready --execution # Find execution-safe work
 ddx bead show <id>       # View issue details
 ddx bead update <id> --claim  # Claim work
 ddx bead close <id>      # Complete work
-ddx bead status          # Check tracker health
-bash tests/helix-cli.sh       # Deterministic HELIX wrapper tests
-bash tests/validate-state-rules.sh # Deterministic state detection contract validation
-bash tests/validate-context-digests.sh # Deterministic context-digest coverage validation
-bash tests/validate-demo-fixtures.sh # Deterministic demo prompt/fixture validation
-bash tests/validate-pages-demo-recording.sh # Deterministic Pages demo-recording workflow validation
-bash tests/validate-skills.sh # Deterministic HELIX skill package validation
-just test                     # Run all tests (CLI + skills)
-helix run                     # Run bounded HELIX execution loop
-helix frame [scope]           # Create product vision, PRD, feature specs
-helix design [scope]          # Create design document through iterative refinement
-helix build [selector]        # Run one bounded build pass
-helix check [scope]           # Decide next HELIX action
-helix review [scope]          # Fresh-eyes review of recent work
-helix measure [id|scope]      # Verify bead against acceptance criteria + gates
-helix report [id|scope]       # Analyze results, create follow-on beads, close cycle
-helix align [scope]           # Top-down reconciliation audit
-helix evolve "requirement"    # Thread a requirement through the artifact stack
-helix triage "Title"          # Create well-structured tracker issues
-helix commit [issue-id]       # Commit with HELIX format + build gate
-helix polish [scope]          # Refine issues before implementation
+ddx bead status          # Tracker health
+ddx agent execute-loop   # Primary queue-drain surface
+ddx agent execute-bead <id> # One bounded bead execution
+ddx doc prose            # Prose-quality check
+```
+
+HELIX wrappers (transitional — most are slated for removal):
+
+```bash
+helix input "intent"          # Shape intent into governed work items
+helix align [scope]           # Top-down reconciliation audit  (survivor)
+helix frame [scope]           # Create vision, PRD, feature specs  (survivor candidate)
+helix design [scope]          # Iterative design through refinement  (survivor candidate)
+helix evolve "requirement"    # Thread a requirement through the artifacts  (survivor candidate)
+helix review [scope]          # Fresh-eyes review of recent work  (survivor candidate)
+
+# Legacy / slated for removal — these wrap DDx queue control:
+helix run                     # Wrapper over ddx agent execute-loop
+helix build [selector]        # Wrapper over ddx agent execute-bead
+helix check [scope]           # Queue-drain decision wrapper
+helix triage "Title"          # Wrapper over ddx bead create
+helix worker                  # Background-process wrapper
+helix commit [issue-id]       # Commit + build gate wrapper
+helix polish [scope]          # Issue-refinement wrapper
 helix next                    # Show recommended next issue
+helix measure / report        # Execution-evidence wrappers
+```
+
+Validation and build:
+
+```bash
+just test                     # Run all tests (CLI + skills + state rules + digests)
+bash tests/helix-cli.sh       # Deterministic HELIX wrapper tests
+bash tests/validate-state-rules.sh
+bash tests/validate-context-digests.sh
+bash tests/validate-demo-fixtures.sh
+bash tests/validate-pages-demo-recording.sh
+bash tests/validate-skills.sh
+
+python3 scripts/generate-reference.py  # Regenerate /artifact-types/ and /concerns/ from workflows/
+python3 scripts/publish-artifacts.py   # Publish docs/helix/ into /artifacts/
 ```
 
 ## Operational Guide
