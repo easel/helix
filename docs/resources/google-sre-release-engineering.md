@@ -29,8 +29,9 @@ release quickly.
 
 ## HELIX Usage
 
-This resource informs the Deployment Checklist artifact. HELIX uses it to keep
-deployment readiness concise, evidence-based, staged, and rollback-aware.
+This resource informs Deployment Checklist and Runbook artifacts. HELIX uses it
+to keep deployment readiness concise, evidence-based, staged, rollback-aware,
+and operationally executable.
 
 ## Authority Boundary
 

@@ -9,6 +9,15 @@ Create a service-specific operational runbook for one deployed system.
 - on-call ownership and escalation expectations
 - security-response constraints, if the service has them
 
+## Reference Anchors
+
+Use these local resource summaries as grounding:
+
+- `docs/resources/google-sre-incident-management-guide.md` grounds alert
+  response, ownership, escalation, mitigation, and follow-up.
+- `docs/resources/google-sre-release-engineering.md` grounds rollback and
+  release-control procedures.
+
 ## Produced Output
 - `docs/helix/05-deploy/runbook.md`
 
@@ -29,6 +38,8 @@ Map alerts or symptoms to first checks, dashboards, commands, and next
 decisions. Include rollback and recovery steps with prerequisites, stop
 conditions, and validation. Include recurring operational procedures only when
 somebody actually performs them.
+Preserve evidence before destructive containment when security or data exposure
+is possible.
 
 Do not produce a generic SRE handbook, sample vendor command dump, or broad
 release coordination plan.

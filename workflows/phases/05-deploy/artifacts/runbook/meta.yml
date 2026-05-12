@@ -47,6 +47,17 @@ prompts:
 template:
   file: template.md
 
+example:
+  file: example.md
+
+references:
+  - title: "Google SRE Incident Management Guide"
+    file: docs/resources/google-sre-incident-management-guide.md
+    relationship: "Grounds alert response, ownership, escalation, mitigation, and follow-up"
+  - title: "Google SRE: Release Engineering"
+    file: docs/resources/google-sre-release-engineering.md
+    relationship: "Grounds rollback and release-control procedures"
+
 workflow:
   creation_order: 3
   review_cycles: 1
