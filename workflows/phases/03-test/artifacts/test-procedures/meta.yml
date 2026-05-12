@@ -5,8 +5,8 @@ artifact:
   phase: test
 
 description: |
-  Step-by-step procedures for executing planned tests, recording evidence,
-  and making pass/fail decisions consistently.
+  Repeatable operator procedures for running planned tests, capturing evidence,
+  and applying pass/fail rules consistently.
 
 output:
   location: docs/helix/03-test/test-procedures.md
@@ -34,6 +34,20 @@ prompts:
 
 template:
   file: template.md
+
+example:
+  file: example.md
+
+references:
+  - title: "Google Test Sizes"
+    file: docs/resources/google-test-sizes.md
+    relationship: "Grounds different execution expectations for small, medium, and large tests"
+  - title: "Practical Test Pyramid"
+    file: docs/resources/fowler-practical-test-pyramid.md
+    relationship: "Grounds procedure differences across unit, integration, and end-to-end tests"
+  - title: "Cucumber Executable Specifications"
+    file: docs/resources/cucumber-executable-specifications.md
+    relationship: "Grounds acceptance-example procedures without replacing implementation tests"
 
 relationships:
   informed_by:
