@@ -3,8 +3,8 @@
 You are processing sparse user intent through the HELIX intake surface.
 
 Your goal is to accept a natural language request, identify the governed work it
-affects in the artifact stack, and create or update tracker beads so the rest
-of the HELIX workflow can execute the intent without further user prompting.
+affects in the artifact stack, and create or update work items so the rest of
+the HELIX workflow can execute the intent without further user prompting.
 
 ## Action Input
 
@@ -20,8 +20,8 @@ You receive:
 - `medium`: Create deterministic non-conflict artifacts. Pause for user input
   when ambiguity or conflict blocks deterministic progress on an affected artifact.
 - `high`: Create downstream artifacts without interactive prompts unless blocked
-  by a physics-level constraint. Create speculative beads for assumptions rather
-  than asking.
+  by a physics-level constraint. Create speculative work items for assumptions
+  rather than asking.
 
 ## Authority Order
 
@@ -39,7 +39,7 @@ When artifacts disagree, use this precedence:
 ## PHASE 0 — Bootstrap
 
 1. Read AGENTS.md so project instructions are fresh in working memory.
-2. Verify the built-in tracker is available (`ddx bead status`).
+2. Verify the runtime tracker is available.
 3. Read `docs/helix/01-frame/` if it exists to load project vision and
    declared concerns.
 
@@ -49,7 +49,7 @@ Parse the request:
 
 1. Extract the core intent (what the user wants to change, add, or fix).
 2. Identify the affected artifact layer (feature, design, bug, etc.).
-3. Identify any explicit constraints or references (spec IDs, bead IDs,
+3. Identify any explicit constraints or references (spec IDs, work item IDs,
    feature names, area labels).
 4. If autonomy=low, confirm your interpretation with the user before
    continuing. If autonomy=medium or high, proceed with best-effort
@@ -59,44 +59,35 @@ Parse the request:
 
 Traverse the artifact stack to find affected artifacts:
 
-1. Search for existing governing beads, features, specs, and designs that
+1. Search for existing governing work items, features, specs, and designs that
    the request touches.
 2. Determine the blast radius: which governed artifacts need to change?
-3. If a matching bead already exists (same scope, same intent), prefer
+3. If a matching work item already exists (same scope, same intent), prefer
    updating it over creating a duplicate.
 
-## PHASE 3 — Bead Creation / Update
+## PHASE 3 — Work Item Creation / Update
 
-Create or update tracker beads for the identified work:
+Create or update work items for the identified work:
 
-1. Use `ddx bead create` for new work items.
-2. Use `ddx bead update <id>` to refine existing items.
-3. Set labels: `helix`, plus `phase:build`, `kind:implementation`, and any
+1. Create new work items for new scope.
+2. Refine existing work items when the same scope already has an open item.
+3. Assign labels: `helix`, plus `phase:build`, `kind:implementation`, and any
    relevant `area:` labels.
 4. Set `spec-id` to the nearest governing artifact (feature, user story, or
    design doc ID).
 5. Write concrete, locally verifiable acceptance criteria.
-6. Encode blockers with `ddx bead dep add` when one bead must precede another.
-7. After creating a new bead, assemble its `<context-digest>` per
-   `.ddx/plugins/helix/workflows/references/context-digest.md`.
-   - If the repo ships `scripts/refresh_context_digests.py`, use it after bead
-     creation so digest assembly and area labels stay deterministic.
-   - Do not leave HELIX-created open beads without either a digest or an
-     explicit omission rationale when the contract allows omission. Use the
-     exact prefix `Explicit omission rationale: <reason>`, add label
-     `digest:omission-authorized`, and set
-     `digest-omission-path=helix-input:legacy-migration` so validators can
-     prove the omission path was explicitly granted.
-   - This omission path is allowed only for migrated legacy beads whose
-     upstream concern mapping is still incomplete. If `helix input` can
-     assemble a digest, it must do so instead of using the omission path.
+6. Encode blockers when one work item must precede another.
+7. After creating a new work item, assemble its context digest per the
+   runtime's context-digest reference. Do not leave HELIX-created open work
+   items without either a digest or an explicit omission rationale when the
+   contract allows omission.
 
-**Autonomy-specific bead creation rules**:
+**Autonomy-specific work item creation rules**:
 
-- `low`: Create only the bead the user explicitly confirmed.
-- `medium`: Create beads for deterministic downstream work. Flag ambiguous
-  scope in bead descriptions rather than creating speculative beads.
-- `high`: Create speculative beads for reasonable downstream assumptions;
+- `low`: Create only the work item the user explicitly confirmed.
+- `medium`: Create work items for deterministic downstream work. Flag ambiguous
+  scope in descriptions rather than creating speculative items.
+- `high`: Create speculative work items for reasonable downstream assumptions;
   label them `kind:speculative` to mark them as assumed, not confirmed.
 
 ## PHASE 4 — Conflict Detection
@@ -104,16 +95,76 @@ Create or update tracker beads for the identified work:
 Before finishing, check for conflicts:
 
 1. Does this intent contradict an existing higher-authority artifact?
-2. Does it duplicate an existing open bead?
+2. Does it duplicate an existing open work item?
 
 If a conflict exists:
 - `low` / `medium`: Report the conflict and ask the user how to resolve it.
-- `high`: Create an escalation bead labeled `kind:escalation` and proceed
+- `high`: Create an escalation work item labeled `kind:escalation` and proceed
   with the non-conflicting portions of the request.
 
 ## PHASE 5 — Output
 
 Report what was done:
+
+```
+INPUT_STATUS: COMPLETE | NEEDS_CLARIFICATION | BLOCKED
+ITEMS_CREATED: N
+ITEMS_UPDATED: N
+AUTONOMY_LEVEL: low|medium|high
+CONFLICTS: <description or "none">
+NEXT_ACTION: run implementation loop | check queue | <clarification question>
+```
+
+Be precise. If the user's intent was ambiguous and autonomy required you to
+pause, state exactly what clarification is needed.
+
+## DDx Integration Appendix
+
+This appendix applies when DDx is the active HELIX runtime.
+
+### Bootstrap
+
+Verify the tracker with `ddx bead status`. If it fails, stop immediately.
+
+### PHASE 1 reference
+
+Explicit constraints or references include bead IDs.
+
+### PHASE 2 reference
+
+Search for existing governing beads via the tracker.
+
+### PHASE 3 — DDx work item operations
+
+```bash
+# Create new work item
+ddx bead create "<title>" \
+  --labels helix,phase:build,kind:implementation \
+  --set spec-id=<governing-artifact> \
+  --acceptance "<testable criteria>"
+
+# Refine existing work item
+ddx bead update <id> ...
+
+# Encode a blocker
+ddx bead dep add <blocked-id> <blocking-id>
+```
+
+After creating a new bead, assemble its `<context-digest>` per
+`.ddx/plugins/helix/workflows/references/context-digest.md`. If the repo ships
+`scripts/refresh_context_digests.py`, use it after bead creation so digest
+assembly and area labels stay deterministic.
+
+Omission path: if the this action cannot assemble a digest (legacy bead,
+incomplete concern mapping), use the exact prefix
+`Explicit omission rationale: <reason>`, add label `digest:omission-authorized`,
+and set `digest-omission-path=helix-input:legacy-migration`.
+
+**Autonomy-specific bead creation rules** mirror the normative rules above, with
+speculative beads labeled `kind:speculative` and escalation beads labeled
+`kind:escalation`.
+
+### PHASE 5 — DDx output trailer
 
 ```
 INPUT_STATUS: COMPLETE | NEEDS_CLARIFICATION | BLOCKED
@@ -123,6 +174,3 @@ AUTONOMY_LEVEL: low|medium|high
 CONFLICTS: <description or "none">
 NEXT_ACTION: helix run | helix check | <clarification question>
 ```
-
-Be precise. If the user's intent was ambiguous and autonomy required you to
-pause, state exactly what clarification is needed.

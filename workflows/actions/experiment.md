@@ -1,12 +1,12 @@
 # HELIX Action: Experiment
 
 You are performing one bounded experiment iteration within a metric-optimization
-session against the built-in tracker (`ddx bead`).
+session tracked via the runtime tracker.
 
 Your goal is to hypothesize a change, implement it within scoped files, verify
 correctness, benchmark the result, make a keep/discard decision, log everything,
-and exit. The external loop (the `/ddx:experiment` skill or the operator
-re-invoking `helix experiment`) decides whether to continue iterating.
+and exit. The external loop (the experiment skill or the operator re-invoking
+this action) decides whether to continue iterating.
 
 This action performs one experiment iteration. It modifies only files declared in
 scope, does not change test expectations, and does not implement new features.
@@ -20,17 +20,10 @@ definition at `docs/helix/06-iterate/metrics/`.
 
 You may receive:
 
-- no argument (auto-select a ready `phase:iterate` issue)
-- an explicit issue ID
+- no argument (auto-select a ready `phase:iterate` work item)
+- an explicit work item ID
 - a goal description such as `optimize test-suite-runtime`
 - a `--close` flag directing you to skip iteration and execute Phase 3
-
-Examples:
-
-- `helix experiment`
-- `helix experiment <id>`
-- `helix experiment optimize test-suite-runtime`
-- `helix experiment --close`
 
 ## Authority Order
 
@@ -56,33 +49,30 @@ Rules:
 
 ## Tracker Rules
 
-Use the built-in tracker only. Follow:
+Use the runtime tracker only.
 
-- See `ddx bead --help` for tracker conventions
+This action works only on execution work items labeled `phase:iterate`. Exclude
+review items and build/deploy items by default.
 
-Issues are stored in `.ddx/beads.jsonl`.
-
-This action works only on execution issues labeled `phase:iterate`. Exclude
-review issues and build/deploy issues by default.
-
-The experiment action claims one issue at session setup, may create follow-on
-issues during execution, and closes the issue at session close.
+The experiment action claims one item at session setup, may create follow-on
+items during execution, and closes the item at session close.
 
 ## PHASE 0 - Bootstrap
 
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
-0a. **Load active design principles** following `.ddx/plugins/helix/workflows/references/principles-resolution.md`.
-   Use them to inform metric selection and experiment design decisions.
-0b. **Load active concerns and practices** following `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
-   Experiments must use the declared concerns — do not introduce alternative tools
-   or frameworks as part of an optimization experiment.
-1. Verify the built-in tracker is available.
-   - If `ddx bead status` fails, stop immediately.
-2. Load ratchet floor fixtures if the project has adopted quality ratchets
-   (see `.ddx/plugins/helix/workflows/ratchets.md`). Note the current floors so Phase 3
-   can compare against them for auto-bump decisions.
+0a. **Load active design principles** following the principles-resolution
+   reference for this runtime. Use them to inform metric selection and
+   experiment design decisions.
+0b. **Load active concerns and practices** following the concern-resolution
+   reference for this runtime. Experiments must use the declared concerns —
+   do not introduce alternative tools or frameworks as part of an optimization
+   experiment.
+1. Verify the runtime tracker is available. Stop immediately if unavailable.
+2. Load ratchet floor fixtures if the project has adopted quality ratchets.
+   Note the current floors so Phase 3 can compare against them for auto-bump
+   decisions.
 3. Determine the invocation mode:
    - If `--close` directive: skip directly to Phase 3.
    - If resuming (session files exist — `autoresearch.md` is present in the
@@ -100,27 +90,27 @@ This phase runs on the first invocation only. If resuming, Phase 0 skips here.
 
 ### 1.1 Issue Selection
 
-Select the experiment issue:
+Select the experiment work item:
 
-1. If the input is an explicit issue ID: inspect that issue.
-2. If the input is a goal description: search ready `phase:iterate` issues
+1. If the input is an explicit work item ID: inspect that item.
+2. If the input is a goal description: search ready `phase:iterate` items
    matching the goal.
-3. If no input is given: inspect ready `phase:iterate` execution issues and
+3. If no input is given: inspect ready `phase:iterate` execution items and
    choose the best candidate.
 
-The selected issue MUST:
+The selected item MUST:
 
 - be labeled `phase:iterate`
 - have passing tests (the project's test suite must be green before
   experimenting)
 - have clear acceptance criteria defining what metric to optimize
-- not be a review issue or a build/deploy issue
+- not be a review item or a build/deploy item
 
-If no eligible issue exists, report the reason and exit cleanly.
+If no eligible item exists, report the reason and exit cleanly.
 
-### 1.2 Claim Issue
+### 1.2 Claim Work Item
 
-Claim the selected issue with `ddx bead update <id> --claim`.
+Claim the selected item via the runtime tracker.
 
 ### 1.3 Authority Check
 
@@ -142,7 +132,7 @@ Load or create the primary metric definition:
 - If a metric definition exists at `docs/helix/06-iterate/metrics/<name>.yaml`,
   read `name`, `unit`, `direction`, `command`, and `tolerance` from it.
 - If no metric definition exists, create one during setup using the
-  `.ddx/plugins/helix/workflows/templates/metric-definition.yaml` template schema. Commit
+  metric-definition template from the runtime's templates directory. Commit
   the new metric definition to the canonical location
   (`docs/helix/06-iterate/metrics/<name>.yaml`) before branching. This is a
   normative artifact at authority level 5-6.
@@ -183,15 +173,15 @@ is non-negotiable — tests must pass at every step.
    ```
 
 3. Create ephemeral session files (untracked, local-only):
-   - `autoresearch.md` — session doc, populated from
-     `.ddx/plugins/helix/workflows/templates/autoresearch-session.md`. References the metric
-     definition by path. Contains objective, metrics, correctness check, files
-     in scope, off-limits, constraints, and "What's Been Tried" section.
+   - `autoresearch.md` — session doc, populated from the autoresearch-session
+     template. References the metric definition by path. Contains objective,
+     metrics, correctness check, files in scope, off-limits, constraints, and
+     "What's Been Tried" section.
    - `autoresearch.sh` — benchmark script, derived from the metric definition's
      `command` field. Must output `METRIC <name>=<value>` lines to stdout.
      Make it executable (`chmod +x autoresearch.sh`).
-   - `experiments/worklog.md` — narrative log, populated from
-     `.ddx/plugins/helix/workflows/templates/autoresearch-worklog.md`.
+   - `experiments/worklog.md` — narrative log, populated from the
+     autoresearch-worklog template.
    - `autoresearch.jsonl` — initialize with a config header line:
      ```json
      {"type":"config","goal":"<goal>","metric":"<name>","direction":"<lower|higher>","issue":"<id>","started":"<ISO-8601>"}
@@ -355,8 +345,8 @@ especially after context compaction.
 
 ## PHASE 3 - Session Close
 
-This phase is invoked explicitly via `helix experiment --close` or by the skill
-when iteration is complete. It does NOT run during normal iteration.
+This phase is invoked explicitly via a `--close` flag or by the skill when
+iteration is complete. It does NOT run during normal iteration.
 
 ### 3.1 Authority Check
 
@@ -435,27 +425,14 @@ git branch -d experiment/<goal>-<date>
 
 ### 3.6 Measure
 
-Record measurement results on the bead before closing. See
-`.ddx/plugins/helix/workflows/references/measure.md` for the full pattern.
+Record measurement results on the work item via the runtime tracker before
+closing. See the measure action for the full pattern. Record timestamp, status,
+metric-improvement criterion pass/fail with evidence (baseline, final, delta),
+ratchet values, and experiment iterations/confidence.
 
-```bash
-ddx bead update <id> --notes "<measure-results>
-  <timestamp>$(date -u +%Y-%m-%dT%H:%M:%SZ)</timestamp>
-  <status>PASS|PARTIAL</status>
-  <acceptance>
-    <criterion name='metric-improvement' status='pass|fail'
-      evidence='baseline=X, final=Y, delta=Z%'/>
-  </acceptance>
-  <ratchets>
-    <ratchet name='...' floor='...' measured='...' status='pass|fail'/>
-  </ratchets>
-  <experiment iterations='N' kept='N' confidence='score'/>
-</measure-results>"
-```
+### 3.7 Close Work Item
 
-### 3.7 Close Issue
-
-Close the issue with `ddx bead close <id>` and a comprehensive close comment
+Close the work item via the runtime tracker with a comprehensive close comment
 recording execution evidence:
 
 - Goal and optimization target
@@ -474,7 +451,7 @@ This is execution evidence on the issue, not a canonical HELIX doc.
 If the experiment revealed additional optimization opportunities, code quality
 concerns, or architectural concerns:
 
-- Create follow-on issues immediately.
+- Create follow-on work items immediately.
 - Make them atomic and deterministic.
 - Set `spec-id` to the nearest governing artifact.
 - Add the correct HELIX labels.
@@ -496,7 +473,7 @@ EXPERIMENT_KEPT: N
 EXPERIMENT_BEST: <metric>=<value> (<delta>% vs baseline)
 EXPERIMENT_CONFIDENCE: <score>
 MEASURE_STATUS: PASS|FAIL|PARTIAL
-BEAD_ID: <id>
+ITEM_ID: <id>
 ```
 
 ### Status Definitions
@@ -542,5 +519,63 @@ Report these sections in order:
 5. Confidence Assessment
 6. Follow-On Issues Created (if any)
 7. Suggested Next Step (continue iterating, close session, change strategy)
+
+## DDx Integration Appendix
+
+This appendix applies when DDx is the active HELIX runtime.
+
+### PHASE 0 — DDx references
+
+- Principles: `.ddx/plugins/helix/workflows/references/principles-resolution.md`
+- Concerns: `.ddx/plugins/helix/workflows/references/concern-resolution.md`
+- Ratchets: `.ddx/plugins/helix/workflows/ratchets.md`
+- Metric-definition template: `.ddx/plugins/helix/workflows/phases/06-iterate/artifacts/metric-definition/template.yaml`
+- Autoresearch-session template: `.ddx/plugins/helix/workflows/phases/06-iterate/artifacts/autoresearch-session/template.md`
+- Autoresearch-worklog template: `.ddx/plugins/helix/workflows/phases/06-iterate/artifacts/autoresearch-worklog/template.md`
+
+### PHASE 1.2 — DDx claim
+
+```bash
+ddx bead update <id> --claim
+```
+
+### PHASE 3.6 — DDx measure
+
+```bash
+ddx bead update <id> --notes "<measure-results>
+  <timestamp>$(date -u +%Y-%m-%dT%H:%M:%SZ)</timestamp>
+  <status>PASS|FAIL</status>
+  <metric-improvement baseline='<N>' final='<N>' delta='<N>%'/>
+  <iterations total='N' kept='N'/>
+  <confidence><score></confidence>
+</measure-results>"
+```
+
+### PHASE 3.7 — DDx close
+
+```bash
+ddx bead close <id> --comment "Experiment closed. <summary>"
+```
+
+### DDx action input examples
+
+```
+helix experiment
+helix experiment <id>
+helix experiment optimize test-suite-runtime
+helix experiment --close <id>
+```
+
+### DDx output trailer
+
+```
+EXPERIMENT_STATUS: CONVERGED|ITERATION_COMPLETE|NO_IMPROVEMENT|CLOSED
+EXPERIMENT_ITERATIONS: N
+EXPERIMENT_KEPT: N
+EXPERIMENT_BEST: <metric>=<value> (<delta>% vs baseline)
+EXPERIMENT_CONFIDENCE: <score>
+MEASURE_STATUS: PASS|FAIL|PARTIAL
+BEAD_ID: <governing-bead-id>
+```
 
 Be precise, quantitative, and operational.

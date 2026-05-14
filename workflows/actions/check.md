@@ -17,13 +17,6 @@ You may receive:
 - `repo`
 - a scope selector such as `US-042`, `FEAT-003`, `area:auth`, or `phase:build`
 
-Examples:
-
-- `helix check`
-- `helix check repo`
-- `helix check FEAT-003`
-- `helix check area:auth`
-
 If no scope is given, default to the repository.
 
 ## Decision Codes
@@ -59,10 +52,10 @@ can resume. `review` remains a supervisory subroutine outside this specific
 Supervisor interpretation:
 
 - `BUILD` means continue the bounded implementation loop now.
-- `DESIGN` means run `helix design <scope>` once, then re-evaluate the queue.
-- `POLISH` means run `helix polish <scope>` once, then re-evaluate the queue.
-- `ALIGN` means run `helix align <scope>` once, then re-evaluate the queue.
-- `BACKFILL` means stop implementation and run `helix backfill <scope>` before resuming any execution work.
+- `DESIGN` means run the design action for the scope once, then re-evaluate the queue.
+- `POLISH` means run the polish action for the scope once, then re-evaluate the queue.
+- `ALIGN` means run the align action for the scope once, then re-evaluate the queue.
+- `BACKFILL` means stop implementation and run the backfill action for the scope before resuming any execution work.
 - `WAIT` means stop the current loop, do not auto-implement, and wait for the blocker to clear or the scope to change.
 - `GUIDANCE` means stop and request the missing decision from the user or stakeholder.
 - `STOP` means stop because there is no actionable work in scope.
@@ -86,19 +79,18 @@ Rules:
 - Tests govern build execution but do not override requirements or design.
 - Source code reflects current state but does not redefine the plan.
 - Do not treat open implementation work as proof that the plan is complete.
-- Prefer a real `ddx bead ready` view over status-only heuristics.
+- Prefer a real queue-ready view from the tracker over status-only heuristics.
 
 ## PHASE 0 - Bootstrap
 
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
-0a. **Load active concerns** following `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
-   Concern context informs queue health assessment — beads without area labels
-   cannot be matched to concerns, and stale context digests indicate the queue
-   needs a polish pass.
-1. Verify the built-in tracker is available.
-   - If `ddx bead status` fails, stop immediately.
+0a. **Load active concerns** following the concern-resolution reference for
+   this runtime. Concern context informs queue health assessment — work items
+   without area labels cannot be matched to concerns, and stale context
+   digests indicate the queue needs a polish pass.
+1. Verify the runtime tracker is available. Stop immediately if unavailable.
 2. Determine the scope.
 3. Detect whether canonical HELIX docs exist for the scope.
    - check `docs/helix/`
@@ -106,16 +98,15 @@ Rules:
 
 ## PHASE 1 - Queue Health
 
-Inspect the current execution queue using tracker commands.
+Inspect the current execution queue using tracker commands. At minimum,
+inspect:
 
-At minimum, inspect:
+- global queue health (ready, in-progress, and blocked counts)
+- ready execution work items
+- active claimed work items
+- blocked work items when relevant
 
-- `ddx bead status` for global queue health
-- `ddx bead ready --json`
-- `ddx bead list --status in_progress --label helix --json` for active claimed work
-- `ddx bead blocked --json` and open HELIX issues for blocked work when relevant
-
-Do not use review issues as evidence that implementation should continue.
+Do not use review items as evidence that implementation should continue.
 
 ## PHASE 2 - Artifact Health
 
@@ -128,10 +119,9 @@ Check for:
 - recent implementation changes without corresponding planning or test support
 - open execution issues whose governing artifacts are too weak to execute safely
 - queue starvation caused by missing review, decision, or doc work
-- ratchet status if the project has adopted quality ratchets
-  (see `.ddx/plugins/helix/workflows/ratchets.md`): current measured value vs. floor,
-  trend direction, and whether any ratchet is approaching its failure
-  threshold
+- ratchet status if the project has adopted quality ratchets: current measured
+  value vs. floor, trend direction, and whether any ratchet is approaching its
+  failure threshold
 
 ### Plan Decomposition Health
 
@@ -156,61 +146,59 @@ decomposition.
 
 If active concerns are declared:
 
-- **Missing area labels**: Count beads in scope that have no `area:*` labels.
-  These beads cannot be matched to concerns, so their context digests will be
-  incomplete. If the count is significant, recommend `POLISH` to assign labels.
-- **Missing context digests**: Count beads in scope that lack a
-  `<context-digest>` block. If the concern library has been updated since these
-  beads were created, recommend `POLISH` to assemble digests.
-- **Stale digests**: If concerns or practices were recently updated (check git
-  log on `.ddx/plugins/helix/workflows/concerns/` and `docs/helix/01-frame/concerns.md`), flag
-  that existing beads may have stale digests.
+- **Missing area labels**: Count work items in scope that have no `area:*`
+  labels. These items cannot be matched to concerns, so their context digests
+  will be incomplete. If the count is significant, recommend `POLISH` to
+  assign labels.
+- **Missing context digests**: Count work items in scope that lack a context
+  digest. If the concern library has been updated since these items were
+  created, recommend `POLISH` to assemble digests.
+- **Stale digests**: If concerns or practices were recently updated, flag that
+  existing work items may have stale digests.
 - **Missing concerns.md**: If `docs/helix/01-frame/concerns.md` does not exist,
   flag it. Recommend `BACKFILL` if the project clearly uses a technology with
   a library concern, or `GUIDANCE` if the technology choices are unclear.
-- **Concern propagation completeness**: If concerns exist and beads exist,
-  verify that beads with matching area labels have concern-appropriate
-  acceptance criteria (e.g., a `typescript-bun` bead should reference
+- **Concern propagation completeness**: If concerns exist and work items exist,
+  verify that items with matching area labels have concern-appropriate
+  acceptance criteria (e.g., a `typescript-bun` item should reference
   `bun:test` or `biome check`, not `vitest` or `eslint`). If a significant
-  number of beads have incorrect or missing concern references in their
+  number of items have incorrect or missing concern references in their
   acceptance criteria, recommend `POLISH` to propagate concerns.
-- **Concern change since last polish**: Check whether
-  `docs/helix/01-frame/concerns.md` or `.ddx/plugins/helix/workflows/concerns/` have been
-  modified more recently than the most recent `kind:planning,action:polish`
-  bead was closed. If so, concerns have changed since the last polish pass —
-  recommend `POLISH` even if beads appear ready, because their context digests
-  and acceptance criteria may be stale.
+- **Concern change since last polish**: Check whether `docs/helix/01-frame/concerns.md`
+  or the concern library has been modified more recently than the most recent
+  polish pass completed. If so, recommend `POLISH` even if work items appear
+  ready, because their context digests and acceptance criteria may be stale.
 
 ## PHASE 3 - Decision Logic
 
 Apply these rules in order:
 
 1. Recommend `BUILD` when:
-   - one or more safe ready HELIX execution issues exist that are **not**
+   - one or more safe ready HELIX execution work items exist that are **not**
      undecomposed epics
    - no higher-priority supervisory refinement such as required `design` or
      `polish` remains unresolved for the same scope
-   - plan decomposition health shows all in-scope plans have corresponding beads
+   - plan decomposition health shows all in-scope plans have corresponding work items
 2. Recommend `DESIGN` when:
    - requested or discovered work lacks sufficient design authority
    - a bounded planning pass can create or extend the missing design stack
    - implementation would otherwise guess at solution details
 3. Recommend `POLISH` when:
    - a plan or solution design exists but has not been decomposed into
-     implementable beads (this takes priority over `BUILD` even when epics
+     implementable work items (this takes priority over `BUILD` even when epics
      appear in the ready queue)
-   - the ready queue contains only epics without child task beads
-   - governing specs or designs changed and open issues need refinement before execution
-   - issue dependencies, `spec-id`, parentage, or acceptance metadata are stale enough to make implementation unsafe
+   - the ready queue contains only epics without child task items
+   - governing specs or designs changed and open items need refinement before execution
+   - item dependencies, `spec-id`, parentage, or acceptance metadata are stale enough to make implementation unsafe
 4. Recommend `BACKFILL` when:
    - the canonical HELIX stack is missing, stale, or contradictory enough to make safe execution impossible
 5. Recommend `ALIGN` when:
-   - the planning stack exists, but no safe ready execution issue exists and a reconciliation pass is likely to expose or refine the next work
-   - or supervisory review shows that requirement/design drift exists above the issue queue and neither a bounded `DESIGN` nor `POLISH` pass is the right narrower repair step
+   - the planning stack exists, but no safe ready execution work item exists and a reconciliation pass is likely to expose or refine the next work
+   - or supervisory review shows that requirement/design drift exists above the work queue and neither a bounded `DESIGN` nor `POLISH` pass is the right narrower repair step
 6. Recommend `BUILD` (not `WAIT`) when:
-   - work is blocked, but the blocking issues themselves are actionable
+   - work is blocked, but the blocking items themselves are actionable
      (e.g., config changes, migrations, infrastructure-as-code fixes)
-   - in this case, recommend implementing the blocker issue directly
+   - in this case, recommend implementing the blocker item directly
 7. Recommend `WAIT` when:
    - work exists, but is claimed by another agent or blocked on a truly
      external dependency that cannot be resolved by code changes (e.g.,
@@ -232,24 +220,15 @@ can safely resume.
 
 ## PHASE 4 - Suggested Command
 
-Provide the exact next command for the recommended action where possible:
-
-- `BUILD`:
-  - `helix build`
-- `DESIGN`:
-  - `helix design <scope>`
-- `POLISH`:
-  - `helix polish <scope>`
-- `ALIGN`:
-  - `helix align <scope>`
-- `BACKFILL`:
-  - `helix backfill <scope>`
+Provide the recommended next action and enough context for the runtime to
+invoke it. Name the scope and any specific work item or artifact that prompted
+the recommendation.
 
 For `WAIT`, `GUIDANCE`, or `STOP`, provide the exact reason and the condition
 that would change the result.
 
-For `BACKFILL`, provide the exact backfill command and the missing or
-contradictory artifacts that triggered it.
+For `BACKFILL`, identify the missing or contradictory artifacts that triggered
+the recommendation.
 
 ## Output Format
 
@@ -260,7 +239,56 @@ Output these sections in order:
 3. Queue Health
 4. Artifact Health
 5. Remaining Work Assessment
-6. Recommended Command
+6. Recommended Next Step
 7. Stop Or Escalation Condition
 
 Be concise, explicit, and operational.
+
+## DDx Integration Appendix
+
+This appendix applies when DDx is the active HELIX runtime.
+
+### PHASE 0 — DDx bootstrap
+
+```bash
+ddx bead status  # stop immediately if this fails
+```
+
+Load active concerns following `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
+
+### Action Input — DDx examples
+
+```
+helix check
+helix check repo
+helix check FEAT-003
+helix check area:auth
+```
+
+### PHASE 1 — DDx queue health commands
+
+```bash
+ddx bead status
+ddx bead ready --json
+ddx bead list --status in_progress --label helix --json
+ddx bead blocked --json
+```
+
+Prefer a real `ddx bead ready` view over status-only heuristics.
+
+### PHASE 2 — DDx artifact health references
+
+- Ratchets: `.ddx/plugins/helix/workflows/ratchets.md`
+- Concern library: `.ddx/plugins/helix/workflows/concerns/`
+- Concern change since last polish: check git log on
+  `.ddx/plugins/helix/workflows/concerns/` and `docs/helix/01-frame/concerns.md`
+  against the timestamp of the most recent `kind:planning,action:polish` bead
+  closed.
+
+### PHASE 4 — DDx suggested commands
+
+- `BUILD`: `helix build`
+- `DESIGN`: `helix design <scope>`
+- `POLISH`: `helix polish <scope>`
+- `ALIGN`: `helix align <scope>`
+- `BACKFILL`: `helix backfill <scope>`

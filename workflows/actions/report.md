@@ -1,66 +1,52 @@
 # HELIX Action: Report
 
 You are analyzing measurement results and closing the feedback loop between
-the execution helix and the planning helix.
+the execution cycle and the planning cycle.
 
-This action operates in two modes: per-bead (closing one cycle) and batch
+This action operates in two modes: per-item (closing one cycle) and batch
 (aggregating across a scope).
 
 ## Action Input
 
 You may receive:
 
-- an explicit bead ID (per-bead mode)
+- an explicit work item ID (per-item mode)
 - a scope selector such as `FEAT-003`, `area:auth`, or `phase:build` (batch mode)
 - `--since YYYY-MM-DD` to limit batch scope by time
-
-Examples:
-
-- `helix report ddx-abc123`
-- `helix report FEAT-003`
-- `helix report area:auth --since 2026-04-01`
 
 ## PHASE 0 - Bootstrap
 
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory.
-1. Verify the built-in tracker is available.
-   - If `ddx bead status` fails, stop immediately.
-2. Load active concerns following `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
+1. Verify the runtime tracker is available.
+2. Load active concerns following the concern-resolution reference for this
+   runtime.
 
-## Per-Bead Mode
+## Per-Item Mode
 
 ### PHASE 1 - Load Measurement Results
 
-1. Load the target bead: `ddx bead show <id> --json`
-2. Parse the `<measure-results>` block from the bead's notes.
-3. If no measurement results exist, recommend running `helix measure <id>`
-   first and stop.
+1. Load the target work item from the tracker.
+2. Parse the measurement results block from the item's notes.
+3. If no measurement results exist, recommend running the measure action first
+   and stop.
 
 ### PHASE 2 - Analyze Results
 
 Classify the measurement outcome:
 
-- **Clean**: All criteria passed, all gates passed. The bead's work is done.
+- **Clean**: All criteria passed, all gates passed. The work item is done.
 - **Fixable**: Failures are within the action's scope to fix. Recommend
-  fixing and re-measuring rather than creating follow-on beads.
-- **Follow-on**: Failures or findings require new work outside this bead's
+  fixing and re-measuring rather than creating follow-on items.
+- **Follow-on**: Failures or findings require new work outside this item's
   scope.
 
-### PHASE 3 - Create Follow-On Beads
+### PHASE 3 - Create Follow-On Work Items
 
-For each follow-on item, create a bead:
-
-```bash
-ddx bead create "<category>: <description>" \
-  --type task \
-  --labels helix,phase:build \
-  --set spec-id=<governing-artifact> \
-  --description "<context-digest>...</context-digest>
-Follow-on from bead <parent-id>.
-<description of the work needed>" \
-  --acceptance "<testable criteria>"
-```
+For each follow-on item, create a work item with a category prefix in the
+title, labels including `helix` and `phase:build`, a `spec-id` pointing to the
+nearest governing artifact, a context digest, a reference to the parent item in
+the description, and deterministic acceptance criteria.
 
 Follow-on categories:
 
@@ -73,66 +59,61 @@ Follow-on categories:
 | `ratchet-regression` | A ratchet measurement dropped below the floor |
 | `follow-on` | Execution revealed additional work outside scope |
 
-Follow-on beads enter the planning helix — they will be refined by
-`helix polish` before execution.
+Follow-on work items enter the planning cycle — they will be refined by the
+polish action before execution.
 
-### PHASE 4 - Close the Governing Bead
+### PHASE 4 - Close the Governing Work Item
 
-If measurement status is `PASS` or all failures are captured as follow-on
-beads:
+If measurement status is PASS or all failures are captured as follow-on items,
+close the governing work item. The close comment should summarize:
 
-```bash
-ddx bead close <id>
-```
-
-The close comment should summarize:
 - What was done
 - Measurement status
-- Number of follow-on beads created
+- Number of follow-on items created
 - References to commits or artifacts produced
 
-If measurement status is `FAIL` and failures are not captured as follow-on
-beads, do not close. Leave the bead open with a status note.
+If measurement status is FAIL and failures are not captured as follow-on items,
+do not close. Leave the item open with a status note.
 
-### Per-Bead Output
+### Per-Item Output
 
 ```
 REPORT_STATUS: CLOSED|OPEN|FOLLOW_ON
-BEAD_ID: <id>
+ITEM_ID: <id>
 MEASURE_STATUS: PASS|FAIL|PARTIAL
 FOLLOW_ON_CREATED: N
 ```
 
 ## Batch Mode
 
-### PHASE 1 - Collect Beads
+### PHASE 1 - Collect Work Items
 
-1. Load all beads in scope that have `<measure-results>` notes.
+1. Load all work items in scope that have measurement result notes.
 2. If `--since` is specified, filter by the measurement timestamp.
-3. Load each bead's measurement results.
+3. Load each item's measurement results.
 
 ### PHASE 2 - Aggregate Statistics
 
 Compute:
 
-- Total beads measured / passed / failed / partial
+- Total items measured / passed / failed / partial
 - Concern gate pass rates by concern
 - Ratchet trends (floor vs. measured over time)
-- Follow-on bead categories (how much new work did execution generate?)
+- Follow-on item categories (how much new work did execution generate?)
 - Acceptance criteria satisfaction rate
 
 ### PHASE 3 - Identify Patterns
 
 Look for:
 
-- **Recurring failures**: Same gate fails across multiple beads. May indicate
-  a systemic issue rather than per-bead bugs.
-- **Concern coverage gaps**: Beads without concern-appropriate criteria. May
+- **Recurring failures**: Same gate fails across multiple items. May indicate
+  a systemic issue rather than per-item bugs.
+- **Concern coverage gaps**: Items without concern-appropriate criteria. May
   indicate a polish gap.
 - **Ratchet trends**: Metrics approaching the floor. May indicate quality
   erosion that needs attention before it becomes a regression.
-- **Follow-on volume**: High follow-on creation rate may indicate that beads
-  are under-specified or that the planning helix needs more polish cycles.
+- **Follow-on volume**: High follow-on creation rate may indicate that items
+  are under-specified or that the planning cycle needs more polish passes.
 
 ### PHASE 4 - Write Batch Report
 
@@ -152,6 +133,81 @@ The report should include:
 
 ```
 REPORT_SCOPE: <scope>
+ITEMS_TOTAL: N
+ITEMS_PASSED: N
+ITEMS_FAILED: N
+ITEMS_PARTIAL: N
+FOLLOW_ON_TOTAL: N
+CONCERN_COVERAGE: N/M
+RATCHET_STATUS: all-passing | <name> approaching floor
+REPORT_FILE: docs/helix/06-iterate/reports/RPT-YYYY-MM-DD[-scope].md
+```
+
+## Feed-Back Into Planning Cycle
+
+Follow-on work items created during report are intentionally unrefined. The
+execution cycle produces raw findings; the planning cycle refines them.
+
+The next check action will detect these items and route appropriately:
+- If they need refinement → polish action
+- If they are already ready → build action
+- If they reveal design gaps → design action
+
+Be precise, quantitative, and evidence-driven.
+
+## DDx Integration Appendix
+
+This appendix applies when DDx is the active HELIX runtime.
+
+### PHASE 0 — DDx bootstrap
+
+```bash
+ddx bead status  # stop immediately if this fails
+```
+
+Load active concerns following `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
+
+### Per-bead mode — DDx specifics
+
+Load the target bead:
+```bash
+ddx bead show <id> --json
+```
+
+If no measurement results exist, recommend running `helix measure <id>` first.
+
+Create follow-on beads:
+```bash
+ddx bead create "<category>: <description>" \
+  --type task \
+  --labels helix,phase:build \
+  --set spec-id=<governing-artifact> \
+  --description "<context-digest>...</context-digest>
+Follow-on from bead <parent-id>.
+<description of the work needed>" \
+  --acceptance "<testable criteria>"
+```
+
+Follow-on beads enter the planning helix and will be refined by `helix polish`
+before execution.
+
+Close the governing bead:
+```bash
+ddx bead close <id>
+```
+
+Per-bead DDx trailer:
+```
+REPORT_STATUS: CLOSED|OPEN|FOLLOW_ON
+BEAD_ID: <id>
+MEASURE_STATUS: PASS|FAIL|PARTIAL
+FOLLOW_ON_CREATED: N
+```
+
+### Batch mode — DDx trailer
+
+```
+REPORT_SCOPE: <scope>
 BEADS_TOTAL: N
 BEADS_PASSED: N
 BEADS_FAILED: N
@@ -162,14 +218,6 @@ RATCHET_STATUS: all-passing | <name> approaching floor
 REPORT_FILE: docs/helix/06-iterate/reports/RPT-YYYY-MM-DD[-scope].md
 ```
 
-## Feed-Back Into Planning Helix
-
-Follow-on beads created during report are intentionally unrefined. The
-execution helix produces raw findings; the planning helix refines them.
-
-The next `helix check` will detect these beads and route appropriately:
-- If they need refinement → `POLISH`
-- If they are already ready → `BUILD`
-- If they reveal design gaps → `DESIGN`
-
-Be precise, quantitative, and evidence-driven.
+The next `helix check` will detect follow-on beads and route appropriately:
+`POLISH` for refinement, `BUILD` if already ready, `DESIGN` if design gaps
+are revealed.

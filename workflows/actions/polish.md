@@ -13,81 +13,46 @@ prevents agents from running off to implement work that hasn't been properly
 broken down.
 
 **Polish is the bridge between design and build.** A design plan is not
-executable — it must be decomposed into individually implementable beads before
-`helix build` can safely execute. If `helix check` routes here, your first
-priority is decomposition; refinement follows.
+executable — it must be decomposed into individually implementable work items
+before the build action can safely execute. If the check action routes here,
+your first priority is decomposition; refinement follows.
 
 ## Action Input
 
 You may receive:
 
-- no argument (default: all open issues)
+- no argument (default: all open work items)
 - a scope such as `auth`, `FEAT-003`, `phase:build`
 - `--rounds N` controlling maximum refinement passes (default: 6)
-
-Examples:
-
-- `helix polish`
-- `helix polish auth`
-- `helix polish --rounds 10 FEAT-003`
-
-## Tracker Rules
-
-Use the built-in tracker only. Follow:
-
-- See `ddx bead --help` for tracker conventions
-
-Issues are stored in `.ddx/beads.jsonl`.
 
 ## PHASE 0 - Load Current State
 
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
-0a. **Load active design principles** following `.ddx/plugins/helix/workflows/references/principles-resolution.md`.
-   Use them as refinement guidance — flag issues whose scope or criteria
-   conflict with the active principles.
-0b. **Load active concerns and practices** following `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
-   Verify issue descriptions and acceptance criteria reference the correct
-   concern tools and conventions.
-0c. **Refresh context digests**: For each bead in scope that has an existing
-   `<context-digest>`, re-assemble per `.ddx/plugins/helix/workflows/references/context-digest.md`
-   and update if material changes exist. For beads without a digest, assemble
-   one and prepend it. If the repo provides a digest refresh helper, use it so
-   area-label inference and digest assembly stay deterministic.
-1. Verify the built-in tracker is available.
-   - If `ddx bead status` fails, stop immediately.
-2. Load all open issues for the scope.
-   - `ddx bead list --status open --json`
-   - `ddx bead list --status in_progress --json` (if relevant to scope)
+0a. **Load active design principles** following the principles-resolution
+   reference for this runtime. Use them as refinement guidance — flag work
+   items whose scope or criteria conflict with the active principles.
+0b. **Load active concerns and practices** following the concern-resolution
+   reference for this runtime. Verify item descriptions and acceptance criteria
+   reference the correct concern tools and conventions.
+0c. **Refresh context digests**: For each work item in scope that has an
+   existing context digest, re-assemble and update if material changes exist.
+   For items without a digest, assemble one and prepend it. If the runtime
+   provides a digest refresh helper, use it so area-label inference and digest
+   assembly stay deterministic.
+1. Verify the runtime tracker is available. Stop immediately if unavailable.
+2. Load all open work items for the scope.
 3. Load the governing plan document if one exists.
    - Check `docs/helix/02-design/plan-*.md` for the scope
    - Check other planning artifacts (PRD, feature specs, architecture docs)
-4. Record initial issue count and state as the baseline.
+4. Record initial item count and state as the baseline.
 
-## PHASE 0.5 - Bead Acquisition
+## PHASE 0.5 - Work Item Acquisition
 
-Before modifying any beads, acquire a governing bead for this polish pass.
-See `.ddx/plugins/helix/workflows/references/bead-first.md` for the full pattern.
-
-1. Search for an existing open bead governing this work:
-   - `ddx bead list --status open --label kind:planning,action:polish --json`
-   - Filter by scope if the action was dispatched with a scope.
-2. If found, verify it is still relevant and claim it:
-   - `ddx bead update <id> --claim`
-3. If not found, create one:
-   ```bash
-   ddx bead create "polish: <scope description>" \
-     --type task \
-     --labels helix,phase:design,kind:planning,action:polish \
-     --set spec-id=<governing-plan-if-known> \
-     --description "<context-digest>...</context-digest>
-   Decompose plans and refine beads for <scope>.
-   Plans to decompose: <list plan docs found in Phase 0>" \
-     --acceptance "All plans in scope decomposed into beads; convergence reached (< 3 changes for 2 consecutive rounds); context digests refreshed; concern-appropriate acceptance criteria on all beads"
-   ```
-4. Record the bead ID. All subsequent bead modifications are governed by this
-   bead.
+Before modifying any work items, acquire a governing work item for this polish
+pass to record progress and govern changes. See the runtime's work-item
+acquisition reference for the full pattern.
 
 ## PHASE 1 - Plan Decomposition
 
@@ -103,17 +68,16 @@ decomposed into tracker beads before refinement or implementation can proceed.
 3. If the plan has **not been decomposed** (no or very few corresponding beads):
    a. Read the plan's "Implementation Plan with Dependency Ordering" section
       (or equivalent work breakdown).
-   b. Create one bead per implementable slice. Each bead must:
-      - be individually completable in one `helix build` cycle
-      - have `--labels helix,phase:build` (plus area labels)
-      - set `spec-id` with `--set spec-id=<governing-plan-or-design-artifact>`
+   b. Create one work item per implementable slice. Each item must:
+      - be individually completable in one build cycle
+      - carry labels `helix` and `phase:build` plus area labels
+      - set `spec-id` to the governing plan or design artifact
       - have deterministic acceptance criteria derived from the plan
-      - have a `<context-digest>` assembled per
-        `.ddx/plugins/helix/workflows/references/context-digest.md`
-   c. Group related beads under an epic if the plan implies multiple
+      - have a context digest assembled per the runtime's context-digest
+        reference
+   c. Group related items under an epic if the plan implies multiple
       implementation tracks.
-   d. Wire dependencies with `ddx bead dep add` based on the plan's
-      dependency graph.
+   d. Wire dependencies based on the plan's dependency graph.
 4. If the plan has been partially decomposed, create beads only for uncovered
    sections — do not duplicate existing beads.
 
@@ -147,24 +111,23 @@ Each pass performs ALL of the following checks. Track changes made per pass.
   - Bad: "auth should work correctly"
   - Good: "login with valid credentials returns 200 and a JWT; login with
     invalid credentials returns 401 with error code AUTH_INVALID"
-- Ensure every issue has at least one concrete acceptance criterion.
+- Ensure every work item has at least one concrete acceptance criterion.
 - Add verification method: what command or test proves this criterion is met?
-- For execution-ready beads (`phase:build`, `phase:deploy`, `phase:iterate`
+- For execution-ready items (`phase:build`, `phase:deploy`, `phase:iterate`
   implementation work), require acceptance text to name at least one explicit:
   - command to run
   - named check or execution doc
   - observable repository state, file, field, or tracker condition
 - Treat "works", "correct", "complete", "aligned", or similar adjectives
   without a named check as non-measurable acceptance text.
-- If the governing artifacts let you sharpen the bead, rewrite the acceptance
+- If the governing artifacts let you sharpen the item, rewrite the acceptance
   criteria immediately.
-- If the governing artifacts do **not** let you sharpen the bead into explicit
-  measurement criteria, flag the bead as **not execution-ready** and route it
-  back through planning/polish refinement instead of leaving hidden wrapper
-  knowledge to decide success.
-- A bead is not execute-loop-ready until DDx-managed execution could determine
-  success from the bead contract itself without a human inferring what "done"
-  means from HELIX wrapper behavior.
+- If the governing artifacts do **not** let you sharpen the item into explicit
+  measurement criteria, flag it as **not execution-ready** and route it back
+  through planning/polish refinement instead of leaving hidden knowledge to
+  decide success.
+- A work item is not execution-ready until the runtime could determine success
+  from the item's contract alone without a human inferring what "done" means.
 
 ### Dependency Verification
 
@@ -193,52 +156,53 @@ Each pass performs ALL of the following checks. Track changes made per pass.
 
 ### Area Label Enforcement for Concern Matching
 
-Area labels are required for concern filtering to work. For each bead in scope:
+Area labels are required for concern filtering to work. For each work item in
+scope:
 
-1. If the bead has no `area:*` labels, infer the correct area from:
+1. If the item has no `area:*` labels, infer the correct area from:
    - The `spec-id` and its governing artifact's scope
    - The files or subsystems referenced in the description
    - The parent epic's area labels (if the parent has them)
-2. Assign the inferred `area:*` label(s) using `ddx bead update <id> --labels`.
+2. Assign the inferred `area:*` labels.
 3. If the area is genuinely ambiguous, prefer the more inclusive label or
-   assign multiple labels. A bead touching both API and CLI should have both
+   assign multiple labels. An item touching both API and CLI should have both
    `area:api` and `area:cli`.
-4. Beads that touch all areas (e.g., CI config, cross-cutting refactors) may
+4. Items that touch all areas (e.g., CI config, cross-cutting refactors) may
    omit area labels — they will match only `areas: all` concerns, which is
    correct.
-5. Area labels are routing metadata, not digest content. Refresh the
-   `<concerns>` element from matched concern names after relabeling; do not
-   leave stale area names in the digest.
+5. Area labels are routing metadata, not digest content. Refresh the concerns
+   element from matched concern names after relabeling; do not leave stale
+   area names in the digest.
 
 ### Concern-Aware Acceptance Criteria
 
-For each bead in scope, verify acceptance criteria reference the correct
+For each work item in scope, verify acceptance criteria reference the correct
 concern tools:
 
-- A bead in a `typescript-bun` project should reference `bun:test`, not
+- An item in a `typescript-bun` project should reference `bun:test`, not
   `vitest` or `jest`, in its test-related acceptance criteria.
-- A bead in a `rust-cargo` project should reference `cargo clippy` and
+- An item in a `rust-cargo` project should reference `cargo clippy` and
   `cargo deny`, not ad-hoc lint approaches.
 - If acceptance criteria reference tools inconsistent with declared concerns,
   update them.
 
 ### Concern Propagation Verification
 
-For each active concern, verify end-to-end threading across all beads in scope:
+For each active concern, verify end-to-end threading across all work items in
+scope:
 
-1. **Digest coverage**: Every bead with a matching area label must have a
-   `<context-digest>` that includes the concern. If missing, assemble one.
-2. **Acceptance criteria coverage**: Every bead touching a concern's area must
+1. **Digest coverage**: Every item with a matching area label must have a
+   context digest that includes the concern. If missing, assemble one.
+2. **Acceptance criteria coverage**: Every item touching a concern's area must
    have at least one acceptance criterion that references the concern's quality
    gate or practice. For example:
-   - A `typescript-bun` bead must reference `bun:test` or `biome check`
-   - A `security-owasp` bead must reference input validation or dependency audit
-   - A `rust-cargo` bead must reference `cargo clippy` or `cargo deny`
-3. **Tool consistency**: Flag any bead whose acceptance criteria reference tools
+   - A `typescript-bun` item must reference `bun:test` or `biome check`
+   - A `security-owasp` item must reference input validation or dependency audit
+   - A `rust-cargo` item must reference `cargo clippy` or `cargo deny`
+3. **Tool consistency**: Flag any item whose acceptance criteria reference tools
    inconsistent with declared concerns (e.g., `vitest` in a `bun:test` project).
-4. **New concern detection**: If concerns changed since beads were created (check
-   git log on `.ddx/plugins/helix/workflows/concerns/` and `docs/helix/01-frame/concerns.md`),
-   propagate the change to all affected beads — update both digests and
+4. **New concern detection**: If concerns changed since items were created,
+   propagate the change to all affected items — update both digests and
    acceptance criteria.
 
 ## Convergence Detection
@@ -258,31 +222,114 @@ recommend additional rounds or user guidance.
 Verify the polish pass against the governing bead's acceptance criteria.
 See `.ddx/plugins/helix/workflows/references/measure.md` for the full pattern.
 
-1. **Decomposition completeness**: All plans in scope have corresponding beads.
+1. **Decomposition completeness**: All plans in scope have corresponding work items.
 2. **Convergence**: Change velocity dropped below threshold.
-3. **Concern threading**: All beads in scope have concern-appropriate context
-   digests and acceptance criteria.
+3. **Concern threading**: All work items in scope have concern-appropriate
+   context digests and acceptance criteria.
 4. **Dependency integrity**: No circular dependencies; all `spec-id` references
    resolve to existing artifacts.
-5. **Record results** on the governing bead:
-   `ddx bead update <id> --notes "<measure-results>...</measure-results>"`
+5. **Record results** on the governing work item via the runtime tracker.
 
 ## PHASE N+2 - Report
 
-Close the polish cycle and feed back into the planning helix.
-See `.ddx/plugins/helix/workflows/references/report.md` for the full pattern.
+Close the polish cycle and feed back into the planning cycle. See the report
+action for the full pattern.
 
-1. If measurement passed, close the governing bead with evidence summary.
-2. If measurement identified gaps, create follow-on beads for:
-   - Beads that still lack concern coverage
+1. If measurement passed, close the governing work item with evidence summary.
+2. If measurement identified gaps, create follow-on work items for:
+   - Items that still lack concern coverage
    - Plans that could not be fully decomposed (need guidance)
    - Dependency issues that need resolution
-3. The polished beads are now ready for `helix build` to claim and execute.
+3. The polished work items are now ready for the build action to claim and
+   execute.
 
 ## Output
 
 Report a summary of all modifications made across rounds, then these trailer
 lines:
+
+```
+POLISH_STATUS: CONVERGED|IN_PROGRESS
+DECOMPOSITION: YES|NO|PARTIAL
+POLISH_ROUNDS: N
+ITEMS_DECOMPOSED: count (from plan decomposition)
+ITEMS_MODIFIED: count
+ITEMS_CREATED: count (from refinement, not decomposition)
+ITEMS_MERGED: count
+MEASURE_STATUS: PASS|FAIL|PARTIAL
+ITEM_ID: <governing-item-id>
+FOLLOW_ON_CREATED: N
+```
+
+- `CONVERGED`: change velocity dropped below threshold
+- `IN_PROGRESS`: max rounds reached but velocity still above threshold
+- `DECOMPOSITION: YES`: plan was decomposed into work items in this run
+- `DECOMPOSITION: NO`: no plan found or plan was already decomposed
+- `DECOMPOSITION: PARTIAL`: plan partially decomposed, some sections could not
+  be broken down without guidance
+
+## DDx Integration Appendix
+
+This appendix applies when DDx is the active HELIX runtime.
+
+### PHASE 0 — DDx bootstrap
+
+```bash
+ddx bead status  # stop immediately if this fails
+```
+
+Load principles from `.ddx/plugins/helix/workflows/references/principles-resolution.md`.
+Load concerns from `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
+Refresh context digests per `.ddx/plugins/helix/workflows/references/context-digest.md`.
+
+Load open work items:
+```bash
+ddx bead list --status open --json
+ddx bead list --status in_progress --json
+```
+
+### PHASE 0.5 — DDx bead acquisition
+
+```bash
+ddx bead list --status open --label kind:planning,action:polish --json
+
+ddx bead update <id> --claim   # if found
+
+# if not found:
+ddx bead create "polish: <scope description>" \
+  --type task \
+  --labels helix,phase:design,kind:planning,action:polish \
+  --set spec-id=<governing-plan-if-known> \
+  --description "<context-digest>...</context-digest>
+Decompose plans and refine beads for <scope>.
+Plans to decompose: <list plan docs found in Phase 0>" \
+  --acceptance "All plans in scope decomposed into beads; convergence reached (< 3 changes for 2 consecutive rounds); context digests refreshed; concern-appropriate acceptance criteria on all beads"
+```
+
+### PHASE 1 — DDx decomposition
+
+Wire dependencies with `ddx bead dep add` based on the plan's dependency graph.
+
+### PHASE N+1 — DDx measure
+
+```bash
+ddx bead update <id> --notes "<measure-results>...</measure-results>"
+```
+
+Concern change check: compare git log on
+`.ddx/plugins/helix/workflows/concerns/` and `docs/helix/01-frame/concerns.md`
+against the timestamp of the most recent `kind:planning,action:polish` bead
+closed.
+
+### DDx action input examples
+
+```
+helix polish
+helix polish auth
+helix polish --rounds 10 FEAT-003
+```
+
+### DDx output trailer
 
 ```
 POLISH_STATUS: CONVERGED|IN_PROGRESS
@@ -297,9 +344,4 @@ BEAD_ID: <governing-bead-id>
 FOLLOW_ON_CREATED: N
 ```
 
-- `CONVERGED`: change velocity dropped below threshold
-- `IN_PROGRESS`: max rounds reached but velocity still above threshold
-- `DECOMPOSITION: YES`: plan was decomposed into beads in this run
-- `DECOMPOSITION: NO`: no plan found or plan was already decomposed
-- `DECOMPOSITION: PARTIAL`: plan partially decomposed, some sections could not
-  be broken down without guidance
+The polished beads are now ready for `helix build` to claim and execute.

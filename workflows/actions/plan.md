@@ -18,12 +18,6 @@ You may receive:
 - a scope such as `auth`, `FEAT-003`, `payments`
 - `--rounds N` controlling refinement iterations (default: 5)
 
-Examples:
-
-- `helix design`
-- `helix design auth`
-- `helix design --rounds 8 FEAT-003`
-
 ## Authority Order
 
 When artifacts disagree, use this order:
@@ -45,25 +39,25 @@ when they exist.
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
-0a. **Load active design principles** following `.ddx/plugins/helix/workflows/references/principles-resolution.md`.
-   These principles guide architectural and design judgment throughout the plan.
-0b. **Load active concerns and practices** following `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
-   The declared concerns constrain architecture decisions — design within the declared
-   technology selections. Reference ADRs that justify concern choices when the
-   design depends on them.
+0a. **Load active design principles** following the principles-resolution
+   reference for this runtime. These principles guide architectural and design
+   judgment throughout the plan.
+0b. **Load active concerns and practices** following the concern-resolution
+   reference for this runtime. The declared concerns constrain architecture
+   decisions — design within the declared technology selections. Reference
+   ADRs that justify concern choices when the design depends on them.
 1. Read all existing planning artifacts for the scope:
    - product vision, PRD, feature specs, user stories
    - architecture docs, ADRs, technical designs
    - existing test plans and implementation plans
 2. Read the current implementation state relevant to the scope.
-3. Read the current issue queue state if the tracker is initialized.
+3. Read the current work queue state if the tracker is initialized.
 4. Identify gaps: what questions does the existing planning stack leave open?
 5. **Load design artifact numbering rules** (required before creating any SD or
    TD artifact):
-   - Read `.ddx/plugins/helix/workflows/phases/02-design/artifacts/solution-design/meta.yml` to
-     understand the SD-{number} format, naming pattern, and no-reuse policy.
-   - Read `.ddx/plugins/helix/workflows/phases/02-design/artifacts/technical-design/meta.yml` to
-     understand the TD-{number} format.
+   - Read the solution-design meta.yml to understand the SD-{number} format,
+     naming pattern, and no-reuse policy.
+   - Read the technical-design meta.yml to understand the TD-{number} format.
    - Scan `docs/helix/02-design/solution-designs/SD-*.md` to find the maximum
      existing SD number; **next SD ID = max + 1** (use `001` if none exist).
    - Scan `docs/helix/02-design/technical-designs/TD-*.md` to find the maximum
@@ -72,33 +66,16 @@ when they exist.
      TD artifacts in this session; increment by one for each additional artifact
      created. Never guess or reuse an existing number.
    - Before writing any SD or TD artifact, validate each `depends_on` entry in
-     its ddx frontmatter: every referenced ID (e.g., `FEAT-XXX`) must resolve
-     to an existing artifact on disk. If a target does not exist, stop and
-     request guidance before writing the file.
+     its frontmatter: every referenced ID (e.g., `FEAT-XXX`) must resolve to an
+     existing artifact on disk. If a target does not exist, stop and request
+     guidance before writing the file.
 
-## PHASE 0.5 - Bead Acquisition
+## PHASE 0.5 - Work Item Acquisition
 
-Before writing any design content, acquire a governing bead for this design
-pass. See `.ddx/plugins/helix/workflows/references/bead-first.md` for the full pattern.
-
-1. Search for an existing open bead governing this work:
-   - `ddx bead list --status open --label kind:planning,action:design --json`
-   - Filter by scope or `spec-id` if the action was dispatched with a scope.
-2. If found, verify it is still relevant and claim it:
-   - `ddx bead update <id> --claim`
-3. If not found, create one:
-   ```bash
-   ddx bead create "design: <scope description>" \
-     --type task \
-     --labels helix,phase:design,kind:planning,action:design \
-     --set spec-id=<governing-artifact-if-known> \
-     --description "<context-digest>...</context-digest>
-   Create comprehensive design document for <scope>.
-   Inputs: <list governing artifacts loaded in Phase 0>" \
-     --acceptance "Design document converged with all required sections including concern-mandated sections; written to canonical path"
-   ```
-4. Record the bead ID. All subsequent file modifications are governed by this
-   bead.
+Before writing any design content, acquire a governing work item for this
+design pass to record progress, govern changes, and capture measurement
+results. See the runtime's work-item acquisition reference for the full
+pattern.
 
 ## PHASE 1 - First Draft
 
@@ -202,8 +179,8 @@ declare convergence and stop refinement.
 
 ## PHASE N+2 - Measure
 
-Verify the design document against the governing bead's acceptance criteria.
-See `.ddx/plugins/helix/workflows/references/measure.md` for the full pattern.
+Verify the design document against the governing work item's acceptance
+criteria. See the measure action for the full pattern.
 
 1. **Acceptance criteria**: Verify the design document exists at the canonical
    path and contains all required sections (including concern-mandated ones).
@@ -211,22 +188,21 @@ See `.ddx/plugins/helix/workflows/references/measure.md` for the full pattern.
    explain why it did not.
 3. **Concern coverage**: Verify each active concern's design-phase requirements
    are addressed in the plan.
-4. **Record results** on the governing bead:
-   `ddx bead update <id> --notes "<measure-results>...</measure-results>"`
+4. **Record results** on the governing work item via the runtime tracker.
 
 ## PHASE N+3 - Report
 
-Close the design cycle and feed back into the planning helix.
-See `.ddx/plugins/helix/workflows/references/report.md` for the full pattern.
+Close the design cycle and feed back into the planning cycle. See the report
+action for the full pattern.
 
-1. If measurement passed, close the governing bead with evidence summary.
-2. If measurement identified gaps, create follow-on beads for:
+1. If measurement passed, close the governing work item with evidence summary.
+2. If measurement identified gaps, create follow-on work items for:
    - Missing concern-mandated sections
    - Sections that need further refinement
    - Guidance-dependent items
-3. Note: The design document itself is not an execution bead — it must go
-   through `helix polish` to be decomposed into implementable beads before
-   `helix build` can execute against it.
+3. Note: The design document itself is not an execution work item — it must go
+   through the polish action to be decomposed into implementable items before
+   the build action can execute against it.
 
 ## Output
 
@@ -237,10 +213,73 @@ PLAN_STATUS: CONVERGED|IN_PROGRESS|GUIDANCE_NEEDED
 PLAN_DOCUMENT: docs/helix/02-design/plan-YYYY-MM-DD[-scope].md
 PLAN_ROUNDS: N
 MEASURE_STATUS: PASS|FAIL|PARTIAL
-BEAD_ID: <governing-bead-id>
+ITEM_ID: <governing-item-id>
 FOLLOW_ON_CREATED: N
 ```
 
 - `CONVERGED`: refinement velocity dropped below threshold
 - `IN_PROGRESS`: max rounds reached but velocity still high
 - `GUIDANCE_NEEDED`: ambiguity that requires user input before the plan can converge
+
+## DDx Integration Appendix
+
+This appendix applies when DDx is the active HELIX runtime.
+
+### PHASE 0 — DDx references
+
+- Principles: `.ddx/plugins/helix/workflows/references/principles-resolution.md`
+- Concerns: `.ddx/plugins/helix/workflows/references/concern-resolution.md`
+- Solution-design meta: `.ddx/plugins/helix/workflows/phases/02-design/artifacts/solution-design/meta.yml`
+- Technical-design meta: `.ddx/plugins/helix/workflows/phases/02-design/artifacts/technical-design/meta.yml`
+
+Validate `depends_on` entries in each artifact's ddx frontmatter before writing.
+
+### PHASE 0.5 — DDx bead acquisition
+
+```bash
+ddx bead list --status open --label kind:planning,action:design --json
+# filter by scope or spec-id if dispatched with a scope
+
+ddx bead update <id> --claim   # if found
+
+# if not found:
+ddx bead create "design: <scope description>" \
+  --type task \
+  --labels helix,phase:design,kind:planning,action:design \
+  --set spec-id=<governing-artifact-if-known> \
+  --description "<context-digest>...</context-digest>
+Create comprehensive design document for <scope>.
+Inputs: <list governing artifacts loaded in Phase 0>" \
+  --acceptance "Design document converged with all required sections including concern-mandated sections; written to canonical path"
+```
+
+Record the bead ID. All subsequent file modifications are governed by this
+bead.
+
+### DDx action input examples
+
+```
+helix design
+helix design auth
+helix design --rounds 8 FEAT-003
+```
+
+### PHASE N+2 — DDx record results
+
+```bash
+ddx bead update <id> --notes "<measure-results>...</measure-results>"
+```
+
+### DDx output trailer
+
+```
+PLAN_STATUS: CONVERGED|IN_PROGRESS|GUIDANCE_NEEDED
+PLAN_DOCUMENT: docs/helix/02-design/plan-YYYY-MM-DD[-scope].md
+PLAN_ROUNDS: N
+MEASURE_STATUS: PASS|FAIL|PARTIAL
+BEAD_ID: <governing-bead-id>
+FOLLOW_ON_CREATED: N
+```
+
+Note: The design document must go through `helix polish` to be decomposed into
+implementable beads before `helix build` can execute against it.

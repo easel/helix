@@ -13,68 +13,42 @@ You may receive:
 - no argument (default: `last-commit`)
 - `last-commit` — review the most recent commit
 - `commit:<sha>` — review one specific implementation commit
-- an issue ID — review all changes associated with that issue
+- a work item ID — review all changes associated with that item
 - a file list — review those specific files
-
-Examples:
-
-- `helix review`
-- `helix review last-commit`
-- `helix review commit:abc1234`
-- `helix review <id>`
-- `helix review src/auth/`
 
 ## PHASE 0 - Identify Review Target
 
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
-0a. **Load active design principles** following `.ddx/plugins/helix/workflows/references/principles-resolution.md`.
-   Apply them as review criteria — flag changes that violate the active principles.
-0b. **Load active concerns and practices** following `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
-   Flag implementation that uses tools or conventions inconsistent with the
-   declared concerns (e.g., wrong test framework, wrong formatter, wrong import style).
-0c. **Read the bead's context digest** if the reviewed issue has one.
+0a. **Load active design principles** following the principles-resolution
+   reference for this runtime. Apply them as review criteria — flag changes
+   that violate the active principles.
+0b. **Load active concerns and practices** following the concern-resolution
+   reference for this runtime. Flag implementation that uses tools or
+   conventions inconsistent with the declared concerns (e.g., wrong test
+   framework, wrong formatter, wrong import style).
+0c. **Read the work item's context digest** if the reviewed item has one.
    Use it as the authoritative summary of what principles, concerns, practices,
    and ADRs govern this work.
 1. Determine what was just implemented:
    - If `last-commit` or no argument: `git diff HEAD~1`
    - If `commit:<sha>`: review exactly that commit's diff (`git show <sha>`)
-   - If issue ID: load the issue, find associated commits via issue ID in commit
-     messages, compute the aggregate diff
+   - If work item ID: load the item, find associated commits via item ID in
+     commit messages, compute the aggregate diff
    - If file paths: review those files in their current state
-   - In the automated `helix run` loop, prefer `commit:<sha>` from the
-     executed bead's `closing_commit_sha` when tracker-closure bookkeeping
-     produced a newer tracker-only commit after the implementation commit.
 2. Load the governing artifacts for the reviewed code (acceptance criteria,
    test plans, design docs).
 
-## PHASE 0.5 - Bead Acquisition
+## PHASE 0.5 - Work Item Acquisition
 
-Before performing review passes, acquire a governing bead for this review.
-See `.ddx/plugins/helix/workflows/references/bead-first.md` for the full pattern.
+Before performing review passes, acquire a governing work item for this
+review. See the runtime's work-item acquisition reference for the full
+pattern.
 
-1. If reviewing a specific issue ID, the review may operate on the execution
-   bead itself (recording review findings as notes). Alternatively, create a
-   dedicated review bead.
-2. Search for an existing open review bead:
-   - `ddx bead list --status open --label kind:planning,action:review --json`
-3. If not found, create one:
-   ```bash
-   ddx bead create "review: <scope description>" \
-     --type task \
-     --labels helix,phase:review,kind:planning,action:review \
-     --set spec-id=<reviewed-commit-or-issue> \
-     --description "<context-digest>...</context-digest>
-   Fresh-eyes review of <target>.
-   Review target: <last-commit|issue-id|file-list>" \
-     --acceptance "All review passes complete; findings filed as beads with scope-appropriate area labels; AGENTS.md updated if needed"
-   ```
-   Then assemble or refresh the bead's `<context-digest>` per
-   `.ddx/plugins/helix/workflows/references/context-digest.md`. If the repo
-   ships `scripts/refresh_context_digests.py`, use it after creation so the
-   digest and derived `area:*` labels stay deterministic.
-4. Record the bead ID. All review findings are governed by this bead.
+If reviewing a specific work item ID, the review may record findings on the
+execution item itself. Otherwise, create a dedicated review item. All review
+findings are governed by the acquired work item.
 
 ## Pass 1 - Correctness Review
 
@@ -124,10 +98,10 @@ the concern's declared practices:
 2. **Security concern** (if active): Are inputs validated at system boundaries?
    Are SQL queries parameterized? Are secrets loaded from environment, not
    hardcoded? Are error messages generic to clients? Check against the
-   practices in `.ddx/plugins/helix/workflows/concerns/security-owasp/practices.md`.
+   security concern's practices.
 3. **Observability concern** (if active): Are new code paths instrumented
    with tracing spans? Are metrics emitted for new endpoints? Check against
-   `.ddx/plugins/helix/workflows/concerns/o11y-otel/practices.md`.
+   the observability concern's practices.
 4. **Infrastructure concern** (if active): Do new services follow the
    declared deployment pattern? Are Helm values or k8s manifests updated?
 
@@ -181,13 +155,120 @@ For each issue found, report:
 - **Description**: what is wrong
 - **Suggested fix**: how to resolve it
 
-## Filing Findings as Tracker Issues
+## Filing Findings as Work Items
 
 After completing all review passes, file each actionable finding (severity
-`critical`, `high`, or `medium`) as a tracker issue so that findings are
-durable and appear in the ready queue for subsequent execution cycles.
+`critical`, `high`, or `medium`) as a work item so that findings are durable
+and appear in the ready queue for subsequent execution cycles.
 
-For each actionable finding, create a tracker issue:
+For each actionable finding, create a work item with:
+
+- a title with the category prefix
+- labels `helix,phase:build,review-finding` plus derived area labels
+- `spec-id` set to the governing artifact or file path where the finding
+  was identified
+- description including: file and line, category, severity, full description,
+  and suggested fix
+- deterministic acceptance criteria (e.g., "test X passes", "no SQL injection
+  in function Y")
+
+Rules for filing:
+- `low` severity findings: do not file as work items; report them in the output
+  only
+- Apply label `review-finding` on every finding item for queryability
+- Include at least one scope-appropriate `area:*` label on every filed finding
+  so concern matching survives re-entry into the queue
+- Derive `area:*` labels in this priority order:
+  1. Preserve `area:*` labels from the reviewed execution item when the review
+     target is a work item.
+  2. Otherwise infer the label(s) from the reviewed scope using the project
+     area taxonomy in `docs/helix/01-frame/concerns.md` (or the default
+     taxonomy from the concern-resolution reference when the project file does
+     not exist).
+  3. If the finding spans multiple surfaces, assign multiple `area:*` labels
+     rather than picking one arbitrarily.
+
+## Measure
+
+Record review results on the governing work item via the runtime tracker.
+See the measure action for the full pattern.
+
+All four review passes constitute the measurement. Record a summary covering:
+
+- timestamp
+- status (CLEAN or ISSUES_FOUND)
+- findings counts (total, filed, critical, high, medium, low)
+- whether AGENTS.md was updated
+- number of learnings items created
+
+## Report
+
+Close the review cycle. See the report action for the full pattern.
+
+1. The filed finding work items are the primary follow-on output — they
+   re-enter the planning cycle for polish and build.
+2. Close the governing review work item with evidence summary.
+3. If issues are found with severity `critical` or `high`, recommend that the
+   associated implementation item be reopened or a regression item be created.
+
+Report these trailer lines at the end of your output:
+
+```
+REVIEW_STATUS: CLEAN|ISSUES_FOUND
+ISSUES_COUNT: N
+FINDINGS_FILED: N
+AGENTS_MD_UPDATED: YES|NO
+LEARNINGS_FILED: N
+MEASURE_STATUS: PASS|FAIL|PARTIAL
+ITEM_ID: <governing-item-id>
+FOLLOW_ON_CREATED: N
+```
+
+- `CLEAN`: no issues found across all passes
+- `ISSUES_FOUND`: one or more issues identified
+- `ISSUES_COUNT`: total number of findings (all severities)
+- `FINDINGS_FILED`: number of findings filed as work items (critical+high+medium)
+- `AGENTS_MD_UPDATED`: whether AGENTS.md was modified during this review
+- `LEARNINGS_FILED`: number of learnings items created (0 if none)
+
+## DDx Integration Appendix
+
+This appendix applies when DDx is the active HELIX runtime.
+
+### PHASE 0 — DDx references
+
+- Principles: `.ddx/plugins/helix/workflows/references/principles-resolution.md`
+- Concerns: `.ddx/plugins/helix/workflows/references/concern-resolution.md`
+- Context-digest: `.ddx/plugins/helix/workflows/references/context-digest.md`
+- Security concern practices: `.ddx/plugins/helix/workflows/concerns/security-owasp/practices.md`
+- Observability concern practices: `.ddx/plugins/helix/workflows/concerns/o11y-otel/practices.md`
+
+In the automated execution loop, prefer `commit:<sha>` from the executed
+bead's `closing_commit_sha` when tracker-closure bookkeeping produced a newer
+tracker-only commit after the implementation commit.
+
+### PHASE 0.5 — DDx bead acquisition
+
+```bash
+ddx bead list --status open --label kind:planning,action:review --json
+
+# if not found:
+ddx bead create "review: <scope description>" \
+  --type task \
+  --labels helix,phase:review,kind:planning,action:review \
+  --set spec-id=<reviewed-commit-or-issue> \
+  --description "<context-digest>...</context-digest>
+Fresh-eyes review of <target>.
+Review target: <last-commit|issue-id|file-list>" \
+  --acceptance "All review passes complete; findings filed as beads with scope-appropriate area labels; AGENTS.md updated if needed"
+```
+
+Then assemble or refresh the bead's context digest per
+`.ddx/plugins/helix/workflows/references/context-digest.md`. If the repo ships
+`scripts/refresh_context_digests.py`, use it after creation so the digest and
+derived `area:*` labels stay deterministic.
+
+### Filing findings — DDx specifics
 
 ```bash
 new_id="$(ddx bead create "<category>: <short description>" \
@@ -205,36 +286,13 @@ Suggested fix: <suggested fix>" \
 python3 scripts/refresh_context_digests.py --apply --bead "$new_id"
 ```
 
-Rules for filing:
-- `low` severity findings: do not file as issues; report them in the output
-  only
-- Use label `review-finding` on every finding issue for queryability
-- Include at least one scope-appropriate `area:*` label on every filed finding
-  so concern matching survives re-entry into the queue
-- If the repo ships `scripts/refresh_context_digests.py`, run it after creating
-  the finding bead so the queue entry carries the current `<context-digest>`
-  and any inferred `area:*` labels.
-- Derive `area:*` labels in this priority order:
-  1. Preserve `area:*` labels from the reviewed execution bead when the review
-     target is an issue or when the governing review bead points back to that
-     issue.
-  2. Otherwise infer the label(s) from the reviewed scope using the project
-     area taxonomy in `docs/helix/01-frame/concerns.md` (or the default
-     taxonomy in `.ddx/plugins/helix/workflows/references/concern-resolution.md`
-     when the project file does not exist).
-  3. If the finding spans multiple surfaces, assign multiple `area:*` labels
-     rather than picking one arbitrarily.
-- Set `spec-id` with `--set spec-id=<file-path>` using the file path where the
-  finding was identified
-- Write deterministic acceptance criteria (e.g., "test X passes", "no SQL
-  injection in function Y") so the issue can be closed by automated build
+Derive `area:*` labels: first preserve labels from the reviewed execution
+bead; otherwise infer from the reviewed scope using
+`docs/helix/01-frame/concerns.md` (or the default taxonomy in
+`.ddx/plugins/helix/workflows/references/concern-resolution.md` when the
+project file does not exist).
 
-## Measure
-
-Record review results on the governing bead. See
-`.ddx/plugins/helix/workflows/references/measure.md` for the full pattern.
-
-All four review passes constitute the measurement. Record a summary:
+### Measure — DDx specifics
 
 ```bash
 ddx bead update <id> --notes "<measure-results>
@@ -246,18 +304,17 @@ ddx bead update <id> --notes "<measure-results>
 </measure-results>"
 ```
 
-## Report
+### DDx action input examples
 
-Close the review cycle. See `.ddx/plugins/helix/workflows/references/report.md` for the full
-pattern.
+```
+helix review
+helix review last-commit
+helix review commit:abc1234
+helix review <id>
+helix review src/auth/
+```
 
-1. The filed finding beads (from "Filing Findings" above) are the primary
-   follow-on output — they re-enter the planning helix for polish and build.
-2. Close the governing review bead with evidence summary.
-3. If issues are found with severity `critical` or `high`, recommend that the
-   associated implementation issue be reopened or a regression issue be created.
-
-Report these trailer lines at the end of your output:
+### DDx output trailer
 
 ```
 REVIEW_STATUS: CLEAN|ISSUES_FOUND
@@ -270,9 +327,4 @@ BEAD_ID: <governing-bead-id>
 FOLLOW_ON_CREATED: N
 ```
 
-- `CLEAN`: no issues found across all passes
-- `ISSUES_FOUND`: one or more issues identified
-- `ISSUES_COUNT`: total number of findings (all severities)
-- `FINDINGS_FILED`: number of findings filed as tracker issues (critical+high+medium)
-- `AGENTS_MD_UPDATED`: whether AGENTS.md was modified during this review
-- `LEARNINGS_FILED`: number of learnings issues created (0 if none)
+The filed finding beads re-enter the planning helix for polish and build.

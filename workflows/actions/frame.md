@@ -13,12 +13,6 @@ You may receive:
 - no argument (default: frame the whole project)
 - a scope such as `auth`, `payments`, `mobile`
 
-Examples:
-
-- `helix frame`
-- `helix frame auth`
-- `helix frame "real-time notifications"`
-
 ## Authority
 
 Frame-phase artifacts sit at authority levels 1-3:
@@ -32,15 +26,16 @@ artifacts unless the scope explicitly asks you to revise them.
 
 ## PHASE 0 — Bootstrap
 
-0. **Load active design principles** following `.ddx/plugins/helix/workflows/references/principles-resolution.md`.
-   Use them to shape requirements priorities. If no project principles file
-   exists, note that you will bootstrap one as part of this frame action.
-0a. **Load or initialize active concerns** following `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
-   If `docs/helix/01-frame/concerns.md` does not exist, include concern selection
-   as part of the framing conversation — ask the user about their technology
-   choices and create the concerns document alongside other Frame artifacts.
-   Concern selections inform feasibility, constraints, and deployment sections
-   of the PRD and feature specs.
+0. **Load active design principles** following the principles-resolution
+   reference for this runtime. Use them to shape requirements priorities. If no
+   project principles file exists, note that you will bootstrap one as part of
+   this frame action.
+0a. **Load or initialize active concerns** following the concern-resolution
+   reference for this runtime. If `docs/helix/01-frame/concerns.md` does not
+   exist, include concern selection as part of the framing conversation — ask
+   the user about their technology choices and create the concerns document
+   alongside other Frame artifacts. Concern selections inform feasibility,
+   constraints, and deployment sections of the PRD and feature specs.
 
 ## PHASE 1 — Discovery
 
@@ -49,15 +44,15 @@ artifacts unless the scope explicitly asks you to revise them.
    - `docs/helix/01-frame/prd.md`
    - `docs/helix/01-frame/features/FEAT-*.md`
    - `docs/helix/01-frame/concerns.md` (if it exists)
-2. Read the artifact templates:
-   - `.ddx/plugins/helix/workflows/phases/00-discover/artifacts/product-vision/`
-   - `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/prd/`
-   - `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/feature-specification/`
-   - `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/concerns/` (template, prompt, meta.yml)
+2. Read the artifact templates for product vision, PRD, feature specifications,
+   and concerns from the runtime's artifact catalog under
+   `phases/00-discover/artifacts/product-vision/`,
+   `phases/01-frame/artifacts/prd/`,
+   `phases/01-frame/artifacts/feature-specification/`, and
+   `phases/01-frame/artifacts/concerns/`.
 3. Load numbering rules and determine the next artifact ID:
-   - Read `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/feature-specification/meta.yml`
-     to understand the ID format (`FEAT-{number}`), naming pattern, and reuse
-     policy.
+   - Read the feature-specification meta.yml to understand the ID format
+     (`FEAT-{number}`), naming pattern, and reuse policy.
    - List all files matching `docs/helix/01-frame/features/FEAT-*.md`.
    - Extract the numeric portion from each filename, find the maximum N, and
      set **next FEAT ID = N + 1** (use `001` if no files exist yet).
@@ -66,27 +61,11 @@ artifacts unless the scope explicitly asks you to revise them.
 4. Identify what exists, what's missing, and what needs updating for the
    requested scope.
 
-## PHASE 0.5 — Bead Acquisition
+## PHASE 0.5 — Work Item Acquisition
 
-Before creating or modifying any artifacts, acquire a governing bead for this
-frame pass. See `.ddx/plugins/helix/workflows/references/bead-first.md` for the full pattern.
-
-1. Search for an existing open bead governing this work:
-   - `ddx bead list --status open --label kind:planning,action:frame --json`
-   - Filter by scope if the action was dispatched with a scope.
-2. If found, verify it is still relevant and claim it:
-   - `ddx bead update <id> --claim`
-3. If not found, create one:
-   ```bash
-   ddx bead create "frame: <scope description>" \
-     --type task \
-     --labels helix,kind:planning,action:frame \
-     --description "<context-digest>...</context-digest>
-   Create or refine frame-phase artifacts for <scope>.
-   Existing artifacts: <summary from Phase 1 discovery>" \
-     --acceptance "Artifacts created/updated per type requirements; downstream design issues filed; validation gates pass"
-   ```
-4. Record the bead ID. All subsequent artifact writes are governed by this bead.
+Before creating or modifying any artifacts, acquire a governing work item for
+this frame pass to record progress and govern changes. See the runtime's
+work-item acquisition reference for the full pattern.
 
 ## PHASE 2 — Draft
 
@@ -102,9 +81,9 @@ For each missing or outdated artifact:
 
 ### Product Vision
 
-Follow the template at `.ddx/plugins/helix/workflows/phases/00-discover/artifacts/product-vision/`.
-Read **both** `template.md` (structure) and `prompt.md` (section-by-section
-guidance and quality checklist) before drafting.
+Follow the template from the product-vision artifact directory. Read both
+`template.md` (structure) and `prompt.md` (section-by-section guidance and
+quality checklist) before drafting.
 
 Key sections: mission statement, positioning, vision, user experience, target
 market, value propositions, product principles, success metrics, why now,
@@ -112,9 +91,9 @@ non-goals.
 
 ### PRD
 
-Follow the template at `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/prd/`.
-Read **both** `template.md` (structure) and `prompt.md` (section-by-section
-guidance and quality checklist) before drafting.
+Follow the template from the prd artifact directory. Read both `template.md`
+(structure) and `prompt.md` (section-by-section guidance and quality checklist)
+before drafting.
 
 Key sections: summary (standalone 1-pager), problem & goals, success metrics,
 non-goals, users & scope, requirements (P0/P1/P2), functional requirements,
@@ -130,7 +109,7 @@ in the same session). Do not pick an ID by guessing — only use the scanned
 value.
 
 Before writing each feature spec, validate any `depends_on` entries in its
-ddx frontmatter:
+frontmatter:
 - Each dependency ID must resolve to an existing artifact on disk (e.g.,
   `prd.md` for a spec that depends on the PRD).
 - If a target does not exist, either remove the dependency or stop and
@@ -146,8 +125,8 @@ feature spec. Stories are separate files with their own lifecycle.
 
 ### User Stories
 
-Follow the template at `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/user-stories/`.
-Read **both** `template.md` and `prompt.md` before drafting.
+Follow the template from the user-stories artifact directory. Read both
+`template.md` and `prompt.md` before drafting.
 
 For each vertical slice, create `docs/helix/01-frame/user-stories/US-NNN-<slug>.md`.
 One file per story. Key sections: story statement, context, walkthrough,
@@ -262,22 +241,23 @@ artifact that fails a blocking check.
 
 If no `docs/helix/01-frame/principles.md` exists for this project:
 
-1. Present the HELIX defaults from `.ddx/plugins/helix/workflows/principles.md` to the user.
+1. Present the HELIX defaults from the runtime's principles file to the user.
 2. Ask:
    - "What does your project value most?"
    - "What trade-offs do you consistently lean toward?"
    - "What past mistakes should these principles help you avoid?"
 3. Synthesize user input and defaults into a project principles document.
-4. Check for tensions between principles (see `.ddx/plugins/helix/workflows/references/principles-resolution.md`).
+4. Check for tensions between principles using the principles-resolution
+   reference for this runtime.
 5. Write `docs/helix/01-frame/principles.md`.
 
 Skip this phase if the principles file already exists.
 
-## PHASE 4 — Issue Creation
+## PHASE 4 — Work Item Creation
 
-Create tracker issues for Design-phase work implied by the framing:
+Create work items for Design-phase work implied by the framing:
 
-- One issue per feature spec that needs a solution design
+- One work item per feature spec that needs a solution design
 - Label with `helix,phase:design`
 - Set `spec-id` to the feature spec ID
 - Set acceptance criteria to "solution design exists and covers feature requirements"
@@ -288,36 +268,87 @@ Write all artifacts to their canonical locations and commit.
 
 ## PHASE 6 — Measure
 
-Verify the frame pass against the governing bead's acceptance criteria.
-See `.ddx/plugins/helix/workflows/references/measure.md` for the full pattern.
+Verify the frame pass against the governing work item's acceptance criteria.
+See the measure action for the full pattern.
 
 1. **Artifact completeness**: All required artifacts for the scope have been
    created or updated.
 2. **Validation gates**: All blocking quality checks from `dependencies.yaml`
    and `prompt.md` pass for each artifact.
-3. **Issue creation**: Downstream design issues have been filed for each
-   feature spec.
+3. **Work item creation**: Downstream design work items have been filed for
+   each feature spec.
 4. **Concern alignment**: If concerns were selected or updated, verify
    consistency with artifact content.
-5. **Record results** on the governing bead:
-   `ddx bead update <id> --notes "<measure-results>...</measure-results>"`
+5. **Record results** on the governing work item via the runtime tracker.
 
 ## PHASE 7 — Report
 
-Close the frame cycle and feed back into the planning helix.
-See `.ddx/plugins/helix/workflows/references/report.md` for the full pattern.
+Close the frame cycle and feed back into the planning cycle. See the report
+action for the full pattern.
 
-1. If measurement passed, close the governing bead with evidence summary.
-2. If validation gates failed or guidance is needed, create follow-on beads.
-3. The design issues created in Phase 4 are the primary downstream output —
-   they enter the planning helix for design and polish.
+1. If measurement passed, close the governing work item with evidence summary.
+2. If validation gates failed or guidance is needed, create follow-on items.
+3. The design work items created in Phase 4 are the primary downstream output —
+   they enter the planning cycle for design and polish.
 
 Report:
 1. Artifacts created or updated
 2. Key decisions made
 3. Open questions requiring stakeholder input
-4. Tracker issues created for downstream work
+4. Work items created for downstream work
 5. Measurement results
+
+```
+FRAME_STATUS: COMPLETE|GUIDANCE_NEEDED
+ARTIFACTS_CREATED: N
+ARTIFACTS_UPDATED: N
+ITEMS_CREATED: N
+MEASURE_STATUS: PASS|FAIL|PARTIAL
+ITEM_ID: <governing-item-id>
+FOLLOW_ON_CREATED: N
+```
+
+## DDx Integration Appendix
+
+This appendix applies when DDx is the active HELIX runtime.
+
+### PHASE 0 — DDx references
+
+- Principles: `.ddx/plugins/helix/workflows/references/principles-resolution.md`
+- Concerns: `.ddx/plugins/helix/workflows/references/concern-resolution.md`
+- Defaults principles file: `.ddx/plugins/helix/workflows/principles.md`
+- Feature-specification meta: `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/feature-specification/meta.yml`
+- Product-vision template: `.ddx/plugins/helix/workflows/phases/00-discover/artifacts/product-vision/`
+- PRD template: `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/prd/`
+- User-stories template: `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/user-stories/`
+- Concerns template: `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/concerns/`
+
+### PHASE 0.5 — DDx bead acquisition
+
+```bash
+ddx bead list --status open --label kind:planning,action:frame --json
+
+ddx bead update <id> --claim   # if found
+
+# if not found:
+ddx bead create "frame: <scope description>" \
+  --type task \
+  --labels helix,kind:planning,action:frame \
+  --description "<context-digest>...</context-digest>
+Create or refine frame-phase artifacts for <scope>.
+Existing artifacts: <summary from Phase 1 discovery>" \
+  --acceptance "Artifacts created/updated per type requirements; downstream design issues filed; validation gates pass"
+```
+
+### DDx action input examples
+
+```
+helix frame
+helix frame auth
+helix frame "real-time notifications"
+```
+
+### DDx output trailer
 
 ```
 FRAME_STATUS: COMPLETE|GUIDANCE_NEEDED

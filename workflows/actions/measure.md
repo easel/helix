@@ -1,25 +1,20 @@
 # HELIX Action: Measure
 
-You are performing standalone measurement of one or more beads against their
-acceptance criteria, concern-declared quality gates, and ratchet enforcement.
+You are performing standalone measurement of one or more work items against
+their acceptance criteria, concern-declared quality gates, and ratchet
+enforcement.
 
 This action can be invoked standalone or runs as an embedded phase within
-other actions. When standalone, it reads the bead's acceptance criteria and
-runs verification without re-executing the work.
+other actions. When standalone, it reads the work item's acceptance criteria
+and runs verification without re-executing the work.
 
 ## Action Input
 
 You may receive:
 
-- an explicit bead ID
+- an explicit work item ID
 - a scope selector such as `FEAT-003`, `area:auth`, or `phase:build`
-- `--rerun <id>` to re-measure a previously measured bead
-
-Examples:
-
-- `helix measure ddx-abc123`
-- `helix measure area:auth`
-- `helix measure --rerun ddx-abc123`
+- `--rerun <id>` to re-measure a previously measured item
 
 ## Authority Order
 
@@ -38,27 +33,25 @@ When artifacts disagree, use this order:
 
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory.
-1. Verify the built-in tracker is available.
-   - If `ddx bead status` fails, stop immediately.
-2. Load active concerns and practices following
-   `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
-3. Load ratchet floor fixtures if the project has adopted quality ratchets
-   (see `.ddx/plugins/helix/workflows/ratchets.md`).
+1. Verify the runtime tracker is available. Stop immediately if unavailable.
+2. Load active concerns and practices following the concern-resolution
+   reference for this runtime.
+3. Load ratchet floor fixtures if the project has adopted quality ratchets.
 
 ## PHASE 1 - Target Selection
 
-1. If an explicit bead ID is given, load that bead.
-2. If a scope is given, load all beads in scope that have been executed
-   (status `in_progress` or `closed` with work completed).
-3. For each target bead, load:
-   - Acceptance criteria from the bead description
+1. If an explicit work item ID is given, load that item.
+2. If a scope is given, load all items in scope that have been executed
+   (status in-progress or closed with work completed).
+3. For each target item, load:
+   - Acceptance criteria from the item description
    - `spec-id` and governing artifacts
    - Context digest (if present)
-   - Previous `<measure-results>` (if any, for comparison)
+   - Previous measurement results (if any, for comparison)
 
 ## PHASE 2 - Acceptance Criteria Verification
 
-For each target bead, verify every acceptance criterion:
+For each target work item, verify every acceptance criterion:
 
 1. Parse the criterion text to determine the verification method:
    - **Test command**: Run the specified test or command.
@@ -66,21 +59,21 @@ For each target bead, verify every acceptance criterion:
    - **Code inspection**: Check that the described behavior is implemented.
    - **Manual check**: Flag as requiring manual verification.
 2. Run each verification and record pass/fail with evidence.
-3. If the bead has a `spec-id`, check for an acceptance manifest (e.g.,
+3. If the item has a `spec-id`, check for an acceptance manifest (e.g.,
    `TP-SD-010.acceptance.toml`) and verify against it.
 4. If acceptance scripts exist (`scripts/check-acceptance-traceability.sh`,
    `scripts/check-acceptance-coverage.sh`), run them.
 
 ## PHASE 3 - Concern-Declared Quality Gates
 
-For each target bead:
+For each target work item:
 
-1. Determine the bead's area from its labels.
-2. Filter active concerns to those matching the bead's area.
-3. For each matched concern, run the quality gates from its
-   `practices.md` under `## Quality Gates`.
-4. Scope gate runs to the packages/files changed by the bead's work
-   (infer from commit history or bead description).
+1. Determine the item's area from its labels.
+2. Filter active concerns to those matching the item's area.
+3. For each matched concern, run the quality gates from its practices
+   under the Quality Gates section.
+4. Scope gate runs to the packages/files changed by the item's work
+   (infer from commit history or item description).
 5. Use project overrides from `docs/helix/01-frame/concerns.md` when they
    specify alternative commands.
 
@@ -104,7 +97,74 @@ area scope:
 
 ## PHASE 6 - Record Results
 
-Record measurement results on the bead:
+Record measurement results on the work item via the runtime tracker. The
+result record should capture:
+
+- timestamp
+- overall status (PASS, FAIL, or PARTIAL)
+- per-criterion pass/fail with evidence
+- per-gate pass/fail (concern, command, result)
+- per-ratchet measured value vs. floor
+- propagation status (digest freshness, criteria consistency)
+
+## Output
+
+For each measured work item, report:
+
+1. Item ID
+2. Acceptance criteria results (per-criterion pass/fail)
+3. Quality gate results (per-gate pass/fail)
+4. Ratchet results (per-ratchet measured vs. floor)
+5. Concern propagation status
+
+Then emit the machine-readable trailer:
+
+```
+MEASURE_STATUS: PASS|FAIL|PARTIAL
+ITEMS_MEASURED: N
+ITEMS_PASSED: N
+ITEMS_FAILED: N
+ITEMS_PARTIAL: N
+CRITERIA_TOTAL: N
+CRITERIA_PASSED: N
+GATES_RUN: N
+GATES_PASSED: N
+RATCHETS_CHECKED: N
+RATCHETS_PASSED: N
+```
+
+### Status Definitions
+
+- `PASS`: All acceptance criteria satisfied, all gates passed, all ratchets
+  within tolerance for every measured item.
+- `FAIL`: One or more items have failed criteria or gates.
+- `PARTIAL`: Some criteria could not be verified (e.g., manual check required,
+  external dependency unavailable).
+
+Be precise, quantitative, and evidence-driven.
+
+## DDx Integration Appendix
+
+This appendix applies when DDx is the active HELIX runtime.
+
+### PHASE 0 — DDx bootstrap
+
+```bash
+ddx bead status  # stop immediately if this fails
+```
+
+Load concerns following `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
+Load ratchet floor fixtures from `.ddx/plugins/helix/workflows/ratchets.md` if adopted.
+
+### PHASE 1 — DDx target selection
+
+- If an explicit bead ID is given: `ddx bead show <id> --json`
+- If a scope: `ddx bead list --status in_progress --label <scope> --json`
+
+For each target bead, load the `<measure-results>` block from its notes for
+comparison.
+
+### PHASE 6 — DDx record results
 
 ```bash
 ddx bead update <id> --notes "<measure-results>
@@ -123,17 +183,7 @@ ddx bead update <id> --notes "<measure-results>
 </measure-results>"
 ```
 
-## Output
-
-For each measured bead, report:
-
-1. Bead ID
-2. Acceptance criteria results (per-criterion pass/fail)
-3. Quality gate results (per-gate pass/fail)
-4. Ratchet results (per-ratchet measured vs. floor)
-5. Concern propagation status
-
-Then emit the machine-readable trailer:
+### DDx output trailer
 
 ```
 MEASURE_STATUS: PASS|FAIL|PARTIAL
@@ -148,13 +198,3 @@ GATES_PASSED: N
 RATCHETS_CHECKED: N
 RATCHETS_PASSED: N
 ```
-
-### Status Definitions
-
-- `PASS`: All acceptance criteria satisfied, all gates passed, all ratchets
-  within tolerance for every measured bead.
-- `FAIL`: One or more beads have failed criteria or gates.
-- `PARTIAL`: Some criteria could not be verified (e.g., manual check required,
-  external dependency unavailable).
-
-Be precise, quantitative, and evidence-driven.

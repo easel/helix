@@ -38,12 +38,14 @@ update a lower-authority artifact in a way that contradicts a higher one.
 
 ## PHASE 0 — Bootstrap
 
-0. **Load active design principles** following `.ddx/plugins/helix/workflows/references/principles-resolution.md`.
-   Use these as scoping guidance when evaluating which artifacts need updates
-   and how to resolve judgment calls. Note: `helix evolve` reads principles
-   but never modifies the principles file — only `helix frame` may write it.
-0a. **Load active concerns and practices** following `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
-   Concern context affects the scope of downstream changes:
+0. **Load active design principles** following the principles-resolution
+   reference for this runtime. Use these as scoping guidance when evaluating
+   which artifacts need updates and how to resolve judgment calls. Note: the
+   evolve action reads principles but never modifies the principles file —
+   only the frame action may write it.
+0a. **Load active concerns and practices** following the concern-resolution
+   reference for this runtime. Concern context affects the scope of downstream
+   changes:
    - A requirement that implies a technology change (new language, new framework,
      new runtime, new dependency) must be checked against declared concerns.
    - If the change conflicts with an active concern (e.g., adding a Node.js
@@ -56,33 +58,17 @@ update a lower-authority artifact in a way that contradicts a higher one.
    - If the requirement removes or replaces a technology covered by an active
      concern, the concern declaration and project overrides must be updated as
      part of Phase 4 artifact evolution.
-0b. **Context digest**: When `helix evolve` creates or modifies beads, it must
-   assemble a context digest per `.ddx/plugins/helix/workflows/references/context-digest.md` and
-   prepend it to the bead description. If a repo helper exists for digest
-   assembly, use it instead of hand-writing the XML. The `<concerns>` element
-   must contain matched concern names, never `area:*` labels.
+0b. **Context digest**: When this action creates or modifies work items, it
+   must assemble a context digest per the runtime's context-digest reference
+   and prepend it to the item description. If a repo helper exists for digest
+   assembly, use it instead of hand-writing the XML. The concerns element must
+   contain matched concern names, never area labels.
 
-## PHASE 0.5 — Bead Acquisition
+## PHASE 0.5 — Work Item Acquisition
 
-Before modifying any artifacts, acquire a governing bead for this evolution
-pass. See `.ddx/plugins/helix/workflows/references/bead-first.md` for the full pattern.
-
-1. Search for an existing open bead governing this work:
-   - `ddx bead list --status open --label kind:planning,action:evolve --json`
-2. If found, verify it is still relevant and claim it:
-   - `ddx bead update <id> --claim`
-3. If not found, create one:
-   ```bash
-   ddx bead create "evolve: <requirement summary>" \
-     --type task \
-     --labels helix,phase:design,kind:planning,action:evolve \
-     --description "<context-digest>...</context-digest>
-   Thread requirement through artifact stack: <requirement description>.
-   Source: <--from value if provided>" \
-     --acceptance "Requirement threaded through all affected artifacts; no unresolved conflicts; downstream beads created with context digests"
-   ```
-4. Record the bead ID. All subsequent artifact modifications are governed by
-   this bead.
+Before modifying any artifacts, acquire a governing work item for this
+evolution pass. See the runtime's work-item acquisition reference for the full
+pattern.
 
 ## PHASE 1 — Requirement Analysis
 
@@ -110,16 +96,13 @@ Search the project's doc tree for governing artifacts in scope:
 5. **If the evolution will create new numbered artifacts**, load the relevant
    meta.yml files and determine the next available IDs now — before writing
    anything:
-   - **New feature spec (FEAT-NNN)**: read
-     `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/feature-specification/meta.yml`,
+   - **New feature spec (FEAT-NNN)**: read the feature-specification meta.yml,
      scan `docs/helix/01-frame/features/FEAT-*.md`, set next FEAT ID = max + 1
      (use `001` if none exist).
-   - **New solution design (SD-NNN)**: read
-     `.ddx/plugins/helix/workflows/phases/02-design/artifacts/solution-design/meta.yml`,
+   - **New solution design (SD-NNN)**: read the solution-design meta.yml,
      scan `docs/helix/02-design/solution-designs/SD-*.md`, set next SD ID =
      max + 1.
-   - **New technical design (TD-NNN)**: read
-     `.ddx/plugins/helix/workflows/phases/02-design/artifacts/technical-design/meta.yml`,
+   - **New technical design (TD-NNN)**: read the technical-design meta.yml,
      scan `docs/helix/02-design/technical-designs/TD-*.md`, set next TD ID =
      max + 1.
    - Record these values. Use them exclusively when assigning IDs; never guess
@@ -127,7 +110,7 @@ Search the project's doc tree for governing artifacts in scope:
 
 Use commands like:
 - `find docs/ -name "*.md" | xargs grep -l "keyword"`
-- `ddx bead list --json` to find related open issues
+- List open work items from the runtime tracker to find related open items
 
 ## PHASE 3 — Conflict Detection
 
@@ -172,10 +155,10 @@ For each non-conflicting artifact, in authority order (highest first):
 4. For any **new** artifact being written (not an update to an existing file):
    - Confirm the ID was assigned from the scanned-next-ID computed in Phase 2,
      not guessed.
-   - Inspect the ddx frontmatter `depends_on` list. For each referenced ID,
-     verify the target artifact exists on disk before writing. If a target is
-     missing, either remove the dependency or stop and request guidance. Never
-     write an artifact with a broken `depends_on` reference.
+   - Inspect the artifact frontmatter `depends_on` list. For each referenced
+     ID, verify the target artifact exists on disk before writing. If a target
+     is missing, either remove the dependency or stop and request guidance.
+     Never write an artifact with a broken `depends_on` reference.
 5. Write the update.
 6. If the project uses acceptance manifests (`.acceptance.toml`), update
    those too with new or modified acceptance criteria.
@@ -185,64 +168,60 @@ For each non-conflicting artifact, in authority order (highest first):
 Keep amendments minimal and scoped. Do not rewrite sections that aren't
 affected by the requirement.
 
-## PHASE 5 — Issue Decomposition
+## PHASE 5 — Work Item Decomposition
 
-Create tracker issues for the implementation work implied by the updated
-artifacts:
+Create work items for the implementation work implied by the updated artifacts:
 
 1. For each updated artifact, determine what code changes are needed.
-2. Create issues that are individually implementable in one `helix build`
-   cycle.
-3. Each issue must pass triage validation:
-   - `--labels helix,phase:build,...`
-   - set `spec-id` with `--set spec-id=<updated-artifact>`
-   - `--acceptance` with deterministic criteria
-4. Set `--parent` if the issues belong to an existing epic.
-5. Group related issues under a new epic if the requirement implies
+2. Create work items that are individually implementable in one build cycle.
+3. Each work item must:
+   - carry labels `helix,phase:build,...`
+   - set `spec-id` to the updated artifact
+   - have deterministic acceptance criteria
+4. Set parent if the items belong to an existing epic.
+5. Group related items under a new epic if the requirement implies
    multiple implementation slices.
 
 ## PHASE 6 — Dependency Wiring
 
-Search existing open issues for overlap with the new issues:
+Search existing open work items for overlap with the new items:
 
-1. `ddx bead list --status open --json` to get the current queue.
-2. For each new issue, check if existing issues touch the same files,
+1. Retrieve the current open item queue from the runtime tracker.
+2. For each new item, check if existing items touch the same files,
    subsystems, or acceptance criteria.
-3. Add dependencies with `ddx bead dep add` where ordering matters.
-4. If the new requirement supersedes an existing issue, mark it with
-   `ddx bead update <id> --superseded-by <new-id>`.
+3. Add dependency links where ordering matters.
+4. If the new requirement supersedes an existing item, record the supersession.
 
 ## PHASE 7 — Evolution Report and Commit
 
 1. Commit all artifact changes with a message referencing the requirement
-   and the governing bead ID.
+   and the governing work item ID.
 2. Push to the remote.
 
 ## PHASE 8 — Measure
 
-Verify the evolution against the governing bead's acceptance criteria.
-See `.ddx/plugins/helix/workflows/references/measure.md` for the full pattern.
+Verify the evolution against the governing work item's acceptance criteria.
+See the measure action for the full pattern.
 
 1. **Artifact consistency**: All updated artifacts are consistent with each
    other and with higher-authority artifacts.
 2. **Conflict resolution**: All resolvable conflicts were resolved; remaining
    conflicts are documented with clear resolution options.
-3. **Issue completeness**: Downstream implementation beads were created for all
-   code changes implied by the updated artifacts.
+3. **Work item completeness**: Downstream implementation work items were created
+   for all code changes implied by the updated artifacts.
 4. **Concern threading**: If the requirement introduced or changed a concern,
    verify the concern is properly declared and its practices are referenced
-   in new beads.
-5. **Record results** on the governing bead:
-   `ddx bead update <id> --notes "<measure-results>...</measure-results>"`
+   in new work items.
+5. **Record results** on the governing work item via the runtime tracker.
 
 ## PHASE 9 — Report
 
-Close the evolution cycle and feed back into the planning helix.
-See `.ddx/plugins/helix/workflows/references/report.md` for the full pattern.
+Close the evolution cycle and feed back into the planning cycle. See the
+report action for the full pattern.
 
-1. If measurement passed, close the governing bead with evidence summary.
-2. If conflicts remain, create follow-on beads for each unresolved conflict
-   requiring human decision.
+1. If measurement passed, close the governing work item with evidence summary.
+2. If conflicts remain, create follow-on work items for each unresolved
+   conflict requiring human decision.
 3. Output a structured report:
 
 ```
@@ -257,7 +236,7 @@ See `.ddx/plugins/helix/workflows/references/report.md` for the full pattern.
 ### Artifacts Skipped (Conflicts)
 - [artifact]: [conflict description — what needs human resolution]
 
-### Issues Created
+### Work Items Created
 - [id]: [title] (spec-id: [ref], deps: [ids])
 
 ### Dependencies Wired
@@ -272,15 +251,81 @@ See `.ddx/plugins/helix/workflows/references/report.md` for the full pattern.
 ```
 EVOLUTION_STATUS: COMPLETE|CONFLICTS|BLOCKED
 ARTIFACTS_UPDATED: [count]
+ITEMS_CREATED: [count]
+CONFLICTS: [count]
+MEASURE_STATUS: PASS|FAIL|PARTIAL
+ITEM_ID: <governing-item-id>
+FOLLOW_ON_CREATED: N
+```
+
+`COMPLETE` means all artifacts updated and work items created with no conflicts.
+`CONFLICTS` means some artifacts were skipped due to conflicts that need
+human resolution, but non-conflicting work was completed.
+`BLOCKED` means the requirement fundamentally contradicts the project's
+governing artifacts and cannot proceed without human decision.
+
+## DDx Integration Appendix
+
+This appendix applies when DDx is the active HELIX runtime.
+
+### PHASE 0 — DDx references
+
+- Principles: `.ddx/plugins/helix/workflows/references/principles-resolution.md`
+- Concerns: `.ddx/plugins/helix/workflows/references/concern-resolution.md`
+- Context-digest: `.ddx/plugins/helix/workflows/references/context-digest.md`
+- Feature-specification meta: `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/feature-specification/meta.yml`
+- Solution-design meta: `.ddx/plugins/helix/workflows/phases/02-design/artifacts/solution-design/meta.yml`
+- Technical-design meta: `.ddx/plugins/helix/workflows/phases/02-design/artifacts/technical-design/meta.yml`
+
+The `<concerns>` element in a context digest must contain matched concern
+names, never `area:*` labels.
+
+### PHASE 0.5 — DDx bead acquisition
+
+```bash
+ddx bead list --status open --label kind:planning,action:evolve --json
+
+ddx bead update <id> --claim   # if found
+
+# if not found:
+ddx bead create "evolve: <requirement summary>" \
+  --type task \
+  --labels helix,phase:design,kind:planning,action:evolve \
+  --description "<context-digest>...</context-digest>
+Thread requirement through artifact stack: <requirement description>.
+Source: <--from value if provided>" \
+  --acceptance "Requirement threaded through all affected artifacts; no unresolved conflicts; downstream beads created with context digests"
+```
+
+Record the bead ID. All subsequent artifact modifications are governed by
+this bead.
+
+### PHASE 2 — DDx find related items
+
+```bash
+ddx bead list --json
+```
+
+### PHASE 6 — DDx dependency wiring
+
+```bash
+ddx bead list --status open --json
+ddx bead dep add <blocked-id> <blocking-id>
+ddx bead update <id> --superseded-by <new-id>
+```
+
+### PHASE 7 — DDx commit
+
+Commit with a message referencing the requirement and the governing bead ID.
+
+### DDx output trailer
+
+```
+EVOLUTION_STATUS: COMPLETE|CONFLICTS|BLOCKED
+ARTIFACTS_UPDATED: [count]
 ISSUES_CREATED: [count]
 CONFLICTS: [count]
 MEASURE_STATUS: PASS|FAIL|PARTIAL
 BEAD_ID: <governing-bead-id>
 FOLLOW_ON_CREATED: N
 ```
-
-`COMPLETE` means all artifacts updated and issues created with no conflicts.
-`CONFLICTS` means some artifacts were skipped due to conflicts that need
-human resolution, but non-conflicting work was completed.
-`BLOCKED` means the requirement fundamentally contradicts the project's
-governing artifacts and cannot proceed without human decision.

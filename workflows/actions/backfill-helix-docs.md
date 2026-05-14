@@ -16,14 +16,8 @@ This action may create or update:
 
 ## Action Input
 
-You will receive a backfill scope as an argument, for example:
-
-- `helix backfill repo`
-- `helix backfill payments`
-- `helix backfill FEAT-003`
-- `helix backfill auth`
-
-If no scope is given, default to the repository.
+You will receive a backfill scope as an argument. If no scope is given, default
+to the repository.
 
 ## Core Distinction
 
@@ -37,10 +31,10 @@ is low, ask the user before finalizing canonical artifacts.
 
 ## Execution Assumptions
 
-When this action is launched by `helix backfill`, assume you are running inside
-an active writable session rooted at the target repository.
+Assume you are running inside an active writable session rooted at the target
+repository.
 
-- use live `ddx bead` commands for tracker state
+- use live tracker commands for work queue state
 - write directly to `docs/helix/` when evidence supports canonical updates
 - do not claim that you need a different session, different permissions, or a
   separate environment unless a concrete command actually fails
@@ -85,15 +79,10 @@ Low-confidence claims must either:
 
 ## Tracker Rules
 
-Use the built-in tracker only. Follow:
+Use the runtime tracker only.
 
-- See `ddx bead --help` for tracker conventions
-
-Issues are stored in `.ddx/beads.jsonl`.
-
-Use live tracker commands such as `ddx bead ready`, `ddx bead show`,
-`ddx bead list` as needed for queue state. If `ddx bead status`
-fails, stop immediately.
+Use live tracker commands for queue state: list ready items, show item details,
+and list by status. Stop immediately if the tracker is unavailable.
 
 ### Research Structure
 
@@ -170,19 +159,18 @@ evidence extraction pass are complete for the relevant scope.
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
 0a. **Discover active concerns**: Check whether `docs/helix/01-frame/concerns.md`
-   exists. If it does, load it per `.ddx/plugins/helix/workflows/references/concern-resolution.md`
-   and use the declared concerns to guide backfill — ensure backfilled artifacts
-   are consistent with declared technology choices and practices.
+   exists. If it does, load it per the concern-resolution reference for this
+   runtime and use the declared concerns to guide backfill — ensure backfilled
+   artifacts are consistent with declared technology choices and practices.
    If it does not exist, inspect the project's actual tooling (package managers,
    linters, formatters, test frameworks, CI config) and match them against
-   available concerns in `.ddx/plugins/helix/workflows/concerns/`. Include `concerns.md` creation
-   as part of the backfill output — propose active concerns and project overrides
-   based on the evidence discovered during Phase 1 research. Concern selection
-   requires user confirmation before canonization (treat as a guidance gate).
+   available concerns in the runtime's concern library. Include `concerns.md`
+   creation as part of the backfill output — propose active concerns and project
+   overrides based on the evidence discovered during Phase 1 research. Concern
+   selection requires user confirmation before canonization (treat as a guidance
+   gate).
 1. Determine the backfill scope.
-2. Verify the built-in tracker is available.
-   - If `ddx bead status` fails, stop immediately.
-   - Use `ddx bead` output as the authoritative queue source for the run.
+2. Verify the runtime tracker is available. Stop immediately if unavailable.
 3. Inventory existing documentation:
    - `docs/helix/`
    - non-HELIX docs
@@ -207,7 +195,7 @@ evidence extraction pass are complete for the relevant scope.
 ## Completion Contract
 
 Do not stop at an analysis-only summary if the repository is writable and live
-`ddx bead` commands succeed.
+tracker commands succeed.
 
 Before returning, you must do all applicable work that is supported by the
 available evidence:
@@ -230,29 +218,11 @@ The only acceptable non-complete outcomes are:
 Never end by telling the user to rerun the action in a different session unless
 you actually attempted the command that failed.
 
-## PHASE 0.5 - Bead Acquisition
+## PHASE 0.5 - Work Item Acquisition
 
-Before modifying any files or creating tracker issues, acquire a governing
-bead for this backfill pass. See `.ddx/plugins/helix/workflows/references/bead-first.md` for
-the full pattern.
-
-1. Search for an existing open bead governing this work:
-   - `ddx bead list --status open --label kind:planning,action:backfill --json`
-   - Filter by scope if the action was dispatched with a scope.
-2. If found, verify it is still relevant and claim it:
-   - `ddx bead update <id> --claim`
-3. If not found, create one:
-   ```bash
-   ddx bead create "backfill: <scope description>" \
-     --type task \
-     --labels helix,kind:planning,action:backfill \
-     --description "<context-digest>...</context-digest>
-   Reconstruct missing HELIX artifacts for <scope>.
-   Existing coverage: <summary from Phase 0 inventory>" \
-     --acceptance "Missing artifacts reconstructed with evidence; assumption ledger complete; follow-up issues created for guidance-dependent items"
-   ```
-4. Record the bead ID. All subsequent file modifications and tracker changes
-   are governed by this bead.
+Before modifying any files or creating tracker work items, acquire a governing
+work item for this backfill pass. See the runtime's work-item acquisition
+reference for the full pattern.
 
 ## PHASE 1 - Current-State Research
 
@@ -462,7 +432,7 @@ Rules:
 - one coherent gap per issue
 - use native upstream types such as `task`, `chore`, or `decision`
 - set `spec-id` to the nearest governing artifact
-- add blockers with `ddx bead dep add`
+- add blocker dependencies via the tracker
 - create doc/design issues before code issues where appropriate
 
 ## Evidence Requirements
@@ -504,20 +474,91 @@ See `.ddx/plugins/helix/workflows/references/measure.md` for the full pattern.
 3. **Concern alignment**: Backfilled artifacts are consistent with declared
    (or proposed) concerns and practices.
 4. **Assumption ledger**: All inferred items are recorded with confidence levels.
-5. **Record results** on the governing bead:
-   `ddx bead update <id> --notes "<measure-results>...</measure-results>"`
+5. **Record results** on the governing work item via the runtime tracker.
 
 ## PHASE 10 - Report
 
-Close the backfill cycle and feed back into the planning helix.
-See `.ddx/plugins/helix/workflows/references/report.md` for the full pattern.
+Close the backfill cycle and feed back into the planning cycle. See the
+report action for the full pattern.
 
-1. If measurement passed, close the governing bead with evidence summary.
-2. If low-confidence items remain, create follow-on beads with label
+1. If measurement passed, close the governing work item with evidence summary.
+2. If low-confidence items remain, create follow-on work items labeled
    `kind:planning` for guidance-dependent work.
-3. The follow-up issues created in Phase 8 re-enter the planning helix.
+3. The follow-up items created in Phase 8 re-enter the planning cycle.
 
 After those sections, emit this machine-readable trailer exactly:
+
+```
+BACKFILL_STATUS: COMPLETE|GUIDANCE_NEEDED|BLOCKED
+BACKFILL_REPORT: docs/helix/06-iterate/backfill-reports/<file>.md
+RESEARCH_EPIC: <id|none>
+MEASURE_STATUS: PASS|FAIL|PARTIAL
+ITEM_ID: <governing-item-id>
+FOLLOW_ON_CREATED: N
+```
+
+## DDx Integration Appendix
+
+This appendix applies when DDx is the active HELIX runtime.
+
+### PHASE 0 — DDx bootstrap
+
+```bash
+ddx bead status  # stop immediately if this fails
+```
+
+Use `ddx bead` output as the authoritative queue source for the run.
+
+Load concerns from `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
+Match observed tooling against concerns in `.ddx/plugins/helix/workflows/concerns/`.
+
+### PHASE 0.5 — DDx bead acquisition
+
+```bash
+ddx bead list --status open --label kind:planning,action:backfill --json
+
+ddx bead update <id> --claim   # if found
+
+# if not found:
+ddx bead create "backfill: <scope description>" \
+  --type task \
+  --labels helix,kind:planning,action:backfill \
+  --description "<context-digest>...</context-digest>
+Reconstruct missing HELIX artifacts for <scope>.
+Existing coverage: <summary from Phase 0 inventory>" \
+  --acceptance "Missing artifacts reconstructed with evidence; assumption ledger complete; follow-up issues created for guidance-dependent items"
+```
+
+Record the bead ID. All subsequent file modifications and tracker changes are
+governed by this bead.
+
+### PHASE 0 — DDx tracker commands
+
+```bash
+ddx bead ready
+ddx bead show <id>
+ddx bead list --status open --json
+```
+
+### PHASE 8 — DDx follow-up issues
+
+```bash
+ddx bead dep add <blocked-id> <blocking-id>
+```
+
+### DDx action input examples
+
+```
+helix backfill repo
+helix backfill payments
+helix backfill FEAT-003
+helix backfill auth
+```
+
+When launched by `helix backfill`, the action runs inside an active writable
+session. Use live `ddx bead` commands for tracker state.
+
+### DDx output trailer
 
 ```
 BACKFILL_STATUS: COMPLETE|GUIDANCE_NEEDED|BLOCKED

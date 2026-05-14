@@ -1,38 +1,31 @@
 # HELIX Action: Implementation
 
-You are performing one bounded HELIX execution pass against the built-in
-tracker (`ddx bead`).
+You are performing one bounded HELIX execution pass against the runtime
+tracker.
 
-Your goal is to choose one ready execution issue, implement it completely
+Your goal is to choose one ready execution work item, implement it completely
 without drifting from the authoritative planning stack, satisfy all applicable
-project quality gates, create any necessary follow-on issues, commit the work
-with explicit issue traceability, close the issue, and exit.
+project quality gates, create any necessary follow-on items, commit the work
+with explicit item traceability, close the item, and exit.
 
-This action is intentionally bounded. In single-issue mode, it handles one issue
-and exits. In batch mode, the supervisor provides a list of related issues to
-implement sequentially within one session — claim each, implement, verify, close,
-then move to the next. Batch mode saves context-loading cost when issues share
-the same governing artifacts.
+This action is intentionally bounded. In single-item mode, it handles one item
+and exits. In batch mode, the supervisor provides a list of related items to
+implement sequentially within one session — claim each, implement, verify,
+close, then move to the next. Batch mode saves context-loading cost when items
+share the same governing artifacts.
 
-When the ready queue drains, the external supervisor should run
-`.ddx/plugins/helix/workflows/actions/check.md` instead of continuing blindly.
+When the ready queue drains, the external supervisor should run the check
+action instead of continuing blindly.
 
 ## Action Input
 
 You may receive:
 
 - no argument
-- an explicit issue ID
+- an explicit work item ID
 - a scope selector such as `US-042`, `FEAT-003`, `area:auth`, or `phase:deploy`
 
-Examples:
-
-- `helix build`
-- `helix build <id>`
-- `helix build US-042`
-- `helix build area:auth`
-
-If no argument is given, choose the best ready HELIX execution issue.
+If no argument is given, choose the best ready HELIX execution work item.
 
 ## Authority Order
 
@@ -58,18 +51,14 @@ Rules:
 
 ## Tracker Rules
 
-Use the built-in tracker only. Follow:
+Use the runtime tracker only.
 
-- See `ddx bead --help` for tracker conventions
+This action works only on execution work items. Exclude review items by default.
 
-Issues are stored in `.ddx/beads.jsonl`.
-
-This action works only on execution issues. Exclude review issues by default.
-
-Eligible issues are ready (no unresolved blockers) and represent execution work
+Eligible items are ready (no unresolved blockers) and represent execution work
 rather than review work.
 
-Do not claim or implement `phase:review` issues with this action.
+Do not claim or implement review-phase items with this action.
 
 ## Core Principle
 
@@ -79,8 +68,8 @@ Select the issue most likely to close cleanly in this run. Prefer straightforwar
 tasks with clear acceptance criteria.
 
 **Do not decompose epics during build.** If the selected candidate is an epic
-without child task beads, exit cleanly so the supervisor can route to
-`helix polish` for proper decomposition. Decomposition is planning work, not
+without child task items, exit cleanly so the supervisor can route to the
+polish action for proper decomposition. Decomposition is planning work, not
 implementation work — mixing them leads to agents skipping the breakdown and
 jumping straight to code.
 
@@ -99,53 +88,48 @@ rest, and close the issue.
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
-1. Verify the built-in tracker is available.
-   - If `ddx bead status` fails, stop immediately.
+1. Verify the runtime tracker is available. Stop immediately if unavailable.
 2. Inspect the current git worktree.
    - Do not revert unrelated changes.
-   - If unrelated changes create commit risk, isolate your issue changes rather
-     than cleaning the tree destructively.
+   - If unrelated changes create commit risk, isolate your work item changes
+     rather than cleaning the tree destructively.
 3. Load project quality and completeness gates.
-   - Read relevant HELIX guidance such as `.ddx/plugins/helix/workflows/phases/04-build/enforcer.md`
-     and any repo-specific CI, lint, test, security, or release rules.
-   - Load ratchet floor fixtures if the project has adopted quality ratchets
-     (see `.ddx/plugins/helix/workflows/ratchets.md`). Note the current floors so Phase 7
-     can compare against them.
+   - Read the build-phase enforcer and any repo-specific CI, lint, test,
+     security, or release rules.
+   - Load ratchet floor fixtures if the project has adopted quality ratchets.
+     Note the current floors so Phase 7 can compare against them.
 4. Load active design principles.
-   - Follow the resolution pattern in `.ddx/plugins/helix/workflows/references/principles-resolution.md`.
+   - Follow the runtime's principles-resolution pattern.
    - If `docs/helix/01-frame/principles.md` exists and has content, load it.
-   - Otherwise load `.ddx/plugins/helix/workflows/principles.md` (HELIX defaults).
+   - Otherwise load the runtime's default principles file.
    - Apply these principles when making judgment calls throughout this task.
 5. Load active concerns and practices.
-   - Follow the resolution pattern in `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
+   - Follow the runtime's concern-resolution pattern.
    - If `docs/helix/01-frame/concerns.md` exists, load the declared concerns and
      merged practices.
    - Use the declared concern tools, conventions, and patterns throughout
      implementation. Do not substitute alternative tools without an explicit
      project override or ADR.
-6. Read the bead's context digest if present.
-   - If the bead description starts with `<context-digest>`, parse it and use
-     the summarized principles, concerns, practices, ADRs, and governing context
-     as your working authority.
-   - If no digest exists (legacy bead), rely on steps 4-5 above plus the
-     bead's `spec-id` to reconstruct context.
+6. Read the work item's context digest if present.
+   - If the item description starts with a context-digest block, parse it and
+     use the summarized principles, concerns, practices, ADRs, and governing
+     context as your working authority.
+   - If no digest exists (legacy item), rely on steps 4-5 above plus the
+     item's `spec-id` to reconstruct context.
 
 ## PHASE 1 - Candidate Discovery
 
 Determine the candidate set:
 
-1. If the input is an explicit issue ID:
-   - inspect only that issue
+1. If the input is an explicit work item ID:
+   - inspect only that item
 2. If the input is a scope selector:
-   - search ready HELIX execution issues matching the selector
+   - search ready HELIX execution items matching the selector
 3. If no input is given:
-   - inspect ready HELIX execution issues, excluding `phase:review`
+   - inspect ready HELIX execution items, excluding review-phase items
 
-Use tracker commands such as:
-
-- `ddx bead ready`
-- `ddx bead show <id>`
-- `ddx bead dep tree <id>`
+Use tracker commands to list ready items, show item details, and inspect
+dependency trees.
 
 ## PHASE 2 - Candidate Ranking
 
@@ -166,7 +150,7 @@ De-prioritize (but do not automatically reject) when:
 
 **Skip and exit** when:
 
-- the issue is an epic without child task beads — this needs `helix polish`
+- the item is an epic without child task items — this needs polish
   decomposition, not implementation. Report the epic ID and exit so the
   supervisor can route to polish.
 
@@ -187,29 +171,28 @@ the queue-health check.
 
 ## PHASE 3 - Claim And Context Load
 
-For the selected issue:
+For the selected work item:
 
-1. re-read the selected issue immediately before claim:
-   - `ddx bead show <id> --json`
-   - verify the issue is still ready, still executable, and has not drifted
+1. Re-read the selected item immediately before claiming:
+   - Verify the item is still ready, still executable, and has not drifted
      materially in `spec-id`, dependencies, parentage, or other governing
-     metadata
-   - if it drifted materially, do not claim it from stale assumptions; return
-     to candidate selection or stop with the blocker
-2. claim it with `ddx bead update <id> --claim`
-3. inspect:
-   - issue fields and labels
+     metadata.
+   - If it drifted materially, do not claim it from stale assumptions; return
+     to candidate selection or stop with the blocker.
+2. Claim the item via the tracker.
+3. Inspect:
+   - item fields and labels
    - `spec-id`
-   - parent epic or parent issue
+   - parent epic or parent item
    - dependency tree
    - acceptance text
    - related story, feature, or area labels
-4. load the governing artifacts referenced by:
+4. Load the governing artifacts referenced by:
    - `spec-id`
-   - issue description
-   - parent issue or epic
+   - item description
+   - parent item or epic
    - linked user story, feature, design, or test artifacts
-5. determine the work phase from labels:
+5. Determine the work phase from labels:
    - `phase:build`
    - `phase:deploy`
    - `phase:iterate`
@@ -297,7 +280,7 @@ When creating follow-on issues:
 - make them atomic and deterministic
 - set `spec-id` to the nearest governing artifact
 - add the correct HELIX labels
-- encode blockers with `ddx bead dep add`
+- encode blockers via the runtime tracker's dependency mechanism
 
 ## PHASE 7 - Verification
 
@@ -311,16 +294,16 @@ token cost.
 
 At minimum, verify:
 
-- the issue acceptance criteria are satisfied
+- the work item acceptance criteria are satisfied
 - relevant tests pass in the changed crates/packages
 - lint, format, or static analysis passes on the changed crates/packages
 - docs/config/runbooks are updated where required
-- ratchet enforcement commands pass if the project has adopted quality ratchets
-  (see `.ddx/plugins/helix/workflows/ratchets.md`). If a ratchet auto-bump is triggered,
-  include the updated floor fixture in the issue commit.
+- ratchet enforcement commands pass if the project has adopted quality ratchets.
+  If a ratchet auto-bump is triggered, include the updated floor fixture in the
+  work item commit.
 - **concern-declared quality gates** pass for the active concerns scoped to
-  this bead's area. Run the gates declared in each matched concern's
-  `practices.md` under `## Quality Gates`. Common examples:
+  this item's area. Run the gates declared in each matched concern's practices
+  under the Quality Gates section. Common examples:
   - `rust-cargo`: `cargo clippy`, `cargo fmt --check`, `cargo deny check advisories`, `cargo machete`
   - `typescript-bun`: `biome check`, `bun:test`
   - `python-uv`: `ruff check`, `ruff format --check`, `pyright`
@@ -337,22 +320,150 @@ closure surface.
 
 If verification fails:
 
-- fix the problem within the issue scope, or
-- leave the issue open with a precise status note and follow-on issues if needed
+- fix the problem within the work item scope, or
+- leave the item open with a precise status note and follow-on items if needed
 
-Do not commit broken work as a completed issue.
+Do not commit broken work as a completed item.
 
-If a canonical verification run contradicts a previously closed issue, do not
-leave that issue green. Reopen it immediately or create a linked regression issue
+If a canonical verification run contradicts a previously closed item, do not
+leave that item green. Reopen it immediately or create a linked regression item
 that records the exact contradictory command, date, exit status, and reviewed
 artifacts.
 
 ## PHASE 7.5 - Measure
 
-Record verification results on the bead. See `.ddx/plugins/helix/workflows/references/measure.md`
-for the full pattern.
+Record verification results on the work item via the runtime tracker. See the
+measure action for the full pattern.
 
-After verification passes, record the results:
+After verification passes, record the results (timestamp, status, per-criterion
+pass/fail with evidence, per-gate pass/fail, per-ratchet measured vs. floor).
+
+If verification failed and cannot be fixed within scope, record the failure on
+the work item and do not proceed to commit.
+
+## PHASE 7.6 - Self-Review
+
+Before committing, perform one quick fresh-eyes review:
+
+1. Re-read the work item acceptance criteria.
+2. Re-read the complete diff you are about to commit.
+3. For each changed function, ask: "If I were reviewing this code for the
+   first time, what would I flag?"
+4. Check for: unclosed resources, missing error handling, hardcoded values
+   that should be configuration, TODO comments that should be follow-on items,
+   test assertions that are too loose or tautological.
+
+If issues are found, fix them before proceeding to Phase 8.
+
+## PHASE 8 - Commit, Gate, Push, And Close
+
+If the work item is complete:
+
+1. Re-read the selected item immediately before closing:
+   - Verify it has not been superseded or materially drifted while execution
+     was in progress.
+   - If it drifted materially, do not close it from stale assumptions; stop,
+     reopen the decision path, or create the required follow-on item.
+2. Review the diff for scope discipline.
+3. Create a comprehensive commit that references the work item ID.
+4. Include in the commit message:
+   - work item ID
+   - concise summary
+   - governing artifact references where helpful
+   - verification summary
+5. **ACCEPTANCE CHECK**: Before committing, verify the work item's acceptance
+   criteria are satisfied. If the item has a `spec-id`, find the matching
+   acceptance manifest (e.g., `TP-SD-010.acceptance.toml`) and verify:
+   - Each criterion the item claims to satisfy is marked `active` or `satisfied`
+   - The referenced test or evidence actually exists and passes
+   - If acceptance scripts exist (`scripts/check-acceptance-traceability.sh`,
+     `scripts/check-acceptance-coverage.sh`), run them
+   Do not close a work item whose acceptance criteria are not verifiably met.
+6. **PRE-PUSH GATE**: Before pushing, run the project's full quality gate.
+   This is CRITICAL because agent sandboxes may bypass pre-commit hooks.
+   - If the project has `lefthook`: run `lefthook run pre-commit`
+   - Otherwise: run the project's canonical build check (e.g., `cargo check
+     --workspace`, `npm test`, or whatever AGENTS.md defines as the gate)
+   - If the gate fails: fix the issue, amend the commit, and re-run the gate.
+     Do NOT push broken code. Do NOT skip this step.
+   - The scoped verification in Phase 7 catches most issues, but this
+     full-workspace gate catches cross-crate and cross-module breakage
+     that scoped checks miss (e.g., trait/impl mismatches across files).
+7. Push to remote: `git pull --rebase && git push`
+8. Close the work item via the runtime tracker.
+
+If the worktree contains unrelated changes, commit only the files that belong
+to the work item. Never revert unrelated work just to simplify the commit.
+
+## PHASE 9 - Report
+
+Close the execution cycle and feed back into the planning cycle. See the
+report action for the full pattern.
+
+1. The work item was already closed in Phase 8. Verify the close comment
+   includes measurement evidence.
+2. Follow-on items created in Phase 6 re-enter the planning cycle for polish
+   and subsequent build.
+3. If the work item could not be closed (verification failed, acceptance
+   unmet), it remains open with measurement results recorded — the next check
+   action will route it appropriately.
+
+## PHASE 10 - Output
+
+Report:
+
+1. Selected Work Item
+2. Why It Was Chosen
+3. Governing Artifacts
+4. Work Completed
+5. Follow-On Items Created
+6. Measurement Results (PASS/FAIL/PARTIAL with evidence summary)
+7. Verification Performed
+8. Commit Created
+9. Final Item Status
+10. Open Risks Or Decisions
+
+```
+MEASURE_STATUS: PASS|FAIL|PARTIAL
+ITEM_ID: <id>
+FOLLOW_ON_CREATED: N
+```
+
+Be precise and deterministic.
+
+## DDx Integration Appendix
+
+This appendix applies when DDx is the active HELIX runtime.
+
+### PHASE 0 — DDx bootstrap
+
+```bash
+ddx bead status  # stop immediately if this fails
+```
+
+- Build-phase enforcer: `.ddx/plugins/helix/workflows/phases/04-build/enforcer.md`
+- Ratchets: `.ddx/plugins/helix/workflows/ratchets.md`
+- Principles: `.ddx/plugins/helix/workflows/references/principles-resolution.md`
+  (default: `.ddx/plugins/helix/workflows/principles.md`)
+- Concerns: `.ddx/plugins/helix/workflows/references/concern-resolution.md`
+- Context-digest: `.ddx/plugins/helix/workflows/references/context-digest.md`
+
+### PHASE 1-2 — DDx candidate discovery
+
+```bash
+ddx bead ready
+ddx bead show <id>
+ddx bead dep tree <id>
+```
+
+### PHASE 3 — DDx claim and load
+
+```bash
+ddx bead show <id> --json        # re-read before claiming
+ddx bead update <id> --claim
+```
+
+### PHASE 7.5 — DDx measure
 
 ```bash
 ddx bead update <id> --notes "<measure-results>
@@ -370,91 +481,23 @@ ddx bead update <id> --notes "<measure-results>
 </measure-results>"
 ```
 
-If verification failed and cannot be fixed within scope, record the failure
-on the bead and do not proceed to commit.
+### PHASE 8 — DDx close
 
-## PHASE 7.6 - Self-Review
+```bash
+ddx bead show <id> --json   # re-read before closing
+ddx bead close <id>
+```
 
-Before committing, perform one quick fresh-eyes review:
+### DDx action input examples
 
-1. Re-read the issue acceptance criteria.
-2. Re-read the complete diff you are about to commit.
-3. For each changed function, ask: "If I were reviewing this code for the
-   first time, what would I flag?"
-4. Check for: unclosed resources, missing error handling, hardcoded values
-   that should be configuration, TODO comments that should be follow-on issues,
-   test assertions that are too loose or tautological.
+```
+helix build
+helix build <id>
+helix build US-042
+helix build area:auth
+```
 
-If issues are found, fix them before proceeding to Phase 8.
-
-## PHASE 8 - Commit, Gate, Push, And Close
-
-If the issue is complete:
-
-1. re-read the selected issue immediately before close:
-   - `ddx bead show <id> --json`
-   - verify it has not been superseded or materially drifted while execution
-     was in progress
-   - if it drifted materially, do not close it from stale assumptions; stop,
-     reopen the decision path, or create the required follow-on issue
-2. review the diff for scope discipline
-3. create a comprehensive commit that references the issue ID
-4. include in the commit message:
-   - issue ID
-   - concise summary
-   - governing artifact references where helpful
-   - verification summary
-5. **ACCEPTANCE CHECK**: Before committing, verify the issue's acceptance
-   criteria are satisfied. If the issue has a `spec-id`, find the matching
-   acceptance manifest (e.g., `TP-SD-010.acceptance.toml`) and verify:
-   - Each criterion the issue claims to satisfy is marked `active` or `satisfied`
-   - The referenced test or evidence actually exists and passes
-   - If acceptance scripts exist (`scripts/check-acceptance-traceability.sh`,
-     `scripts/check-acceptance-coverage.sh`), run them
-   Do not close an issue whose acceptance criteria are not verifiably met.
-6. **PRE-PUSH GATE**: Before pushing, run the project's full quality gate.
-   This is CRITICAL because agent sandboxes may bypass pre-commit hooks.
-   - If the project has `lefthook`: run `lefthook run pre-commit`
-   - Otherwise: run the project's canonical build check (e.g., `cargo check
-     --workspace`, `npm test`, or whatever AGENTS.md defines as the gate)
-   - If the gate fails: fix the issue, amend the commit, and re-run the gate.
-     Do NOT push broken code. Do NOT skip this step.
-   - The scoped verification in Phase 7 catches most issues, but this
-     full-workspace gate catches cross-crate and cross-module breakage
-     that scoped checks miss (e.g., trait/impl mismatches across files).
-7. push to remote: `git pull --rebase && git push`
-8. close the issue with `ddx bead close <id>`
-
-If the worktree contains unrelated changes, commit only the files that belong to
-the issue. Never revert unrelated work just to simplify the commit.
-
-## PHASE 9 - Report
-
-Close the execution cycle and feed back into the planning helix.
-See `.ddx/plugins/helix/workflows/references/report.md` for the full pattern.
-
-1. The bead was already closed in Phase 8. Verify the close comment includes
-   measurement evidence.
-2. Follow-on issues created in Phase 6 re-enter the planning helix for
-   polish and subsequent build.
-3. If the bead could not be closed (verification failed, acceptance unmet),
-   it remains open with measurement results recorded — the next `helix check`
-   will route it appropriately.
-
-## PHASE 10 - Output
-
-Report:
-
-1. Selected Issue
-2. Why It Was Chosen
-3. Governing Artifacts
-4. Work Completed
-5. Follow-On Issues Created
-6. Measurement Results (PASS/FAIL/PARTIAL with evidence summary)
-7. Verification Performed
-8. Commit Created
-9. Final Issue Status
-10. Open Risks Or Decisions
+### DDx output trailer
 
 ```
 MEASURE_STATUS: PASS|FAIL|PARTIAL
@@ -462,4 +505,5 @@ BEAD_ID: <id>
 FOLLOW_ON_CREATED: N
 ```
 
-Be precise and deterministic.
+If the bead could not be closed, it remains open — the next `helix check` will
+route it appropriately.
