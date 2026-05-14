@@ -166,7 +166,7 @@ def main(argv: list[str]) -> int:
         return 1
 
     out_path: Path = args.output or (
-        session_path.parent.parent.parent
+        session_path.parent.parent.parent.parent
         / "website"
         / "static"
         / "demos"
