@@ -170,8 +170,8 @@ Use for fresh-eyes review of plans, PRs, implementation, or recent work.
 2. Inspect governing artifacts, changed implementation, tests, and public
    projection relevant to the scope.
 3. Report findings first, ordered by severity, with concrete evidence.
-4. File durable follow-up work for actionable medium-or-higher findings when
-   the project uses DDx/HELIX tracking.
+4. File durable follow-up work for actionable medium-or-higher findings in
+   the project's work tracker.
 
 ### Polish
 
@@ -217,8 +217,8 @@ Use when verified work should be committed.
 1. Inspect the diff and separate unrelated user changes.
 2. Run the project gate.
 3. Commit only the intended scope with traceable message text.
-4. Preserve DDx execute-bead history: never squash, rebase, amend, or filter
-   branches containing execute-bead or `[ddx-*]` commits.
+4. Preserve managed-execution history: never squash, rebase, amend, or filter
+   branches containing runtime-generated execution commits.
 
 ### Release
 
@@ -271,8 +271,8 @@ follow-up work are captured durably.
 
 - Use the workflow contracts in this skill as the active interface; consult
   packaged workflow prompts only when deeper mode-specific detail is needed.
-- For DDx-backed projects, obey bead-first rules before writing files or tracker
-  mutations.
+- For projects with a work tracker, obey work-item-first rules before writing
+  files or tracker mutations.
 - Do not silently start implementation when the request is planning, alignment,
   review, or routing.
 - If the correct route is unclear, use check mode rather than guessing.

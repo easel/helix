@@ -4,11 +4,18 @@
 **Owner:** HELIX maintainers  
 **Related:** [Product Vision](../../00-discover/product-vision.md), [FEAT-011](../../01-frame/features/FEAT-011-slider-autonomy.md), [ADR-001](../adr/ADR-001-supervisory-control-model.md)
 
+> **Note (2026-Q2 scope collapse):** The "platform substrate" framing in this
+> contract — where DDx is HELIX's substrate and HELIX delegates execution to it
+> — is superseded in part by [CONTRACT-003](CONTRACT-003-ddx-adapter-boundary.md).
+> After the collapse, DDx is one of three target runtimes rather than the
+> substrate. The shared-object definitions (§Shared Integration Objects) and
+> audit findings remain active and are not invalidated.
+
 ## Purpose
 
 This contract defines the ownership boundary between **DDx** and **HELIX**.
 
-- **DDx** is the platform substrate.
+- **DDx** is the platform substrate (pre-collapse framing; see note above).
 - **HELIX** is the workflow and methodology layer built on that substrate.
 
 The goal is to keep execution/storage/platform concerns in DDx while keeping
