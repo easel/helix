@@ -41,10 +41,12 @@ If you are unsure, run `codex --version` in a terminal. If that resolves,
 you have the CLI (Path A). If you only interact with HELIX through a
 Copilot chat panel or Copilot Workspace, you are on Path B.
 
-<!-- TODO: validate against current docs — confirm the canonical Copilot
-repo-instructions filename. As of this writing the common conventions
-are `.github/copilot-instructions.md` and per-file `*.instructions.md`
-under `.github/instructions/`. -->
+The canonical repo-wide instruction file is `.github/copilot-instructions.md`.
+Per-file or per-path instructions are supported as `NAME.instructions.md`
+files stored under `.github/instructions/` (or subdirectories), each with
+an `applyTo:` glob in their frontmatter. When a path matches both a
+per-file instruction and the global file, Copilot uses both.
+(Source: GitHub Docs — "Adding repository custom instructions for GitHub Copilot")
 
 ---
 
@@ -129,9 +131,14 @@ A correctly installed setup will:
 If Codex does not mention the skill file, check that `AGENTS.md` is at
 the working directory root and that `skills/helix/SKILL.md` exists.
 
-<!-- TODO: validate against current docs — confirm whether the Codex CLI
-also honors `.codex/instructions.md` or a similar override file. If so,
-the same entry above can be placed there with no other changes. -->
+The Codex CLI does **not** honor a `.codex/instructions.md` file. The
+instruction files it checks are `AGENTS.override.md` and `AGENTS.md`, checked
+in that order at the global scope (`~/.codex/`), the Git root, and each
+directory down to the current working directory. Custom fallback filenames
+(e.g. `TEAM_GUIDE.md`) can be added via `project_doc_fallback_filenames`
+in `~/.codex/config.toml`, but there is no built-in `.codex/instructions.md`
+path. Use `AGENTS.md` (or `AGENTS.override.md` to take absolute priority).
+(Source: OpenAI Developers — "Custom instructions with AGENTS.md")
 
 ---
 
@@ -168,10 +175,14 @@ markdown files. Shell execution is optional and not required for
 alignment, framing, evolve, or review modes.
 ```
 
-<!-- TODO: validate against current docs — Copilot also supports
-per-file or per-path instruction files under `.github/instructions/`
-with `applyTo:` frontmatter. If a project wants HELIX guidance scoped
-to a subtree, prefer that mechanism over a single global file. -->
+Copilot also supports per-file or per-path instruction files: create
+`NAME.instructions.md` files under `.github/instructions/` (or
+subdirectories) with `applyTo:` glob frontmatter to scope HELIX guidance
+to a subtree. For example, to apply HELIX guidance only to files under
+`src/`, set `applyTo: "src/**"`. When a file matches both a per-path
+instruction and the global `.github/copilot-instructions.md`, Copilot
+merges both sets of instructions.
+(Source: GitHub Docs — "Adding repository custom instructions for GitHub Copilot")
 
 ### 3.2 Loading the skill into prompt context
 
@@ -298,9 +309,13 @@ Practical guidance:
   packages here exist to make discovery easy, not to lock HELIX to
   Codex.
 
-<!-- TODO: validate against current docs — confirm whether Copilot
-Workspace exposes a shell tool to agents in any tier. If so, Path B's
-"shell execution" row above should be revised. -->
+As of 2026, the public GitHub Copilot documentation does not describe
+Copilot Workspace as exposing a general shell-execution tool to agents;
+the product itself may have been renamed or merged into other surfaces
+(e.g. the cloud agent or Copilot Spaces). GitHub Copilot CLI — a
+separate, terminal-native surface — does support full shell execution.
+Verify the current Copilot Workspace feature set before assuming shell
+access is available from the web-based task-planning surface.
 
 ---
 
