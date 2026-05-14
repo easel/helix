@@ -48,9 +48,6 @@ jobs:
         env:
           DDX_INSTALL_DIR: /usr/local/bin
 
-      - name: Install demo dependencies
-        run: pipx install asciinema
-
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
@@ -62,16 +59,9 @@ jobs:
           git config --global user.email "ci@helix.dev"
           git config --global init.defaultBranch main
 
-      - name: Record demos (virtual agent — no API keys)
-        run: |
-          export DEMO_HARNESS=virtual
-          export DEMO_MODEL=claude-haiku-4-5-20251001
-          export DEMO_PACE=5
-          export HELIX_ROOT="${GITHUB_WORKSPACE}"
-          export PATH="${HOME}/.local/bin:${GITHUB_WORKSPACE}/scripts:$PATH"
-          # FEAT-007 public demo inventory: quickstart, concerns, evolve, experiment.
-          # helix-interactive remains experimental and is intentionally excluded here.
-          bash scripts/record_pages_demos.sh
+      # Demo recording is disabled while the legacy `scripts/helix` CLI is
+      # removed and the session-record-based rebuild pipeline is being built.
+      # Committed .cast files under website/static/demos/ are used as-is.
 
       - name: Generate concerns catalog
         run: bash website/scripts/generate-concerns.sh

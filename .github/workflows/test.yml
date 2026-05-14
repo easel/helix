@@ -22,9 +22,6 @@ jobs:
           git config --global user.email "ci@helix.dev"
           git config --global user.name "HELIX CI"
 
-      - name: Validate Pages demo recording
-        run: bash tests/validate-pages-demo-recording.sh
-
       - name: Validate deploy artifact graph
         run: bash tests/validate-deploy-artifacts.sh
 
