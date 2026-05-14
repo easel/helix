@@ -1,0 +1,49 @@
+{
+  "attempt_id": "20260514T175005-21b8c9cb",
+  "bead_id": "helix-2af03802",
+  "base_rev": "80581adfe270a8dd759e76eae7422903caf5a4f8",
+  "created_at": "2026-05-14T17:50:06.31075722Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-2af03802",
+    "title": "Author docs/install/claude-code.md — drop-in install for Claude Code",
+    "description": "PRD R-7 ships HELIX as a Claude Code skill. There is no install doc today. Author docs/install/claude-code.md covering:\n\n1. Two install paths:\n   a) User-global: copy skills/helix/ to ~/.claude/skills/helix/ (or symlink); workflows/ + docs/helix/ to a discoverable location\n   b) Per-repo: vendor skills/helix/ into .claude/skills/helix/ and check workflows/ into the repo\n2. How invocation works: the user types /helix or asks for align/frame/evolve etc.; Claude Code resolves the skill by name; the skill's routing table picks the workflow mode.\n3. The artifact catalog: where workflows/phases/* lives relative to the install; how the skill resolves template/prompt/meta paths.\n4. Minimum Claude Code version + any frontmatter caveats.\n5. A 'verify' snippet: a small interaction that confirms the skill is loaded and the catalog reachable.\n6. Pointer to the per-runtime contract: read/write/search files only.\n\nLength target: ~150-250 lines. No HELIX CLI commands. Examples use natural-language prompts the user types into Claude Code, not shell commands.",
+    "acceptance": "docs/install/claude-code.md exists and: names both global and per-repo install paths; explains skill discovery + routing; explains where workflows/ lives and how the skill finds it; gives a verification interaction; contains zero shell invocations of 'helix' or 'ddx' as required surface (DDx is allowed as one optional integration). The doc is reachable from the install README index.",
+    "parent": "helix-2b235e7e",
+    "labels": [
+      "helix",
+      "phase:build",
+      "kind:docs",
+      "area:docs",
+      "area:packaging",
+      "area:runtime",
+      "modernization"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-14T17:49:18Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "227954",
+      "execute-loop-heartbeat-at": "2026-05-14T17:49:18.638373946Z",
+      "spec-id": "helix.prd"
+    }
+  },
+  "governing": [
+    {
+      "id": "helix.prd",
+      "path": "docs/helix/01-frame/prd.md",
+      "title": "Product Requirements Document"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260514T175005-21b8c9cb",
+    "prompt": ".ddx/executions/20260514T175005-21b8c9cb/prompt.md",
+    "manifest": ".ddx/executions/20260514T175005-21b8c9cb/manifest.json",
+    "result": ".ddx/executions/20260514T175005-21b8c9cb/result.json",
+    "checks": ".ddx/executions/20260514T175005-21b8c9cb/checks.json",
+    "usage": ".ddx/executions/20260514T175005-21b8c9cb/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-2af03802-20260514T175005-21b8c9cb"
+  },
+  "prompt_sha": "70269f098ba827b2faae49be31885e39a47100e236fbf040a8146c8f2753354c"
+}
