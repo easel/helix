@@ -75,7 +75,7 @@ graph TD
     subgraph "Story Level (Vertical Slices)"
         US[US-XXX - User Story]
         TD[TD-XXX - Technical Design]
-        TP[TP-XXX - Test Plan]
+        STP[STP-XXX - Story Test Plan]
     end
 
     subgraph "Execution Layer (Non-Canonical)"
@@ -93,9 +93,9 @@ graph TD
     FEAT --> US
     FEAT --> SD
     SD --> TD
-    US --> TD --> TP
+    US --> TD --> STP
     IMP --> BB
-    TP --> BB --> DB
+    STP --> BB --> DB
     DB --> MD
     DB --> SM
     MD --> IB
@@ -118,7 +118,7 @@ story-specific evidence when needed.
 ```
 Frame:   US-036-list-mcp-servers.md
 Design:  TD-036-list-mcp-servers.md
-Test:    TP-036-list-mcp-servers.md
+Test:    STP-036-list-mcp-servers.md
 Build:   runtime work item labeled `helix`, `phase:build`, `story:US-036`
 Deploy:  runtime work item labeled `helix`, `phase:deploy`, `story:US-036`
 Iterate: all `phase:deploy` work items for `story:US-036` are complete and no
@@ -134,7 +134,7 @@ Context: `metrics-dashboard.md`, `security-metrics.md` (when relevant), and
 |--------|--------------|-------|---------|
 | US | User Story | Frame | Defines WHAT needs to be built |
 | TD | Technical Design | Design | Details HOW to build it |
-| TP | Test Plan | Test | Specifies tests to verify it |
+| STP | Story Test Plan | Test | Specifies tests to verify it |
 | ISSUE | Build / Deploy Work Item | Build / Deploy | Tracks scoped execution work in the runtime's work-item tracker |
 | Iterate outputs | `metrics-dashboard`, `security-metrics`, `improvement-backlog`, plus tracker follow-on work | Iterate | Shared iteration context and prioritized next work after story-level ITERATE is established by completed deploy issue(s), without a separate numbered story report |
 
@@ -180,7 +180,7 @@ docs/
     ├── 03-test/
     │   ├── test-plan.md               # Project-level
     │   └── test-plans/
-    │       └── TP-XXX-*.md           # Story-level (NEW)
+    │       └── STP-XXX-*.md          # Story-level
     ├── 04-build/
     │   ├── implementation-plan.md     # Project-level
     ├── 05-deploy/
@@ -224,11 +224,11 @@ Each artifact references its dependencies:
 
 ### Traceability Chain
 ```
-FEAT-001 → SD-001 → US-036 → TD-036 → TP-036 → build issue(s) → deploy issue(s) → all deploy issue(s) complete with no matching deploy issue remaining not closed + optional follow-on tracker work (ITERATE evidence)
+FEAT-001 → SD-001 → US-036 → TD-036 → STP-036 → build issue(s) → deploy issue(s) → all deploy issue(s) complete with no matching deploy issue remaining not closed + optional follow-on tracker work (ITERATE evidence)
          ↓
-         US-037 → TD-037 → TP-037 → build issue(s) → deploy issue(s) → all deploy issue(s) complete with no matching deploy issue remaining not closed + optional follow-on tracker work (ITERATE evidence)
+         US-037 → TD-037 → STP-037 → build issue(s) → deploy issue(s) → all deploy issue(s) complete with no matching deploy issue remaining not closed + optional follow-on tracker work (ITERATE evidence)
          ↓
-         US-038 → TD-038 → TP-038 → build issue(s) → deploy issue(s) → all deploy issue(s) complete with no matching deploy issue remaining not closed + optional follow-on tracker work (ITERATE evidence)
+         US-038 → TD-038 → STP-038 → build issue(s) → deploy issue(s) → all deploy issue(s) complete with no matching deploy issue remaining not closed + optional follow-on tracker work (ITERATE evidence)
 ```
 
 ## Naming Rules
@@ -236,7 +236,7 @@ FEAT-001 → SD-001 → US-036 → TD-036 → TP-036 → build issue(s) → depl
 ### Consistency Rules
 1. **Number stays constant**: 036 throughout all phases
 2. **Name stays constant**: "list-mcp-servers" throughout
-3. **Only canonical story document prefixes change**: US → TD → TP
+3. **Only canonical story document prefixes change**: US → TD → STP
 4. **Build, Deploy, and Iterate use tracker issues and phase docs**: execution is tracked in the built-in tracker, and iterate outcomes land in canonical iterate outputs rather than a numbered HELIX story file
 
 ### Valid Examples
@@ -257,7 +257,7 @@ The workflow state is determined by which artifacts exist:
 ```yaml
 If exists US-036: Story is in FRAME
 If exists TD-036: Story is in DESIGN
-If exists TP-036: Story is in TEST
+If exists STP-036: Story is in TEST
 If open HELIX build work items exist for story US-036: Story is in BUILD
 If any HELIX deploy work item for story US-036 is not closed, including status: in_progress: Story is in DEPLOY
 If all deploy work items for story US-036 are complete and no matching deploy item remains not closed: Story is in ITERATE
@@ -337,7 +337,7 @@ Story Level:
 ```
 Monday:   Create US-041-user-authentication.md (FRAME)
 Tuesday:  Create TD-041-user-authentication.md (DESIGN)
-Wednesday: Create TP-041-user-authentication.md (TEST)
+Wednesday: Create STP-041-user-authentication.md (TEST)
 Thursday: Create build issue(s) for US-041 (BUILD)
 Friday:   Create deploy issue(s) for US-041 (DEPLOY)
 Next Week: Complete all deploy issue(s) and leave no matching deploy issue not closed; story enters ITERATE and any follow-on work is captured in tracker-backed iteration evidence

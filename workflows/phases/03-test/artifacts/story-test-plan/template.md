@@ -1,9 +1,9 @@
 ---
 ddx:
-  id: TP-XXX
+  id: STP-XXX
 ---
 
-# Story Test Plan: TP-XXX-[story-name]
+# Story Test Plan: STP-XXX-[story-name]
 
 ## Story Reference
 

@@ -77,7 +77,7 @@ Execution documents should use normal HELIX / DDx graph identity patterns:
 ddx:
   id: EXEC-001
   depends_on:
-    - TP-036
+    - STP-036
     - FEAT-011
 ---
 ```
@@ -101,7 +101,7 @@ exists.
 | Execution purpose | Minimum governing link |
 |---|---|
 | feature-level validation | `FEAT-*` or `US-*` |
-| implementation / design validation | `TD-*` or `TP-*` |
+| implementation / design validation | `TD-*` or `STP-*` |
 | cross-cutting technical validation | `ADR-*` and/or `SD-*` |
 | workflow / policy validation | workflow doc or contract doc ID |
 | ratchet enforcement | metric definition + ratchet policy source |
@@ -115,7 +115,7 @@ ddx:
   id: EXEC-002
   depends_on:
     - FEAT-011
-    - TP-011
+    - STP-011
 ---
 ```
 
@@ -123,7 +123,7 @@ ddx:
 # EXEC-002: Slider autonomy verification
 
 **Governing Feature**: [[FEAT-011]]  
-**Governing Test Plan**: [[TP-011]]
+**Governing Test Plan**: [[STP-011]]
 ```
 
 ### No redundant authority chains

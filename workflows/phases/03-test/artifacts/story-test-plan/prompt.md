@@ -25,7 +25,7 @@ Use these local resource summaries as grounding:
 
 ## Storage Location
 
-`docs/helix/03-test/test-plans/TP-{id}-{name}.md`
+`docs/helix/03-test/test-plans/STP-{id}-{name}.md`
 
 ## What to Include
 

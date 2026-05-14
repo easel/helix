@@ -7,7 +7,7 @@ ddx:
     - example.test-plan.depositmatch
 ---
 
-# Story Test Plan: TP-001-upload-csv-files
+# Story Test Plan: STP-001-upload-csv-files
 
 ## Story Reference
 

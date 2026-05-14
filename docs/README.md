@@ -46,7 +46,7 @@ docs/
     │   ├── executions/          # Recorded execution evidence
     │   │   └── README.md        # Execution log conventions
     │   └── test-plans/          # Test plans (plural)
-    │       └── TP-002-[name].md # Test plan
+    │       └── STP-002-[name].md # Story test plan
     ├── 04-build/                # Phase 04: Implementation Strategy
     │   └── implementation-plan.md # Build strategy and planning
     ├── 05-deploy/               # Phase 05: Deployment & Operations

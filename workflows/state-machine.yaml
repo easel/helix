@@ -204,18 +204,27 @@ story_flow:
     user_story: US
     technical_design: TD
     test_plan: TP
+    # Runtime-neutral descriptions: "tracker issue" means any issue-tracking
+    # system. The DDx integration section below maps these to ddx bead commands.
+    implementation_issue: "tracker issue labeled phase:build"
+    deployment_issue: "tracker issue labeled phase:deploy"
+    iterate_evidence: "all deploy issue(s) complete with no matching deploy issue remaining not closed, plus optional linked tracker follow-on work; canonical iterate outputs remain shared iteration context"
+
+  # --- DDx integration ---
+  # The following keys are DDx-specific and document how the runtime-neutral
+  # prefix labels above map to DDx bead commands.
+  ddx_integration:
     implementation_issue: "ddx bead issue labeled phase:build"
     deployment_issue: "ddx bead issue labeled phase:deploy"
-    iterate_evidence: "all deploy issue(s) complete with no matching deploy issue remaining not closed, plus optional linked tracker follow-on work; canonical iterate outputs remain shared iteration context"
 
   transitions:
     - from: US-{id}
       to: TD-{id}
       phase_change: frame -> design
     - from: TD-{id}
-      to: TP-{id}
+      to: STP-{id}
       phase_change: design -> test
-    - from: TP-{id}
+    - from: STP-{id}
       to: "tracker issue(s) labeled helix, phase:build, story:US-{id}"
       phase_change: test -> build
     - from: "tracker issue(s) labeled helix, phase:build, story:US-{id}"
@@ -230,7 +239,7 @@ story_flow:
     example: |
       If exists US-036: Story is in FRAME
       If exists TD-036: Story is in DESIGN
-      If exists TP-036: Story is in TEST
+      If exists STP-036: Story is in TEST
       If open HELIX build issues exist for story US-036: Story is in BUILD
       If any HELIX deploy issue for story US-036 is not closed, including status: in_progress: Story is in DEPLOY
       If all deploy issues for story US-036 are complete and no matching deploy issue remains not closed: Story is in ITERATE

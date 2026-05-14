@@ -26,7 +26,7 @@ or match generation.
 ## Shared Constraints
 
 - API-001 is normative.
-- Failing tests from TP-001 must exist before behavior implementation.
+- Failing tests from STP-001 must exist before behavior implementation.
 - Raw CSV row values must not appear in logs.
 - Storage failure must not leave partial session metadata.
 - Build slices should stay small enough for review and rollback.
@@ -35,11 +35,11 @@ or match generation.
 
 | Slice | Story / Area | Governing Artifacts | Depends On | Validation Gate | Notes |
 |-------|---------------|---------------------|------------|-----------------|-------|
-| B-001 | Database migration and repository | TD-001, TP-001 | None | `pnpm test -- importSessionRepository` | Establish persistence contract first |
-| B-002 | Source-file storage adapter and upload service tests | TD-001, TP-001 | B-001 | `pnpm test -- importUploadService` | Add red tests before service implementation |
-| B-003 | API route and contract tests | API-001, TD-001, TP-001 | B-001, B-002 | `pnpm test -- importSessions` | Proves success and problem-details errors |
-| B-004 | React upload UI and component tests | US-001, TD-001, TP-001 | B-003 | `pnpm test -- ImportSessionUpload` | Uses API response `next.href` directly |
-| B-005 | P0 E2E smoke and closeout | US-001, TP-001 | B-004 | `pnpm test:e2e -- upload-csv` | Final story evidence |
+| B-001 | Database migration and repository | TD-001, STP-001 | None | `pnpm test -- importSessionRepository` | Establish persistence contract first |
+| B-002 | Source-file storage adapter and upload service tests | TD-001, STP-001 | B-001 | `pnpm test -- importUploadService` | Add red tests before service implementation |
+| B-003 | API route and contract tests | API-001, TD-001, STP-001 | B-001, B-002 | `pnpm test -- importSessions` | Proves success and problem-details errors |
+| B-004 | React upload UI and component tests | US-001, TD-001, STP-001 | B-003 | `pnpm test -- ImportSessionUpload` | Uses API response `next.href` directly |
+| B-005 | P0 E2E smoke and closeout | US-001, STP-001 | B-004 | `pnpm test:e2e -- upload-csv` | Final story evidence |
 
 ## Issue Decomposition
 
@@ -48,7 +48,7 @@ Story-level work is tracked via `ddx bead` in `.ddx/beads.jsonl`.
 **Per-issue requirements**:
 
 - Labels: `helix`, `phase:build`, `kind:build`, `story:US-001`
-- References: US-001, TD-001, TP-001, API-001, this build plan
+- References: US-001, TD-001, STP-001, API-001, this build plan
 - `spec-id` pointing at the nearest governing artifact
 - Blockers as dependency links
 

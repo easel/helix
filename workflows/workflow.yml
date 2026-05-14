@@ -1,5 +1,13 @@
-# Metadata stub only.
-# The normative HELIX contract lives in:
+# DDx plugin metadata stub — DDx-coupled by nature.
+# This file is a registry entry consumed by the DDx plugin loader.
+# It is NOT a runtime-neutral HELIX artifact; it describes where DDx finds
+# the normative workflow contract inside its plugin tree.
+#
+# Runtime-neutral state definitions live in:
+#   workflows/state-machine.yaml  — phase graph and gate conditions
+#   workflows/state-rules.yml     — artifact patterns and state-detection rules
+#
+# DDx plugin normative contract lives in:
 # - .ddx/plugins/helix/workflows/README.md
 # - .ddx/plugins/helix/workflows/EXECUTION.md
 # - .ddx/plugins/helix/workflows/TRACKER.md
@@ -7,7 +15,7 @@
 
 name: helix
 version: 2.0.0
-description: Metadata summary for the HELIX workflow
+description: Metadata summary for the HELIX workflow (DDx plugin registry entry)
 author: DDX Team
 created: 2025-01-13
 tags:
