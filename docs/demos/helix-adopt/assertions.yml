@@ -1,0 +1,21 @@
+slug: helix-adopt
+min_duration_s: 5
+min_assistant_chars: 80
+
+expect:
+  - kind: narration
+    contains: "No HELIX yet"
+  - kind: shell
+    contains: "ddx install helix"
+  - kind: prompt
+    contains: "/helix"
+  - kind: tool_call
+    name: Glob
+    args_contain:
+      pattern: "docs/helix"
+  - kind: assistant
+    contains: "No HELIX artifacts yet"
+  - kind: output
+    contains_all:
+      - "Frame mode"
+      - "Backfill mode"

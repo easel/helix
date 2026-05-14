@@ -1,0 +1,32 @@
+slug: helix-concerns
+min_duration_s: 6
+min_assistant_chars: 100
+
+expect:
+  - kind: shell
+    contains: "concerns.md"
+  - kind: output
+    contains: "typescript-bun"
+  - kind: prompt
+    contains: "helix-align --scope concerns"
+  - kind: assistant
+    contains: "drift signals"
+  - kind: tool_call
+    name: Read
+    args_contain:
+      file_path: "src/server.ts"
+  - kind: tool_call
+    name: Read
+    args_contain:
+      file_path: "tests/health.test.ts"
+  - kind: tool_call
+    name: Read
+    args_contain:
+      file_path: "package.json"
+  - kind: assistant
+    contains: "Three drift findings"
+  - kind: output
+    contains_all:
+      - "node http"
+      - "vitest"
+      - "bun:test"

@@ -1,0 +1,29 @@
+slug: helix-execute
+min_duration_s: 7
+min_assistant_chars: 150
+
+expect:
+  - kind: narration
+    contains: "runtime takes over"
+  - kind: shell
+    contains: "ddx bead next --execute"
+  - kind: output
+    contains: "bead-001"
+  - kind: assistant
+    contains: "FZO routes"
+  - kind: output
+    contains_all:
+      - "[fzo]"
+      - "git worktree"
+  - kind: assistant
+    contains: "acceptance gate"
+  - kind: output
+    contains_all:
+      - "schema-mapping.yaml exists"
+      - "OWASP"
+  - kind: assistant
+    contains: "Cross-model"
+  - kind: output
+    contains: "evidence appended"
+  - kind: output
+    contains: "bead-001 closed"
