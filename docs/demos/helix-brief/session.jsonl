@@ -1,0 +1,21 @@
+{"meta": {"title": "HELIX brief: author the governing artifacts", "width": 100, "height": 30, "scenario": "brief", "timestamp": 1764950600}}
+{"narration": "You have a fresh repo. You know what you want to build. Step one: write the brief — the artifacts that govern the work."}
+{"prompt": "/helix-frame Build a CSV-to-Parquet ingest pipeline for a healthcare claims processor"}
+{"assistant": "I'll author the four governing artifacts in authority order. Starting with the product vision.", "pace_ms": 18}
+{"tool_call": {"name": "Read", "args": {"file_path": "workflows/phases/00-discover/artifacts/product-vision/template.md"}}}
+{"tool_result": "template loaded"}
+{"tool_call": {"name": "Write", "args": {"file_path": "docs/helix/00-discover/product-vision.md"}}}
+{"tool_result": "wrote 42 lines"}
+{"assistant": "Now the PRD with measurable success criteria.", "pace_ms": 18}
+{"tool_call": {"name": "Read", "args": {"file_path": "workflows/phases/01-frame/artifacts/prd/template.md"}}}
+{"tool_result": "template loaded"}
+{"tool_call": {"name": "Write", "args": {"file_path": "docs/helix/01-frame/prd.md"}}}
+{"tool_result": "wrote 88 lines (R-1..R-6 with acceptance sketches)"}
+{"assistant": "Concerns: stack and quality choices the agent should respect.", "pace_ms": 18}
+{"tool_call": {"name": "Write", "args": {"file_path": "docs/helix/01-frame/concerns.md"}}}
+{"tool_result": "wrote 18 lines"}
+{"assistant": "First feature spec: CSV ingest with schema mapping.", "pace_ms": 18}
+{"tool_call": {"name": "Write", "args": {"file_path": "docs/helix/01-frame/features/FEAT-001-csv-ingest.md"}}}
+{"tool_result": "wrote 56 lines"}
+{"output": "\n  ✓ vision · PRD · concerns · FEAT-001 — all authored from HELIX templates\n  Authority order is now established. Any change downstream traces back here.\n"}
+{"narration": "Four documents, ordered by authority. The agent has a brief it can defend any code against.", "pause_s": 2.0}

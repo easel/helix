@@ -1,0 +1,16 @@
+{"meta": {"title": "HELIX concerns: catch technology drift before it ships", "width": 100, "height": 30, "scenario": "concerns", "timestamp": 1764950900}}
+{"narration": "The project's concerns say: Bun runtime, Biome linter, bun:test for testing. The agent built something that looks fine — until alignment runs."}
+{"shell": "$ cat docs/helix/01-frame/concerns.md"}
+{"output": "# Active Concerns\n\n- typescript-bun (tech-stack)\n\n## Areas\n| Label | Applies |\n|-------|---------|\n| api   | server, endpoints, tests |\n"}
+{"prompt": "/helix-align --scope concerns"}
+{"assistant": "Loading concern: typescript-bun. Checking implementation for drift signals.", "pace_ms": 18}
+{"tool_call": {"name": "Read", "args": {"file_path": "src/server.ts"}}}
+{"tool_result": "import http from 'http' — drift", "lines": 4}
+{"tool_call": {"name": "Read", "args": {"file_path": "tests/health.test.ts"}}}
+{"tool_result": "import { describe, it } from 'vitest' — drift", "lines": 2}
+{"tool_call": {"name": "Read", "args": {"file_path": "package.json"}}}
+{"tool_result": "\"scripts\": { \"test\": \"vitest\" } — drift", "lines": 6}
+{"assistant": "Three drift findings against typescript-bun:", "pace_ms": 18}
+{"output": "\n  · src/server.ts:1 — uses node http; concern requires Bun.serve()\n  · tests/health.test.ts:1 — vitest import; concern requires bun:test\n  · package.json — test script invokes vitest; should invoke bun test\n"}
+{"output": "\n  Plan:\n    1. rewrite server.ts on Bun.serve\n    2. swap vitest → bun:test in health.test.ts\n    3. update package.json scripts.test\n"}
+{"narration": "Concerns aren't style preferences. They're declared technology contracts. The skill catches the drift the agent didn't know it introduced.", "pause_s": 2.0}

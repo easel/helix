@@ -1,0 +1,11 @@
+{"version": 2, "width": 100, "height": 30, "timestamp": 1764951100, "env": {"SHELL": "/bin/bash", "TERM": "xterm-256color"}, "title": "Run it in the factory: DDx executes a HELIX-planned bead"}
+[0.0, "o", "\r\n\u001b[2m# Plan is approved. The runtime takes over. HELIX stays offstage \u2014 its job was the artifacts.\u001b[0m\r\n"]
+[1.0, "o", "\r\n\u001b[1;32m$ ddx bead next --execute\u001b[0m\r\n"]
+[1.4, "o", "Selected: bead-001 (CSV header sniffer)\r\nAcceptance: schema-mapping.yaml exists\r\nEvidence: tests/header_sniffer_test.go (3 fixtures)\r\n"]
+[1.5, "o", "\r\n[fzo] routing \u2192 claude-sonnet-4-6 (preset: fast, harness: claude)\r\n[fzo] git worktree: .ddx/worktrees/bead-001\r\n"]
+[1.6, "o", "\r\n\u001b[2m# FZO picks the right model and harness for the task. A throwaway worktree isolates the work.\u001b[0m\r\n"]
+[2.6, "o", "\r\n[claude-code] reading bead acceptance contract\r\n[claude-code] writing tests/header_sniffer_test.go\r\n[claude-code] writing internal/ingest/header_sniffer.go\r\n[claude-code] go test ./internal/ingest \u2014 PASS (3/3)\r\n[claude-code] writing schema-mapping.yaml\r\n"]
+[2.7, "o", "\r\n[ddx] running acceptance gate:\r\n  \u00b7 schema-mapping.yaml exists \u2713\r\n  \u00b7 tests/header_sniffer_test.go has 3 fixtures \u2713\r\n  \u00b7 go test ./... \u2713\r\n  \u00b7 OWASP scan (no injection sinks) \u2713\r\n"]
+[2.8, "o", "\r\n[ddx] running cross-model review: gpt-5.4-mini\r\n  \u00b7 spec compliance \u2713\r\n  \u00b7 duplication check \u2713\r\n  \u00b7 code quality \u2713\r\n"]
+[2.9, "o", "\r\n[ddx] merging bead-001 worktree \u2192 main\r\n[ddx] evidence appended: .ddx/evidence/bead-001/\r\n[ddx] bead closed \u00b7 4m 22s \u00b7 $0.18 spent\r\n"]
+[3.0, "o", "\r\n\u001b[2m# One bead, executed end-to-end. Tests, acceptance, cross-model review, evidence \u2014 all locked in. The artifact graph updates with what was actually done.\u001b[0m\r\n"]
