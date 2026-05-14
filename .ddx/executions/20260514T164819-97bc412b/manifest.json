@@ -1,0 +1,47 @@
+{
+  "attempt_id": "20260514T164819-97bc412b",
+  "bead_id": "helix-f063d395",
+  "base_rev": "acd3f271a6c364b892dc10425965963027f53ab7",
+  "created_at": "2026-05-14T16:48:19.738309257Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-f063d395",
+    "title": "Document HELIX's artifact-type schema as an open, substrate-neutral spec",
+    "description": "HELIX defines a catalog of artifact types (Vision, PRD, FEAT, US, ADR, SD, TD, TP, deploy and iterate outputs) with type-level metadata (meta.yml) and instance-level frontmatter (the ddx: block). Today this schema is implicit — it lives in the union of meta.yml files, template frontmatters, and what DDx's artifacttypes loader happens to consume. There is no canonical document a non-DDx substrate could read to implement HELIX compliantly.\n\nScope: write a substrate-neutral schema spec (location: workflows/artifact-schema.md or similar) that defines:\n1. The artifact-type metadata shape (meta.yml) — every field, what it means, which are required.\n2. The instance frontmatter shape (the ddx: block in markdown artifacts) — fields, semantics, the depends_on graph model.\n3. The conventions HELIX assumes (ID naming, directory layout, phase progression).\n4. Which fields each known consumer reads — DDx today as the reference implementation; future substrates as they appear.\n\nRatify the ddx: namespace as the open frontmatter schema HELIX adopts (not as a DDx-coupling but as the shared schema DDx ships and HELIX consumes). Future substrates are encouraged to read the same shape.\n\nThis is a documentation bead, not a code change. Its output is the spec other consumers and contributors read.",
+    "acceptance": "workflows/artifact-schema.md (or equivalent) exists. It defines meta.yml fields, instance ddx: frontmatter fields, ID and directory conventions, and a consumer table. The doc treats DDx as one (reference) consumer, not as the schema authority. A second consumer (manual operation, a Databricks substrate experiment, etc.) could in principle be built from the spec alone.",
+    "parent": "helix-f9207605",
+    "labels": [
+      "helix",
+      "phase:design",
+      "kind:spec",
+      "area:artifacts",
+      "area:workflow"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-14T16:47:23Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "227954",
+      "execute-loop-heartbeat-at": "2026-05-14T16:47:23.113830289Z",
+      "spec-id": "FEAT-008"
+    }
+  },
+  "governing": [
+    {
+      "id": "FEAT-008",
+      "path": "docs/helix/01-frame/features/FEAT-008-artifact-template-quality.md",
+      "title": "Feature Specification: FEAT-008 — Artifact Template Quality and Completeness"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260514T164819-97bc412b",
+    "prompt": ".ddx/executions/20260514T164819-97bc412b/prompt.md",
+    "manifest": ".ddx/executions/20260514T164819-97bc412b/manifest.json",
+    "result": ".ddx/executions/20260514T164819-97bc412b/result.json",
+    "checks": ".ddx/executions/20260514T164819-97bc412b/checks.json",
+    "usage": ".ddx/executions/20260514T164819-97bc412b/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-f063d395-20260514T164819-97bc412b"
+  },
+  "prompt_sha": "6c2e5d52aa3009baeb6f2966236997b5e411f41830a08d35ec6a468187e7b7bd"
+}
