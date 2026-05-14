@@ -1,0 +1,47 @@
+{
+  "attempt_id": "20260514T171439-f2b74a70",
+  "bead_id": "helix-d8f307d4",
+  "base_rev": "34d5c2fd13fd9ff7ddc38d1f8e765aa2d86ff1fb",
+  "created_at": "2026-05-14T17:14:40.81147024Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-d8f307d4",
+    "title": "Split workflow docs into runtime-neutral methodology and DDx integration appendices",
+    "description": "Refactor workflows/README.md, workflows/REFERENCE.md, and related phase docs so the normative methodology is runtime-neutral. Move CLI mirroring, ddx bead, execute-loop, tracker queue, and wrapper guidance into explicit DDx integration appendices or transitional docs.",
+    "acceptance": "Normative workflow docs can be read without knowing DDx; DDx commands appear only in integration/appendix sections; skill naming guidance no longer requires all public skills to mirror HELIX CLI commands; authority order and artifact loop remain intact.",
+    "parent": "helix-f9207605",
+    "labels": [
+      "helix",
+      "phase:build",
+      "kind:implementation",
+      "area:workflow",
+      "area:docs"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-14T17:13:50Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "227954",
+      "execute-loop-heartbeat-at": "2026-05-14T17:13:50.905471723Z",
+      "spec-id": "helix.prd"
+    }
+  },
+  "governing": [
+    {
+      "id": "helix.prd",
+      "path": "docs/helix/01-frame/prd.md",
+      "title": "Product Requirements Document"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260514T171439-f2b74a70",
+    "prompt": ".ddx/executions/20260514T171439-f2b74a70/prompt.md",
+    "manifest": ".ddx/executions/20260514T171439-f2b74a70/manifest.json",
+    "result": ".ddx/executions/20260514T171439-f2b74a70/result.json",
+    "checks": ".ddx/executions/20260514T171439-f2b74a70/checks.json",
+    "usage": ".ddx/executions/20260514T171439-f2b74a70/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-d8f307d4-20260514T171439-f2b74a70"
+  },
+  "prompt_sha": "6a5f2d0f2593f03c38f9362c48e6cf572159c185f6f3ebc4d91822b089cd8ded"
+}
