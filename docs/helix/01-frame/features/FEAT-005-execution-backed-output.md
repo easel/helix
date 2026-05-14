@@ -5,7 +5,20 @@ ddx:
     - helix.prd
     - FEAT-001
     - FEAT-002
+  status: superseded
+  superseded_by: helix.prd
 ---
+
+> **SUPERSEDED** — This feature defined execution-backed output as a core
+> HELIX capability, coupling each skill invocation to a DDx execution run
+> record. The current PRD (`helix.prd`) places execution records, run
+> history, and observability entirely in the runtime domain (DDx or other
+> runtimes). HELIX owns only the portable alignment skill and artifact
+> catalog; it does not own execution record capture, DDx exec definitions,
+> or `helix status` observability. This document is retained for historical
+> context and as an input to DDx-owned execution capture design. It must not
+> govern new HELIX core work.
+
 # Feature Specification: FEAT-005 - Execution-Backed Skill Output
 
 **Feature ID**: FEAT-005

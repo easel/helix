@@ -4,7 +4,22 @@ ddx:
   depends_on:
     - helix.prd
     - FEAT-002
+  status: partially-superseded
+  superseded_by: helix.prd
 ---
+
+> **PARTIALLY SUPERSEDED** — The portions of this feature that describe
+> plugin packaging as a vehicle for distributing the HELIX CLI (`bin/helix`,
+> `scripts/helix`), skill entrypoints that mirror CLI verbs, and the
+> supervisory run loop are superseded by the current PRD (`helix.prd`).
+> HELIX does not ship a CLI or execution surface. The surviving scope is the
+> **runtime distribution packaging** concept (PRD R-7): packaging the artifact
+> catalog, templates, prompts, and the single alignment skill for target
+> runtimes (DDx plugin, Databricks Genie skill, Claude Code skill). The
+> plugin-layout and manifest work in this feature is still directionally
+> useful for that packaging contract, but must be read without the CLI and
+> supervisory-autopilot framing.
+
 # Feature Specification: FEAT-004 - Plugin Packaging
 
 **Feature ID**: FEAT-004

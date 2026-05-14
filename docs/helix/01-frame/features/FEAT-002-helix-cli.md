@@ -1,3 +1,21 @@
+---
+ddx:
+  id: FEAT-002
+  status: partially-superseded
+  superseded_by: helix.prd
+---
+
+> **PARTIALLY SUPERSEDED** — The portions of this feature that describe
+> `helix-run`, the supervisory run loop, queue-drain mechanics, and HELIX as
+> a CLI-first product are superseded by the current PRD (`helix.prd`), which
+> scopes HELIX to a portable methodology and artifact catalog with no CLI or
+> execution loop. The CLI and wrapper described here survive only as a
+> **DDx reference-runtime adapter** — not as a core HELIX surface. Any
+> normative use of `helix-run`, `helix build`, `helix check`, or tracker
+> semantics in this document applies to the DDx integration context only.
+> The Claude Code plugin packaging section (Installation) remains partially
+> relevant to runtime distribution packaging per PRD R-7.
+
 # Feature Specification: FEAT-002 - HELIX CLI
 
 **Feature ID**: FEAT-002

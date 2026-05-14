@@ -5,7 +5,16 @@ ddx:
     - FEAT-011
     - helix.workflow.artifact-hierarchy
     - ADR-001
+  status: superseded
+  superseded_by: helix.prd
 ---
+
+> **SUPERSEDED** — This technical design implemented the slider autonomy
+> concept from the now-superseded FEAT-011. The current PRD (`helix.prd`)
+> removes execution-loop autonomy controls, `helix run`, and runtime
+> orchestration from HELIX's scope. This document is retained for historical
+> context only. Any runtime that wants an autonomy slider must author that in
+> its own runtime-owned documentation with no dependency on this design.
 
 # TD-011: Slider Autonomy Implementation Design (Revised)
 

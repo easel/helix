@@ -3,7 +3,19 @@ ddx:
   id: ADR-001
   depends_on:
     - helix.prd
+  status: superseded
+  superseded_by: helix.prd
 ---
+
+> **SUPERSEDED** — This ADR decided to make `helix-run` the supervisory
+> autopilot and treat companion commands as triggered subroutines. The
+> current PRD (`helix.prd`) reverses that architectural boundary: HELIX is a
+> runtime-neutral methodology and artifact catalog; CLI, supervisory control,
+> and execution orchestration are out of scope. This decision is therefore
+> superseded. A follow-on ADR is needed to record the runtime-neutral
+> architecture decision (content + one alignment skill, DDx as reference
+> runtime). This document is retained for historical context only.
+
 # ADR-001: HELIX Supervisory Control Model
 
 | Date | Status | Deciders | Related | Confidence |

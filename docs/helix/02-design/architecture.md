@@ -6,7 +6,20 @@ ddx:
     - ADR-001
     - ADR-002
     - CONTRACT-001
+  status: needs-rework
 ---
+
+> **NEEDS REWORK** — This architecture document presents HELIX as a
+> methodology layer running on DDx with `scripts/helix`, per-verb skills, and
+> DDx-owned execution services as core architecture. The current PRD
+> (`helix.prd`) redefines HELIX as a runtime-neutral artifact catalog and
+> single alignment skill. This document requires a rewrite to center catalog,
+> artifact schema, skill contract, packaging, and documentation projection as
+> the primary architecture; DDx should appear only as one reference runtime
+> integration. Until rewritten, this document is not authoritative for new
+> HELIX design decisions. Filed as follow-up: a new runtime-neutral
+> architecture artifact superseding this document.
+
 # Architecture
 
 HELIX is a methodology layer running on the

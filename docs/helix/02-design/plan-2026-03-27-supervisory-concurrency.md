@@ -1,3 +1,15 @@
+---
+ddx:
+  id: helix.plan-supervisory-concurrency
+  status: superseded
+  superseded_by: helix.prd
+---
+
+> **SUPERSEDED** — This plan specified concurrent interactive refinement for
+> `helix run` and the supervisory autopilot. The current PRD (`helix.prd`)
+> removes the supervisory execution loop from HELIX's scope. This document is
+> retained for historical context only and must not govern new HELIX work.
+
 # HELIX Plan: Supervisory Concurrency And Interactive Refinement
 
 **Date**: 2026-03-27  

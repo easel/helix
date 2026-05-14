@@ -4,7 +4,19 @@ ddx:
   depends_on:
     - FEAT-001
     - ADR-001
+  status: superseded
+  superseded_by: helix.prd
 ---
+
+> **SUPERSEDED** — This solution design modeled HELIX as a supervisory
+> control system with `helix run` as the autonomous execution controller.
+> The current PRD (`helix.prd`) removes the execution loop and supervisory
+> autopilot from HELIX's scope. The still-useful concepts from this design —
+> authority-ordered artifact processing, alignment triggers, and stop-for-
+> human-judgment conditions — survive in the methodology documentation and
+> alignment skill contract, not as an execution-loop design. This document
+> is retained for historical context only and must not govern new HELIX work.
+
 # Solution Design
 
 ## Scope

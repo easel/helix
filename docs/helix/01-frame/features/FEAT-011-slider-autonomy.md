@@ -1,3 +1,19 @@
+---
+ddx:
+  id: FEAT-011
+  status: superseded
+  superseded_by: helix.prd
+---
+
+> **SUPERSEDED** — This feature defined operator-facing autonomy controls
+> (`low`/`medium`/`high`) for `helix-run` and the supervisory execution loop.
+> The current PRD (`helix.prd`) removes the execution loop, runtime UX, and
+> supervisory autopilot from HELIX's scope entirely. Autonomy configuration
+> is a runtime concern. If DDx or another runtime wants an autonomy slider,
+> it must be authored in runtime-owned documentation with no implication that
+> HELIX owns the execution model. This document is retained for historical
+> context only and must not govern new HELIX work.
+
 # FEAT-011: Slider Autonomy Control
 
 **Status**: Planning  

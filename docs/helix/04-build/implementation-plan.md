@@ -4,7 +4,17 @@ ddx:
   depends_on:
     - TP-002
     - TD-011
+  status: superseded
+  superseded_by: helix.prd
 ---
+
+> **SUPERSEDED** — This build plan was scoped to slider autonomy (FEAT-011)
+> and `helix run --autonomy`, which are no longer part of HELIX's scope per
+> the current PRD (`helix.prd`). This document is retained for historical
+> context. New implementation planning for HELIX must focus on artifact
+> schema completion, template metadata, the portable alignment skill, and
+> public documentation projection — not CLI execution-loop features.
+
 # Build Plan — Slider Autonomy (FEAT-011)
 
 ## Scope

@@ -3,7 +3,18 @@ ddx:
   id: FEAT-001
   depends_on:
     - helix.prd
+  status: superseded
+  superseded_by: helix.prd
 ---
+
+> **SUPERSEDED** — This feature defined `helix-run` as HELIX's supervisory
+> autopilot and treated tracker-first execution as a core product capability.
+> The current PRD (`helix.prd`) reverses that scope: HELIX is a portable
+> methodology and artifact catalog; CLI, execution loop, and runtime
+> orchestration are out of scope and belong to the adopting runtime (DDx,
+> Genie, etc.). This document is retained for historical context only and
+> must not govern new HELIX work.
+
 # Feature Specification: FEAT-001 - HELIX Supervisory Control
 
 **Feature ID**: FEAT-001
