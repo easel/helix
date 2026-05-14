@@ -7,15 +7,21 @@ ddx:
 # HELIX Workflow Quick Start Guide
 
 Use this guide to start a repo on the current HELIX contract without learning
-the whole workflow tree first.
+the whole workflow tree first. The methodology body below is runtime-neutral.
+For DDx-specific bootstrap, queue control, and validation commands, see the
+[DDx Integration Appendix](#ddx-integration-appendix) at the end of this file.
 
 ## Start Here
 
 Read these files in order when you need the canonical contract:
 
-1. [README.md](README.md)
-2. [EXECUTION.md](EXECUTION.md)
-3. `ddx bead --help` (tracker conventions; DDx FEAT-004)
+1. [README.md](README.md) — high-level model, authority order, and runtime
+   boundary
+2. [REFERENCE.md](REFERENCE.md) — phase summary, methodology actions, and
+   decision guide
+3. [conventions.md](conventions.md) — documentation layout and naming
+4. The runtime integration appendix for your runtime (see [DDX.md](DDX.md) for
+   the DDx reference integration)
 
 Use the bounded action prompts only when you are doing the corresponding work:
 
@@ -24,14 +30,87 @@ Use the bounded action prompts only when you are doing the corresponding work:
 - [reconcile-alignment.md](actions/reconcile-alignment.md)
 - [backfill-helix-docs.md](actions/backfill-helix-docs.md)
 
-Keep the public layers separate:
+## Build The Canonical Planning Stack
 
-- portable skills: `.agents/skills` in the repo and `~/.agents/skills` for the
-  installed user package
-- HELIX workflow contract: the docs in `.ddx/plugins/helix/workflows/` plus the built-in tracker
-  and `helix` CLI
+Prompts and templates live under
+`.ddx/plugins/helix/workflows/phases/<phase>/artifacts/` when HELIX is installed
+as a DDx plugin. Other runtimes may resolve the same content from their own
+package layout. Use them to draft or refine the canonical docs under
+`docs/helix/`.
 
-## Bootstrap A Repo
+Typical order:
+
+1. Optional discovery in `docs/helix/00-discover/`
+   Capture product vision, business case, and opportunity context when needed.
+2. Frame in `docs/helix/01-frame/`
+   Write the PRD, feature specs, user stories, and supporting requirement docs.
+3. Design in `docs/helix/02-design/`
+   Define architecture, ADRs, contracts, feature-level solution designs, and
+   story-level technical designs.
+4. Test in `docs/helix/03-test/` and `tests/`
+   Write the test plan and failing tests before implementation.
+5. Build in `docs/helix/04-build/` plus the runtime's work-item tracker
+   Keep project build guidance in docs and story-level execution work in the
+   runtime tracker.
+6. Deploy in `docs/helix/05-deploy/` plus the runtime tracker
+   Keep rollout docs canonical and rollout tasks in the tracker.
+7. Iterate in `docs/helix/06-iterate/`
+   Capture backlog, lessons, reviews, and the explicit next-cycle selection.
+
+## Create Execution Work
+
+HELIX execution runs through the runtime's native work-item tracker, not
+HELIX-specific task files. Build, deploy, and iterate execution work items
+should:
+
+- use the runtime's native issue types and dependencies
+- cite the governing canonical docs (e.g. via `spec-id` or the issue
+  description)
+- carry at least one phase label (`phase:build`, `phase:deploy`, etc.) when the
+  runtime supports labels
+- stay small enough to close independently
+
+See the runtime integration appendix for the concrete commands and conventions
+your tracker uses.
+
+## Run The Queue
+
+Once execution work exists, the runtime owns queue selection, claim/execute/
+close mechanics, and orphan recovery. HELIX governs:
+
+- what counts as an execution-ready work item (deterministic acceptance and
+  success-measurement criteria)
+- which methodology action to run when the ready queue drains (build, design,
+  polish, align, backfill, wait, guidance, stop)
+- when to file follow-up work as durable tracker items rather than prose-only
+  memory
+
+Execution rules:
+
+- Execute one ready work item at a time.
+- When the ready queue drains, run the bounded `check` action to decide the
+  next step.
+- Run alignment only when the plan exists but the next work set is unclear.
+- Run backfill only when the canonical stack is missing or too weak.
+- Do not drive the queue with an unfiltered ready-list loop.
+
+## Common Next Steps
+
+- Need artifact structure or naming rules:
+  Read [conventions.md](conventions.md) and the relevant phase README.
+- Need queue behavior:
+  See the runtime integration appendix.
+- Need a top-down audit:
+  Run alignment with [reconcile-alignment.md](actions/reconcile-alignment.md).
+- Need missing docs reconstructed:
+  Run backfill with [backfill-helix-docs.md](actions/backfill-helix-docs.md).
+
+## DDx Integration Appendix
+
+The commands and paths below apply to DDx-managed HELIX installations. They
+are not required to understand or adopt the HELIX methodology.
+
+### Bootstrap A Repo
 
 ```bash
 ddx bead init
@@ -51,45 +130,9 @@ Notes:
 - For Claude Code: `claude --plugin-dir /path/to/helix` discovers skills
   automatically without manual install.
 
-## Build The Canonical Planning Stack
+### DDx execution commands
 
-Prompts and templates live under `.ddx/plugins/helix/workflows/phases/<phase>/artifacts/`.
-Use them to draft or refine the canonical docs under `docs/helix/`.
-
-Typical order:
-
-1. Optional discovery in `docs/helix/00-discover/`
-   Capture product vision, business case, and opportunity context when needed.
-2. Frame in `docs/helix/01-frame/`
-   Write the PRD, feature specs, user stories, and supporting requirement docs.
-3. Design in `docs/helix/02-design/`
-   Define architecture, ADRs, contracts, feature-level solution designs, and
-   story-level technical designs.
-4. Test in `docs/helix/03-test/` and `tests/`
-   Write the test plan and failing tests before implementation.
-5. Build in `docs/helix/04-build/` plus the tracker
-   Keep project build guidance in docs and story-level execution work in the tracker.
-6. Deploy in `docs/helix/05-deploy/` plus the tracker
-   Keep rollout docs canonical and rollout tasks in the tracker.
-7. Iterate in `docs/helix/06-iterate/`
-   Capture backlog, lessons, reviews, and the explicit next-cycle selection.
-
-## Create Execution Work
-
-HELIX execution runs through the built-in tracker, not HELIX-specific task files.
-
-Build, deploy, and iterate execution work should:
-
-- use native tracker issues and dependencies
-- carry `helix` plus one phase label
-- cite the governing docs with `spec-id` and/or description
-- stay small enough to close independently
-
-See `ddx bead --help` for the mapping and examples.
-
-## Run The Queue
-
-Preferred HELIX wrapper commands:
+Preferred DDx wrapper commands:
 
 ```bash
 helix run
@@ -99,15 +142,16 @@ helix align repo
 helix backfill repo
 ```
 
-Execution rules:
+Tracker introspection:
 
-- Use `implementation` for one ready execution issue at a time.
-- When the ready queue drains, run `check`.
-- Run alignment only when the plan exists but the next work set is unclear.
-- Run backfill only when the canonical stack is missing or too weak.
-- Do not drive the queue with `ddx bead list --ready`.
+```bash
+ddx bead --help
+ddx bead ready --json
+ddx bead ready --execution
+ddx bead show <id>
+```
 
-## Minimal Operator Loop
+### Minimal Operator Loop
 
 If you are not using `helix run`, use the bounded manual loop from
 [EXECUTION.md](EXECUTION.md):
@@ -120,20 +164,7 @@ done
 helix check
 ```
 
-## Common Next Steps
-
-- Need artifact structure or naming rules:
-  Read [conventions.md](conventions.md) and the relevant phase README.
-- Need queue behavior:
-  Read [EXECUTION.md](EXECUTION.md).
-- Need tracker labels or issue examples:
-  Run `ddx bead --help`.
-- Need a top-down audit:
-  Run alignment with [reconcile-alignment.md](actions/reconcile-alignment.md).
-- Need missing docs reconstructed:
-  Run backfill with [backfill-helix-docs.md](actions/backfill-helix-docs.md).
-
-## Validation
+### Validation
 
 When you change HELIX wrapper behavior, skill packaging docs, or the workflow
 contract, run:
@@ -143,3 +174,6 @@ bash tests/helix-cli.sh
 bash tests/validate-skills.sh
 git diff --check
 ```
+
+For DDx tracker labels, issue examples, and full queue/loop semantics, read
+[EXECUTION.md](EXECUTION.md) and run `ddx bead --help`.

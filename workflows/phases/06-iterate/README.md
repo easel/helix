@@ -312,8 +312,10 @@ Track these metrics across iterations to measure improvement:
 
 ## Analysis Tools
 
-Iterate work is driven by the cross-phase actions (`helix align`, `helix review`,
-`helix experiment`) and metric definitions in `artifacts/metric-definition/`.
+Iterate work is driven by the cross-phase methodology actions (**align**,
+**review**, **experiment**) and metric definitions in
+`artifacts/metric-definition/`. See the runtime integration appendix below
+for the concrete dispatch commands.
 
 ## Integration with Next Cycle
 
@@ -346,10 +348,10 @@ The Iterate phase outputs directly influence the next Frame phase:
 
 ## Using AI Assistance
 
-Iterate work is decided through `helix check` and the canonical cross-phase
-actions:
-- `.ddx/plugins/helix/workflows/actions/reconcile-alignment.md`
-- `.ddx/plugins/helix/workflows/actions/backfill-helix-docs.md`
+Iterate work is decided through the **check** methodology action and the
+canonical cross-phase action prompts:
+- `actions/reconcile-alignment.md`
+- `actions/backfill-helix-docs.md`
 
 For metric tracking, use `artifacts/metric-definition/`.
 
@@ -360,7 +362,8 @@ judgment remains responsible for prioritization, tradeoffs, and scheduling.
 ## File Organization
 
 ### Structure Overview
-- **Analysis Artifacts**: `.ddx/plugins/helix/workflows/phases/06-iterate/artifacts/`
+- **Analysis Artifacts**: `phases/06-iterate/artifacts/` in the HELIX
+  content package
   - Templates for capturing and analyzing learnings
   - Prompts for AI-assisted insight generation
 
@@ -370,6 +373,19 @@ judgment remains responsible for prioritization, tradeoffs, and scheduling.
   - Prioritized backlog with explicit next-cycle selection
 
 This separation keeps analysis templates reusable while organizing insights where they're most valuable for the team.
+
+## DDx Integration Appendix
+
+Under the DDx reference runtime, iterate work is dispatched through:
+
+- `helix check` — decide the next iterate action
+- `helix align <scope>` — top-down reconciliation
+- `helix review [scope]` — fresh-eyes post-implementation review
+- `helix experiment [scope]` — metric-driven optimization iteration
+- `helix backfill <scope>` — reconstruct missing canonical docs
+
+See [../../EXECUTION.md](../../EXECUTION.md) for the full DDx execution
+contract.
 
 ---
 

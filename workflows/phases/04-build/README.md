@@ -49,42 +49,32 @@ responsibility is already covered by the current build contract:
 Reintroducing `secure-coding` as its own artifact would recreate the same thin,
 duplicative checklist that HELIX already retired.
 
-### Story Build Issues
-**Output Location**: `.ddx/beads.jsonl` managed through `ddx bead`
+### Story Build Work Items
+**Output Location**: the runtime's work-item tracker
 
-Story-level implementation work is tracked as build issues rather than
-per-story markdown plans. Build issues:
+Story-level implementation work is tracked as build work items in the runtime
+tracker rather than per-story markdown plans. Build work items:
 - reference the user story, technical design, test plan, and build plan
 - use native tracker issue IDs, dependencies, labels, and ready queues
 - define deterministic implementation steps
 - close independently once verification criteria are met
 
-The canonical execution entry point for ready work is:
-
-```bash
-helix build
-helix build issue-abc123
-helix build US-042
-```
-
-This action handles one issue per run: it selects or loads a ready execution
-issue, claims it, validates governing artifacts, performs the scoped work, runs
-required verification, creates follow-on issues when needed, commits with issue
-traceability, closes the issue, and exits.
+The canonical execution methodology action for ready work is **build**: it
+handles one work item per run — select or load a ready execution item, claim
+it, validate governing artifacts, perform the scoped work, run required
+verification, create follow-on items when needed, commit with traceability,
+close the item, and exit.
 
 Use this action as the canonical ready-queue entry point. Use story- or
 feature-specific Build actions only when the work is already explicitly scoped
 to that story or feature.
 
 When the ready queue drains, do not switch to an unconditional loop. Run the
-cross-phase queue-health action instead:
+cross-phase **check** action instead — it determines whether the next step is
+more implementation, alignment, backfill, waiting on blockers, user guidance,
+or stopping.
 
-```bash
-helix check
-```
-
-That action determines whether the next step is more implementation,
-alignment, backfill, waiting on blockers, user guidance, or stopping.
+See the runtime integration appendix below for the concrete dispatch commands.
 
 ## Core Workflow
 
@@ -375,16 +365,32 @@ By the end of Build phase, you should have:
 
 ## Using AI Assistance
 
-Build execution is driven by `helix build` or `helix run`, following the
-bounded loop defined in `.ddx/plugins/helix/workflows/actions/implementation.md`. Use the
-phase artifacts under `.ddx/plugins/helix/workflows/phases/04-build/artifacts/` when you
-need supporting build documentation or issue guidance.
+Build execution is driven by the **build** action following the bounded loop
+defined in `actions/implementation.md`. Use the phase artifacts under
+`phases/04-build/artifacts/` when you need supporting build documentation or
+work-item guidance.
 
 Common entry points:
 - `artifacts/implementation-plan/`
 
 AI is useful for implementation drafting and focused refactoring. Human review
 must verify design fidelity, test intent, and security-sensitive changes.
+
+## DDx Integration Appendix
+
+Under the DDx reference runtime, build execution is driven by `helix build` or
+`helix run`. Work items are stored in `.ddx/beads.jsonl` and managed through
+`ddx bead`:
+
+```bash
+helix build              # claim and execute the next ready work item
+helix build issue-abc123 # execute a specific work item
+helix build US-042       # execute a work item linked to a user story
+helix check              # decide the next action when the queue drains
+```
+
+See [../../EXECUTION.md](../../EXECUTION.md) for the full DDx execution
+contract.
 
 ---
 

@@ -5,29 +5,39 @@ ddx:
     - helix.workflow
     - helix.workflow.tracker
 ---
-# HELIX Execution Guide
+# HELIX Execution Guide (DDx Reference Runtime)
 
-This guide covers operator-facing HELIX execution flow: how to run bounded work
-passes, how to decide whether more work remains, and how the HELIX wrapper
-controls the queue.
+**Scope note.** This document is the DDx reference-runtime integration guide
+for HELIX execution. It describes operator-facing HELIX execution flow when
+HELIX runs under DDx: how to run bounded work passes, how to decide whether
+more work remains, and how the DDx-backed HELIX wrapper controls the queue.
 
-For tracker integration, labels, `spec-id`, and `ddx bead` conventions,
-see `ddx bead --help` (DDx FEAT-004). The wrapper now delegates bead
-commands directly to `ddx bead`.
+For runtime-neutral methodology — the artifact loop, authority order, the
+methodology actions, and the alignment contract — read [README.md](README.md)
+and [REFERENCE.md](REFERENCE.md) first. Other runtimes implementing HELIX
+should provide their own equivalent execution-integration document; the
+methodology requirements (bead-first, tracker-as-steering-wheel,
+measure-and-record, report-and-feed-back) apply to every runtime, but the
+command names and substrate below are DDx-specific.
 
-## Scope
+For DDx tracker integration, labels, `spec-id`, and `ddx bead` conventions,
+see `ddx bead --help` (DDx FEAT-004). The wrapper delegates bead commands
+directly to `ddx bead`.
 
-This document owns HELIX execution behavior.
+## Document Scope
 
-- Follow this file for queue guards, loop shape, and `NEXT_ACTION` handling.
-- Follow the bounded action prompts under `.ddx/plugins/helix/.ddx/plugins/helix/workflows/actions/` for
-  action-specific behavior.
-- Treat examples elsewhere in `.ddx/plugins/helix/.ddx/plugins/helix/workflows/` as supportive summaries, not
-  alternate execution contracts.
+This document owns DDx-runtime HELIX execution behavior.
 
-This is the HELIX-specific layer, not the portable skill packaging layer. Skill
-installation lives at `.agents/skills`; queue control and action semantics live
-here.
+- Follow this file for queue guards, loop shape, and `NEXT_ACTION` handling
+  under DDx.
+- Follow the bounded action prompts under `actions/` for action-specific
+  behavior.
+- Treat examples elsewhere in the workflows package as supportive summaries,
+  not alternate execution contracts.
+
+This is the HELIX-on-DDx integration layer, not the portable skill packaging
+layer. Skill installation lives at `.agents/skills`; DDx queue control and
+action semantics live here.
 
 ## The Double Helix
 

@@ -19,24 +19,28 @@ tracker semantics.
 When conventions and execution guidance disagree, follow:
 
 1. [README.md](README.md)
-2. [EXECUTION.md](EXECUTION.md)
-3. `ddx bead --help` (tracker conventions; DDx FEAT-004)
-4. the bounded action prompts under `.ddx/plugins/helix/workflows/actions/`
+2. The bounded action prompts under `actions/`
+3. The runtime integration appendix for your runtime (e.g. the DDx
+   reference-runtime integration in [DDX.md](DDX.md) and [EXECUTION.md](EXECUTION.md))
 
 ## Skill Resource Boundary
 
-HELIX is packaged as one skill system.
+HELIX content is published as a package containing shared workflow resources
+plus one or more skills.
 
-- `.agents/skills/` is the canonical project-level skill package surface.
-- Put resources used by multiple HELIX skills in `.ddx/plugins/helix/workflows/`.
-- Put resources used by only one skill in that skill's directory under
-  `skills/<skill>/`, with `.agents/skills/<skill>` exposing the published
-  package entrypoint.
-- Skills may assume package-relative access to the shared `.ddx/plugins/helix/workflows/`
-  resources only when the full HELIX package layout is preserved.
-- Installers and plugins must preserve `.agents/skills/`, `skills/`, and
-  `.ddx/plugins/helix/workflows/` together; copying isolated skill folders without shared
-  resources is an invalid HELIX install.
+- The package surfaces shared workflow resources at a stable, package-relative
+  root (the methodology library).
+- Resources used by more than one skill belong in the shared workflow root.
+- Resources used by only one skill belong in that skill's directory.
+- Skills may assume package-relative access to shared workflow resources only
+  when the full package layout is preserved.
+- Installers, plugins, and other distribution packages must preserve the
+  published skills and shared workflow resources together; copying isolated
+  skill folders without shared resources is an invalid HELIX install.
+
+Runtime-specific package layouts (for example the DDx plugin's
+`.ddx/plugins/helix/workflows/` and `.agents/skills/` layout) are documented in
+the runtime integration appendix; the requirements above apply to every layout.
 
 ## Documentation Structure
 
@@ -46,7 +50,6 @@ Projects using HELIX should organize their documentation using the `docs/helix/`
 
 ```
 project-root/
-├── .helix/                  # Built-in tracker workspace for execution tracking
 ├── docs/
 │   ├── helix/                  # HELIX phase artifacts
 │   │   ├── 00-discover/        # Optional opportunity validation
@@ -62,16 +65,20 @@ project-root/
 │   └── strategy/              # Strategic planning
 ```
 
+Runtimes may add their own workspace directories alongside `docs/helix/` for
+work-item storage, execution evidence, and runtime state. See the runtime
+integration appendix for the layout your runtime uses.
+
 ### Why This Structure?
 
 1. **Clear Separation**: Phase artifacts are distinct from operational/reference docs
 2. **Workflow Alignment**: Numbered directories match HELIX phase order
-3. **Execution Separation**: Ephemeral task execution lives in the built-in tracker under `.helix/`, not in canonical planning docs
+3. **Execution Separation**: Ephemeral task execution lives in the runtime's
+   work-item tracker, not in canonical planning docs
 4. **Tool Support**: Consistent structure enables validation and automation
 5. **Flexibility**: Non-phase documentation has dedicated locations
-6. **Shared skill resources**: `.ddx/plugins/helix/workflows/` doubles as the shared resource
-   library for HELIX skills, while skill-local assets remain under `skills/`
-   and are exposed through `.agents/skills/`
+6. **Shared skill resources**: The HELIX content package keeps shared workflow
+   resources together with the skills that depend on them
 
 ### Phase Directory Contents
 
@@ -146,24 +153,23 @@ The parking lot is a project-level registry for deferred and future work:
 - **Eligibility**: Any HELIX artifact may be parked
 - **Tooling**: Mark parked artifacts with `ddx.parking_lot: true` to exclude them from dependency graphs
 
-## Tracker Conventions
+## Work-Item Conventions
 
-Issues capture scoped work that can be opened, updated, split, blocked, and
-closed without changing the canonical authority stack.
+Work items capture scoped work that can be opened, updated, split, blocked, and
+closed without changing the canonical authority stack. The runtime owns the
+tracker substrate; HELIX governs which work-item shape counts as ready for
+execution and how it relates to canonical artifacts.
 
-HELIX uses a built-in JSONL tracker. See `ddx bead --help` for
-conventions and command patterns (DDx FEAT-004).
+### When to Use Work Items
 
-### When to Use Issues
-
-Use issues for:
+Use tracker work items for:
 - Story-level implementation work
 - Story-level deployment work
 - Prioritized backlog items
 - Review and reconciliation tasks
 - Follow-up actions derived from reports or retrospectives
 
-Do not use issues as the source of truth for:
+Do not use tracker work items as the source of truth for:
 - Vision
 - Requirements
 - Architecture or ADRs
@@ -173,9 +179,10 @@ Do not use issues as the source of truth for:
 
 ### Required Properties
 
-Every issue should:
-1. Use native tracker issue types, parents, dependencies, and statuses
-2. Reference governing canonical artifacts in `spec-id` and/or the issue description
+Every work item should:
+1. Use the runtime's native issue types, parents, dependencies, and statuses
+2. Reference governing canonical artifacts (via `spec-id` and/or the
+   description) so authority is traceable
 3. Define a single coherent goal
 4. Specify deterministic completion criteria
 5. Include verification steps
@@ -183,19 +190,27 @@ Every issue should:
 
 ### Label Conventions
 
-- Add `helix` for discoverability (recommended, not required by the queue guard)
-- Add a phase label when applicable: `phase:frame`, `phase:design`, `phase:test`, `phase:build`, `phase:deploy`, `phase:iterate`, or `phase:review`
-- Add `kind:build`, `kind:deploy`, `kind:backlog`, or `kind:review` when helpful
-- Add traceability labels such as `story:US-XXX`, `feature:FEAT-XXX`, `source:metrics`, or `area:auth`
-- Use `ddx bead ready`, `ddx bead blocked`, and `ddx bead dep tree` instead of relying on custom HELIX status fields
+Labels are organizational conventions for triage and traceability. They are
+recommended for runtimes that support labels:
+
+- A `helix` label for discoverability
+- A phase label when applicable: `phase:frame`, `phase:design`, `phase:test`,
+  `phase:build`, `phase:deploy`, `phase:iterate`, or `phase:review`
+- `kind:build`, `kind:deploy`, `kind:backlog`, or `kind:review` when helpful
+- Traceability labels such as `story:US-XXX`, `feature:FEAT-XXX`,
+  `source:metrics`, or `area:auth`
+
+Runtime-specific tracker commands and conventions are documented in the
+runtime integration appendix.
 
 ### HELIX Integration
 
-- Project-level implementation plans decompose execution into tracker issues.
-- Improvement backlog documents summarize and prioritize backlog issues stored in the tracker.
-- Iteration planning selects issue sets for the next cycle by issue ID.
-- Reports and retrospectives should emit follow-up issues instead of embedding
-  durable task lists in canonical docs.
+- Project-level implementation plans decompose execution into tracker work items.
+- Improvement backlog documents summarize and prioritize backlog work items
+  stored in the tracker.
+- Iteration planning selects work-item sets for the next cycle by ID.
+- Reports and retrospectives should emit follow-up work items instead of
+  embedding durable task lists in canonical docs.
 
 ## Naming Conventions
 
@@ -220,10 +235,9 @@ Every issue should:
 ### Skill and Workflow Resource Placement
 
 1. **Shared resources**: If more than one HELIX skill depends on an asset, it
-   belongs in `.ddx/plugins/helix/workflows/`.
+   belongs in the package's shared workflow resource root.
 2. **Skill-local resources**: If only one skill uses an asset, keep it with
-   that skill under `skills/<skill>/`, with the published entrypoint exposed at
-   `.agents/skills/<skill>`.
+   that skill.
 3. **Stable references**: Skills should reference shared assets through stable
    package-relative paths and documented locations.
 4. **Packaging integrity**: Plugin or enterprise distribution must preserve the
@@ -311,14 +325,12 @@ grep -r "\.\./" docs/helix/ | grep -v "helix"
 
 ## Templates
 
-Use HELIX workflow templates to create consistent artifacts:
-
-```bash
-# Review the artifact prompt and template
-sed -n '1,120p' .ddx/plugins/helix/workflows/phases/01-frame/artifacts/prd/prompt.md
-cp -f $DDX_HOME/.ddx/plugins/helix/workflows/phases/01-frame/artifacts/prd/template.md \
-      docs/helix/01-frame/prd.md
-```
+Use HELIX workflow templates to create consistent artifacts. Each artifact
+type under `phases/<phase>/artifacts/<type>/` ships a `prompt.md` (authoring
+guidance) and `template.md` (skeleton document). Read the prompt, copy the
+template into the corresponding location under `docs/helix/<phase>/`, and fill
+it in. Runtime-specific installation paths to those template roots are listed
+in the integration appendix.
 
 ## Best Practices
 
@@ -454,11 +466,11 @@ Addresses bugs discovered during implementation phase.
 
 ### Template Usage
 
-Use the standard refinement template for consistency:
-```bash
-# Copy and fill the refinement template
-cp .ddx/plugins/helix/workflows/templates/refinement-log.md docs/helix/06-iterate/refinements/US-001-refinement-001.md
-```
+Use the standard refinement template at `templates/refinement-log.md` in the
+HELIX content package. Copy it into
+`docs/helix/06-iterate/refinements/<STORY_ID>-refinement-<NUMBER>.md` and fill
+it in. The runtime integration appendix lists the concrete package path your
+runtime installs.
 
 ## Evolution
 
@@ -468,6 +480,62 @@ These conventions will evolve based on usage. To propose changes:
 2. Propose specific changes with rationale
 3. Show examples of the new approach
 4. Update this document after consensus
+
+## DDx Integration Appendix
+
+The conventions above are runtime-neutral. The notes below apply to
+DDx-managed HELIX installations.
+
+### DDx workspace layout
+
+DDx installs HELIX content at `.ddx/plugins/helix/workflows/` and stores
+work items in `.ddx/beads.jsonl`. A DDx-managed HELIX project layout includes
+this workspace alongside `docs/helix/`:
+
+```
+project-root/
+├── .ddx/                    # DDx workspace (beads, plugins, hooks)
+│   ├── beads.jsonl          # Work-item tracker storage
+│   └── plugins/helix/       # Installed HELIX content
+├── .agents/skills/          # Published HELIX skills (project-level)
+├── skills/                  # Skill sources for the HELIX package
+└── docs/helix/              # Canonical HELIX phase artifacts
+```
+
+### DDx shared workflow root
+
+Under DDx, the shared workflow resource root is
+`.ddx/plugins/helix/workflows/`. Skills reference shared assets through that
+package-relative root. Installers and plugins must preserve `.agents/skills/`,
+`skills/`, and `.ddx/plugins/helix/workflows/` together.
+
+### DDx work-item tracker
+
+DDx uses a JSONL-backed tracker. See `ddx bead --help` for the full command
+surface. Common tracker introspection:
+
+- `ddx bead ready`, `ddx bead blocked`, and `ddx bead dep tree` replace custom
+  HELIX status fields for queue inspection.
+- The `helix` label identifies HELIX-managed issues in a DDx tracker.
+
+### DDx template paths
+
+DDx-installed templates live at:
+
+- artifact templates: `.ddx/plugins/helix/workflows/phases/<phase>/artifacts/<type>/template.md`
+- refinement template: `.ddx/plugins/helix/workflows/templates/refinement-log.md`
+
+Example artifact bootstrap:
+
+```bash
+sed -n '1,120p' .ddx/plugins/helix/workflows/phases/01-frame/artifacts/prd/prompt.md
+cp -f .ddx/plugins/helix/workflows/phases/01-frame/artifacts/prd/template.md \
+      docs/helix/01-frame/prd.md
+```
+
+For DDx execution behavior, queue control, and operator workflow, see
+[EXECUTION.md](EXECUTION.md). For methodology background and the DDx authority
+model, see [DDX.md](DDX.md).
 
 ---
 

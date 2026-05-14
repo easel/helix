@@ -27,8 +27,10 @@ This document explains authority order, artifact relationships, naming, and
 traceability. It does not define ready-queue logic, loop control, or how to
 select execution work.
 
-For execution behavior, follow [EXECUTION.md](EXECUTION.md) and the bounded
-action prompts. For tracker conventions, see `ddx bead --help` (DDx FEAT-004).
+For execution behavior, follow the bounded action prompts under `actions/`.
+For runtime-specific tracker, queue, and execution-loop semantics, see the
+runtime integration appendix (the DDx reference integration lives in
+[DDX.md](DDX.md) and [EXECUTION.md](EXECUTION.md)).
 
 ## Canonical Authority Order
 
@@ -117,10 +119,10 @@ story-specific evidence when needed.
 Frame:   US-036-list-mcp-servers.md
 Design:  TD-036-list-mcp-servers.md
 Test:    TP-036-list-mcp-servers.md
-Build:   issue `hx-a3f2dd` labeled `helix`, `phase:build`, `story:US-036`
-Deploy:  issue `hx-b4c9e1` labeled `helix`, `phase:deploy`, `story:US-036`
-Iterate: all `phase:deploy` issue(s) for `story:US-036` are complete and no
-         matching deploy issue remains not closed; optional tracker follow-on
+Build:   runtime work item labeled `helix`, `phase:build`, `story:US-036`
+Deploy:  runtime work item labeled `helix`, `phase:deploy`, `story:US-036`
+Iterate: all `phase:deploy` work items for `story:US-036` are complete and no
+         matching deploy item remains not closed; optional tracker follow-on
          work may remain linked to US-036
 Context: `metrics-dashboard.md`, `security-metrics.md` (when relevant), and
          `improvement-backlog.md` provide shared iteration-wide context
@@ -133,7 +135,7 @@ Context: `metrics-dashboard.md`, `security-metrics.md` (when relevant), and
 | US | User Story | Frame | Defines WHAT needs to be built |
 | TD | Technical Design | Design | Details HOW to build it |
 | TP | Test Plan | Test | Specifies tests to verify it |
-| ISSUE | Build / Deploy Issue | Build / Deploy | Tracks scoped execution work in the built-in tracker |
+| ISSUE | Build / Deploy Work Item | Build / Deploy | Tracks scoped execution work in the runtime's work-item tracker |
 | Iterate outputs | `metrics-dashboard`, `security-metrics`, `improvement-backlog`, plus tracker follow-on work | Iterate | Shared iteration context and prioritized next work after story-level ITERATE is established by completed deploy issue(s), without a separate numbered story report |
 
 ## Feature-Level Progression (Epics)
@@ -194,9 +196,11 @@ docs/
         │   └── AR-YYYY-MM-DD-*.md    # Cross-phase reconciliation reports
         └── backfill-reports/
             └── BF-YYYY-MM-DD-*.md    # Research-first backfill reports
-
-.helix/                               # Built-in tracker workspace
 ```
+
+Runtimes may add a sibling workspace directory for work-item storage and
+execution evidence. See the runtime integration appendix for the layout your
+runtime uses.
 
 ## Cross-References
 
@@ -254,9 +258,9 @@ The workflow state is determined by which artifacts exist:
 If exists US-036: Story is in FRAME
 If exists TD-036: Story is in DESIGN
 If exists TP-036: Story is in TEST
-If open HELIX build issues exist for story US-036: Story is in BUILD
-If any HELIX deploy issue for story US-036 is not closed, including status: in_progress: Story is in DEPLOY
-If all deploy issues for story US-036 are complete and no matching deploy issue remains not closed: Story is in ITERATE
+If open HELIX build work items exist for story US-036: Story is in BUILD
+If any HELIX deploy work item for story US-036 is not closed, including status: in_progress: Story is in DEPLOY
+If all deploy work items for story US-036 are complete and no matching deploy item remains not closed: Story is in ITERATE
 Linked tracker follow-on work adds iterate evidence when present; shared
 iterate outputs provide iteration context but are not queried by story ID
 ```
@@ -290,7 +294,7 @@ Multiple team members can work on different stories:
 
 ### 4. No State File Needed
 State is derived from artifacts:
-- No `.helix-state.yml` to maintain
+- No separate HELIX-managed state file
 - Git history shows state changes
 - Self-healing (state always reflects reality)
 
@@ -339,15 +343,28 @@ Friday:   Create deploy issue(s) for US-041 (DEPLOY)
 Next Week: Complete all deploy issue(s) and leave no matching deploy issue not closed; story enters ITERATE and any follow-on work is captured in tracker-backed iteration evidence
 ```
 
-## Commands
+## Operating This Hierarchy
 
-Use the current HELIX queue controls with this hierarchy:
+The methodology actions that operate on this hierarchy are:
+
+- `build` — execute one ready work item against its governing artifacts
+- `check` — decide the next action when the ready queue drains
+- `align` — reconcile artifacts top-down when authority and evidence diverge
+- `backfill` — reconstruct missing canonical artifacts from current evidence
+
+The runtime supplies the queue inspection, execution loop, and dispatch
+commands that invoke these actions. See the runtime integration appendix for
+concrete command names.
+
+## DDx Integration Appendix
+
+Under the DDx reference runtime, the queue controls for this hierarchy are:
 
 ```bash
 # Inspect the current queue
 ddx bead ready --json
 
-# Execute one ready issue
+# Execute one ready work item
 helix build
 
 # Decide the next action when the queue drains
@@ -356,6 +373,8 @@ helix check
 # Run the wrapper loop
 helix run
 ```
+
+See [EXECUTION.md](EXECUTION.md) for the full DDx execution contract.
 
 ---
 

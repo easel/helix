@@ -94,19 +94,20 @@ Use these as capability names regardless of runtime:
 
 ## Artifact Inputs
 
-Use the prompts and templates under:
+Use the prompts and templates under the package's shared workflow root:
 
-- `.ddx/plugins/helix/workflows/phases/00-discover/artifacts/`
-- `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/`
-- `.ddx/plugins/helix/workflows/phases/02-design/artifacts/`
-- `.ddx/plugins/helix/workflows/phases/03-test/artifacts/`
-- `.ddx/plugins/helix/workflows/phases/04-build/artifacts/`
-- `.ddx/plugins/helix/workflows/phases/05-deploy/artifacts/`
-- `.ddx/plugins/helix/workflows/phases/06-iterate/artifacts/`
+- `phases/00-discover/artifacts/`
+- `phases/01-frame/artifacts/`
+- `phases/02-design/artifacts/`
+- `phases/03-test/artifacts/`
+- `phases/04-build/artifacts/`
+- `phases/05-deploy/artifacts/`
+- `phases/06-iterate/artifacts/`
 
 These artifact directories support canonical project docs under `docs/helix/`.
 They are the portable HELIX shape; runtime queue mechanics are integration
-specific.
+specific. Concrete install paths for a given runtime are listed in its
+integration appendix.
 
 ## Skill Package Guidance
 

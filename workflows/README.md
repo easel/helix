@@ -312,7 +312,8 @@ Within the Test and Build phases, HELIX follows the Red-Green-Refactor cycle:
 
 To use HELIX in any runtime:
 
-1. Start with the artifact catalog under `.ddx/plugins/helix/workflows/phases/*/artifacts/`.
+1. Start with the artifact catalog under `phases/*/artifacts/` in the HELIX
+   content package.
 2. Create or update the highest-authority artifact that governs the work.
 3. Move downward through the phase gates until a bounded implementation slice is
    authorized.

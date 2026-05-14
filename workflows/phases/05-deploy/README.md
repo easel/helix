@@ -107,20 +107,20 @@ non-actionable launch stub.
 `CHANGELOG.md` may still exist as a repository history log, but it does not
 replace release-scoped notes that are audience-filtered and action-oriented.
 
-### Deploy Issues
-**Output Location**: `.ddx/beads.jsonl` queried through `ddx bead`
+### Deploy Work Items
+**Output Location**: the runtime's work-item tracker
 
-Deploy work is tracked as `phase:deploy` issues rather than per-story
-deployment markdown plans. These issues cover both story-scoped rollout
-execution and release-scoped coordination slices such as owners, dependencies,
-approval handoffs, and communication checkpoints. Deploy issues reference the
-project deployment artifacts and the build issues they are rolling out using
-native tracker issue IDs, dependencies, and labels.
+Deploy work is tracked as `phase:deploy` work items in the runtime tracker
+rather than per-story deployment markdown plans. These items cover both
+story-scoped rollout execution and release-scoped coordination slices such as
+owners, dependencies, approval handoffs, and communication checkpoints. Deploy
+work items reference the project deployment artifacts and the build items they
+are rolling out using native tracker IDs, dependencies, and labels.
 
 The deleted `story-deployment-plan` artifact stays retired. Its only durable
-responsibility is to define scoped rollout work, and the built-in tracker now
-does that more directly through `phase:deploy` issues linked to the governing
-deploy artifacts.
+responsibility is to define scoped rollout work, and the runtime tracker now
+does that more directly through `phase:deploy` work items linked to the
+governing deploy artifacts.
 
 ## Artifact Metadata
 
@@ -374,10 +374,10 @@ deploy:
 
 ## Using AI Assistance
 
-Deploy execution is driven by deploy issues through `helix build` or
-`helix run`. Create or update the deploy artifacts your release needs under
-`docs/helix/05-deploy/`: `deployment-checklist`, `monitoring-setup`,
-`runbook`, and `release-notes`.
+Deploy execution is driven by deploy work items processed through the **build**
+methodology action (the runtime's bounded execution surface). Create or update
+the deploy artifacts your release needs under `docs/helix/05-deploy/`:
+`deployment-checklist`, `monitoring-setup`, `runbook`, and `release-notes`.
 
 AI is useful for rollout documentation, release notes, checklists, and
 observability setup. Go/no-go decisions, incident handling, and rollback
@@ -401,6 +401,14 @@ approval remain human-owned.
 
 This separation keeps deploy templates reusable while keeping the canonical
 release artifacts together in the HELIX docs tree.
+
+## DDx Integration Appendix
+
+Under the DDx reference runtime, deploy work items live in `.ddx/beads.jsonl`
+and are queried through `ddx bead`. Deploy execution runs via `helix build`
+(one work item per pass) or `helix run` (bounded queue drain), with `helix
+check` deciding next steps when the queue drains. See
+[../../EXECUTION.md](../../EXECUTION.md) for the full DDx execution contract.
 
 ---
 
