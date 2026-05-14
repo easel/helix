@@ -1,0 +1,18 @@
+{"meta": {"title": "HELIX align: detect drift in the artifact graph", "width": 100, "height": 30, "scenario": "align", "timestamp": 1764950400}}
+{"narration": "A team has a HELIX-governed project. The PRD says auth is API-key only, but a recent ADR proposes OAuth. Time to run alignment."}
+{"shell": "$ tree docs/helix -L 2"}
+{"output": "docs/helix\n├── 00-discover\n│   └── product-vision.md\n├── 01-frame\n│   ├── concerns.md\n│   ├── features\n│   │   └── FEAT-001-auth.md\n│   └── prd.md\n└── 02-design\n    └── adr\n        └── ADR-002-oauth-pivot.md\n"}
+{"narration": "Now ask the agent to check alignment.", "pause_s": 1.2}
+{"prompt": "/helix-align"}
+{"assistant": "I'll walk the artifact graph in authority order — vision → PRD → features → ADRs — and look for drift.", "pace_ms": 18}
+{"tool_call": {"name": "Read", "args": {"file_path": "docs/helix/01-frame/prd.md"}}}
+{"tool_result": "lines 1..142", "lines": 142}
+{"tool_call": {"name": "Read", "args": {"file_path": "docs/helix/01-frame/features/FEAT-001-auth.md"}}}
+{"tool_result": "lines 1..64", "lines": 64}
+{"tool_call": {"name": "Read", "args": {"file_path": "docs/helix/02-design/adr/ADR-002-oauth-pivot.md"}}}
+{"tool_result": "lines 1..38", "lines": 38}
+{"assistant": "Found 3 alignment findings:", "pace_ms": 18}
+{"output": "\n  1. PRD R-3 (auth) specifies API-key only; ADR-002 adopts OAuth — contradiction at authority level.\n  2. FEAT-001 still references API-key flow; design has shifted.\n  3. No security-architecture artifact exists; OAuth introduces session/token lifecycle that needs one.\n"}
+{"assistant": "Plan, ordered by authority:", "pace_ms": 18}
+{"output": "\n  step 1  · revise PRD R-3 to allow OAuth (or rescope ADR-002)\n  step 2  · author docs/helix/02-design/security-architecture.md\n  step 3  · update FEAT-001-auth.md to track OAuth flow\n  step 4  · add user stories US-OAUTH-{login,refresh,revoke}\n  step 5  · revise test-plan to cover token lifecycle\n"}
+{"narration": "The plan is ordered by authority. The team reviews, approves, and hands it to the runtime. Alignment never invoked a CLI — only the agent and the skill.", "pause_s": 2.0}

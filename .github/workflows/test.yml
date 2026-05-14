@@ -30,3 +30,6 @@ jobs:
 
       - name: Validate skill packages
         run: bash tests/validate-skills.sh
+
+      - name: Validate demo session records
+        run: bash tests/validate-demos.sh
