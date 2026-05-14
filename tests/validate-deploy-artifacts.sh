@@ -1,0 +1,189 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+validator="$repo_root/scripts/validate_deploy_artifact_graph.py"
+docs_validator="$repo_root/scripts/validate_deploy_contract_docs.py"
+artifacts_dir="$repo_root/workflows/phases/05-deploy/artifacts"
+
+fail() {
+  printf 'deploy artifact validation failed: %s\n' "$*" >&2
+  exit 1
+}
+
+assert_contains() {
+  local haystack="$1"
+  local needle="$2"
+  local message="$3"
+
+  if [[ "$haystack" != *"$needle"* ]]; then
+    fail "$message"$'\n'"expected to find: $needle"$'\n'"in output: $haystack"
+  fi
+}
+
+run_validator() {
+  python3 "$validator" "$@"
+}
+
+run_docs_validator() {
+  python3 "$docs_validator" "$@"
+}
+
+tmpdir="$(mktemp -d)"
+trap 'rm -rf "$tmpdir"' EXIT
+
+pass_output="$(run_validator --artifacts-dir "$artifacts_dir" 2>&1)" \
+  || fail "expected current deploy artifact graph to validate, got: $pass_output"
+assert_contains "$pass_output" "validated deploy artifact graph" \
+  "validator should report success for the checked-in deploy artifact graph"
+
+docs_pass_output="$(run_docs_validator 2>&1)" \
+  || fail "expected checked-in deploy contract docs to validate, got: $docs_pass_output"
+assert_contains "$docs_pass_output" "validated deploy contract docs" \
+  "validator should report success for the checked-in deploy contract docs"
+
+later_dir="$tmpdir/later-edge"
+mkdir -p "$later_dir"
+cp -rf "$artifacts_dir"/. "$later_dir"/
+python3 - "$later_dir/monitoring-setup/meta.yml" <<'PYEOF'
+from pathlib import Path
+import sys
+
+path = Path(sys.argv[1])
+text = path.read_text(encoding="utf-8")
+injection = (
+    "\ndependencies:\n"
+    "  requires:\n"
+    "    - input: Release Notes\n"
+    "      type: artifact\n"
+    "      path: release-notes\n"
+    "      required: false\n"
+    "      note: \"Invalid fixture: later deploy artifact dependency\"\n"
+)
+path.write_text(text.rstrip() + injection, encoding="utf-8")
+PYEOF
+
+set +e
+later_output="$(run_validator --artifacts-dir "$later_dir" 2>&1)"
+later_status=$?
+set -e
+[[ $later_status -ne 0 ]] || fail "validator should fail when a deploy artifact requires a later artifact"
+assert_contains "$later_output" "requires later deploy artifact release-notes" \
+  "later-artifact fixture should mention the invalid dependency"
+
+cycle_dir="$tmpdir/cycle"
+mkdir -p "$cycle_dir"
+cp -rf "$artifacts_dir"/. "$cycle_dir"/
+python3 - "$cycle_dir/monitoring-setup/meta.yml" <<'PYEOF'
+from pathlib import Path
+import sys
+
+path = Path(sys.argv[1])
+text = path.read_text(encoding="utf-8")
+injection = (
+    "\ndependencies:\n"
+    "  requires:\n"
+    "    - input: Runbook\n"
+    "      type: artifact\n"
+    "      path: runbook\n"
+    "      required: false\n"
+    "      note: \"Invalid fixture: creates a deploy dependency cycle\"\n"
+)
+path.write_text(text.rstrip() + injection, encoding="utf-8")
+PYEOF
+# Cycle requires runbook -> monitoring-setup too. runbook already informs monitoring;
+# we add the explicit reverse edge in runbook to complete the cycle.
+python3 - "$cycle_dir/runbook/meta.yml" <<'PYEOF'
+from pathlib import Path
+import sys
+
+path = Path(sys.argv[1])
+text = path.read_text(encoding="utf-8")
+injection = (
+    "\ndependencies:\n"
+    "  requires:\n"
+    "    - input: Monitoring Setup\n"
+    "      type: artifact\n"
+    "      path: monitoring-setup\n"
+    "      required: false\n"
+    "      note: \"Invalid fixture: creates a deploy dependency cycle\"\n"
+)
+path.write_text(text.rstrip() + injection, encoding="utf-8")
+PYEOF
+
+set +e
+cycle_output="$(run_validator --artifacts-dir "$cycle_dir" 2>&1)"
+cycle_status=$?
+set -e
+[[ $cycle_status -ne 0 ]] || fail "validator should fail when deploy artifacts contain a cycle"
+assert_contains "$cycle_output" "deploy artifact dependency cycle detected" \
+  "cycle fixture should report the dependency cycle"
+
+docs_dir="$tmpdir/docs-contract"
+mkdir -p "$docs_dir"
+cp -f "$repo_root/workflows/phases/05-deploy/README.md" "$docs_dir/README.md"
+cp -f "$repo_root/workflows/phases/05-deploy/enforcer.md" "$docs_dir/enforcer.md"
+cp -f "$repo_root/website/content/artifact-types/deploy/_index.md" "$docs_dir/artifacts.md"
+python3 - "$docs_dir/README.md" <<'PYEOF'
+from pathlib import Path
+import sys
+
+path = Path(sys.argv[1])
+text = path.read_text(encoding="utf-8")
+needle = (
+    "Deploy artifacts are project-specific, but current HELIX still treats four\n"
+    "deploy surfaces as first-class in the live contract:\n"
+    "`deployment-checklist`, `monitoring-setup`, `runbook`, and `release-notes`.\n"
+)
+replacement = (
+    "Deploy artifacts are project-specific, but current HELIX still treats three\n"
+    "deploy surfaces as first-class in the live contract:\n"
+    "`deployment-checklist`, `monitoring-setup`, and `runbook`.\n"
+)
+if needle not in text:
+    raise SystemExit(f"expected canonical contract block not found in {path}")
+path.write_text(text.replace(needle, replacement, 1), encoding="utf-8")
+PYEOF
+
+set +e
+docs_fail_output="$(run_docs_validator \
+  --deploy-readme "$docs_dir/README.md" \
+  --deploy-enforcer "$docs_dir/enforcer.md" \
+  --glossary "$docs_dir/artifacts.md" 2>&1)"
+docs_fail_status=$?
+set -e
+[[ $docs_fail_status -ne 0 ]] || fail "validator should fail when deploy docs reintroduce stale three-artifact wording"
+assert_contains "$docs_fail_output" "deploy README: missing canonical four-artifact contract wording" \
+  "three-artifact fixture should report the missing canonical contract wording"
+
+docs_coexist_dir="$tmpdir/docs-coexist"
+mkdir -p "$docs_coexist_dir"
+cp -f "$repo_root/workflows/phases/05-deploy/README.md" "$docs_coexist_dir/README.md"
+cp -f "$repo_root/workflows/phases/05-deploy/enforcer.md" "$docs_coexist_dir/enforcer.md"
+cp -f "$repo_root/website/content/artifact-types/deploy/_index.md" "$docs_coexist_dir/artifacts.md"
+python3 - "$docs_coexist_dir/README.md" <<'PYEOF'
+from pathlib import Path
+import sys
+
+path = Path(sys.argv[1])
+text = path.read_text(encoding="utf-8")
+text += (
+    "\nDeploy artifacts are project-specific, but current HELIX still treats three "
+    "deploy surfaces as first-class in the live contract: `deployment-checklist`, "
+    "`monitoring-setup`, and `runbook`.\n"
+)
+path.write_text(text, encoding="utf-8")
+PYEOF
+
+set +e
+docs_coexist_output="$(run_docs_validator \
+  --deploy-readme "$docs_coexist_dir/README.md" \
+  --deploy-enforcer "$docs_coexist_dir/enforcer.md" \
+  --glossary "$docs_coexist_dir/artifacts.md" 2>&1)"
+docs_coexist_status=$?
+set -e
+[[ $docs_coexist_status -ne 0 ]] || fail "validator should fail when stale three-artifact wording coexists with canonical deploy docs"
+assert_contains "$docs_coexist_output" "deploy README: contains stale three-artifact contract wording" \
+  "coexistence fixture should report the stale deploy contract wording"
+
+printf 'validated deploy artifact graph checks\n'

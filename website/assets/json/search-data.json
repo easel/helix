@@ -1,0 +1,45 @@
+{{/* FlexSearch Index Data */}}
+{{- $indexType := site.Params.search.flexsearch.index | default "content" -}}
+
+{{- if not (in (slice "content" "summary" "heading" "title" ) $indexType) -}}
+  {{- errorf "unknown flexsearch index type: %s" $indexType -}}
+{{- end -}}
+
+{{- $pages := where .Site.Pages "Kind" "in" (slice "page" "section") -}}
+{{- $pages = where $pages "Params.excludeSearch" "!=" true -}}
+{{- $pages = where $pages "Content" "!=" "" -}}
+
+{{- $output := dict -}}
+
+{{- range $index, $page := $pages -}}
+  {{- $pageTitle := $page.LinkTitle | default $page.File.BaseFileName -}}
+  {{- $pageLink := $page.RelPermalink -}}
+  {{- $data := partial "utils/fragments" (dict "context" $page "type" $indexType) -}}
+  {{- $output = $output | merge (dict $pageLink (dict "title" $pageTitle "data" $data)) -}}
+{{- end -}}
+
+{{/* Extract glossary data entries */}}
+{{- $glossaryEntries := dict -}}
+{{- with (index hugo.Data .Site.Language.Lang "termbase") -}}
+  {{- range . -}}
+    {{- $entry := cond (.abbr) (printf "%s %s %s" .abbr .term .definition) (printf "%s %s" .term .definition) -}}
+    {{- $glossaryEntries = $glossaryEntries | merge (dict .term $entry) -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $glossaryPage := site.GetPage "/reference/glossary" -}}
+{{- if not $glossaryPage -}}
+  {{- errorf "glossary page not found" -}}
+{{- end -}}
+
+{{- $glossaryLink := $glossaryPage.RelPermalink -}}
+{{- $existingGlossary := index $output $glossaryLink | default (dict "title" "Glossary" "data" (dict)) -}}
+{{- $existingGlossaryData := index $existingGlossary "data" | default (dict) -}}
+{{- $glossary := dict
+  "title" ((index $existingGlossary "title") | default "Glossary")
+  "data" ($existingGlossaryData | merge $glossaryEntries)
+-}}
+
+{{- $output = $output | merge (dict $glossaryLink $glossary) -}}
+
+{{- $output | jsonify -}}

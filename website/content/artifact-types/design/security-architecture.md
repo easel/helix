@@ -1,0 +1,210 @@
+---
+title: "Security Architecture"
+linkTitle: "Security Architecture"
+slug: security-architecture
+phase: "Design"
+artifactRole: "supporting"
+weight: 17
+generated: true
+---
+
+## Purpose
+
+Design-level security architecture that maps trust boundaries, controls,
+and security decisions to implementation and testing.
+
+## Example
+
+<details open>
+<summary>Show a worked example of this artifact</summary>
+
+``````markdown
+---
+ddx:
+  id: example.security-architecture.depositmatch
+  depends_on:
+    - example.security-requirements.depositmatch
+    - example.threat-model.depositmatch
+    - example.data-design.depositmatch
+---
+
+# Security Architecture
+
+**Scope**: DepositMatch CSV-first pilot
+**Status**: draft
+
+## Decision
+
+DepositMatch uses firm/client tenancy as the primary security boundary. Every
+restricted record carries `firm_id` and `client_id`; the API enforces those
+boundaries on reads, writes, object access, exports, and support sessions.
+Source CSVs are treated as untrusted restricted data, normalized into controlled
+tables, and deleted according to retention policy. Reviewer decisions are
+append-only audit events; the system may suggest matches but cannot accept
+them without reviewer action.
+
+## Trust Boundaries
+
+| Boundary | Assets | Trust Change | Control |
+|----------|--------|--------------|---------|
+| Browser to API | Import files, review queue, decisions | Customer-controlled client to trusted service | Authenticated session, CSRF/API protection, authorization per request |
+| Auth provider to API | Identity claims, roles | External trusted identity to app authorization | Token validation, role mapping, session expiry |
+| CSV upload to import processor | Source CSV, parsed rows | Untrusted file to trusted processing | Size/encoding/schema validation, formula neutralization |
+| API to database/object storage | Restricted financial data | App service to restricted stores | Service credentials, encryption, firm/client scoping |
+| Support access to firm data | Customer records and audit logs | Internal user to customer tenant | MFA, approval, time-limited grants, audit log |
+| Review-log export leaving system | Audit and financial references | Restricted store to customer-controlled file | Authorization, export audit event, safe CSV encoding |
+
+## Control Mapping
+
+| Threat / Risk | Control | Implementation Surface | Verification |
+|---------------|---------|-------------------------|--------------|
+| TM-I-001 cross-firm data exposure | Firm/client authorization on every restricted query and object key | API policy, data model, object storage paths | Cross-firm API/UI authorization tests |
+| TM-T-001 malicious CSV or formula injection | Validate CSV before normalization and neutralize export cells | Import processor, export generator | CSV validation and export-injection tests |
+| TM-I-002 sensitive telemetry/log data | Restricted telemetry schema and log redaction | Logging, analytics, code review checklist | Telemetry restricted-field test |
+| TM-E-001 support privilege escalation | Time-limited support grants and MFA | Support access workflow | Support grant and audit-log test |
+| Reviewer repudiates decision | Append-only review decision audit events | Review endpoint, audit log table | Audit-log test for actor/timestamp/source refs |
+
+## Identity and Access
+
+- Authentication: Firm staff authenticate through the configured identity
+  provider. Internal support users require MFA.
+- Authorization: API derives firm/client access from authenticated identity and
+  assigned firm/client membership. Authorization is enforced server-side, never
+  by trusting client filters.
+- Session or token handling: Sessions expire; support grants are time-limited
+  and require explicit approval before use.
+
+## Data Protection
+
+- Data at rest: PostgreSQL stores normalized restricted records and audit
+  events with encryption enabled. Object storage encrypts temporary source CSVs.
+- Data in transit: Browser/API and service/store traffic uses TLS.
+- Secrets and key handling: Application credentials and storage keys are kept
+  outside source code and rotated through the deployment platform.
+- Retention: Source CSVs are deleted after normalization and retention window;
+  review logs remain for pilot auditability until export/deletion policy runs.
+- Telemetry: Analytics and operational logs cannot include raw bank account
+  numbers, invoice details, payer identifiers, or client names.
+
+## Logging and Monitoring
+
+- Security events: login failures, support grant creation/use, import failures,
+  export generation, deletion requests, and authorization denials.
+- Alerting: alert on repeated authorization denials, support access outside
+  approved windows, and import validation failure spikes.
+- Audit trail: reviewer decisions and support access are attributable to actor,
+  timestamp, action, firm/client scope, and source record references.
+
+## Residual Risk
+
+- CSV fixture coverage may miss real-world export shapes until Research Plan
+  sample intake completes.
+- Counsel has not yet confirmed the exact FTC Safeguards and state privacy
+  obligations for live-data pilot use.
+- Deterministic matching may produce ambiguous suggestions; reviewer approval
+  remains the control until match quality is proven.
+
+## Security Test Hooks
+
+- Cross-firm and cross-client authorization tests for every restricted API.
+- CSV import security tests for malformed files, unsupported encodings,
+  oversized files, and formula-injection strings.
+- Telemetry restricted-field test using fixture data with prohibited values.
+- Support-access workflow test covering grant creation, expiry, MFA, and audit.
+- Audit-log test covering accepted/rejected match decisions and export events.
+``````
+
+</details>
+
+## Reference
+
+<table class="helix-reference-table">
+<tbody>
+<tr><th>Activity</th><td><a href="/reference/glossary/activities/"><strong>Design</strong></a> — Decide how to build it. Capture trade-offs, contracts, and architecture decisions.</td></tr>
+<tr><th>Default location</th><td><code>docs/helix/02-design/security-architecture.md</code></td></tr>
+<tr><th>Requires</th><td><em>None</em></td></tr>
+<tr><th>Enables</th><td><em>None</em></td></tr>
+<tr><th>Informs</th><td><a href="/artifact-types/design/technical-design/">Technical Design</a><br><a href="/artifact-types/test/test-plan/">Test Plan</a><br><a href="/artifact-types/test/security-tests/">Security Tests</a></td></tr>
+<tr><th>HELIX documents</th><td><a href="https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/02-design/security-architecture.md"><code>docs/helix/02-design/security-architecture.md</code></a></td></tr>
+<tr><th>Generation prompt</th><td><details><summary>Show the full generation prompt</summary><pre><code># Security Architecture Generation Prompt
+Document the security architecture patterns, trust boundaries, controls, and
+design-level security decisions that shape implementation and testing.
+
+## Reference Anchors
+
+Use these local resource summaries as grounding:
+
+- `docs/resources/owasp-asvs.md` grounds verifiable application security
+  controls.
+- `docs/resources/owasp-threat-modeling-cheat-sheet.md` grounds trust
+  boundaries, data flows, threats, assumptions, and mitigations.
+- `docs/resources/nist-privacy-framework.md` grounds privacy-risk controls and
+  data-processing constraints.
+
+## Focus
+- Start from security requirements and the threat model.
+- Define trust boundaries, control points, identity, data protection, logging,
+  monitoring, and residual risk.
+- Map threats to controls and controls to tests.
+- Keep the artifact at the design level; do not drift into code or deployment
+  instructions.
+
+## Completion Criteria
+- Threats and controls are linked.
+- Identity and access decisions are explicit.
+- Data protection and monitoring decisions are explicit.
+- The document is specific enough to guide implementation and testing.
+- Residual risks are named instead of hidden.</code></pre></details></td></tr>
+<tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
+ddx:
+  id: &quot;[artifact-id]&quot;
+---
+
+# Security Architecture
+
+**Scope**: [system or subsystem]
+**Status**: [draft | complete]
+
+## Decision
+
+[Summarize the security architecture approach and the main security controls.]
+
+## Trust Boundaries
+
+| Boundary | Assets | Trust Change | Control |
+|----------|--------|--------------|---------|
+| [name] | [asset] | [how trust changes] | [control] |
+
+## Control Mapping
+
+| Threat / Risk | Control | Implementation Surface | Verification |
+|---------------|---------|-------------------------|--------------|
+| [risk] | [control] | [component or interface] | [test or check] |
+
+## Identity and Access
+
+- Authentication:
+- Authorization:
+- Session or token handling:
+
+## Data Protection
+
+- Data at rest:
+- Data in transit:
+- Secrets and key handling:
+
+## Logging and Monitoring
+
+- Security events:
+- Alerting:
+- Audit trail:
+
+## Residual Risk
+
+- [Known risk and why it remains]
+
+## Security Test Hooks
+
+- [Test or validation that proves the control exists]</code></pre></details></td></tr>
+</tbody>
+</table>

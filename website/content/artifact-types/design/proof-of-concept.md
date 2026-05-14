@@ -1,0 +1,298 @@
+---
+title: "Proof of Concept"
+linkTitle: "Proof of Concept"
+slug: proof-of-concept
+phase: "Design"
+artifactRole: "supporting"
+weight: 16
+generated: true
+---
+
+## Purpose
+
+Minimal working implementation that validates a risky technical concept
+end-to-end before production design or build commitment.
+
+## Example
+
+<details open>
+<summary>Show a worked example of this artifact</summary>
+
+``````markdown
+---
+ddx:
+  id: example.proof-of-concept.depositmatch
+  depends_on:
+    - example.feasibility-study.depositmatch
+    - example.data-design.depositmatch
+    - example.security-requirements.depositmatch
+---
+
+# Proof of Concept: CSV Import and Evidence-Backed Match Review
+
+**PoC ID**: POC-001 | **Lead**: Engineering Lead | **Time Budget**: 5 days | **Status**: Completed
+
+## Objective
+
+**Primary Question**: Can DepositMatch import representative bank and invoice
+CSVs, normalize records by firm/client, suggest matches with visible evidence,
+and preserve reviewer decisions without implementing bank feeds or ledger
+writeback?
+
+**Success Criteria**:
+
+- **Functional**: WORKING: Import two CSV files, normalize records, generate
+  match suggestions, require reviewer approval, and record decisions.
+- **Performance**: VALIDATED: Process 500 deposits and 500 invoices for one
+  client in under 10 seconds on a local development machine.
+- **Integration**: VALIDATED: Source files, normalized records, suggestions,
+  review decisions, and exports follow the Data Design relationships.
+- **Security**: VALIDATED: Firm/client scoping is enforced in API calls and no
+  raw financial identifiers appear in telemetry fixtures.
+
+**In Scope**: CSV parsing, column mapping, normalized records, deterministic
+matching rules, evidence display payload, reviewer approval/rejection, and
+audit-log write.
+
+**Out of Scope**: Production UI polish, bank-feed integrations, accounting
+writeback, ML matching, support tooling, and live customer data.
+
+## Approach
+
+**Architecture Pattern**: Thin vertical workflow from CSV upload through
+review decision, using the pilot Data Design and Security Requirements.
+
+**Key Technologies**:
+
+- **Primary**: Local API harness, PostgreSQL-compatible schema, deterministic
+  matching service, fixture CSVs.
+- **Integration**: Object-storage stub for source files and audit-log table for
+  reviewer actions.
+
+## Implementation
+
+### Architecture Overview
+
+```text
+CSV fixtures
+  -> import validator
+  -> normalized deposit/invoice records
+  -> deterministic matching service
+  -> review queue payload with evidence
+  -> reviewer decision endpoint
+  -> append-only review_decision audit record
+```
+
+### Core Components
+
+#### Import Validator
+
+- **Purpose**: Validate required columns, size limits, encoding, and formula
+  injection before normalization.
+- **Implementation**: Schema-driven parser with per-client column mapping and
+  rejected-row report.
+
+#### Matching Service
+
+- **Purpose**: Suggest candidate deposit-to-invoice matches with evidence.
+- **Implementation**: Deterministic rules using amount equality, payer
+  reference similarity, and date proximity.
+
+#### Review Decision Endpoint
+
+- **Purpose**: Require reviewer approval or rejection before match state
+  changes.
+- **Implementation**: Transaction writes suggestion status and immutable
+  review_decision record with actor, timestamp, action, and source references.
+
+### Integration Points
+
+| Integration | Type | Status | Notes |
+|-------------|------|--------|-------|
+| CSV fixtures | File input | Working | Covers two representative bank/invoice export shapes |
+| PostgreSQL-compatible schema | Database | Working | Uses pilot entities from Data Design |
+| Object-storage stub | File/object store | Partial | Stores source-file metadata only |
+| Audit log | Database table | Working | Captures reviewer actions and source refs |
+
+## Results
+
+### Test Scenarios
+
+| Scenario | Result | Status |
+|----------|--------|--------|
+| Import valid bank and invoice CSVs | 500 deposits and 500 invoices normalized with no rejected rows | Pass |
+| Import CSV with missing required column | Batch rejected with field-level error report | Pass |
+| Import formula-injection value | Value neutralized before export payload generation | Pass |
+| Generate suggested matches | 417 exact-amount/date-window suggestions produced with evidence payload | Pass |
+| Reviewer approves match | Suggestion marked accepted and review_decision row appended | Pass |
+| Cross-firm read attempt | API returns 403 for records outside firm scope | Pass |
+| Performance baseline | 1,000 rows processed in 6.8 seconds locally | Pass |
+
+### Findings
+
+- **FINDING 1**: IMPLEMENTATION: CSV-first import is feasible for the pilot if
+  per-client column mapping is explicit.
+- **Evidence**: Two fixture formats normalized into the same deposit/invoice
+  schema and produced a consistent review queue.
+- **Implications**: FEAT-001 should include a mapping step and rejected-row
+  report, not a fixed one-format parser.
+
+- **FINDING 2**: VALIDATED: Deterministic matching is sufficient for first-pass
+  pilot suggestions.
+- **Evidence**: Amount/date/payer rules produced reviewable suggestions with
+  evidence payloads and no automatic acceptance.
+- **Implications**: ML matching is unnecessary for v1 and should remain parked.
+
+- **FINDING 3**: WORKING: Audit-log writes can be transactionally tied to
+  reviewer decisions.
+- **Evidence**: Approval/rejection tests wrote suggestion state and
+  review_decision rows together.
+- **Implications**: Review logs can support the PR-FAQ trust model if the
+  production design preserves append-only decision history.
+
+### Risks
+
+| Risk | Prob | Impact | Mitigation |
+|------|------|--------|------------|
+| Fixture CSVs are not representative enough | High | Medium | Run Research Plan sample intake before finalizing parser scope |
+| Deterministic matching misses split payments | Medium | Medium | Route ambiguous deposits to exception queue; defer split support if needed |
+| Import performance changes with production storage | Medium | Low | Add performance test with production-like storage before pilot launch |
+
+## Analysis
+
+**Overall Assessment**: VIABLE WITH CONDITIONS
+
+**Rationale**: The PoC proves the end-to-end CSV-first workflow can work without
+bank feeds or ledger writeback. Production design should proceed, but only
+after research collects representative sample files and confirms the required
+column mapping scope.
+
+## Recommendations
+
+1. Proceed with FEAT-001 CSV Import and Column Mapping -- the PoC validated the
+   core path -- Design now.
+2. Keep matching deterministic in v1 -- sufficient for reviewable suggestions
+   and easier to explain -- Design now.
+3. Add rejected-row reports and formula-injection protection to acceptance
+   criteria -- both materially affect safety and supportability -- Before build.
+4. Keep ML matching, bank feeds, and ledger writeback out of v1 -- not needed to
+   validate the trust model -- Parking Lot.
+
+### Follow-up
+
+- [ ] Update FEAT-001 technical design with mapping and rejected-row behavior.
+- [ ] Add CSV import security tests for formula injection and malformed files.
+- [ ] Add performance test using production-like object storage and database.
+- [ ] Confirm sample-file compatibility through the Research Plan before build.
+``````
+
+</details>
+
+## Reference
+
+<table class="helix-reference-table">
+<tbody>
+<tr><th>Activity</th><td><a href="/reference/glossary/activities/"><strong>Design</strong></a> — Decide how to build it. Capture trade-offs, contracts, and architecture decisions.</td></tr>
+<tr><th>Default location</th><td><code>docs/helix/02-design/proofs-of-concept/</code></td></tr>
+<tr><th>Requires</th><td><em>None</em></td></tr>
+<tr><th>Enables</th><td><em>None</em></td></tr>
+<tr><th>Informs</th><td><a href="/artifact-types/design/solution-design/">Solution Design</a><br><a href="/artifact-types/design/architecture/">Architecture</a><br><a href="/artifact-types/design/contract/">Contract</a><br><a href="/artifact-types/build/implementation-plan/">Implementation Plan</a><br><a href="/artifact-types/design/adr/">ADR</a></td></tr>
+<tr><th>Generation prompt</th><td><details><summary>Show the full generation prompt</summary><pre><code># Proof of Concept Prompt
+Use the PoC to validate the smallest risky assumption that matters.
+
+## Focus
+- State the objective and success criteria clearly.
+- Keep the approach small and the findings evidence-based.
+- End with a decision or recommendation.
+- Preserve enough implementation and test evidence for another engineer to reproduce the result.
+
+## Role Boundary
+
+Proof of Concept is not a tech spike, feature spec, or production design. It
+records a small working implementation that proves or disproves a risky
+technical approach. Tech Spike records investigation; PoC records working
+evidence.
+
+## Completion Criteria
+- The hypothesis is tested.
+- Results are easy to interpret.
+- The next step is obvious.
+- The production implications and remaining gaps are explicit.</code></pre></details></td></tr>
+<tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
+ddx:
+  id: &quot;[artifact-id]&quot;
+---
+
+# Proof of Concept: {{poc_title}}
+
+**PoC ID**: {{poc_id}} | **Lead**: {{poc_lead}} | **Time Budget**: {{time_budget}} | **Status**: In Progress | Completed
+
+## Objective
+
+**Primary Question**: [What technical concept needs validation?]
+
+**Success Criteria**:
+- **Functional**: [Working implementation demonstrates X]
+- **Performance**: [Baseline metric]
+- **Integration**: [Systems involved]
+
+**In Scope**: [Core functionality and key integrations]
+**Out of Scope**: [Production hardening and full feature set]
+
+## Approach
+
+**Architecture Pattern**: [Approach to demonstrate]
+
+**Key Technologies**:
+- **Primary**: [Core stack]
+- **Integration**: [External systems/APIs]
+
+## Implementation
+
+### Architecture Overview
+```
+[Architecture diagram or ASCII representation]
+```
+
+### Core Components
+#### [Component Name]
+- **Purpose**: [What it does]
+- **Implementation**: [Technology and approach]
+
+### Integration Points
+| Integration | Type | Status | Notes |
+|-------------|------|--------|--------|
+| [System] | [API/DB/Queue] | [Working/Partial/Failed] | [Details] |
+
+## Results
+
+### Test Scenarios
+| Scenario | Result | Status |
+|----------|--------|--------|
+| [Core workflow] | [What happened] | Pass/Fail/Partial |
+| [Integration] | [What happened] | Pass/Fail/Partial |
+| [Performance] | [What happened] | Pass/Fail/Partial |
+
+### Findings
+- **FINDING 1**: [Key discovery]
+- **Evidence**: [Concrete proof]
+- **Implications**: [What this means]
+
+### Risks
+| Risk | Prob | Impact | Mitigation |
+|------|------|--------|------------|
+| [Risk] | H/M/L | H/M/L | [Strategy] |
+
+## Analysis
+
+**Overall Assessment**: VIABLE | VIABLE WITH CONDITIONS | NOT VIABLE
+
+**Rationale**: [Evidence-based assessment]
+
+## Recommendations
+1. [Action] -- [Rationale] -- [Timeline]
+
+### Follow-up
+- [ ] Design updates, additional PoCs, ADRs to create</code></pre></details></td></tr>
+</tbody>
+</table>

@@ -1,0 +1,20 @@
+{
+  "bead_id": "helix-f966778d",
+  "attempt_id": "20260503T150408-ff0d4f8c",
+  "base_rev": "434add5685b728658d7885845e56d8763f89f15f",
+  "result_rev": "434add5685b728658d7885845e56d8763f89f15f",
+  "outcome": "task_failed",
+  "status": "execution_failed",
+  "detail": "ResolveRoute: no viable routing candidate: 4 candidates rejected",
+  "session_id": "eb-3fcf4c38",
+  "duration_ms": 8201,
+  "exit_code": 1,
+  "error": "ResolveRoute: no viable routing candidate: 4 candidates rejected",
+  "failure_mode": "unknown",
+  "execution_dir": ".ddx/executions/20260503T150408-ff0d4f8c",
+  "prompt_file": ".ddx/executions/20260503T150408-ff0d4f8c/prompt.md",
+  "manifest_file": ".ddx/executions/20260503T150408-ff0d4f8c/manifest.json",
+  "result_file": ".ddx/executions/20260503T150408-ff0d4f8c/result.json",
+  "started_at": "2026-05-03T15:04:08.714510042Z",
+  "finished_at": "2026-05-03T15:04:16.915558795Z"
+}

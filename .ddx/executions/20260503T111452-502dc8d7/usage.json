@@ -1,0 +1,9 @@
+{
+  "attempt_id": "20260503T111452-502dc8d7",
+  "harness": "agent",
+  "provider": "bragi",
+  "model": "qwen3.5-27b",
+  "tokens": 142148,
+  "input_tokens": 141653,
+  "output_tokens": 495
+}

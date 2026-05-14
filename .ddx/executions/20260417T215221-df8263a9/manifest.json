@@ -1,0 +1,47 @@
+{
+  "attempt_id": "20260417T215221-df8263a9",
+  "bead_id": "helix-9044bc6c",
+  "base_rev": "cd8f1ab4c9423fe0e01de775896626afe6ac68f1",
+  "created_at": "2026-04-17T21:52:21.789091609Z",
+  "requested": {
+    "harness": "lmstudio",
+    "model": "qwen3.5-27b",
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-9044bc6c",
+    "title": "helix status: single-pane operator surface with parallel-run mutex",
+    "description": "Consolidate helix status into a single surface answering: (a) current cycle number, (b) currently-executing bead id and claim age, (c) parked beads classified by reason (dep-blocked, retry-parked with next-eligible-time, orphaned-claim), (d) recently-injected supervisory beads (review-finding, alignment-review) with triggering cycle and triggering bead, (e) stop reason of the last run. Implementation is HELIX-side: scripts/helix composes existing DDx JSON primitives (ddx bead list --json, ddx bead blocked --json, ddx agent workers --json, execute-loop --json event log tail). No new ddx subcommand.\n\nParallel-run mutex: second 'helix run' on the same project root must detect an active run (via DDX_PROJECT_ROOT-scoped advisory lock or existing .helix-run.pid) and return exit code 2 with stderr 'helix run: already running (pid=\u003cN\u003e, started=\u003cts\u003e)' BEFORE claiming any bead.\n\nMigration observability counters (written to .ddx/run-state.json or a sibling file on each helix run): ddx_delegation_success_count, ddx_delegation_failure_count with reason classes (missing_binary, too_old, malformed_json, timeout), parallel_run_denied_count, supervisory_injection_count by type.",
+    "acceptance": "1) helix status --json emits a single object with required fields: current_cycle (int), running_bead (object or null), parked_beads (array with {id, reason, next_eligible, age_seconds}), injected_supervisory (array with {id, type, triggering_cycle, triggering_bead}), last_stop_reason (string); jq -e verifies none are missing. 2) helix status completes in under 200ms on a tracker with 100 open beads (measured via time; test fixture seeds the tracker). 3) tests/helix-cli.sh adds a regression where launching a second 'helix run' while the first holds the lock exits 2 with the lock-holder message within 1 second, and does not mutate the tracker. 4) .ddx/run-state.json (or documented sibling) contains the four migration counters and increments them across a scripted run.",
+    "parent": "helix-e26584d7",
+    "labels": [
+      "helix",
+      "phase:build",
+      "area:cli",
+      "area:workflow",
+      "phase-3-prep"
+    ],
+    "metadata": {
+      "claimed-at": "2026-04-17T21:52:15Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "1437524",
+      "execute-loop-heartbeat-at": "2026-04-17T21:52:15.989839394Z",
+      "spec-id": "scripts/helix"
+    }
+  },
+  "governing": [
+    {
+      "id": "scripts/helix",
+      "path": "scripts/helix"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260417T215221-df8263a9",
+    "prompt": ".ddx/executions/20260417T215221-df8263a9/prompt.md",
+    "manifest": ".ddx/executions/20260417T215221-df8263a9/manifest.json",
+    "result": ".ddx/executions/20260417T215221-df8263a9/result.json",
+    "checks": ".ddx/executions/20260417T215221-df8263a9/checks.json",
+    "usage": ".ddx/executions/20260417T215221-df8263a9/usage.json",
+    "worktree": "tmp/ddx-exec-wt/.execute-bead-wt-helix-9044bc6c-20260417T215221-df8263a9"
+  }
+}

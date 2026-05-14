@@ -1,0 +1,435 @@
+---
+title: "Solution Design"
+linkTitle: "Solution Design"
+slug: solution-design
+phase: "Design"
+artifactRole: "core"
+weight: 13
+generated: true
+---
+
+## Purpose
+
+Solution Design is the **feature-level design artifact**. Its unique job is to
+translate a Feature Specification into a selected technical approach, domain
+model, component decomposition, interface usage, and requirement-to-design
+traceability.
+
+It applies Architecture, ADRs, Contracts, and Concerns to one feature or
+cross-component capability. It does not redefine the system architecture. It
+does not plan a single story's code changes; that belongs in Technical Design.
+
+## Example
+
+<details open>
+<summary>Show a worked example of this artifact</summary>
+
+``````markdown
+---
+ddx:
+  id: example.solution-design.depositmatch.csv-import
+  depends_on:
+    - example.feature-specification.depositmatch.csv-import
+    - example.architecture.depositmatch
+    - example.adr.depositmatch.postgresql-system-of-record
+    - example.contract.depositmatch.import-session-api
+---
+
+# Solution Design
+
+**Feature**: FEAT-001 - CSV Import and Column Mapping | **Artifact**:
+`docs/helix/02-design/solution-designs/SD-001-csv-import-column-mapping.md`
+
+## Scope
+
+- Feature-level design for creating draft import sessions, uploading CSV files,
+  mapping columns, validating rows, summarizing import results, and preserving
+  traceability fields.
+- Uses the DepositMatch Architecture, ADR-001 PostgreSQL system-of-record
+  decision, API-001 import-session contract, and active concerns
+  `csv-import-integrity`, `financial-data-security`, and
+  `reviewer-auditability`.
+- Does not design match suggestion scoring or accounting platform integrations.
+- Story-level upload, mapping, and validation implementation details belong in
+  TD-001, TD-002, and TD-003.
+
+## Requirements Mapping
+
+### Functional Requirements
+
+| Requirement | Technical Capability | Component | Priority |
+|-------------|----------------------|-----------|----------|
+| UP-01 accept bank and invoice CSV files | Multipart upload endpoint creates a draft import session and stores encrypted originals | Upload Controller, Source File Store | P0 |
+| UP-02 reject non-CSV files | File-type guard before parsing or storage | Upload Controller | P0 |
+| MAP-01 require amount/date/identifier mappings | Mapping schema with required semantic fields per source type | Mapping Service | P0 |
+| MAP-02 save confirmed mappings for reuse | Per-client mapping profiles keyed by source type | Mapping Service, PostgreSQL | P0 |
+| VAL-01 reject missing required mapped columns | Header validation before row import | CSV Validation Service | P0 |
+| VAL-02 reject invalid rows | Row validator for amount, date, and duplicate source identifiers | CSV Validation Service | P0 |
+| SUM-01 show import summary | Import summary read model from validation results | Import Commit Service, API Service | P0 |
+| TRC-01 preserve source metadata | Source row table stores file, row number, identifier, normalized amount/date | Import Commit Service, PostgreSQL | P0 |
+
+### NFR Impact on Architecture
+
+| NFR | Requirement | Architectural Impact | Design Decision |
+|-----|-------------|----------------------|-----------------|
+| Performance | 10,000 rows summarized in under 5 seconds | Validation must stream parse and batch database writes | Parse in API process, commit accepted rows in one transaction after summary confirmation |
+| Security | No raw financial rows in analytics/logs | Logging must use event metadata only | Structured logging allowlist; raw rows only in encrypted S3/PostgreSQL |
+| Reliability | Import confirmation atomic | Partial accepted-row commits are not allowed | Transaction boundary in Import Commit Service |
+
+## Solution Approaches
+
+### Approach 1: Parse and validate synchronously in the API
+
+**Description**: The API parses uploaded CSV files, validates mappings and rows,
+stores results, and returns an import summary.
+**Pros**: Simple user feedback, fewer moving parts, easy pilot operation.
+**Cons**: API task must handle peak import CPU and memory.
+**Evaluation**: Selected for v1 because pilot imports are bounded at 10,000
+rows and the feature needs immediate reviewer feedback.
+
+### Approach 2: Store files and validate asynchronously in the worker
+
+**Description**: The API stores files and enqueues validation work for the
+Matching Worker.
+**Pros**: Keeps upload endpoint fast and isolates parsing load.
+**Cons**: Adds polling or notifications before mapping review; complicates
+error recovery for a P0 workflow.
+**Evaluation**: Rejected for v1. Revisit if import files exceed 10,000 rows or
+validation regularly exceeds 5 seconds.
+
+**Selected Approach**: Synchronous API validation with transactional commit
+after reviewer confirmation.
+
+**Architecture/ADR impact**: No change. This design applies the current
+Architecture and ADR-001.
+
+## Domain Model
+
+```mermaid
+erDiagram
+    CLIENT ||--o{ IMPORT_SESSION : owns
+    IMPORT_SESSION ||--|{ IMPORT_FILE : contains
+    IMPORT_SESSION ||--o{ SOURCE_ROW : accepts
+    CLIENT ||--o{ MAPPING_PROFILE : saves
+    IMPORT_FILE ||--o{ VALIDATION_RESULT : produces
+    SOURCE_ROW ||--o{ MATCH_EVIDENCE : supports
+```
+
+### Business Rules
+
+1. **Required source pair**: A draft import session is not ready for mapping
+   until it has one bank CSV and one invoice CSV.
+2. **Mapping before import**: Accepted rows cannot be committed until required
+   mappings exist for amount, date, and source identifier.
+3. **Validation before matching**: Match suggestions cannot be created until the
+   reviewer confirms an import summary.
+4. **Traceability preservation**: Every accepted row must retain file identity,
+   row number, source identifier, normalized amount, and normalized date.
+
+## System Decomposition
+
+### Component: Upload Controller
+
+- **Purpose**: Receive CSV files and create draft import sessions.
+- **Responsibilities**: Authenticate and authorize the client, enforce file
+  type and size rules, store encrypted originals, return API-001 responses.
+- **Requirements Addressed**: UP-01, UP-02.
+- **Interfaces**: HTTP API `POST /v1/clients/{clientId}/import-sessions`; S3
+  SDK; PostgreSQL.
+- **Owned by TDs**: TD-001 upload endpoint and UI integration.
+
+### Component: Mapping Service
+
+- **Purpose**: Manage source-specific column mappings.
+- **Responsibilities**: Load saved mappings, validate required semantic fields,
+  save confirmed mappings by client and source type.
+- **Requirements Addressed**: MAP-01, MAP-02, MAP-03.
+- **Interfaces**: API Service internal module; PostgreSQL mapping tables.
+- **Owned by TDs**: TD-002 mapping review workflow.
+
+### Component: CSV Validation Service
+
+- **Purpose**: Validate headers and rows before import confirmation.
+- **Responsibilities**: Detect missing mapped columns, invalid amounts, invalid
+  dates, duplicate source identifiers, and row-level rejection reasons.
+- **Requirements Addressed**: VAL-01, VAL-02, VAL-03.
+- **Interfaces**: API Service internal module; parsed CSV stream.
+- **Owned by TDs**: TD-003 validation rules and test fixtures.
+
+### Component: Import Commit Service
+
+- **Purpose**: Commit accepted rows and import summary atomically.
+- **Responsibilities**: Persist accepted source rows, rejection reasons,
+  summary counts, and traceability fields.
+- **Requirements Addressed**: SUM-01, SUM-02, TRC-01, TRC-02.
+- **Interfaces**: PostgreSQL transaction; Evidence Service read model.
+- **Owned by TDs**: TD-004 confirmation and source-row persistence.
+
+### Component Interactions
+
+```mermaid
+graph TD
+    Upload[Upload Controller] --> Mapping[Mapping Service]
+    Mapping --> Validation[CSV Validation Service]
+    Validation --> Summary[Import Summary]
+    Summary --> Commit[Import Commit Service]
+    Commit --> Rows[(Source Rows)]
+    Commit --> Evidence[Evidence Service]
+```
+
+## Technology Rationale
+
+Only feature-specific choices are listed here. System-wide choices remain in
+Architecture and ADR-001.
+
+| Layer | Choice | Why | Alternatives Rejected |
+|-------|--------|-----|----------------------|
+| CSV parser | Papa Parse | Already named in PRD technical context; supports browser and Node parsing patterns | Custom parser rejected because CSV edge cases are easy to mishandle |
+| Validation model | Semantic field mapping per source type | Lets client-specific CSV headers map to stable DepositMatch concepts | Hard-coded column names rejected because pilot exports vary |
+| Job trigger | PostgreSQL import confirmation state | Keeps matching jobs consistent with accepted rows | Separate queue rejected by ADR-001 for v1 simplicity |
+
+## Traceability
+
+| Requirement ID | Component | Design Element | Test Strategy |
+|----------------|-----------|----------------|---------------|
+| UP-01 | Upload Controller | Multipart import-session creation | API contract tests for API-001 and US-001 story tests |
+| UP-02 | Upload Controller | File-type guard | API negative test with PDF upload |
+| MAP-01 | Mapping Service | Required semantic mapping validation | Mapping unit tests with missing amount/date/identifier |
+| VAL-02 | CSV Validation Service | Row-level amount/date/duplicate checks | Fixture-based validation tests |
+| SUM-02 | Import Commit Service | Matching not enqueued before summary confirmation | Integration test around import status transition |
+| TRC-02 | Evidence Service | Source-row evidence projection | Story test for match evidence display |
+
+### Gaps
+
+- [ ] Retention period for uploaded CSV originals needs legal/owner decision.
+  Mitigation: keep retention configurable and create an ADR before paid launch.
+
+## Concern Alignment
+
+- **Concerns used**: `csv-import-integrity`, `financial-data-security`,
+  `reviewer-auditability`, `a11y-wcag-aa`.
+- **Constraints honored**: Required mapping and validation protect CSV
+  integrity; raw financial rows stay out of analytics/logs; evidence fields are
+  preserved for audit.
+- **ADRs referenced**: ADR-001 PostgreSQL as system of record.
+- **Departures**: None.
+
+## Constraints & Assumptions
+
+- **Constraints**: v1 supports CSV import only; no bank feed or accounting API
+  sync.
+- **Assumptions**: Pilot firm files fit within the 10 MB per-file limit and
+  10,000-row validation target.
+- **Dependencies**: API-001 import-session contract; encrypted S3 storage;
+  PostgreSQL 16.
+
+## Risks
+
+| Risk | Prob | Impact | Mitigation |
+|------|------|--------|------------|
+| CSV layouts vary more than expected | H | M | Keep mappings semantic and per-client; collect pilot fixtures before launch. |
+| Synchronous validation exceeds 5 seconds | M | M | Benchmark fixtures in CI; move validation to worker only if target fails repeatedly. |
+| Reviewers distrust rejected-row explanations | M | H | Include row number, field, and plain-language reason for every rejection. |
+``````
+
+</details>
+
+## Reference
+
+<table class="helix-reference-table">
+<tbody>
+<tr><th>Activity</th><td><a href="/reference/glossary/activities/"><strong>Design</strong></a> — Decide how to build it. Capture trade-offs, contracts, and architecture decisions.</td></tr>
+<tr><th>Default location</th><td><code>docs/helix/02-design/solution-designs/SD-{id}-{name}.md</code></td></tr>
+<tr><th>Requires</th><td><em>None</em></td></tr>
+<tr><th>Enables</th><td><em>None</em></td></tr>
+<tr><th>Informs</th><td><a href="/artifact-types/design/technical-design/">Technical Design</a><br><a href="/artifact-types/test/test-plan/">Test Plan</a></td></tr>
+<tr><th>HELIX documents</th><td><a href="https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/02-design/solution-designs/SD-001-helix-supervisory-control.md"><code>docs/helix/02-design/solution-designs/SD-001-helix-supervisory-control.md</code></a></td></tr>
+<tr><th>Generation prompt</th><td><details><summary>Show the full generation prompt</summary><pre><code># Solution Design Generation Prompt
+
+Create a solution design that maps requirements to a concrete approach.
+
+## Purpose
+
+Solution Design is the **feature-level design artifact**. Its unique job is to
+translate a Feature Specification into a selected technical approach, domain
+model, component decomposition, interface usage, and requirement-to-design
+traceability.
+
+It applies Architecture, ADRs, Contracts, and Concerns to one feature or
+cross-component capability. It does not redefine the system architecture. It
+does not plan a single story&#x27;s code changes; that belongs in Technical Design.
+
+## Reference Anchors
+
+Use these local resource summaries as grounding:
+
+- `docs/resources/arc42-solution-strategy.md` grounds feature-level approach,
+  decomposition, interfaces, and concise design rationale.
+- `docs/resources/c4-model.md` grounds component and interaction views that
+  support feature-level decomposition.
+
+## Focus
+- Create a feature-level artifact named `docs/helix/02-design/solution-designs/SD-XXX-[name].md`.
+- Show the main options and why the chosen one wins.
+- Keep the domain model, decomposition, and tradeoffs concise.
+- Cover cross-component system behavior and feature-level structure.
+- Do not collapse into story-level implementation details; those belong in a
+  technical design (`TD-XXX-*`).
+- Preserve only the decisions needed by build and test.
+- If the feature requires changing Architecture or an accepted ADR, stop and
+  update that governing artifact first.
+
+## Boundary Test
+
+| If you are writing... | Put it in... |
+|---|---|
+| Product/feature behavior and acceptance criteria | Feature Specification |
+| System-wide structure, deployment, and quality attributes | Architecture |
+| One architecture-significant decision | ADR |
+| Exact API/file/event/CLI surface | Contract |
+| Feature-level approach and decomposition | Solution Design |
+| Story-level code plan and file/module changes | Technical Design |
+
+## Completion Criteria
+- Requirements are mapped.
+- Tradeoffs are explicit.
+- The chosen approach is clear.
+- The output is clearly feature-level and disambiguated from a technical
+  design.
+- Every P0 requirement has a corresponding design element and test strategy.</code></pre></details></td></tr>
+<tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
+ddx:
+  id: &quot;[artifact-id]&quot;
+---
+
+# Solution Design
+
+**Feature**: [[FEAT-XXX]] | **Artifact**: `docs/helix/02-design/solution-designs/SD-XXX-[name].md`
+
+## Scope
+
+- Feature-level design artifact
+- Use for cross-component behavior, main alternatives, domain model, and
+  decomposition
+- Do not use for one-story implementation details; those belong in `TD-XXX`
+- Governing artifacts: [Architecture, ADRs, Contracts, Concerns]
+
+## Requirements Mapping
+
+### Functional Requirements
+
+| Requirement | Technical Capability | Component | Priority |
+|------------|---------------------|-----------|----------|
+| [Business requirement] | [Technical implementation] | [Component] | P0/P1/P2 |
+
+### NFR Impact on Architecture
+
+| NFR | Requirement | Architectural Impact | Design Decision |
+|-----|------------|---------------------|-----------------|
+| Performance | [Metric] | [What this requires] | [How achieved] |
+| Security | | | |
+| Scalability | | | |
+
+## Solution Approaches
+
+### Approach 1: [Name]
+**Description**: [Overview]
+**Pros**: [Advantages]
+**Cons**: [Disadvantages]
+**Evaluation**: [Selected/Rejected: why]
+
+### Approach 2: [Name]
+[Same structure]
+
+**Selected Approach**: [Which and why]
+
+**Architecture/ADR impact**: [No change, or name required Architecture/ADR update]
+
+## Domain Model
+
+```mermaid
+erDiagram
+    %% [Define entities with attributes and relationships]
+```
+
+### Business Rules
+1. [Rule]: [Description and implementation impact]
+
+## System Decomposition
+
+### Component: [Name]
+- **Purpose**: [What it does]
+- **Responsibilities**: [List]
+- **Requirements Addressed**: [Which requirements]
+- **Interfaces**: [How it communicates]
+- **Owned by TDs**: [Story-level work that will be designed later]
+
+### Component Interactions
+```mermaid
+graph TD
+    %% [Show component relationships]
+```
+
+## Technology Rationale
+
+Only include feature-specific technology choices here. System-wide choices
+belong in Architecture or ADRs.
+
+| Layer | Choice | Why | Alternatives Rejected |
+|-------|--------|-----|----------------------|
+| Language | [Choice] | [Reason] | [Others] |
+| Framework | [Choice] | [Reason] | [Others] |
+| Database | [Choice] | [Reason] | [Others] |
+| Infrastructure | [Choice] | [Reason] | [Others] |
+
+## Traceability
+
+| Requirement ID | Component | Design Element | Test Strategy |
+|---------------|-----------|----------------|---------------|
+| FR-001 | [Component] | [How addressed] | [How tested] |
+
+### Gaps
+- [ ] [Requirement not fully addressed]: [Mitigation]
+
+## Concern Alignment
+
+If the project has active concerns (`docs/helix/01-frame/concerns.md`), confirm
+this design is consistent with them:
+
+- **Concerns used**: [Which active concerns does this design rely on?]
+- **Constraints honored**: [Any concern constraints that shaped this design?]
+- **ADRs referenced**: [Concern-related ADRs that govern design choices here]
+- **Departures**: [Any design choices that depart from concern practices? If so,
+  an ADR should justify the departure.]
+
+## Constraints &amp; Assumptions
+
+- **Constraints**: [Technical constraints and their design impact]
+- **Assumptions**: [What we assume, risk if wrong]
+- **Dependencies**: [External systems, libraries]
+
+## Risks
+
+| Risk | Prob | Impact | Mitigation |
+|------|------|--------|------------|
+| [Risk] | H/M/L | H/M/L | [Strategy] |
+
+## Review Checklist
+
+Use this checklist when reviewing a solution design:
+
+- [ ] Requirements mapping covers all P0 functional requirements from the governing spec
+- [ ] NFR impact section shows how the architecture satisfies each non-functional requirement
+- [ ] At least two solution approaches were evaluated with concrete pros/cons
+- [ ] Selected approach rationale explains why alternatives were rejected
+- [ ] Domain model captures all entities and their relationships
+- [ ] Business rules are specific enough to implement
+- [ ] System decomposition assigns every requirement to at least one component
+- [ ] Component interfaces are defined — not just names, but how they communicate
+- [ ] Technology rationale explains why each choice was made, not just what was chosen
+- [ ] Traceability table maps every requirement to a component and test strategy
+- [ ] Gaps section lists any requirements not fully addressed with mitigation plans
+- [ ] Concern alignment verifies consistency with active project concerns
+- [ ] Design is consistent with governing feature spec and PRD</code></pre></details></td></tr>
+</tbody>
+</table>

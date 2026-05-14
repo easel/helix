@@ -1,0 +1,12 @@
+{{- /*
+  Activity callout — renders a single HELIX activity name linked to the
+  activities glossary. Replaces inlined "Phase N — Label" prose so the
+  loop framing stays consistent.
+
+  Usage:
+    {{< activity name="Discover" >}}
+    {{< activity name="Frame" >}}
+*/ -}}
+{{- $name := .Get "name" | default (.Get 0) -}}
+{{- $slug := $name | lower -}}
+<a href="{{ "/reference/glossary/activities/" | relURL }}#{{ $slug }}" class="helix-activity">{{ $name }}</a>

@@ -1,0 +1,23 @@
+{
+  "bead_id": "helix-00e2486f",
+  "attempt_id": "20260417T214430-ccba6eda",
+  "base_rev": "92859caa14b0a730391a8be598dffc6d44e46d6f",
+  "result_rev": "92859caa14b0a730391a8be598dffc6d44e46d6f",
+  "outcome": "task_failed",
+  "status": "execution_failed",
+  "detail": "script harness: unknown directive \"\u003cexecute-bead\u003e\" at index 0",
+  "harness": "script",
+  "provider": "script",
+  "model": "/Users/erik/Projects/helix/.ddx/executions/20260417T214430-ccba6eda/prompt.md",
+  "session_id": "eb-a5104a20",
+  "duration_ms": 0,
+  "exit_code": 1,
+  "error": "script harness: unknown directive \"\u003cexecute-bead\u003e\" at index 0",
+  "failure_mode": "unknown",
+  "execution_dir": ".ddx/executions/20260417T214430-ccba6eda",
+  "prompt_file": ".ddx/executions/20260417T214430-ccba6eda/prompt.md",
+  "manifest_file": ".ddx/executions/20260417T214430-ccba6eda/manifest.json",
+  "result_file": ".ddx/executions/20260417T214430-ccba6eda/result.json",
+  "started_at": "2026-04-17T21:44:30.486097998Z",
+  "finished_at": "2026-04-17T21:44:30.486208581Z"
+}

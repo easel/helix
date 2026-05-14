@@ -1,0 +1,38 @@
+{
+  "attempt_id": "20260501T195711-26905f99",
+  "bead_id": "helix-e26584d7",
+  "base_rev": "dae2b996479f7156cb821064fb68d15e9d5bf519",
+  "created_at": "2026-05-01T19:57:11.827529859Z",
+  "requested": {
+    "harness": "openrouter",
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-e26584d7",
+    "title": "Phase 3: Refactor HELIX to DDx-powered execution",
+    "acceptance": "helix run calls execute-loop --once --json; all deprecated wrapper logic removed; all 139 tests pass; skills updated to reference execute-loop",
+    "parent": "helix-13cfe23f",
+    "labels": [
+      "helix",
+      "phase:build",
+      "area:cli",
+      "area:testing",
+      "area:workflow"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-01T19:57:11Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "811695",
+      "execute-loop-heartbeat-at": "2026-05-01T19:57:11.445722181Z"
+    }
+  },
+  "paths": {
+    "dir": ".ddx/executions/20260501T195711-26905f99",
+    "prompt": ".ddx/executions/20260501T195711-26905f99/prompt.md",
+    "manifest": ".ddx/executions/20260501T195711-26905f99/manifest.json",
+    "result": ".ddx/executions/20260501T195711-26905f99/result.json",
+    "checks": ".ddx/executions/20260501T195711-26905f99/checks.json",
+    "usage": ".ddx/executions/20260501T195711-26905f99/usage.json",
+    "worktree": "tmp/ddx-exec-wt/.execute-bead-wt-helix-e26584d7-20260501T195711-26905f99"
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "attempt_id": "20260503T001716-64443cf6",
+  "bead_id": "helix-81c0c0df",
+  "base_rev": "5c5f34277d36881d0608b774cf02d6195e9d0de1",
+  "created_at": "2026-05-03T00:17:17.082588937Z",
+  "requested": {
+    "harness": "agent",
+    "model": "standard",
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-81c0c0df",
+    "title": "Make HELIX consume DDx tier policy backed by ddx-agent model catalog",
+    "description": "\u003ccontext-digest\u003e\n\u003cprinciples\u003eDesign for Change · Design for Simplicity · Validate Your Work · Make Intent Explicit · Prefer Reversible Decisions\u003c/principles\u003e\n\u003cconcerns\u003ehugo-hextra | demo-asciinema\u003c/concerns\u003e\n\u003cpractices\u003eTheme version: Hextra v0.12.1 — pinned in website/go.mod · Hugo version: 0.159.2 extended — pinned in .github/workflows/pages.yml · Current demos: helix-quickstart (full lifecycle), helix-concerns (drift detection), helix-evolve (requirement threading) · Agent harness: ddx agent run --harness claude — not claude -p\u003c/practices\u003e\n\u003cgoverning\u003eworkflows/EXECUTION.md — HELIX design/docs define an integration contract where HELIX selects stage tier and harness constraints while DDx resolves the concrete model via ddx-agent catalog policy\u003c/governing\u003e\n\u003cevidence\u003e\n- scripts/helix currently hardcodes concrete smart/cheap model names in resolve_model(): claude-opus-4-6, claude-sonnet-4-6, gpt-5.4, gpt-5.4-mini.\n- HELIX docs and help text expose --smart-model / --cheap-model and describe concrete defaults in ways that duplicate DDx policy.\n- The desired behavior is: HELIX decides whether a stage needs smart/fast/cheap and which harness family to use; DDx resolves the concrete current model through ddx-agent catalog policy under user constraints.\n- This removes split-brain model policy and avoids HELIX drifting behind current recommended models when ddx-agent catalog data changes.\n\u003c/evidence\u003e\n\u003c/context-digest\u003e\n\nDesign how HELIX should consume DDx tier/model policy backed by ddx-agent's shared model catalog instead of hardcoding concrete model names.\n\nScope:\n- Define the integration contract between HELIX and DDx for tier-based model selection.\n- Decide whether HELIX should pass tier names, family aliases, harness constraints, or another structured request to DDx.\n- Identify compatibility behavior for existing HELIX_SMART_MODEL / HELIX_CHEAP_MODEL overrides and existing CLI flags.\n- Update HELIX execution contract/docs so supervisory stage selection remains in HELIX while concrete model policy is delegated downward through DDx to ddx-agent catalog data.\n- Outline the implementation/test plan for scripts/helix and tests/helix-cli.sh.\n\nNotes:\n- Keep the responsibility split crisp: HELIX owns stage policy (review/design/align vs build/check/polish), DDx owns concrete harness/model resolution, ddx-agent owns reusable model catalog data.\n- The resulting design should avoid reintroducing hardcoded codex/claude model version strings in HELIX.",
+    "acceptance": "HELIX design/docs define an integration contract where HELIX selects stage tier and harness constraints while DDx resolves the concrete model via ddx-agent catalog policy; compatibility for existing HELIX smart/cheap overrides is specified; scripts/helix and tests/helix-cli.sh implementation steps are identified without leaving hardcoded model-version policy in HELIX.",
+    "parent": "helix-13cfe23f",
+    "labels": [
+      "helix",
+      "blocked",
+      "area:cli",
+      "area:testing",
+      "area:workflow"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-03T00:17:15Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "4117336",
+      "events": [
+        {
+          "actor": "erik",
+          "body": "tier=cheap harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:03:46.222597963Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=standard harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:03:52.427461167Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=smart harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:03:58.611373521Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"tiers_attempted\":[{\"tier\":\"cheap\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"standard\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"smart\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0}],\"winning_tier\":\"exhausted\",\"total_cost_usd\":0,\"wasted_cost_usd\":0}",
+          "created_at": "2026-05-02T13:03:58.657518323Z",
+          "kind": "escalation-summary",
+          "source": "ddx agent execute-loop",
+          "summary": "winning_tier=exhausted attempts=3 total_cost_usd=0.0000 wasted_cost_usd=0.0000"
+        },
+        {
+          "actor": "erik",
+          "body": "execute-loop: all tiers exhausted — no viable provider found",
+          "created_at": "2026-05-02T13:03:58.73795933Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=cheap harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:06:33.553233646Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"agent\",\"resolved_model\":\"cheap\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T00:17:16.614917826Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=agent model=cheap"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=cheap harness=agent model=cheap probe=ok\norphan model: cheap",
+          "created_at": "2026-05-03T00:17:16.725246052Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        }
+      ],
+      "execute-loop-heartbeat-at": "2026-05-03T00:17:15.985360785Z",
+      "spec-id": "workflows/EXECUTION.md"
+    }
+  },
+  "governing": [
+    {
+      "id": "workflows/EXECUTION.md",
+      "path": "workflows/EXECUTION.md"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260503T001716-64443cf6",
+    "prompt": ".ddx/executions/20260503T001716-64443cf6/prompt.md",
+    "manifest": ".ddx/executions/20260503T001716-64443cf6/manifest.json",
+    "result": ".ddx/executions/20260503T001716-64443cf6/result.json",
+    "checks": ".ddx/executions/20260503T001716-64443cf6/checks.json",
+    "usage": ".ddx/executions/20260503T001716-64443cf6/usage.json",
+    "worktree": "tmp/ddx-exec-wt/.execute-bead-wt-helix-81c0c0df-20260503T001716-64443cf6"
+  }
+}

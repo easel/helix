@@ -1,0 +1,99 @@
+{
+  "attempt_id": "20260503T001719-fc84fe5f",
+  "bead_id": "helix-9230fd5b",
+  "base_rev": "6f457a792b767d4838e7a950a56325e266b5d1c5",
+  "created_at": "2026-05-03T00:17:19.425026694Z",
+  "requested": {
+    "harness": "agent",
+    "model": "standard",
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-9230fd5b",
+    "title": "Frame greenfield CRM scope from sparse intake",
+    "description": "\u003ccontext-digest\u003e\n\u003cprinciples\u003eDesign for Change · Design for Simplicity · Validate Your Work · Make Intent Explicit · Prefer Reversible Decisions\u003c/principles\u003e\n\u003cconcerns\u003ehugo-hextra | demo-asciinema\u003c/concerns\u003e\n\u003cpractices\u003eDefine the site's target audience and what content they need · Theme version: Hextra v0.12.1 — pinned in website/go.mod · Identify which workflows need demo reels — prioritize the \"first 5 minutes\" experience · Current demos: helix-quickstart (full lifecycle), helix-concerns (drift detection), helix-evolve (requirement threading), helix-experiment (metric-driven optimization)\u003c/practices\u003e\n\u003cgoverning\u003eCRM-001\u003c/governing\u003e\n\u003c/context-digest\u003e\n\nCreate the initial CRM product framing artifacts from the sparse request \"design a CRM\".\n\nAssumptions to make explicit in the resulting artifacts unless superseded:\n- Primary users: sales reps, sales managers, and CRM admins\n- Core workflows: managing contacts/accounts, qualifying leads, tracking opportunities, logging activities, and reviewing pipeline/reporting\n- Delivery model: browser-based SaaS with authenticated multi-user access\n\nThis bead establishes the first authoritative CRM artifacts so later design and build work have a governing source.",
+    "acceptance": "1. CRM product vision and PRD drafts exist and are linked from the bead record or resulting commit.\n2. The frame artifacts define the problem, target users, MVP capabilities, non-goals, and measurable success signals.\n3. Open assumptions from the sparse request are listed explicitly.\n4. The frame artifacts establish canonical CRM artifact IDs that can replace provisional spec-id CRM-001 in downstream work.",
+    "parent": "helix-db7d13a9",
+    "labels": [
+      "helix",
+      "phase:build",
+      "kind:implementation",
+      "area:artifacts",
+      "area:docs"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-03T00:17:18Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "4117336",
+      "events": [
+        {
+          "actor": "erik",
+          "body": "tier=cheap harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:04:05.066321027Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=standard harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:04:11.230104392Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=smart harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:04:17.403868329Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"tiers_attempted\":[{\"tier\":\"cheap\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"standard\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"smart\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0}],\"winning_tier\":\"exhausted\",\"total_cost_usd\":0,\"wasted_cost_usd\":0}",
+          "created_at": "2026-05-02T13:04:17.464242174Z",
+          "kind": "escalation-summary",
+          "source": "ddx agent execute-loop",
+          "summary": "winning_tier=exhausted attempts=3 total_cost_usd=0.0000 wasted_cost_usd=0.0000"
+        },
+        {
+          "actor": "erik",
+          "body": "execute-loop: all tiers exhausted — no viable provider found",
+          "created_at": "2026-05-02T13:04:17.550553782Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"agent\",\"resolved_model\":\"cheap\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T00:17:18.963730238Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=agent model=cheap"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=cheap harness=agent model=cheap probe=ok\norphan model: cheap",
+          "created_at": "2026-05-03T00:17:19.071725094Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        }
+      ],
+      "execute-loop-heartbeat-at": "2026-05-03T00:17:18.338231899Z",
+      "spec-id": "CRM-001"
+    }
+  },
+  "paths": {
+    "dir": ".ddx/executions/20260503T001719-fc84fe5f",
+    "prompt": ".ddx/executions/20260503T001719-fc84fe5f/prompt.md",
+    "manifest": ".ddx/executions/20260503T001719-fc84fe5f/manifest.json",
+    "result": ".ddx/executions/20260503T001719-fc84fe5f/result.json",
+    "checks": ".ddx/executions/20260503T001719-fc84fe5f/checks.json",
+    "usage": ".ddx/executions/20260503T001719-fc84fe5f/usage.json",
+    "worktree": "tmp/ddx-exec-wt/.execute-bead-wt-helix-9230fd5b-20260503T001719-fc84fe5f"
+  }
+}

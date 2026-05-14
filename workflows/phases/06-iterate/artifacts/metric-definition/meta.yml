@@ -1,0 +1,58 @@
+artifact:
+  name: Metric Definition
+  id: metric-definition
+  type: document
+  phase: iterate
+
+description: |
+  Reusable metric contract that defines what is measured, how it is measured,
+  expected directionality, command semantics, tolerance, labels, and how results
+  feed ratchets or dashboards. A metric definition owns one measurement, not a
+  dashboard or improvement decision.
+
+output:
+  location: docs/helix/06-iterate/metrics/[name].yaml
+  format: yaml
+  naming: metrics/[name].yaml
+
+validation:
+  required_sections:
+    - name
+    - description
+    - unit
+    - direction
+    - command
+
+  quality_checks:
+    - check: command_repeatable
+      description: The measurement command should be repeatable in the project environment
+      severity: blocking
+    - check: direction_explicit
+      description: The metric must state whether higher or lower values are better
+      severity: blocking
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+example:
+  file: example.md
+
+references:
+  - title: "Google SRE: Monitoring Distributed Systems"
+    file: docs/resources/google-sre-monitoring-distributed-systems.md
+    relationship: "Grounds metric definitions as precise quantitative signals with clear interpretation"
+
+relationships:
+  informs:
+    - metrics-dashboard
+    - monitoring-setup
+
+tags:
+  - iterate
+  - metrics
+  - ratchets
+
+version: 1.0.0

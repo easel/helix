@@ -1,0 +1,22 @@
+{
+  "bead_id": "helix-9044bc6c",
+  "attempt_id": "20260417T215232-c2e0443d",
+  "base_rev": "84978cf0247caeefef12e3c451603a8707f63c0e",
+  "result_rev": "84978cf0247caeefef12e3c451603a8707f63c0e",
+  "outcome": "task_failed",
+  "status": "execution_failed",
+  "detail": "exec: no command",
+  "harness": "openrouter",
+  "model": "minimax/minimax-m2.7",
+  "session_id": "eb-52bc514c",
+  "duration_ms": 0,
+  "exit_code": -1,
+  "error": "exec: no command",
+  "failure_mode": "unknown",
+  "execution_dir": ".ddx/executions/20260417T215232-c2e0443d",
+  "prompt_file": ".ddx/executions/20260417T215232-c2e0443d/prompt.md",
+  "manifest_file": ".ddx/executions/20260417T215232-c2e0443d/manifest.json",
+  "result_file": ".ddx/executions/20260417T215232-c2e0443d/result.json",
+  "started_at": "2026-04-17T21:52:33.120431686Z",
+  "finished_at": "2026-04-17T21:52:33.120702935Z"
+}

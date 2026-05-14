@@ -1,0 +1,105 @@
+{
+  "attempt_id": "20260503T001734-265c9ff4",
+  "bead_id": "helix-1940a77b",
+  "base_rev": "05a1c0cd874a3ea8b078d1dfaa0fd7ae83ba4a20",
+  "created_at": "2026-05-03T00:17:35.249968436Z",
+  "requested": {
+    "harness": "agent",
+    "model": "standard",
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-1940a77b",
+    "title": "Add first-class contract artifact support in HELIX design phase",
+    "description": "\u003ccontext-digest\u003e\n\u003cprinciples\u003eDesign for Change · Design for Simplicity · Validate Your Work · Make Intent Explicit · Prefer Reversible Decisions\u003c/principles\u003e\n\u003cconcerns\u003ehugo-hextra | demo-asciinema\u003c/concerns\u003e\n\u003cpractices\u003eTheme version: Hextra v0.12.1 — pinned in website/go.mod · Hugo version: 0.159.2 extended — pinned in .github/workflows/pages.yml · Current demos: helix-quickstart (full lifecycle), helix-concerns (drift detection), helix-evolve (requirement threading) · Agent harness: ddx agent run --harness claude — not claude -p\u003c/practices\u003e\n\u003cgoverning\u003eworkflows/phases/02-design/README.md — HELIX design docs, artifact templates, and phase guidance include a first-class contract artifact with explicit selection rules and naming guidance\u003c/governing\u003e\n\u003c/context-digest\u003e\n\nHELIX design guidance already treats contracts as a first-class artifact category (`docs/helix/02-design/contracts/`), and the design gate expects contract docs to exist, but the workflow bundle does not currently ship a dedicated contract artifact template/prompt/meta alongside solution-design, technical-design, ADR, spike, and PoC templates. At the same time, live HELIX repos are using both `API-*` and `CONTRACT-*` identifiers for documents in the contracts directory. This leaves contract-shaped specs underspecified exactly when we need them for reusable protocol/interface definitions such as OpenTelemetry telemetry capture standards, DDx/HELIX boundary contracts, execution-document conventions, CLI/library mutation surfaces, and other cross-project schemas that should be shareable without dragging along feature-level or solution-level baggage.\n\nRequest: add an explicit first-class contract artifact type to HELIX design-phase tooling and documentation. The artifact must be suitable for normative external interface specifications, not just HTTP APIs. It should support protocol/data/interface contracts such as telemetry schemas, cross-project ownership boundaries, authoring conventions, CLI/library mutation surfaces, and other reusable contracts. The artifact definition should make clear that ADRs carry the decision/rationale (WHY), solution designs carry the feature-level approach (HOW for a feature), technical designs carry one bounded slice, and contracts carry the authoritative field-by-field/schema-level/interface-level specification that another team could implement against directly.\n\nRequirements from this discussion:\n1. Define clear selection rules for when to use ADR vs Solution Design vs Technical Design vs Contract.\n2. Ship a contract template/prompt/meta in the HELIX workflow bundle.\n3. Clarify identifier and naming guidance: whether `API-*` remains a subtype, whether `CONTRACT-*` is the canonical prefix, or whether both are supported with explicit scope boundaries.\n4. Make the contract artifact suitable for non-HTTP surfaces, including telemetry/export contracts.\n5. Require contracts to carry exact keys/fields, types, units, enums, precedence rules, formulas, error semantics, examples, and validation checklists where relevant.\n6. Ensure the design gate/enforcer language matches the chosen artifact naming and template support.\n7. Preserve the ability for contracts to be shared across projects without inheriting unrelated feature or solution baggage.\n8. Document how contracts should be referenced from ADRs and solution designs so the normative schema lives in one place rather than being duplicated across artifacts.",
+    "acceptance": "HELIX design docs, artifact templates, and phase guidance include a first-class contract artifact with explicit selection rules and naming guidance; contract template support exists in the workflow bundle; guidance covers non-HTTP protocol/interface contracts such as telemetry schemas; ADR/SD/TD/contract boundaries are unambiguous enough that a telemetry export contract can be placed without artifact-taxonomy confusion",
+    "parent": "helix-13cfe23f",
+    "labels": [
+      "helix",
+      "phase:design",
+      "kind:spec",
+      "area:docs",
+      "area:workflow"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-03T00:17:34Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "4117336",
+      "events": [
+        {
+          "actor": "erik",
+          "body": "tier=cheap harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:06:18.264038475Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=standard harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:06:24.454509572Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=smart harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:06:30.658615494Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"tiers_attempted\":[{\"tier\":\"cheap\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"standard\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"smart\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0}],\"winning_tier\":\"exhausted\",\"total_cost_usd\":0,\"wasted_cost_usd\":0}",
+          "created_at": "2026-05-02T13:06:30.708404311Z",
+          "kind": "escalation-summary",
+          "source": "ddx agent execute-loop",
+          "summary": "winning_tier=exhausted attempts=3 total_cost_usd=0.0000 wasted_cost_usd=0.0000"
+        },
+        {
+          "actor": "erik",
+          "body": "execute-loop: all tiers exhausted — no viable provider found",
+          "created_at": "2026-05-02T13:06:30.784405222Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"agent\",\"resolved_model\":\"cheap\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T00:17:34.780218703Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=agent model=cheap"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=cheap harness=agent model=cheap probe=ok\norphan model: cheap",
+          "created_at": "2026-05-03T00:17:34.898351167Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        }
+      ],
+      "execute-loop-heartbeat-at": "2026-05-03T00:17:34.167366176Z",
+      "spec-id": "workflows/phases/02-design/README.md"
+    }
+  },
+  "governing": [
+    {
+      "id": "workflows/phases/02-design/README.md",
+      "path": "workflows/phases/02-design/README.md"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260503T001734-265c9ff4",
+    "prompt": ".ddx/executions/20260503T001734-265c9ff4/prompt.md",
+    "manifest": ".ddx/executions/20260503T001734-265c9ff4/manifest.json",
+    "result": ".ddx/executions/20260503T001734-265c9ff4/result.json",
+    "checks": ".ddx/executions/20260503T001734-265c9ff4/checks.json",
+    "usage": ".ddx/executions/20260503T001734-265c9ff4/usage.json",
+    "worktree": "tmp/ddx-exec-wt/.execute-bead-wt-helix-1940a77b-20260503T001734-265c9ff4"
+  }
+}
