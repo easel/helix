@@ -30,36 +30,57 @@ Agents do better work with context they can trust. HELIX is a document disciplin
 
 <section class="helix-home-section">
 
-<div class="helix-section-kicker">How it works</div>
+## How it works
 
-## Intent becomes implementation
-
-HELIX treats every change as a change to the artifact graph. Humans provide
-intent; the alignment skill propagates it through the authority order, turns the
-updated artifacts into an implementation plan, and hands bounded work to the
-runtime.
+<p class="helix-section-intro">
+  Getting started with HELIX is simple: install it into your agent, then work
+  through prompts as you normally would. The HELIX skill helps the agent read
+  and update the document graph while you stay in control. That graph gives the
+  agent the context it needs to create, execute, and refine quality plans.
+</p>
 
 <div class="helix-home-grid helix-loop-steps">
   <a class="helix-home-card" href="artifact-types">
-    <span class="helix-card-label">1 · Intent</span>
-    <strong>Provide intent to evolve artifacts</strong>
-    <span>Start with a product change, constraint, bug, metric, or decision. HELIX records it at the right level of the document spine.</span>
+    <span class="helix-card-label">1 · Write the brief</span>
+    <span>Say what the agent should know. Capture the goal, requirements, constraints, and decisions before the agent starts changing files.</span>
   </a>
   <a class="helix-home-card" href="artifacts">
-    <span class="helix-card-label">2 · Propagate</span>
-    <strong>Carry changes through authority order</strong>
-    <span>Vision, PRDs, specs, designs, tests, and plans stay coherent because higher-order artifacts govern downstream updates.</span>
+    <span class="helix-card-label">2 · Check alignment</span>
+    <span>Find what no longer matches. Use HELIX to catch stale assumptions, missing context, and contradictions across the document graph.</span>
   </a>
   <a class="helix-home-card" href="skills">
-    <span class="helix-card-label">3 · Plan</span>
-    <strong>Turn aligned artifacts into bounded work</strong>
-    <span>The alignment skill identifies drift, closes gaps, and produces implementation plans that a runtime can execute.</span>
+    <span class="helix-card-label">3 · Create the work plan</span>
+    <span>Turn the documents into bounded work. Define what to change, what not to change, how success will be checked, and what evidence to collect.</span>
   </a>
   <a class="helix-home-card" href="platforms">
-    <span class="helix-card-label">4 · Implement</span>
-    <strong>Execute, then feed evidence back</strong>
-    <span>DDx, Claude, Codex, Databricks, or a manual workflow does the work. Results update the artifacts so the next pass starts with better context.</span>
+    <span class="helix-card-label">4 · Run it in the factory</span>
+    <span>Send the plan to the place work gets done. Use DDx, Claude, Codex, Databricks, or a manual workflow. Capture the result and feed it back into the documents.</span>
   </a>
+</div>
+
+<p class="helix-section-footer">
+  <a href="reference/demos/">See it in action <span aria-hidden="true">→</span></a>
+</p>
+
+</section>
+
+<div class="hx-mt-16"></div>
+
+<section class="helix-home-section">
+
+## Artifact spine
+
+HELIX includes many artifact types, but to get started you only need a few.
+Begin with the spine, then add supporting artifacts as the work demands them.
+
+<div class="helix-spine-flow" aria-label="Core HELIX artifact spine">
+  <a href="artifacts/product-vision/"><span>01</span><strong>Product Vision</strong><em>Intent</em></a>
+  <a href="artifacts/prd/"><span>02</span><strong>PRD</strong><em>Requirements</em></a>
+  <a href="artifacts/principles/"><span>03</span><strong>Principles</strong><em>Judgment</em></a>
+  <a href="artifacts/features/"><span>04</span><strong>Feature Specs</strong><em>Scope</em></a>
+  <a href="artifacts/architecture/"><span>05</span><strong>Architecture</strong><em>Structure</em></a>
+  <a href="artifacts/test-plans/"><span>06</span><strong>Test Plans</strong><em>Proof</em></a>
+  <a href="artifacts/implementation-plan/"><span>07</span><strong>Implementation Plans</strong><em>Execution</em></a>
 </div>
 
 </section>
@@ -68,15 +89,15 @@ runtime.
 
 <section class="helix-home-section">
 
-<div class="helix-section-kicker">Live artifact spine</div>
+## Worked example: HELIX governs itself
 
-## HELIX's own artifacts, wired together
+<p class="helix-example-subhead">
+  The graph below shows HELIX's own governing artifacts on the same spine.
+  Hover each document to see what changed and the kind of prompt used in the
+  public screencasts.
+</p>
 
 <div class="helix-authority-graph helix-annotated-graph" aria-label="HELIX governing artifact relationship graph">
-  <div class="helix-catalog-label">
-    <span>Artifact catalog</span>
-    <strong>Reusable document types in authority order</strong>
-  </div>
   <div class="helix-strand-label helix-human-label">
     <strong>Human judgment</strong>
     <span>Manual edits + prompts</span>
@@ -88,77 +109,140 @@ runtime.
   <div class="helix-graph-visual" aria-hidden="true">
     {{< helix-hero >}}
   </div>
-  <a class="helix-graph-node helix-node-left helix-node-vision" href="artifacts/product-vision">
+  <a class="helix-graph-node helix-node-left helix-node-vision" href="artifacts/product-vision/">
     <b class="helix-step">01</b>
     <span>Intent</span>
     <strong>Product Vision</strong>
     <em>Why HELIX exists.</em>
+    <span class="helix-node-hover">
+      <span>The frame prompt created the first intent document before requirements or code.</span>
+      <code>Create the HELIX product vision.</code>
+    </span>
   </a>
-  <a class="helix-graph-node helix-node-right helix-node-prd" href="artifacts/prd">
+  <a class="helix-graph-node helix-node-right helix-node-prd" href="artifacts/prd/">
     <b class="helix-step">02</b>
     <span>Requirements</span>
     <strong>PRD</strong>
     <em>What HELIX provides and refuses.</em>
+    <span class="helix-node-hover">
+      <span>The same frame prompt turned intent into concrete product requirements.</span>
+      <code>Create the HELIX PRD.</code>
+    </span>
   </a>
-  <a class="helix-graph-node helix-node-left helix-node-features" href="artifact-types/feature-specification">
-    <b class="helix-step">03</b>
+  <a class="helix-graph-node helix-node-left helix-node-features" href="artifacts/features/">
+    <b class="helix-step">04</b>
     <span>Scope</span>
     <strong>Feature Specs</strong>
     <em>Capabilities derived from requirements.</em>
+    <span class="helix-node-hover">
+      <span>The frame prompt decomposed the PRD into acceptance-backed feature work.</span>
+      <code>Create feature specs from the HELIX PRD.</code>
+    </span>
   </a>
-  <a class="helix-graph-node helix-node-right helix-node-principles" href="artifacts/principles">
+  <a class="helix-graph-node helix-node-right helix-node-principles" href="artifacts/principles/">
+    <b class="helix-step">03</b>
     <span>Constraint</span>
     <strong>Principles</strong>
     <em>Values for design and review.</em>
+    <span class="helix-node-hover">
+      <span>Review prompts use the governing documents to catch omissions and drift.</span>
+      <code>Review HELIX against its governing principles.</code>
+    </span>
   </a>
-  <a class="helix-graph-node helix-node-left helix-node-architecture" href="artifacts/architecture">
-    <b class="helix-step">04</b>
+  <a class="helix-graph-node helix-node-left helix-node-architecture" href="artifacts/architecture/">
+    <b class="helix-step">05</b>
     <span>Structure</span>
     <strong>Architecture</strong>
     <em>Boundaries and system shape.</em>
+    <span class="helix-node-hover">
+      <span>The design prompt translated scoped requirements into a technical shape.</span>
+      <code>Create the HELIX architecture.</code>
+    </span>
   </a>
-  <a class="helix-graph-node helix-node-right helix-node-tests" href="artifact-types/test-plan">
-    <b class="helix-step">05</b>
+  <a class="helix-graph-node helix-node-right helix-node-tests" href="artifacts/test-plans/">
+    <b class="helix-step">06</b>
     <span>Proof</span>
     <strong>Test Plans</strong>
     <em>Executable expectations.</em>
+    <span class="helix-node-hover">
+      <span>The test prompt asked for red tests before implementation touched the code.</span>
+      <code>Create test plans for the HELIX feature specs.</code>
+    </span>
   </a>
-  <a class="helix-graph-node helix-node-left helix-node-implementation" href="artifacts/implementation-plan">
-    <b class="helix-step">06</b>
+  <a class="helix-graph-node helix-node-left helix-node-implementation" href="artifacts/implementation-plan/">
+    <b class="helix-step">07</b>
     <span>Execution handoff</span>
     <strong>Implementation Plans</strong>
     <em>Scoped runtime work.</em>
+    <span class="helix-node-hover">
+      <span>The implementation prompt sent bounded work to the runtime with a test gate.</span>
+      <code>Create a HELIX implementation plan.</code>
+    </span>
   </a>
   <div class="helix-collaboration-note">
     Humans provide judgement and quality, steering with edits and prompts.
     Agents review, propose updates to keep the artifact stack coherent,
     create implementation plans and execute them.
   </div>
+  <div class="helix-diagram-popover" aria-hidden="true">
+    <span class="helix-diagram-popover-copy"></span>
+    <code class="helix-diagram-popover-prompt"></code>
+  </div>
 </div>
 
-</section>
+<script>
+(() => {
+  const graph = document.querySelector(".helix-annotated-graph");
+  if (!graph) return;
 
-<div class="hx-mt-16"></div>
+  const popover = graph.querySelector(".helix-diagram-popover");
+  const copy = popover?.querySelector(".helix-diagram-popover-copy");
+  const prompt = popover?.querySelector(".helix-diagram-popover-prompt");
+  if (!popover || !copy || !prompt) return;
 
-<section class="helix-home-section">
+  const clamp = (value, min, max) => Math.max(min, Math.min(value, max));
 
-<div class="helix-section-kicker">Artifact spine</div>
+  const show = (node) => {
+    const source = node.querySelector(".helix-node-hover");
+    const sourceCopy = source?.querySelector("span");
+    const sourcePrompt = source?.querySelector("code");
+    if (!sourceCopy || !sourcePrompt) return;
 
-## Start with the documents that matter first
+    copy.textContent = sourceCopy.textContent.trim();
+    prompt.textContent = sourcePrompt.textContent.trim();
+    popover.classList.add("is-visible");
+    popover.setAttribute("aria-hidden", "false");
 
-HELIX has 43 artifact types, but they are not equally important. The homepage
-path starts with the core spine: the documents an alignment review should read
-before it reasons about optional supporting artifacts.
+    requestAnimationFrame(() => {
+      const graphRect = graph.getBoundingClientRect();
+      const nodeRect = node.getBoundingClientRect();
+      const popRect = popover.getBoundingClientRect();
+      const nodeCenterY = nodeRect.top - graphRect.top + nodeRect.height / 2;
+      const leftNode = nodeRect.left + nodeRect.width / 2 < graphRect.left + graphRect.width / 2;
+      const centerX = graphRect.width / 2;
+      const x = leftNode
+        ? centerX - popRect.width - 28
+        : centerX + 28;
+      const y = clamp(nodeCenterY - popRect.height / 2, 84, graphRect.height - popRect.height - 24);
 
-<div class="helix-spine-flow" aria-label="Core HELIX artifact spine">
-  <a href="artifact-types/product-vision"><span>01</span><strong>Product Vision</strong><em>Intent</em></a>
-  <a href="artifact-types/prd"><span>02</span><strong>PRD</strong><em>Requirements</em></a>
-  <a href="artifact-types/principles"><span>03</span><strong>Principles</strong><em>Judgment</em></a>
-  <a href="artifact-types/feature-specification"><span>04</span><strong>Feature Specs</strong><em>Scope</em></a>
-  <a href="artifact-types/architecture"><span>05</span><strong>Architecture</strong><em>Structure</em></a>
-  <a href="artifact-types/test-plan"><span>06</span><strong>Test Plans</strong><em>Proof</em></a>
-  <a href="artifact-types/implementation-plan"><span>07</span><strong>Implementation Plans</strong><em>Execution</em></a>
-</div>
+      popover.style.left = `${x}px`;
+      popover.style.top = `${y}px`;
+    });
+  };
+
+  const hide = () => {
+    popover.classList.remove("is-visible");
+    popover.setAttribute("aria-hidden", "true");
+  };
+
+  graph.querySelectorAll(".helix-graph-node").forEach((node) => {
+    node.addEventListener("mouseenter", () => show(node));
+    node.addEventListener("focus", () => show(node));
+    node.addEventListener("mouseleave", hide);
+    node.addEventListener("blur", hide);
+  });
+})();
+</script>
 
 </section>
 

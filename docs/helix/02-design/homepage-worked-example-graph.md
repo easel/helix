@@ -36,6 +36,20 @@ The explanatory paragraph above the graph was removed because the graph itself
 should carry the explanation. If the section needs supporting copy later, keep it
 to one short sentence and avoid repeating the node labels.
 
+## Relationship to "How it works"
+
+The homepage steps immediately above this graph are:
+
+1. **Write the brief**
+2. **Check alignment**
+3. **Create the work plan**
+4. **Run it in the factory**
+
+The graph should make the middle of that workflow concrete. It shows the
+artifact chain that alignment checks and the document spine that work plans are
+derived from. It should not replace the four-step explanation; it should prove
+that the steps are backed by real HELIX artifacts.
+
 ## Visual contract
 
 The graph is a worked example, not the artifact-type catalog.

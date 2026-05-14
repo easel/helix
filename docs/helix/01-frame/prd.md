@@ -54,6 +54,27 @@ have not been given that discipline in a portable, tool-agnostic form.
 4. **Stay small.** HELIX is content + one skill. Not a tool, not a platform,
    not a CLI. Resist scope creep into runtime territory.
 
+### Core Workflow Contract
+
+HELIX supports a four-step user workflow. Homepage language may be simpler, but
+product behavior should preserve this contract:
+
+1. **Write the brief.** Users create or update governing artifacts that describe
+   intent, requirements, constraints, and decisions.
+2. **Check alignment.** HELIX reviews the artifact graph for drift,
+   contradictions, stale assumptions, and missing context.
+3. **Create the work plan.** HELIX turns aligned artifacts into bounded
+   implementation work with scope, non-scope, acceptance criteria, and evidence
+   expectations.
+4. **Run it in the factory.** A runtime or software factory executes the work
+   plan, measures the result, and returns evidence that can update the artifact
+   graph.
+
+DDx is the reference software factory because it provides the full operator
+loop: plan, execute, measure, and adapt through specs, beads, runs, evidence,
+metrics, and staleness. Other runtimes can implement the same handoff with
+their own execution surfaces.
+
 ### Success Metrics
 
 | Metric | Target | Measurement Method | Timeline |

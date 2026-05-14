@@ -219,6 +219,33 @@
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.helix-loop-steps .helix-home-card {
+  justify-content: flex-start;
+  min-height: 9.75rem;
+}
+
+.helix-section-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin: 1.5rem 0 0;
+}
+
+.helix-section-footer a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--helix-ink);
+  font-family: var(--helix-font-display);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+}
+
+.helix-section-footer a:hover {
+  color: var(--helix-blue);
+}
+
 .helix-spine-flow {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -830,6 +857,38 @@ main :where(a:not(.hextra-card):not(.helix-home-card):not(.helix-graph-node)):ho
   margin-top: clamp(3.5rem, 8vw, 6.5rem);
 }
 
+.helix-home-section > h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  width: fit-content;
+  margin: 0 0 1.5rem;
+  font-family: var(--helix-font-display);
+  font-size: clamp(1.35rem, 2.4vw, 1.7rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.helix-home-section > h2::before {
+  content: "";
+  display: block;
+  width: 2.4rem;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--helix-human), var(--helix-ai));
+  box-shadow: 0 0 18px color-mix(in srgb, var(--helix-connect) 26%, transparent);
+}
+
+.helix-section-intro,
+.helix-example-subhead {
+  max-width: 46rem;
+  margin: -0.55rem 0 1.5rem;
+  color: color-mix(in srgb, var(--helix-muted) 92%, currentColor);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
 .helix-section-kicker {
   margin-bottom: 0.5rem;
   color: var(--helix-human);
@@ -1027,8 +1086,9 @@ main :where(a:not(.hextra-card):not(.helix-home-card):not(.helix-graph-node)):ho
 
 /* Homepage artifact map: annotate the same double-helix form used in the hero. */
 .helix-annotated-graph {
-  height: clamp(43rem, 58vw, 49rem);
+  height: clamp(43rem, 56vw, 48rem);
   min-height: 43rem;
+  overflow: visible;
 }
 
 .helix-annotated-graph .helix-graph-lines {
@@ -1037,60 +1097,27 @@ main :where(a:not(.hextra-card):not(.helix-home-card):not(.helix-graph-node)):ho
 
 .helix-graph-visual {
   position: absolute;
-  top: 8.2rem;
+  top: 9.2rem;
   left: 50%;
   z-index: 0;
   display: grid;
-  height: 22.75rem;
-  min-height: 22.75rem;
+  height: 20.5rem;
+  min-height: 20.5rem;
   place-items: center;
   transform: translateX(-50%);
-  width: 13rem;
-  min-width: 13rem;
-  opacity: 0.9;
+  width: 11.75rem;
+  min-width: 11.75rem;
+  opacity: 0.82;
   overflow: visible;
   pointer-events: none;
 }
 
 .helix-graph-visual svg {
   display: block;
-  width: 13rem;
-  height: 22.75rem;
+  width: 11.75rem;
+  height: 20.5rem;
   max-width: none;
   overflow: visible;
-}
-
-.helix-catalog-label {
-  position: absolute;
-  top: 0.85rem;
-  left: 1.25rem;
-  z-index: 5;
-  display: grid;
-  gap: 0.08rem;
-  border: 1px solid rgba(128, 128, 128, 0.16);
-  border-radius: 999px;
-  padding: 0.42rem 0.8rem;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 12px 30px rgba(23, 36, 55, 0.08);
-}
-
-.helix-catalog-label span {
-  color: var(--helix-ai);
-  font-size: 0.62rem;
-  font-weight: 850;
-  letter-spacing: 0.08em;
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-.helix-catalog-label strong {
-  color: inherit;
-  font-size: 0.82rem;
-  line-height: 1.15;
-}
-
-.dark .helix-catalog-label {
-  background: rgba(24, 24, 27, 0.94);
 }
 
 .helix-strand-label {
@@ -1162,8 +1189,92 @@ main :where(a:not(.hextra-card):not(.helix-home-card):not(.helix-graph-node)):ho
 }
 
 .helix-annotated-graph .helix-graph-node {
+  z-index: 4;
+  overflow: visible;
   width: min(13.25rem, 23%);
   padding: 0.72rem 2.65rem 0.68rem 0.78rem;
+}
+
+.helix-annotated-graph .helix-graph-node:hover,
+.helix-annotated-graph .helix-graph-node:focus-visible {
+  z-index: 80;
+}
+
+.helix-node-hover {
+  display: none;
+}
+
+.helix-diagram-popover {
+  position: absolute;
+  z-index: 120;
+  display: grid;
+  width: min(20rem, 32vw);
+  gap: 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--helix-ai) 30%, transparent);
+  border-radius: 18px;
+  padding: 0.78rem;
+  background: var(--helix-surface-strong);
+  box-shadow: 0 30px 80px rgba(23, 36, 55, 0.28);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-0.35rem) scale(0.98);
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+
+.helix-diagram-popover.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.helix-diagram-popover-copy {
+  color: color-mix(in srgb, var(--helix-muted) 94%, currentColor);
+  font-size: 0.8rem;
+  font-weight: 550;
+  letter-spacing: 0;
+  line-height: 1.45;
+  text-transform: none;
+}
+
+.helix-diagram-popover-prompt {
+  position: relative;
+  display: block;
+  overflow-wrap: anywhere;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1.75rem 0.78rem 0.72rem 1.55rem;
+  background:
+    linear-gradient(180deg, rgba(24, 24, 27, 0.98), rgba(39, 39, 42, 0.98));
+  color: #dbeafe;
+  font-family: var(--helix-font-mono);
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  line-height: 1.35;
+  text-transform: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.helix-diagram-popover-prompt::before {
+  content: "Claude Code";
+  position: absolute;
+  top: 0.45rem;
+  left: 0.72rem;
+  color: rgba(244, 244, 245, 0.62);
+  font-family: var(--helix-font-display);
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.helix-diagram-popover-prompt::after {
+  content: "›";
+  position: absolute;
+  top: 1.74rem;
+  left: 0.72rem;
+  color: var(--helix-human);
+  font-size: 0.85rem;
+  line-height: 1.35;
 }
 
 .helix-step {
@@ -1207,43 +1318,43 @@ main :where(a:not(.hextra-card):not(.helix-home-card):not(.helix-graph-node)):ho
 
 .helix-annotated-graph .helix-node-vision {
   left: 5%;
-  top: 8.15rem;
+  top: 7.5rem;
 }
 
 .helix-annotated-graph .helix-node-prd {
   left: auto;
   right: 5%;
-  top: 9.6rem;
+  top: 8.7rem;
 }
 
 .helix-annotated-graph .helix-node-features {
   left: 11%;
-  top: 15.1rem;
+  top: 17.5rem;
 }
 
 .helix-annotated-graph .helix-node-principles {
   left: auto;
   right: 13.5%;
-  top: 17.6rem;
+  top: 15.25rem;
   opacity: 0.92;
 }
 
 .helix-annotated-graph .helix-node-architecture {
   left: 6%;
-  top: 22rem;
+  top: 25.2rem;
   bottom: auto;
 }
 
 .helix-annotated-graph .helix-node-tests {
   left: auto;
   right: 15%;
-  top: 25rem;
+  top: 27.25rem;
   bottom: auto;
 }
 
 .helix-annotated-graph .helix-node-implementation {
   left: 11%;
-  top: 31.4rem;
+  top: 35.5rem;
   bottom: auto;
 }
 

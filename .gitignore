@@ -35,3 +35,6 @@ website/playwright-report/
 website/node_modules/
 __pycache__/
 *.pyc
+
+# Scratch/intermediate working files
+tmp/

@@ -7,6 +7,7 @@ agents_package_dir="$repo_root/.agents/skills"
 claude_package_dir="$repo_root/.claude/skills"
 
 declare -A skills_requiring_argument_hint=(
+  [helix]=1
   [helix-align]=1
   [helix-backfill]=1
   [helix-check]=1
@@ -304,7 +305,7 @@ extract_field() {
 [[ -d "$claude_package_dir" ]] || fail "missing package directory at $claude_package_dir"
 
 shopt -s nullglob
-skill_dirs=("$skills_dir"/helix-*)
+skill_dirs=("$skills_dir"/helix "$skills_dir"/helix-*)
 [[ "${#skill_dirs[@]}" -gt 0 ]] || fail "no published skills found under $skills_dir"
 
 mapfile -t expected_skills < <(
@@ -393,46 +394,33 @@ for name in "${expected_skills[@]}"; do
 done
 
 assert_file_contains \
-  "$repo_root/skills/helix-triage/SKILL.md" \
-  "Execution-ready implementation beads should enter the tracker ready to" \
-  "helix-triage must scope execution-ready wording to implementation beads only"
+  "$repo_root/skills/helix/SKILL.md" \
+  "Use this as the HELIX entrypoint." \
+  "helix skill must be the single public HELIX entrypoint"
 assert_file_contains \
-  "$repo_root/skills/helix-triage/SKILL.md" \
-  "route it to planning/polish or file it explicitly as a" \
-  "helix-triage intro must direct vague requests to planning or explicit not-execution-ready paths"
-validate_helix_triage_intro "$repo_root/skills/helix-triage/SKILL.md"
+  "$repo_root/skills/helix/SKILL.md" \
+  'Rule: do not add separate public `helix-*` skills' \
+  "helix skill must prohibit reintroducing public helix-* skill sprawl"
+assert_file_contains \
+  "$repo_root/skills/helix/SKILL.md" \
+  "Require execution-ready beads to name exact files, commands, checks, fields," \
+  "helix polish mode must require explicit measurable acceptance text for execution-ready beads"
+assert_file_contains \
+  "$repo_root/skills/helix/SKILL.md" \
+  "not execution-ready and route it back through planning" \
+  "helix polish mode must define a flagging path for non-measurable acceptance text"
+assert_file_contains \
+  "$repo_root/skills/helix/SKILL.md" \
+  "content migration ledger" \
+  "helix align mode must require content migration ledger behavior"
+assert_file_contains \
+  "$repo_root/skills/helix/SKILL.md" \
+  "Destination-shaped draft content" \
+  "helix content migration ledger must capture destination-shaped content"
 assert_file_not_contains \
-  "$repo_root/skills/helix-triage/SKILL.md" \
-  "Every issue should enter the tracker ready to execute." \
-  "helix-triage must not claim every issue enters the tracker ready to execute"
-assert_file_contains \
-  "$repo_root/skills/helix-triage/SKILL.md" \
-  "deterministic acceptance and success-measurement criteria" \
-  "helix-triage must require success-measurement criteria for execution-ready beads"
-assert_file_contains \
-  "$repo_root/skills/helix-triage/SKILL.md" \
-  "Triage must not create execution-ready implementation beads without" \
-  "helix-triage must block queue-ready implementation beads that lack measurable success criteria"
-assert_file_contains \
-  "$repo_root/skills/helix-triage/SKILL.md" \
-  "the work back to planning/polish, or file it as a not-execution-ready" \
-  "helix-triage must define a planning/polish or not-execution-ready fallback for vague build beads"
-assert_file_contains \
-  "$repo_root/skills/helix-triage/SKILL.md" \
-  "not-execution-ready" \
-  "helix-triage fallback must explicitly preserve not-execution-ready status for vague build beads"
-assert_file_contains \
-  "$repo_root/skills/helix-triage/SKILL.md" \
-  "DDx-managed execution to close merged work with evidence" \
-  "helix-triage must explain DDx-managed close-with-evidence expectations"
-assert_file_contains \
-  "$repo_root/skills/helix-polish/SKILL.md" \
-  "require execution-ready beads to name exact commands," \
-  "helix-polish must require explicit measurable acceptance text for execution-ready beads"
-assert_file_contains \
-  "$repo_root/skills/helix-polish/SKILL.md" \
-  "flag it as not execution-ready" \
-  "helix-polish must define a flagging path for non-measurable acceptance text"
+  "$repo_root/skills/helix/SKILL.md" \
+  "compatibility" \
+  "helix skill must not describe helix-* compatibility layers"
 assert_file_contains \
   "$repo_root/workflows/actions/polish.md" \
   "Treat \"works\", \"correct\", \"complete\", \"aligned\", or similar adjectives" \
@@ -453,8 +441,6 @@ assert_file_contains \
   "$repo_root/docs/helix/02-design/technical-designs/TD-011-slider-autonomy-implementation.md" \
   "### Decision 5c: Bead Success-Measurement Contract" \
   "TD-011 must retain the bead success-measurement decision"
-assert_helix_triage_blanket_priming_regression
-
 command -v python3 >/dev/null 2>&1 || fail "python3 is required for execution-ready bead validation"
 mixed_fixture="$repo_root/tests/fixtures/execution-ready-beads/mixed-ready-semantics.jsonl"
 mixed_tracker_dir="$(mktemp -d)"
@@ -499,7 +485,7 @@ assert_command_fails \
   "$mixed_fixture"
 grep -Fq "hx-ready-vague" "$mixed_reject_output" || fail \
   "mixed execution-ready fixture should identify the ready vague bead"
-for skipped_id in hx-deferred-build hx-closed-build hx-in-progress-build hx-blocked-build hx-not-execution-eligible hx-superseded-build; do
+for skipped_id in hx-deferred-build hx-closed-build hx-ready-epic hx-blocked-build hx-not-execution-eligible hx-superseded-build; do
   if grep -Fq "$skipped_id" "$mixed_reject_output"; then
     fail "mixed execution-ready fixture should skip non-ready bead $skipped_id"
   fi

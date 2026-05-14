@@ -72,7 +72,9 @@ def has_closed_dependencies_only(bead: dict[str, object], statuses_by_id: dict[s
 
 
 def is_execution_ready_bead(bead: dict[str, object], statuses_by_id: dict[str, str]) -> bool:
-    if bead.get("status") != "open":
+    if bead.get("issue_type") == "epic":
+        return False
+    if bead.get("status") not in ("open", "in_progress"):
         return False
     if not has_closed_dependencies_only(bead, statuses_by_id):
         return False

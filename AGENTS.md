@@ -1,9 +1,9 @@
 # Agent Instructions
 
 This is the HELIX repository — the canonical source for the HELIX methodology,
-artifact-type catalog, and (in progress) a single alignment skill. HELIX is
-content + one skill; execution lives in a runtime (DDx today, Databricks
-Genie and Claude Code in progress).
+artifact-type catalog, and umbrella `helix` routing skill. HELIX is content +
+one public skill; execution lives in a runtime (DDx today, Databricks Genie and
+Claude Code in progress).
 
 The governing artifacts of HELIX-the-project live under `docs/helix/`.
 Methodology specifications and shared templates live under `workflows/`. Both
@@ -16,9 +16,9 @@ This project uses the DDx tracker for execution work. Issues live in
 
 ## Direction note
 
-HELIX is collapsing in scope. The eventual deliverable is methodology +
-artifact templates + one alignment-and-planning skill. The current set of
-`helix-*` CLI commands and `skills/helix-*` directories is mostly legacy;
+HELIX is collapsing in scope. The deliverable is methodology + artifact
+templates + one public `helix` skill that routes to folded workflow modes.
+The old `helix-*` skill directories have been folded into `skills/helix/`;
 queue control, beads, and execution belong to the runtime (DDx). See
 `docs/helix/00-discover/product-vision.md` and `docs/helix/01-frame/prd.md`
 for the target shape. The Quick Reference below is what works **today** while
@@ -183,31 +183,15 @@ back into the planning helix. See `workflows/EXECUTION.md` for details.
 
 ## HELIX Skills
 
-Installed agent skills mirror CLI commands exactly:
+The installed HELIX agent skill is:
 
-- `helix-run` <-> `helix run`
-- `helix-build` <-> `helix build`
-- `helix-check` <-> `helix check`
-- `helix-align` <-> `helix align`
-- `helix-backfill` <-> `helix backfill`
-- `helix-design` <-> `helix design`
-- `helix-polish` <-> `helix polish`
-- `helix-evolve` <-> `helix evolve`
-- `helix-triage` <-> `helix triage`
-- `helix-next` <-> `helix next`
-- `helix-review` <-> `helix review`
-- `helix-measure` <-> `helix measure`
-- `helix-report` <-> `helix report`
-- `helix-experiment` <-> `helix experiment`
-- `helix-frame` <-> `helix frame`
-- `helix-commit` <-> `helix commit`
-- `helix-worker` — background run monitor (no matching CLI subcommand)
+- `helix` — routes natural HELIX requests to the correct folded workflow mode
 
-Rule: public skill names are `helix-<command>`, and `<command>` must match the
-CLI subcommand exactly.
+Rule: do not add separate public `helix-*` skills. Add or refine a route inside
+`skills/helix/SKILL.md` instead.
 Published `SKILL.md` files must declare `name` and `description`; add
-`argument-hint` when the mirrored CLI command accepts a trailing positional
-argument such as a scope, selector, issue ID, or goal.
+`argument-hint` when the skill accepts a trailing positional argument such as
+a scope, selector, issue ID, or goal.
 
 ## HELIX CLI
 
