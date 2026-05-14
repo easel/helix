@@ -18,6 +18,9 @@ markup:
 
 menu:
   main:
+    - name: Install
+      pageRef: /install
+      weight: 0
     - name: Why HELIX
       pageRef: /why
       weight: 1

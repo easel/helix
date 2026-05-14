@@ -30,6 +30,41 @@ Agents do better work with context they can trust. HELIX is a document disciplin
 
 <section class="helix-home-section">
 
+<div class="helix-section-kicker">Get started</div>
+
+## Install HELIX in your runtime
+
+HELIX works with Claude Code, Codex CLI, GitHub Copilot, and Databricks Code Genie.
+Pick the guide for your environment and you're up in minutes.
+
+<div class="helix-home-grid helix-platform-grid">
+  <a class="helix-home-card" href="install">
+    <span class="helix-card-label">Claude Code</span>
+    <strong>Install as a Claude Code skill</strong>
+    <span>User-global or per-repo. Supports every HELIX route including build and run.</span>
+  </a>
+  <a class="helix-home-card" href="install">
+    <span class="helix-card-label">Codex CLI + Copilot</span>
+    <strong>Discover via AGENTS.md or editor instructions</strong>
+    <span>Full flow on the Codex CLI; read-mostly HELIX work on Copilot surfaces.</span>
+  </a>
+  <a class="helix-home-card" href="install">
+    <span class="helix-card-label">Databricks Code Genie</span>
+    <strong>Skill bundle in workspace storage</strong>
+    <span>Shared across the workspace, next to your data and notebook work.</span>
+  </a>
+</div>
+
+<p class="helix-section-footer">
+  <a href="install">Read the full install index <span aria-hidden="true">→</span></a>
+</p>
+
+</section>
+
+<div class="hx-mt-16"></div>
+
+<section class="helix-home-section">
+
 ## How it works
 
 <p class="helix-section-intro">

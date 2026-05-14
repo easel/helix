@@ -124,13 +124,11 @@ runtime" enforceable. Three install paths, one HELIX.
 
 ## Homepage linking
 
-This index is not yet linked from the HELIX website homepage. Modifying the
-website is out of scope for the bead that authored this file, so a
-follow-up bead has been filed to add a homepage link to
-`docs/install/README.md` once the website source is in scope. Adopters
-cloning the repo should reach this file via the repo's `docs/` tree
-directly; web visitors will reach it via the homepage once that follow-up
-bead lands.
+The HELIX website homepage links to `website/content/install/_index.md`, which
+mirrors this index as an in-site Hugo page. The homepage carries a dedicated
+"Install HELIX in your runtime" section with per-runtime CTA cards and a
+"Read the full install index" link. The top-level nav also includes an
+"Install" entry pointing at `/install`.
 
 ## See also
 
