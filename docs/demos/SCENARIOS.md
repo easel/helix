@@ -80,15 +80,24 @@ animation) and emits an asciicast. The .cast files are also committed under
 ## Capturing new sessions
 
 ```
-scripts/capture_demo.sh helix-<slug>
+python3 scripts/demos/capture_session.py helix-<slug> \
+    --prompt "..." \
+    --fixture docs/demos/helix-<slug>/fixture/
 ```
 
-Wraps a Claude/Codex session that:
+`capture_session.py`:
 
-1. Sets up the demo's `fixture/` directory
-2. Drives the agent with the scenario's planned prompts
-3. Captures every event into `session.jsonl`
-4. Stops at the scenario's success criterion
+1. Copies the demo's `fixture/` directory (if any) to a tmp workdir.
+2. Spawns `claude -p --output-format=stream-json` in that workdir with
+   the supplied prompt.
+3. Translates each Anthropic streaming event to the session-record schema
+   (assistant text → `assistant` event, tool use → `tool_call`, tool
+   result → `tool_result`).
+4. Writes the resulting `session.jsonl` to `docs/demos/<slug>/`.
+
+The maintainer reviews the captured session and edits narrations to
+taste before committing. Once committed, the deterministic renderer
+produces a byte-identical `.cast` on every build.
 
 The maintainer reviews the captured session and the diff to `assertions.yml`
 before committing.
