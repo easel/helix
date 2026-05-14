@@ -107,6 +107,19 @@ def translate_event(raw: dict, out: list[dict]) -> None:
         pass
 
 
+def parse_stream(stdout: str) -> list[dict]:
+    events: list[dict] = []
+    for line in stdout.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            events.append(json.loads(line))
+        except json.JSONDecodeError as e:
+            print(f"warn: skipping unparseable event: {e.msg}", file=sys.stderr)
+    return events
+
+
 def capture(prompt: str, cwd: Path) -> list[dict]:
     cmd = [
         CLAUDE_BIN,
@@ -126,17 +139,7 @@ def capture(prompt: str, cwd: Path) -> list[dict]:
     if proc.returncode != 0:
         print(f"claude exited {proc.returncode}: {proc.stderr}", file=sys.stderr)
         raise SystemExit(proc.returncode)
-
-    events: list[dict] = []
-    for line in proc.stdout.splitlines():
-        line = line.strip()
-        if not line:
-            continue
-        try:
-            events.append(json.loads(line))
-        except json.JSONDecodeError as e:
-            print(f"warn: skipping unparseable event: {e.msg}", file=sys.stderr)
-    return events
+    return parse_stream(proc.stdout)
 
 
 def main(argv: list[str]) -> int:
@@ -158,6 +161,11 @@ def main(argv: list[str]) -> int:
         type=Path,
         help="output session.jsonl path (default: docs/demos/<slug>/session.jsonl)",
     )
+    parser.add_argument(
+        "--from-stream",
+        type=Path,
+        help="read a previously-captured stream-json file instead of spawning claude (smoke testing)",
+    )
     args = parser.parse_args(argv)
 
     if args.prompt and args.prompt_file:
@@ -175,17 +183,20 @@ def main(argv: list[str]) -> int:
     out_path: Path = args.output or repo_root / "docs" / "demos" / args.slug / "session.jsonl"
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    with tempfile.TemporaryDirectory(prefix="helix-demo-") as tmp:
-        workdir = Path(tmp)
-        if args.fixture:
-            for entry in args.fixture.iterdir():
-                dest = workdir / entry.name
-                if entry.is_dir():
-                    shutil.copytree(entry, dest)
-                else:
-                    shutil.copy2(entry, dest)
+    if args.from_stream:
+        raw_events = parse_stream(args.from_stream.read_text(encoding="utf-8"))
+    else:
+        with tempfile.TemporaryDirectory(prefix="helix-demo-") as tmp:
+            workdir = Path(tmp)
+            if args.fixture:
+                for entry in args.fixture.iterdir():
+                    dest = workdir / entry.name
+                    if entry.is_dir():
+                        shutil.copytree(entry, dest)
+                    else:
+                        shutil.copy2(entry, dest)
 
-        raw_events = capture(prompt, workdir)
+            raw_events = capture(prompt, workdir)
 
     translated: list[dict] = []
     open_session(args.slug, prompt, translated)

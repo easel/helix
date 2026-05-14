@@ -14,6 +14,8 @@ cast_root="$repo_root/website/static/demos"
 render="$repo_root/scripts/demos/render_session.py"
 validate="$repo_root/scripts/demos/validate_session.py"
 check_assertions="$repo_root/scripts/demos/check_assertions.py"
+capture="$repo_root/scripts/demos/capture_session.py"
+capture_fixture="$repo_root/tests/fixtures/demo-capture/sample.stream.jsonl"
 
 fail() {
   printf 'demo validation failed: %s\n' "$*" >&2
@@ -56,3 +58,38 @@ for session in "${sessions[@]}"; do
   fi
   rm -f "$rendered"
 done
+
+# Smoke-test capture_session.py: translate a committed stream-json fixture
+# through the script and assert the produced session.jsonl parses cleanly.
+smoke_session="$(mktemp)"
+python3 "$capture" helix-smoke \
+  --prompt "smoke" \
+  --from-stream "$capture_fixture" \
+  --output "$smoke_session" >/dev/null \
+  || fail "capture_session.py --from-stream failed"
+python3 "$validate" "$smoke_session" >/dev/null \
+  || fail "capture_session.py produced a session that fails schema validation"
+
+# Sanity-check the translation: the fixture has 1 user prompt + 2 tool_use +
+# 2 tool_result + 2 assistant-text events. After translation the
+# session.jsonl should contain matching counts.
+python3 - "$smoke_session" <<'PY' || fail "capture_session.py translation counts wrong"
+import json, sys
+path = sys.argv[1]
+counts = {"tool_call": 0, "tool_result": 0, "assistant": 0, "prompt": 0, "meta": 0}
+for line in open(path, encoding="utf-8"):
+    line = line.strip()
+    if not line: continue
+    obj = json.loads(line)
+    for k in counts:
+        if k in obj:
+            counts[k] += 1
+            break
+expected = {"meta": 1, "prompt": 1, "tool_call": 2, "tool_result": 2, "assistant": 2}
+for k, want in expected.items():
+    got = counts[k]
+    if got != want:
+        raise SystemExit(f"{path}: expected {want} {k} events, got {got}")
+PY
+rm -f "$smoke_session"
+printf 'capture smoke test: stream → session translation ok\n'
