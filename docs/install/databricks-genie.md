@@ -11,12 +11,11 @@ surface.
 
 > Status: Databricks Code Genie is a real product, but its public skill-bundle
 > conventions are still moving. Sections that depend on Genie-specific format
-> details are flagged with `<!-- TODO -->` rather than guessed. Validate
-> against the current Databricks documentation before relying on those
-> details.
+> details are based on documentation current as of 2026-05; validate against
+> the current Databricks documentation before relying on those details.
 
-<!-- TODO: cite current Databricks Code Genie skill API reference and link to the
-     canonical "skill bundle" docs page once it stabilizes. -->
+<!-- Skill format reference: https://docs.databricks.com/aws/en/genie-code/skills
+     and the open Agent Skills standard at https://agentskills.io/specification -->
 
 ## 1. Genie skill format overview
 
@@ -30,8 +29,8 @@ then guides Genie's responses against the user's existing markdown artifacts.
 HELIX itself does not require Genie to run arbitrary code; it requires Genie
 to read and write markdown files and search the workspace filesystem.
 
-See the Databricks Code Genie documentation for the authoritative skill
-format. <!-- TODO: link the Databricks Code Genie skill authoring reference. -->
+See the [Databricks Genie Code skill authoring documentation](https://docs.databricks.com/aws/en/genie-code/skills)
+and the [Agent Skills open standard](https://agentskills.io/specification) for the authoritative skill format.
 
 ## 2. Bundle layout
 
@@ -70,28 +69,29 @@ helix-genie-bundle/
 `manifest.yaml` declares the skill to Genie. The exact field names depend on
 the current Genie skill schema.
 
-<!-- TODO: replace the placeholder manifest below with the documented Genie
-     skill manifest schema (name, description, entrypoint, capability set,
-     workspace permissions). -->
+Genie Code skills use a `SKILL.md` file with YAML frontmatter rather than a
+separate manifest file. Per the [Genie Code skills documentation](https://docs.databricks.com/aws/en/genie-code/skills),
+the required frontmatter fields are `name` and `description`. Supporting files
+(scripts, catalogs) are referenced via relative paths from within `SKILL.md`.
 
-Placeholder manifest:
+Example `SKILL.md` frontmatter for the HELIX bundle:
 
 ```yaml
-# Placeholder — validate against current Genie skill schema.
+---
 name: helix
-display_name: HELIX Methodology Router
 description: >
   Route HELIX methodology work to the right planning, alignment, design,
   review, execution, or release workflow. Provides an artifact catalog
   and a single routing skill for AI-assisted artifact-driven development.
-entrypoint: skill/SKILL.md
-resources:
-  - catalog/phases
-capabilities:
-  - file.read
-  - file.write
-  - file.search
+---
 ```
+
+The body of `SKILL.md` (below the frontmatter) holds the routing instructions
+and references to catalog resources. Use the content of `skills/helix/SKILL.md`
+as the body, adjusting any resource paths to match the bundle layout above.
+Additional supporting files are referenced by relative path from within the
+`SKILL.md` body. Verify the current field set against the
+[Agent Skills specification](https://agentskills.io/specification) before deploying.
 
 The `description` should match the description in `skills/helix/SKILL.md`'s
 frontmatter so Genie's skill router has the same intent surface that Claude
@@ -105,16 +105,23 @@ permission to register workspace skills.
 1. **Assemble the bundle.** Copy `skills/helix/SKILL.md` into
    `helix-genie-bundle/skill/SKILL.md`. Copy the `workflows/phases/` tree
    into `helix-genie-bundle/catalog/phases/`. Author `manifest.yaml`.
-2. **Upload the bundle to the workspace filesystem.** Place the bundle
-   under a workspace-readable path. The recommended path is
-   `/Workspace/Shared/skills/helix/` so all workspace users with Genie
-   access can resolve the catalog.
-   <!-- TODO: confirm the canonical Genie skill install path; this may be a
-        managed location distinct from `/Workspace/Shared/`. -->
-3. **Register the skill with Genie.** Use the Databricks workspace UI or the
-   Databricks CLI / REST API to register the skill bundle with Code Genie.
-   <!-- TODO: name the specific Databricks CLI command or REST endpoint used
-        to register a Genie skill bundle. -->
+2. **Upload the bundle to the workspace filesystem.** Per the
+   [Genie Code skills documentation](https://docs.databricks.com/aws/en/genie-code/skills),
+   workspace-scoped skills are installed under
+   `/Workspace/.assistant/skills/{skill-name}/`. Place the HELIX bundle
+   at `/Workspace/.assistant/skills/helix/` so all workspace users with
+   Genie access can resolve the catalog. User-scoped skills live under
+   `/Users/{username}/.assistant/skills/{skill-name}/` instead.
+3. **Register the skill with Genie.** Registration is automatic: placing a
+   valid `SKILL.md` (with required frontmatter) into the `.assistant/skills/`
+   directory is sufficient — Genie Code discovers skills by directory scan
+   with no explicit CLI command or REST call required. Alternatively, the
+   open-source [Skills CLI](https://docs.databricks.com/aws/en/agent-skills/)
+   (`npx skills add`) can install skills from a GitHub repository directly.
+   The [Databricks CLI `genie` command group](https://docs.databricks.com/aws/en/dev-tools/cli/reference/genie-commands)
+   covers the conversational Genie API surface but is not used for skill
+   registration. Verify this against the current
+   [Genie Code skills documentation](https://docs.databricks.com/aws/en/genie-code/skills).
 4. **Grant permissions.** Genie needs read access to the entire catalog
    (`catalog/phases/**`) and to whatever project artifact root the user
    wants HELIX to operate over (typically `docs/helix/` inside the user's
@@ -206,7 +213,7 @@ in the runtime surface around it.
 - **Skill format maturity.** The Claude Code skill format is documented and
   stable enough that the Claude Code install can be precise about manifest
   fields. The Genie skill-bundle format is less public at time of writing.
-  Sections in this document marked `<!-- TODO -->` are the places to
+  Sections in this document that carry caveats are the places to
   reconcile when the Genie spec is final.
 - **File-write surface.** Claude Code and Codex run with the user's local
   filesystem permissions and can edit any file the user can edit. Genie
@@ -215,15 +222,19 @@ in the runtime surface around it.
   Databricks Repos integration rather than direct filesystem writes. HELIX
   alignment and evolve passes that propose artifact edits may need to be
   applied via Repos commit flow rather than direct file write.
-  <!-- TODO: verify the Repos write path Genie uses for artifact edits and
-       whether commit attribution flows back to the human operator. -->
+  The exact write path and commit-attribution behavior depend on your
+  workspace's Repos configuration and have not been independently verified
+  against public Databricks documentation at time of writing. Confirm with
+  your workspace administrator before relying on attribution in audit trails.
 - **Execution surface.** Claude Code and Codex can run shell commands as
   part of build/run modes if the user permits. Genie's shell-execution
   surface inside the workspace is more constrained. HELIX build and run
   modes that depend on running a project gate may need to be paired with a
   Databricks job, notebook, or CI pipeline rather than executed inline.
-  <!-- TODO: document the Genie path for invoking a workspace job or
-       notebook from a skill, if supported. -->
+  Whether a Genie Code skill can directly invoke a workspace job or notebook
+  is not documented in the current public skill authoring reference. Until
+  confirmed, treat build and run modes as requiring a separately configured
+  Databricks job or CI pipeline triggered outside the HELIX skill.
 - **Multi-user state.** Claude Code and Codex are typically single-user.
   Genie is a shared workspace agent: multiple users may invoke HELIX
   against the same artifact tree. HELIX itself is stateless between
@@ -245,6 +256,5 @@ in the runtime surface around it.
 - `workflows/phases/` — the artifact catalog
 - `docs/helix/01-frame/prd.md` — PRD, including R-7 (per-runtime packages)
   and the minimal runtime contract (read file, write file, search files)
-- Install README index <!-- TODO: link once docs/install/README.md exists -->
-- Companion install guides: `docs/install/claude-code.md` and
-  `docs/install/codex.md` <!-- TODO: link when those exist -->
+- [Install README index](README.md)
+- Companion install guides: [Claude Code](claude-code.md) and [Codex](codex.md)
