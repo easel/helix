@@ -8,7 +8,7 @@ expect:
   - kind: shell
     contains: "tree docs/helix"
   - kind: prompt
-    contains: "/helix-align"
+    contains: "HELIX align"
   - kind: tool_call
     name: Read
     args_contain:
@@ -18,8 +18,6 @@ expect:
     args_contain:
       file_path: "ADR-002-oauth-pivot.md"
   - kind: assistant
-    contains: "Found 3 alignment findings"
-  - kind: output
-    contains: "step 2"
+    contains: "DIVERGENT"
   - kind: narration
     contains: "authority"

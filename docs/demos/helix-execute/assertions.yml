@@ -4,26 +4,28 @@ min_assistant_chars: 150
 
 expect:
   - kind: narration
-    contains: "runtime takes over"
-  - kind: shell
-    contains: "ddx bead next --execute"
-  - kind: output
-    contains: "bead-001"
-  - kind: assistant
-    contains: "FZO routes"
-  - kind: output
+    contains: "bounded implementation pass"
+  - kind: prompt
     contains_all:
-      - "[fzo]"
-      - "git worktree"
-  - kind: assistant
-    contains: "acceptance gate"
-  - kind: output
+      - "HELIX build mode"
+      - "bead-001"
+  - kind: tool_call
+    contains: "helix"
+  - kind: tool_call
     contains_all:
-      - "schema-mapping.yaml exists"
-      - "OWASP"
+      - "Read"
+      - "beads.jsonl"
+  - kind: tool_call
+    contains: "FEAT-001-csv-ingest.md"
+  - kind: tool_call
+    contains: "schema-mapping.yaml"
+  - kind: tool_call
+    contains: "header_sniffer_test.go"
+  - kind: tool_call
+    contains: "go test"
   - kind: assistant
-    contains: "Cross-model"
-  - kind: output
-    contains: "evidence appended"
-  - kind: output
-    contains: "bead-001 closed"
+    contains_all:
+      - "Acceptance"
+      - "OWASP A03"
+      - "3 fixtures"
+      - "Scope held to bead-001"

@@ -5,8 +5,10 @@ min_assistant_chars: 150
 expect:
   - kind: narration
     contains: "fresh-eyes"
-  - kind: prompt
-    contains: "helix-review"
+  - kind: tool_call
+    name: Skill
+    args_contain:
+      skill: "helix"
   - kind: tool_call
     name: Read
     args_contain:
@@ -26,6 +28,6 @@ expect:
   - kind: assistant
     contains: "Review findings"
   - kind: output
-    contains: "revocation"
-  - kind: output
-    contains: "bead-OAUTH-03a"
+    contains_all:
+      - "revocation"
+      - "CRITICAL"

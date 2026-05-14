@@ -4,24 +4,28 @@ min_assistant_chars: 200
 
 expect:
   - kind: prompt
-    contains: "helix-frame"
+    contains_all:
+      - "HELIX to frame"
+      - "healthcare claims"
+  - kind: tool_call
+    name: Skill
+    args_contain:
+      skill: "helix"
+  - kind: tool_call
+    name: Write
+    args_contain:
+      file_path: "docs/helix/01-frame/vision/VISION.md"
+  - kind: tool_call
+    name: Write
+    args_contain:
+      file_path: "docs/helix/01-frame/prd/PRD-001"
+  - kind: tool_call
+    name: Write
+    args_contain:
+      file_path: "docs/helix/01-frame/features/FEAT-001"
+  - kind: tool_call
+    name: Write
+    args_contain:
+      file_path: "US-001"
   - kind: assistant
     contains: "authority order"
-  - kind: tool_call
-    name: Write
-    args_contain:
-      file_path: "docs/helix/00-discover/product-vision.md"
-  - kind: tool_call
-    name: Write
-    args_contain:
-      file_path: "docs/helix/01-frame/prd.md"
-  - kind: tool_call
-    name: Write
-    args_contain:
-      file_path: "docs/helix/01-frame/concerns.md"
-  - kind: tool_call
-    name: Write
-    args_contain:
-      file_path: "FEAT-001"
-  - kind: output
-    contains: "Authority order is now established"

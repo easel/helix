@@ -6,11 +6,13 @@ expect:
   - kind: narration
     contains: "OAuth"
   - kind: prompt
-    contains: "helix-evolve"
+    contains_all:
+      - "helix-evolve"
+      - "depends_on"
   - kind: tool_call
-    name: Glob
+    name: Skill
     args_contain:
-      pattern: "docs/helix"
+      skill: "helix"
   - kind: tool_call
     name: Read
     args_contain:
@@ -20,11 +22,14 @@ expect:
     args_contain:
       file_path: "security-architecture"
   - kind: assistant
-    contains: "Impact analysis"
-  - kind: output
+    contains: "Dependency graph"
+  - kind: tool_call
+    name: Write
+    args_contain:
+      file_path: "FEAT-OAUTH"
+  - kind: assistant
     contains_all:
-      - "step 1"
-      - "step 6"
-      - "bead-OAUTH"
+      - "depends_on"
+      - "authority"
   - kind: narration
-    contains: "authority hierarchy"
+    contains: "authority"

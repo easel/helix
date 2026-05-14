@@ -8,9 +8,11 @@ expect:
   - kind: output
     contains: "typescript-bun"
   - kind: prompt
-    contains: "helix-align --scope concerns"
-  - kind: assistant
-    contains: "drift signals"
+    contains: "scoped to the concerns artifact"
+  - kind: tool_call
+    name: Skill
+    args_contain:
+      skill: "helix"
   - kind: tool_call
     name: Read
     args_contain:
@@ -24,9 +26,4 @@ expect:
     args_contain:
       file_path: "package.json"
   - kind: assistant
-    contains: "Three drift findings"
-  - kind: output
-    contains_all:
-      - "node http"
-      - "vitest"
-      - "bun:test"
+    contains: "DIVERGENT"

@@ -1,21 +1,25 @@
 {"meta": {"title": "HELIX brief: author the governing artifacts", "width": 100, "height": 30, "scenario": "brief", "timestamp": 1764950600}}
-{"narration": "You have a fresh repo. You know what you want to build. Step one: write the brief — the artifacts that govern the work."}
-{"prompt": "/helix-frame Build a CSV-to-Parquet ingest pipeline for a healthcare claims processor"}
-{"assistant": "I'll author the four governing artifacts in authority order. Starting with the product vision.", "pace_ms": 18}
-{"tool_call": {"name": "Read", "args": {"file_path": "workflows/phases/00-discover/artifacts/product-vision/template.md"}}}
-{"tool_result": "template loaded"}
-{"tool_call": {"name": "Write", "args": {"file_path": "docs/helix/00-discover/product-vision.md"}}}
-{"tool_result": "wrote 42 lines"}
-{"assistant": "Now the PRD with measurable success criteria.", "pace_ms": 18}
-{"tool_call": {"name": "Read", "args": {"file_path": "workflows/phases/01-frame/artifacts/prd/template.md"}}}
-{"tool_result": "template loaded"}
-{"tool_call": {"name": "Write", "args": {"file_path": "docs/helix/01-frame/prd.md"}}}
-{"tool_result": "wrote 88 lines (R-1..R-6 with acceptance sketches)"}
-{"assistant": "Concerns: stack and quality choices the agent should respect.", "pace_ms": 18}
-{"tool_call": {"name": "Write", "args": {"file_path": "docs/helix/01-frame/concerns.md"}}}
-{"tool_result": "wrote 18 lines"}
-{"assistant": "First feature spec: CSV ingest with schema mapping.", "pace_ms": 18}
-{"tool_call": {"name": "Write", "args": {"file_path": "docs/helix/01-frame/features/FEAT-001-csv-ingest.md"}}}
-{"tool_result": "wrote 56 lines"}
-{"output": "\n  ✓ vision · PRD · concerns · FEAT-001 — all authored from HELIX templates\n  Authority order is now established. Any change downstream traces back here.\n"}
-{"narration": "Four documents, ordered by authority. The agent has a brief it can defend any code against.", "pause_s": 2.0}
+{"narration": "You have a fresh repo and one sentence of intent. Step one: author the brief — the artifacts that govern every downstream decision."}
+{"shell": "$ tree -a -L 2"}
+{"output": ".\n├── .claude\n│   └── skills\n└── README.md\n"}
+{"prompt": "Use HELIX to frame this intent: Build a CSV-to-Parquet ingest pipeline for a healthcare claims processor."}
+{"tool_call": {"name": "Skill", "args": {"skill": "helix", "args": "Frame intent: Build a CSV-to-Parquet ingest pipeline for a healthcare claims processor"}}}
+{"tool_result": "Launching skill: helix"}
+{"assistant": "Healthcare claims = PHI, so compliance and scale answers ripple through every downstream artifact. Four high-leverage unknowns up front before I draft the framing pass.", "pace_ms": 18}
+{"tool_call": {"name": "AskUserQuestion", "args": {"questions": "[{'question': 'What is the claims data format on the input side?', ...}]"}}}
+{"tool_result": "Answer questions?"}
+{"assistant": "Clarifier dismissed. I'll proceed by framing with explicit assumptions called out as open questions — actionable without inventing facts. Four Frame-layer artifacts plus the top user stories.", "pace_ms": 18}
+{"tool_call": {"name": "Write", "args": {"file_path": "docs/helix/01-frame/vision/VISION.md"}}}
+{"tool_result": "wrote VIS-001 (vision, north-star, out-of-scope, deferred questions)"}
+{"tool_call": {"name": "Write", "args": {"file_path": "docs/helix/01-frame/prd/PRD-001-claims-ingest.md"}}}
+{"tool_result": "wrote PRD-001 (scope, NFRs, compliance block, four open questions)"}
+{"tool_call": {"name": "Write", "args": {"file_path": "docs/helix/01-frame/features/FEAT-001-ingest-batch.md"}}}
+{"tool_result": "wrote FEAT-001 (daily batch ingest, acceptance criteria)"}
+{"tool_call": {"name": "Write", "args": {"file_path": "docs/helix/01-frame/stories/US-001-operator-runs-daily-batch.md"}}}
+{"tool_result": "wrote US-001 (operator runs daily batch)"}
+{"tool_call": {"name": "Write", "args": {"file_path": "docs/helix/01-frame/stories/US-002-consumer-queries-stable-schema.md"}}}
+{"tool_result": "wrote US-002 (consumer queries stable schema)"}
+{"tool_call": {"name": "Write", "args": {"file_path": "docs/helix/01-frame/stories/US-003-compliance-row-lineage.md"}}}
+{"tool_result": "wrote US-003 (compliance row lineage)"}
+{"assistant": "Framing pass complete. Six artifacts under docs/helix/01-frame/ — VIS-001, PRD-001, FEAT-001, US-001..003 — wired by depends_on in authority order. Four open questions flagged in PRD-001 (compliance posture, cloud target, volume tier, input format) govern the next step rather than getting silently defaulted. Suggested next HELIX action: resolve OQ-1 (compliance) then route to design for FEAT-001.", "pace_ms": 18}
+{"narration": "Six artifacts, ordered by authority. The agent has a brief it can defend any code against — and the unknowns are surfaced, not invented.", "pause_s": 2.0}
