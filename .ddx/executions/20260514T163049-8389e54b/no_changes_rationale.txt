@@ -1,0 +1,55 @@
+verification_command: bash .ddx/executions/20260514T163049-8389e54b/verify_ac.sh
+
+Summary
+=======
+
+All four acceptance criteria for helix-ada6e67e are already satisfied at
+base-rev b561d59. The bead description's preface ("Today the metadata is
+incomplete and inconsistent: five dirs have no meta.yml, fourteen
+dependencies.yaml files, dependencies: blocks in meta.yml") describes a
+prior state that has since been resolved by upstream commits. The bead's
+three scope actions (create missing meta.yml, delete dependencies.yaml,
+strip dependencies: blocks) are therefore no-ops at HEAD.
+
+Evidence per acceptance criterion
+=================================
+
+AC1 — Every workflows/phases/*/artifacts/*/ directory contains meta.yml,
+template.md, and prompt.md.
+    Verified: 0 missing files across all 44 artifact directories.
+    Cited dirs (product-vision, business-case, competitive-analysis,
+    opportunity-canvas, implementation-plan) each carry meta.yml,
+    template.md, prompt.md, and example.md as of b561d59.
+
+AC2 — `rg dependencies.yaml workflows/` returns no matches.
+    Verified: find workflows -name dependencies.yaml ⇒ 0 files.
+
+AC3 — No existing meta.yml carries a top-level `dependencies:` block.
+    Verified: parsed all 44 meta.yml with PyYAML; no top-level
+    `dependencies` key in any.
+
+AC4 — The DDx artifact-types loader (one consumer) sees every HELIX
+artifact type; a substrate-neutral walk of the meta.yml inventory
+enumerates the same set.
+    Verified: substrate-neutral walk of workflows/phases/*/artifacts/*/meta.yml
+    yields 44 unique artifact.id values, one per artifact directory. No
+    duplicate or missing artifact.id. The set is therefore equivalent
+    regardless of consumer.
+
+Notes
+=====
+
+The bead description text references a richer field superset
+(artifact.{id, prefix, phase}, output.{location, naming},
+id_format.{prefix, pattern, example}, prompts.{generation, review},
+template.file, examples[]). This superset is not exercised by the AC.
+Per-file coverage of those fields varies; if completing that schema
+across all 44 artifacts is the intent, that should be tracked as a
+follow-up bead since it requires per-artifact prefix and id_format
+decisions (judgment calls) for ~40 files, and the formal AC for this
+bead can already be closed by automated verification.
+
+Consumer audit: scripts/generate-reference.py is the in-repo consumer
+of meta.yml. It reads artifact.name, description, output.location, and
+relationships. It does not require the richer superset fields. The
+external DDx artifact-types loader lives outside this repo.

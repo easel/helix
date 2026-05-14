@@ -1,0 +1,65 @@
+{
+  "attempt_id": "20260514T163049-8389e54b",
+  "bead_id": "helix-ada6e67e",
+  "base_rev": "b561d59bae972db21d93492f54466b10a17635f0",
+  "created_at": "2026-05-14T16:30:50.030787567Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-ada6e67e",
+    "title": "Complete HELIX's artifact-type metadata across all artifact directories",
+    "description": "HELIX's methodology defines a catalog of artifact types (Vision, PRD, FEAT, US, ADR, SD, TD, TP, etc.). Each artifact type ships type-level metadata (id, prefix, phase, output location and naming, prompt and template pointers, examples, id_format) that lets any substrate (the DDx tracker today, potentially others) register and reason about that artifact type.\n\nToday the metadata is incomplete and inconsistent:\n- Five artifact directories under workflows/phases/ have no meta.yml at all (product-vision, business-case, competitive-analysis, opportunity-canvas, implementation-plan) — they are invisible to any registry that walks meta.yml files.\n- Fourteen dependencies.yaml files across artifact directories are home-rolled and parallel to meta.yml — pure cruft. The instance graph lives in instance-doc depends_on lists; type-level dependency declarations are not consumed by any substrate today.\n- Existing meta.yml files carry a dependencies: block that no consumer reads.\n\nScope:\n1. Create meta.yml for every artifact missing one. Fields: artifact.{id, prefix, phase}, output.{location, naming}, id_format.{prefix, pattern, example}, prompts.{generation, review}, template.file, examples[].\n2. Delete all dependencies.yaml files under workflows/phases/.\n3. Strip the dependencies: block from every existing meta.yml.\n\nHELIX defines this metadata as an open schema. DDx happens to consume a subset of it (see DDx's cli/internal/artifacttypes/loader.go), and the field set chosen here should be a strict superset of what any single substrate parses — so any compliant consumer works out of the box. No graph data is lost — the instance graph lives in instance-doc depends_on lists.",
+    "acceptance": "Every workflows/phases/*/artifacts/*/ directory contains meta.yml, template.md, and prompt.md. rg dependencies.yaml workflows/ returns no matches. No existing meta.yml carries a dependencies: block. The DDx artifact-types loader (one consumer) sees every HELIX artifact type; a substrate-neutral walk of the meta.yml inventory enumerates the same set.",
+    "parent": "helix-f9207605",
+    "labels": [
+      "helix",
+      "phase:build",
+      "kind:implementation",
+      "area:artifacts",
+      "area:workflow"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-14T16:29:55Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "199820",
+      "events": [
+        {
+          "actor": "ddx",
+          "body": "{\"actual_harness\":\"\",\"actual_model\":\"\",\"actual_power\":0,\"actual_provider\":\"\",\"attempt_id\":\"\",\"bead_id\":\"helix-ada6e67e\",\"inferred_power_class\":\"standard\",\"rejected_route_pins\":null,\"requested_profile\":\"\",\"routing_intent_degraded\":true,\"routing_intent_note\":\"actual route facts unavailable\",\"routing_intent_source\":\"heuristic\",\"smart_justification\":\"\"}",
+          "created_at": "2026-05-14T16:20:30.97995586Z",
+          "kind": "execution-routing-intent",
+          "source": "ddx work",
+          "summary": "source=heuristic powerClass=standard note=actual route facts unavailable"
+        },
+        {
+          "actor": "erik",
+          "body": "pre-execute-bead checkpoint: checkpoint refused to absorb implementation changes outside DDx bookkeeping: .agents/skills/ddx/SKILL.md, .agents/skills/ddx/adversarial-review/SKILL.md, .agents/skills/ddx/bead-breakdown/SKILL.md, .agents/skills/ddx/bead-lifecycle/SKILL.md, .agents/skills/ddx/bead-lifecycle/examples/code-bug-lint.json, .agents/skills/ddx/bead-lifecycle/examples/deletion-rename-waiver.json, .agents/skills/ddx/bead-lifecycle/examples/doc-only-waiver.json, .agents/skills/ddx/bead-lifecycle/examples/epic-waiver.json, .agents/skills/ddx/bead-lifecycle/examples/feature-lint.json, .agents/skills/ddx/bead-lifecycle/examples/no-op-investigation-triage.json, .agents/skills/ddx/bead-lifecycle/examples/upstream-external-triage.json, .agents/skills/ddx/benchmark-suite/SKILL.md, .agents/skills/ddx/compare-prompts/SKILL.md, .agents/skills/ddx/effort-estimate/SKILL.md, .agents/skills/ddx/evals/routing.jsonl, .agents/skills/ddx/reference/agents.md, .agents/skills/ddx/reference/beads.md, .agents/skills/ddx/reference/interactive.md, .agents/skills/ddx/reference/review.md, .agents/skills/ddx/reference/status.md, .agents/skills/ddx/reference/work.md, .agents/skills/ddx/replay-bead/SKILL.md, .claude/skills/ddx/SKILL.md, .claude/skills/ddx/adversarial-review/SKILL.md, .claude/skills/ddx/bead-breakdown/SKILL.md, .claude/skills/ddx/bead-lifecycle/SKILL.md, .claude/skills/ddx/bead-lifecycle/examples/code-bug-lint.json, .claude/skills/ddx/bead-lifecycle/examples/deletion-rename-waiver.json, .claude/skills/ddx/bead-lifecycle/examples/doc-only-waiver.json, .claude/skills/ddx/bead-lifecycle/examples/epic-waiver.json, .claude/skills/ddx/bead-lifecycle/examples/feature-lint.json, .claude/skills/ddx/bead-lifecycle/examples/no-op-investigation-triage.json, .claude/skills/ddx/bead-lifecycle/examples/upstream-external-triage.json, .claude/skills/ddx/benchmark-suite/SKILL.md, .claude/skills/ddx/compare-prompts/SKILL.md, .claude/skills/ddx/effort-estimate/SKILL.md, .claude/skills/ddx/evals/routing.jsonl, .claude/skills/ddx/reference/agents.md, .claude/skills/ddx/reference/beads.md, .claude/skills/ddx/reference/interactive.md, .claude/skills/ddx/reference/review.md, .claude/skills/ddx/reference/status.md, .claude/skills/ddx/reference/work.md, .claude/skills/ddx/replay-bead/SKILL.md; commit those files in the bead's [ddx-\u003cid\u003e] substantive commit before rerunning",
+          "created_at": "2026-05-14T16:23:35.165985628Z",
+          "kind": "execute-bead",
+          "source": "ddx work",
+          "summary": "execution_failed"
+        }
+      ],
+      "execute-loop-heartbeat-at": "2026-05-14T16:29:55.089781886Z",
+      "spec-id": "FEAT-008"
+    }
+  },
+  "governing": [
+    {
+      "id": "FEAT-008",
+      "path": "docs/helix/01-frame/features/FEAT-008-artifact-template-quality.md",
+      "title": "Feature Specification: FEAT-008 — Artifact Template Quality and Completeness"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260514T163049-8389e54b",
+    "prompt": ".ddx/executions/20260514T163049-8389e54b/prompt.md",
+    "manifest": ".ddx/executions/20260514T163049-8389e54b/manifest.json",
+    "result": ".ddx/executions/20260514T163049-8389e54b/result.json",
+    "checks": ".ddx/executions/20260514T163049-8389e54b/checks.json",
+    "usage": ".ddx/executions/20260514T163049-8389e54b/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-ada6e67e-20260514T163049-8389e54b"
+  },
+  "prompt_sha": "d0fcc17486fc3d9aad9234b481c34a3a111f2a9227ff520ce78ff46e3a5443c7"
+}
