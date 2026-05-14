@@ -255,7 +255,7 @@ avoid collisions within a project.
 | Pattern | Use |
 | --- | --- |
 | `helix.<slug>` | Project-level singleton artifacts where a namespace avoids collisions, such as `helix.prd` or `helix.architecture`. |
-| `<TYPE>-XXX` | Numbered artifacts with many instances, such as `FEAT-001`, `US-014`, `ADR-003`, `SD-002`, `TD-009`, `TP-004`, or `RISK-001`. |
+| `<TYPE>-XXX` | Numbered artifacts with many instances, such as `FEAT-001`, `US-014`, `ADR-003`, `SD-002`, `TD-009`, `STP-004`, or `RISK-001`. |
 | `<slug>` | Generic singleton artifacts where the project context is clear, such as `contract` or `metrics-dashboard`. |
 | `<TYPE>-<slug>` | Named instances where numbers are not useful, such as `SPIKE-cache-policy` or `METRIC-build-time`. |
 
@@ -273,13 +273,15 @@ Rules:
 
 ## Directory layout conventions
 
-The installed catalog lives under `.ddx/plugins/helix/workflows/`, and project
-instances conventionally live under `docs/helix/`.
+The installed catalog path varies by runtime; see `docs/install/` for
+runtime-specific paths. For DDx-managed runtimes the catalog lives under
+`.ddx/plugins/helix/workflows/`; other runtimes use their own conventions.
+Project instances conventionally live under `docs/helix/`.
 
-Catalog layout:
+Catalog layout (example — DDx runtime):
 
 ```text
-.ddx/plugins/helix/workflows/phases/
+<runtime-catalog-root>/phases/
   00-discover/artifacts/<artifact-type>/
     meta.yml
     prompt.md
