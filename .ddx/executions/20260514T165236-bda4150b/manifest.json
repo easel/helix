@@ -1,0 +1,48 @@
+{
+  "attempt_id": "20260514T165236-bda4150b",
+  "bead_id": "helix-7ccd819f",
+  "base_rev": "7d9eff175a15591e77ca57f9edec42fc5f1a7da2",
+  "created_at": "2026-05-14T16:52:38.168240102Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-7ccd819f",
+    "title": "Classify and supersede legacy CLI/autopilot governing artifacts",
+    "description": "Review legacy self-governing artifacts that still define HELIX as a CLI/autopilot/DDx control system: FEAT-001, FEAT-002, FEAT-011, ADR-001, SD-001, TD-002, TD-011, TP-002, architecture, implementation-plan. For each artifact, record one classification: survives in runtime-neutral core, moves to DDx integration, historical/superseded, or retired. Update or create follow-on beads for the chosen disposition.",
+    "acceptance": "A classification table exists in docs/helix or an alignment report; every legacy CLI/autopilot artifact has a disposition; artifacts that remain normative no longer contradict helix.prd; DDx-only artifacts are clearly scoped as integration docs.",
+    "parent": "helix-f9207605",
+    "labels": [
+      "helix",
+      "phase:design",
+      "kind:planning",
+      "area:docs",
+      "area:workflow",
+      "area:cli"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-14T16:51:44Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "227954",
+      "execute-loop-heartbeat-at": "2026-05-14T16:51:44.625990328Z",
+      "spec-id": "helix.prd"
+    }
+  },
+  "governing": [
+    {
+      "id": "helix.prd",
+      "path": "docs/helix/01-frame/prd.md",
+      "title": "Product Requirements Document"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260514T165236-bda4150b",
+    "prompt": ".ddx/executions/20260514T165236-bda4150b/prompt.md",
+    "manifest": ".ddx/executions/20260514T165236-bda4150b/manifest.json",
+    "result": ".ddx/executions/20260514T165236-bda4150b/result.json",
+    "checks": ".ddx/executions/20260514T165236-bda4150b/checks.json",
+    "usage": ".ddx/executions/20260514T165236-bda4150b/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-7ccd819f-20260514T165236-bda4150b"
+  },
+  "prompt_sha": "024637c55858509f821fae4a3f5541c792ad24b3c75b72e82548d7581f1a8344"
+}
