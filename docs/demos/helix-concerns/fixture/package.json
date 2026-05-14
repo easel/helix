@@ -1,0 +1,14 @@
+{
+  "name": "hello-bun",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "start": "bun run src/server.ts",
+    "test": "vitest",
+    "lint": "biome check src tests"
+  },
+  "devDependencies": {
+    "biome": "latest",
+    "vitest": "latest"
+  }
+}

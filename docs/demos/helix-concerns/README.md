@@ -1,41 +1,30 @@
-# HELIX Concerns Demo
+# helix-concerns demo
 
-Demonstrates how HELIX concerns prevent technology drift.
+The fixture declares `typescript-bun` as the project's tech-stack
+concern (Bun runtime, `bun:test`, Biome, `bun` script runner). The
+code drifts from that contract in three places. The alignment skill
+should report all three.
 
-A Bun/TypeScript project declares `typescript-bun` as its active concern. The agent reads the concern, builds with Bun-native tools (Bun.serve, bun:test, Biome), then a deliberate drift is introduced (vitest import) and the review catches it.
+## Files
 
-## Prerequisites
+- `session.jsonl` — committed session record. Source of truth.
+- `fixture/` — minimal Bun project with planted drift:
+  - `docs/helix/01-frame/concerns.md` — declares typescript-bun
+  - `src/server.ts` — drifts: `import http from "http"` (concern requires `Bun.serve()`)
+  - `tests/health.test.ts` — drifts: `import { describe, it } from "vitest"` (concern requires `bun:test`)
+  - `package.json` — drifts: `"scripts": { "test": "vitest" }`
 
-- Docker
-- Claude Code credentials (`~/.claude/`, `~/.claude.json`)
-- DDx binary (mounted or in PATH)
+## Rebuild the cast
 
-## Run
-
-```bash
-# From the helix repo root:
-docker build -t helix-concerns-demo docs/demos/helix-concerns/
-docker run --rm \
-  -v ~/.claude.json:/root/.claude.json:ro \
-  -v ~/.claude:/root/.claude \
-  -v $(pwd):/helix:ro \
-  -v $(pwd)/../ddx/ddx:/usr/local/bin/ddx:ro \
-  -v $(pwd)/docs/demos/helix-concerns/recordings:/recordings \
-  helix-concerns-demo
+```
+python3 scripts/demos/render_session.py docs/demos/helix-concerns/session.jsonl
+bash tests/validate-demos.sh
 ```
 
-## What It Does
+## Re-capture from a live agent
 
-| Act | Phase | What Happens |
-|-----|-------|-------------|
-| 1 | Setup | Create a Bun project with `typescript-bun` concern declared |
-| 2 | Frame | Agent reads concerns, creates PRD with Bun-native requirements |
-| 3 | Build | Agent implements with Bun.serve(), bun:test, Biome |
-| 4 | Drift | Deliberate Node.js drift introduced (vitest import) |
-| 5 | Review | Agent detects concern drift and files a tracker issue |
-
-## Recordings
-
-```bash
-asciinema play recordings/helix-concerns-*.cast
+```
+python3 scripts/demos/capture_session.py helix-concerns \
+    --prompt "Run alignment against the typescript-bun concern. Report every drift signal you find and propose a remediation plan." \
+    --fixture docs/demos/helix-concerns/fixture/
 ```
