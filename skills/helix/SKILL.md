@@ -22,6 +22,7 @@ Prefer the first matching route:
 | Convert rough intent into governed HELIX work | input |
 | Create or refine product vision, PRD, feature specs, or user stories | frame |
 | Reconcile artifacts, check traceability, find drift, align documents, or move content between artifact layers | align |
+| Check an artifact instance against its template and prompt; improve in place | validate |
 | Thread a new, changed, removed, or incident-driven requirement through existing artifacts | evolve |
 | Create a technical design before implementation | design |
 | Reconstruct missing or incomplete docs from evidence | backfill |
@@ -78,20 +79,65 @@ placement reviews.
 3. Classify each gap as `ALIGNED`, `INCOMPLETE`, `DIVERGENT`,
    `UNDERSPECIFIED`, `STALE_PLAN`, or `BLOCKED`.
 4. Produce one durable alignment report when the action is more than a
-   conversational review.
-5. Create or identify follow-up work for every non-aligned gap.
+   conversational review. The report must remain reviewable by a human in
+   under ten minutes.
+5. For every non-aligned gap (`INCOMPLETE`, `UNDERSPECIFIED`, `DIVERGENT`,
+   `STALE_PLAN`), the handoff to implementation must name all four of:
+   - **Destination artifact type** (e.g. PRD, FEAT, US, ADR, TD, TP) where
+     the gap is resolved.
+   - **Deliverable shape**: the concrete content to add (e.g. "a TD section
+     answering X", "a US covering Y", "an ADR recording the Z choice").
+   - **Suggested next workflow mode** (`frame`, `design`, `polish`, `build`,
+     `validate`, `evolve`, `backfill`) — never a CLI command.
+   - **Evidence references**: artifact paths plus line numbers (or section
+     anchors) supporting the finding.
+6. Create or identify follow-up work for every non-aligned gap using the
+   handoff fields above.
+
+### Validate
+
+Use to check a single artifact instance against its governing template and
+prompt and improve it in place.
+
+1. Load the artifact instance and resolve its artifact type: read `ddx:`
+   frontmatter when present (`ddx.type`, else inferred from `ddx.id`
+   prefix); otherwise resolve by path or filename pattern against the
+   artifact-type catalog the runtime exposes.
+2. Load the artifact-type's `template.md`, `prompt.md`, and `meta.yml`.
+3. Run structural conformance: required section headings from `template.md`
+   are present, and required frontmatter fields from `meta.yml` are
+   populated.
+4. Run prompt-section conformance: every section the `prompt.md` asks for is
+   answered in the instance or explicitly marked N/A with a reason.
+5. Classify each finding keyed to the relevant template or prompt section
+   using the Align taxonomy: `ALIGNED`, `INCOMPLETE`, `UNDERSPECIFIED`, or
+   `STALE`.
+6. Produce updates: when the user invoked validate to fix, apply the edits
+   in place; when they invoked it to audit, surface a plan using the
+   §Align gap-to-implementation handoff fields.
 
 ### Evolve
 
 Use when the user wants to add, remove, amend, or thread a requirement through
 the HELIX artifact stack.
 
-1. Analyze the requested change and affected product areas.
-2. Discover governing artifacts that need updates.
-3. Detect conflicts with existing artifacts and open work.
-4. Apply updates in authority order: vision, PRD, feature specs/stories,
-   designs, decisions, test plans, implementation plans.
-5. Create follow-up work with dependencies where ordering matters.
+1. Read the entry artifact's frontmatter; collect its `ddx.id` and
+   `ddx.depends_on` list.
+2. Walk the dependency graph in both directions: forward along
+   `ddx.depends_on` (artifacts this one relies on — authority above) and
+   reverse by scanning all governing artifacts for `ddx.depends_on` entries
+   pointing back at this `ddx.id` (downstream impact).
+3. When `ddx:` frontmatter is absent, fall back to filesystem traversal:
+   phase-numbered directories in the project's HELIX layout supply authority
+   order; artifact-type directories supply the type relationships.
+4. Detect conflicts with existing artifacts and open work.
+5. Apply updates in authority order: vision, PRD, feature specs/stories,
+   architecture/ADRs, solution and technical designs, test plans,
+   implementation plans, then code.
+6. Surface conflicts explicitly when a downstream artifact contradicts an
+   updated upstream — do not silently overwrite the downstream; route it
+   through the §Align gap-to-implementation handoff instead.
+7. Create follow-up work with dependencies where ordering matters.
 
 ### Design
 
@@ -147,7 +193,11 @@ Use when the safe next action is ambiguous.
 2. Decide conservatively among build, design, alignment, backfill, polish, wait,
    guidance, or stop.
 3. Do not dispatch another workflow silently.
-4. If missing tracked work is discovered, create or recommend explicit work
+4. When recommending the next action against a specific gap, name it using
+   the §Align gap-to-implementation handoff shape: destination artifact
+   type, deliverable shape, suggested next workflow mode, and evidence
+   references (paths plus line numbers). Never prescribe a CLI command.
+5. If missing tracked work is discovered, create or recommend explicit work
    before returning the next action.
 
 ### Build And Run
