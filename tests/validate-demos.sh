@@ -13,6 +13,7 @@ demos_root="$repo_root/docs/demos"
 cast_root="$repo_root/website/static/demos"
 render="$repo_root/scripts/demos/render_session.py"
 validate="$repo_root/scripts/demos/validate_session.py"
+check_assertions="$repo_root/scripts/demos/check_assertions.py"
 
 fail() {
   printf 'demo validation failed: %s\n' "$*" >&2
@@ -28,6 +29,13 @@ fi
 
 # Schema-level validation.
 python3 "$validate" "${sessions[@]}" || fail "session schema validation failed"
+
+# Assertion check for demos that ship an assertions.yml.
+demo_dirs=()
+for s in "${sessions[@]}"; do
+  demo_dirs+=("$(dirname "$s")")
+done
+python3 "$check_assertions" "${demo_dirs[@]}" || fail "demo assertions failed"
 
 # Render each, compare to committed cast.
 for session in "${sessions[@]}"; do
