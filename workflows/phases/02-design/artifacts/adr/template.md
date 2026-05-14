@@ -1,6 +1,6 @@
 ---
 ddx:
-  id: "[artifact-id]"
+  id: ADR-XXX
 ---
 
 # ADR-[NUMBER]: [Title]

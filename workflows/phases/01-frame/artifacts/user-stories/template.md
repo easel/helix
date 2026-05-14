@@ -1,6 +1,6 @@
 ---
 ddx:
-  id: "[artifact-id]"
+  id: US-XXX
 ---
 
 # US-XXX: [Story Title]

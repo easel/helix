@@ -1,6 +1,6 @@
 ---
 ddx:
-  id: "[artifact-id]"
+  id: monitoring-setup
 ---
 
 # Monitoring Setup

@@ -1,6 +1,6 @@
 ---
 ddx:
-  id: "[artifact-id]"
+  id: parking-lot
 ---
 
 # Parking Lot (Deferred / Future Work)

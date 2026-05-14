@@ -1,6 +1,6 @@
 ---
 ddx:
-  id: "[artifact-id]"
+  id: compliance-requirements
 ---
 
 # Compliance Requirements

@@ -1,6 +1,6 @@
 ---
 ddx:
-  id: "[artifact-id]"
+  id: test-suites
 ---
 
 # Test Suite Structure

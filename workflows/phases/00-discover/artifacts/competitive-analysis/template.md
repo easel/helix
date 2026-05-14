@@ -1,6 +1,6 @@
 ---
 ddx:
-  id: "[artifact-id]"
+  id: competitive-analysis
 ---
 
 # Competitive Analysis

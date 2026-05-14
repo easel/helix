@@ -1,6 +1,6 @@
 ---
 ddx:
-  id: "[artifact-id]"
+  id: prd
 ---
 
 # Product Requirements Document

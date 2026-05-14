@@ -1,6 +1,6 @@
 ---
 ddx:
-  id: "[artifact-id]"
+  id: deployment-checklist
 ---
 
 # Deployment Checklist

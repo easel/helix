@@ -1,6 +1,6 @@
 ---
 ddx:
-  id: "[artifact-id]"
+  id: release-notes
 ---
 
 # Release Notes - [Release / Version]

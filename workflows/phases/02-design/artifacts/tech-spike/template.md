@@ -1,6 +1,6 @@
 ---
 ddx:
-  id: "[artifact-id]"
+  id: SPIKE-XXX
 ---
 
 # Technical Spike: {{spike_title}}

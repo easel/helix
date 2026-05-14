@@ -1,6 +1,6 @@
 ---
 ddx:
-  id: "[artifact-id]"
+  id: opportunity-canvas
 ---
 
 # Opportunity Canvas

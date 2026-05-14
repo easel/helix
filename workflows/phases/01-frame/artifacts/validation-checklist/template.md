@@ -1,6 +1,6 @@
 ---
 ddx:
-  id: "[artifact-id]"
+  id: validation-checklist
 ---
 
 # Frame Phase Validation Checklist

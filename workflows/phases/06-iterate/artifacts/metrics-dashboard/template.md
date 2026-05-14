@@ -1,6 +1,6 @@
 ---
 ddx:
-  id: "[artifact-id]"
+  id: metrics-dashboard
 ---
 
 # Metrics Dashboard: [iteration or release]

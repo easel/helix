@@ -1,6 +1,6 @@
 ---
 ddx:
-  id: "[artifact-id]"
+  id: feasibility-study
 ---
 
 # Feasibility Study: {{project_name}}

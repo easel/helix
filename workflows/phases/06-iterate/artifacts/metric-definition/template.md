@@ -1,6 +1,6 @@
 ---
 ddx:
-  id: "[artifact-id]"
+  id: METRIC-name
 ---
 
 # Metric Definition: [NAME]

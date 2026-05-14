@@ -1,6 +1,6 @@
 ---
 ddx:
-  id: "[artifact-id]"
+  id: TD-XXX
 ---
 
 # Technical Design: TD-XXX-[story-name]

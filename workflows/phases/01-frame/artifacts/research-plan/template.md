@@ -1,6 +1,6 @@
 ---
 ddx:
-  id: "[artifact-id]"
+  id: research-plan
 ---
 
 # Research Plan: {{research_topic}}

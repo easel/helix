@@ -1,6 +1,6 @@
 ---
 ddx:
-  id: "[artifact-id]"
+  id: POC-XXX
 ---
 
 # Proof of Concept: {{poc_title}}

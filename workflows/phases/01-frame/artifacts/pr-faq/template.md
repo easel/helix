@@ -1,6 +1,6 @@
 ---
 ddx:
-  id: "[artifact-id]"
+  id: pr-faq
 ---
 
 # PR-FAQ: [PRODUCT NAME]

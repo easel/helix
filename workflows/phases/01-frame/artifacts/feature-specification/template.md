@@ -1,6 +1,6 @@
 ---
 ddx:
-  id: "[artifact-id]"
+  id: FEAT-XXX
 ---
 
 # Feature Specification: FEAT-XXX — [Feature Name]

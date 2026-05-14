@@ -1,6 +1,6 @@
 ---
 ddx:
-  id: "[artifact-id]"
+  id: security-metrics
 ---
 
 # Security Metrics - [Iteration / Date Range]

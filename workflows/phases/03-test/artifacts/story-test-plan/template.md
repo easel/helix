@@ -1,6 +1,6 @@
 ---
 ddx:
-  id: "[artifact-id]"
+  id: TP-XXX
 ---
 
 # Story Test Plan: TP-XXX-[story-name]
