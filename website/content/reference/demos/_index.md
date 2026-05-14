@@ -6,187 +6,128 @@ aliases:
   - /docs/demos
 ---
 
-# Demo Reels
+# Demos
 
-Scripted terminal recordings of HELIX in action. New-user workflows should
-prefer `helix input` to shape work and `ddx agent execute-loop` to drain the
-execution-ready queue. The current demo recordings focus on the first-five-
-minutes experience and may still show compatibility wrappers or direct
-`ddx agent run` prompt capture inside the recording harness.
+Eight scenarios show HELIX in motion against the four-step Core Workflow
+Contract from the [PRD](https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/01-frame/prd.md):
+write the brief, check alignment, create the work plan, run it in the
+factory.
 
-The shipped public demo inventory is `helix-quickstart`, `helix-concerns`,
-`helix-evolve`, and `helix-experiment`. The repo also contains
-`docs/demos/helix-interactive/` as experimental source material, but it is not
-currently embedded here or recorded by the Pages workflow.
+Every demo is a **session record** — a committed `session.jsonl`
+([source][demos-src]) under `docs/demos/<slug>/`. The asciinema casts on
+this page are deterministic re-renders produced at build time by
+`scripts/demos/render_session.py`. Capture the session once, verify it,
+rebuild the cast whenever you like.
 
----
-
-## Quickstart: Intake to Queue Drain
-
-The complete HELIX onboarding experience: install, shape a request with
-`helix input`, then let DDx drain execution-ready work. The current recording
-still visualizes the phase-by-phase compatibility flow while the docs here
-reflect the new default contract. The demo builds a Node.js temperature
-converter from scratch, driven entirely by HELIX artifacts and the tracker.
-
-{{< asciinema src="helix-quickstart" >}}
-
-| Act | Phase | What Happens |
-|-----|-------|-------------|
-| 1 | Install | Install HELIX skills and CLI, verify ddx agent harness |
-| 2 | Setup | Initialize git repo, tracker, and AGENTS.md |
-| 3 | Input | `helix input` shapes the request into governed HELIX artifacts |
-| 4 | Queue | `ddx agent execute-loop` drains the execution-ready queue |
-| 5 | Build | The work follows HELIX's test-first Build discipline |
-| 6 | Verify | Run tests, check acceptance criteria |
-| 7 | Review | Review surfaces follow-on gaps or drift |
-
-{{< tabs >}}
-
-{{< tab name="Docker" >}}
-```bash
-docker build -t helix-demo docs/demos/helix-quickstart/
-docker run --rm \
-  -v ~/.claude.json:/root/.claude.json:ro \
-  -v ~/.claude:/root/.claude \
-  -v $(pwd):/helix:ro \
-  -v $(pwd)/../ddx/ddx:/usr/local/bin/ddx:ro \
-  -v $(pwd)/docs/demos/helix-quickstart/recordings:/recordings \
-  helix-demo
-```
-{{< /tab >}}
-
-{{< tab name="Local" >}}
-```bash
-cd /tmp
-bash /path/to/helix/docs/demos/helix-quickstart/demo.sh
-```
-
-Requires: git, jq, node, npm, ddx, helix CLI.
-{{< /tab >}}
-
-{{< /tabs >}}
+[demos-src]: https://github.com/DocumentDrivenDX/helix/tree/main/docs/demos
 
 ---
 
-## Concerns: Preventing Technology Drift
+## adopt — Drop HELIX into an existing project
 
-Demonstrates how [concerns](/concerns/) keep agents on the declared technology stack. A Bun/TypeScript project declares `typescript-bun` as its concern. The agent builds with Bun-native tools, then a deliberate drift (vitest import) is introduced and caught by concern-aware review.
+One install, one ask. The skill lands; the agent gains the artifact
+catalog and can scan whatever's already in the repo. No CLI to learn.
 
-{{< asciinema src="helix-concerns" >}}
+{{< asciinema src="helix-adopt" >}}
 
-| Act | Phase | What Happens |
-|-----|-------|-------------|
-| 1 | Setup | Create Bun project with `typescript-bun` concern |
-| 2 | Frame | Agent reads concerns, uses Bun-native requirements |
-| 3 | Build | Agent implements with Bun.serve(), bun:test, Biome |
-| 4 | Drift | Deliberate Node.js drift introduced (vitest import) |
-| 5 | Review | Agent detects drift and files a tracker issue |
-
-{{< tabs >}}
-
-{{< tab name="Docker" >}}
-```bash
-docker build -t helix-concerns-demo docs/demos/helix-concerns/
-docker run --rm \
-  -v ~/.claude.json:/root/.claude.json:ro \
-  -v ~/.claude:/root/.claude \
-  -v $(pwd):/helix:ro \
-  -v $(pwd)/../ddx/ddx:/usr/local/bin/ddx:ro \
-  -v $(pwd)/docs/demos/helix-concerns/recordings:/recordings \
-  helix-concerns-demo
-```
-{{< /tab >}}
-
-{{< tab name="Local" >}}
-```bash
-cd /tmp
-bash /path/to/helix/docs/demos/helix-concerns/demo.sh
-```
-
-Requires: git, jq, bun, ddx, helix CLI.
-{{< /tab >}}
-
-{{< /tabs >}}
+[Session record](https://github.com/DocumentDrivenDX/helix/blob/main/docs/demos/helix-adopt/session.jsonl)
 
 ---
 
-## Evolve: Threading Requirements Through the Stack
+## brief — Author the governing artifacts
 
-Demonstrates how `helix evolve` propagates a new requirement through every layer of the artifact stack. Starting from a working temperature converter, a "Add Kelvin support" requirement is threaded through the PRD, feature spec, and technical design, then implemented via TDD.
+Vision → PRD → concerns → first feature spec, all populated from HELIX
+templates by the same skill the agent invokes. The brief is what the
+agent will defend code against on day n.
+
+{{< asciinema src="helix-brief" >}}
+
+[Session record](https://github.com/DocumentDrivenDX/helix/blob/main/docs/demos/helix-brief/session.jsonl)
+
+---
+
+## align — Detect drift across the artifact graph
+
+PRD says one thing; a recent ADR says another. The alignment skill walks
+the graph in authority order and reports an ordered plan to close the
+gap.
+
+{{< asciinema src="helix-align" >}}
+
+[Session record](https://github.com/DocumentDrivenDX/helix/blob/main/docs/demos/helix-align/session.jsonl)
+
+---
+
+## plan — Turn aligned artifacts into bounded work
+
+The planning side of the same skill: decomposes feature specs into beads
+with deterministic acceptance criteria and named evidence. Ready for a
+runtime to execute.
+
+{{< asciinema src="helix-plan" >}}
+
+[Session record](https://github.com/DocumentDrivenDX/helix/blob/main/docs/demos/helix-plan/session.jsonl)
+
+---
+
+## evolve — Thread a new requirement through the stack
+
+The product-vision scenario, made concrete: a team adds OAuth alongside
+existing API-key auth. One sentence in; six authority-ordered steps out,
+spanning security architecture, ADRs, feature specs, designs, tests, and
+beads.
 
 {{< asciinema src="helix-evolve" >}}
 
-| Act | Phase | What Happens |
-|-----|-------|-------------|
-| 1 | Setup | Working v1 project with existing artifacts and code |
-| 2 | Evolve | Thread "Add Kelvin" through PRD, feature spec, design, tracker |
-| 3 | Build | TDD: failing Kelvin tests (Red), then implementation (Green) |
-| 4 | Verify | All tests pass, new CLI flags work |
-
-{{< tabs >}}
-
-{{< tab name="Docker" >}}
-```bash
-docker build -t helix-evolve-demo docs/demos/helix-evolve/
-docker run --rm \
-  -v ~/.claude.json:/root/.claude.json:ro \
-  -v ~/.claude:/root/.claude \
-  -v $(pwd):/helix:ro \
-  -v $(pwd)/../ddx/ddx:/usr/local/bin/ddx:ro \
-  -v $(pwd)/docs/demos/helix-evolve/recordings:/recordings \
-  helix-evolve-demo
-```
-{{< /tab >}}
-
-{{< tab name="Local" >}}
-```bash
-cd /tmp
-bash /path/to/helix/docs/demos/helix-evolve/demo.sh
-```
-
-Requires: git, jq, node, npm, ddx, helix CLI.
-{{< /tab >}}
-
-{{< /tabs >}}
+[Session record](https://github.com/DocumentDrivenDX/helix/blob/main/docs/demos/helix-evolve/session.jsonl)
 
 ---
 
-## Experiment: Metric-Driven Optimization
+## concerns — Catch technology drift before it ships
 
-Demonstrates how `helix experiment` optimizes code through measured iteration. A deliberately slow string processing function is improved through hypothesis-driven changes, with correctness tests enforced at every step.
+A project declares `typescript-bun` as its stack concern. The agent
+writes idiomatic-looking code that nonetheless drifts to Node defaults.
+Alignment catches all three drift signals.
 
-{{< asciinema src="helix-experiment" >}}
+{{< asciinema src="helix-concerns" >}}
 
-| Act | Phase | What Happens |
-|-----|-------|-------------|
-| 1 | Setup | Project with slow function, correctness tests, and benchmark |
-| 2 | Iterate | Agent hypothesizes, edits, tests, benchmarks (iteration 1) |
-| 3 | Iterate | Agent finds next bottleneck, optimizes further (iteration 2) |
-| 4 | Results | Final benchmark shows improvement, all tests still passing |
+[Session record](https://github.com/DocumentDrivenDX/helix/blob/main/docs/demos/helix-concerns/session.jsonl)
 
-{{< tabs >}}
+---
 
-{{< tab name="Docker" >}}
-```bash
-docker build -t helix-experiment-demo docs/demos/helix-experiment/
-docker run --rm \
-  -v ~/.claude.json:/root/.claude.json:ro \
-  -v ~/.claude:/root/.claude \
-  -v $(pwd):/helix:ro \
-  -v $(pwd)/../ddx/ddx:/usr/local/bin/ddx:ro \
-  -v $(pwd)/docs/demos/helix-experiment/recordings:/recordings \
-  helix-experiment-demo
+## review — Fresh-eyes audit against the same artifacts
+
+A second agent inspects completed work against the artifacts that govern
+it. Two blocking findings (missing revocation enforcement, missing test),
+one warning (token leak in error log), filed as tracker issues.
+
+{{< asciinema src="helix-review" >}}
+
+[Session record](https://github.com/DocumentDrivenDX/helix/blob/main/docs/demos/helix-review/session.jsonl)
+
+---
+
+## execute — Run a bead end-to-end in the factory
+
+The hand-off to the runtime. DDx selects the bead, FZO routes to the
+right model + harness, work runs in a worktree, acceptance gates fire,
+a different model does a cross-review, evidence appends, the bead
+closes.
+
+{{< asciinema src="helix-execute" >}}
+
+[Session record](https://github.com/DocumentDrivenDX/helix/blob/main/docs/demos/helix-execute/session.jsonl)
+
+---
+
+## Rebuilding the casts locally
+
 ```
-{{< /tab >}}
-
-{{< tab name="Local" >}}
-```bash
-cd /tmp
-bash /path/to/helix/docs/demos/helix-experiment/demo.sh
+python3 scripts/demos/render_session.py docs/demos/helix-align/session.jsonl
+bash tests/validate-demos.sh
 ```
 
-Requires: git, jq, node, npm, ddx, helix CLI.
-{{< /tab >}}
-
-{{< /tabs >}}
+`validate-demos.sh` asserts schema soundness for every committed
+`session.jsonl` and re-renders each into a byte-identical `.cast`. If
+your render differs, either the record changed (rebuild + commit) or
+the renderer changed (test will fail on every demo).
