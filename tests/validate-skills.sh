@@ -315,17 +315,19 @@ mapfile -t expected_skills < <(
   done | sort
 )
 
-# Validate .agents/skills/ symlinks
+# Validate .agents/skills/ symlinks — only HELIX-published skills (helix*).
+# Other entries (e.g. ddx-* skills installed by the ddx runtime) are
+# runtime artifacts and intentionally ignored here.
 mapfile -t agents_published_skills < <(
-  for path in "$agents_package_dir"/*; do
+  for path in "$agents_package_dir"/helix*; do
     [[ -e "$path" || -L "$path" ]] || continue
     printf '%s\n' "${path##*/}"
   done | sort
 )
 
-# Validate .claude/skills/ symlinks
+# Validate .claude/skills/ symlinks — only HELIX-published skills (helix*).
 mapfile -t claude_published_skills < <(
-  for path in "$claude_package_dir"/*; do
+  for path in "$claude_package_dir"/helix*; do
     [[ -e "$path" || -L "$path" ]] || continue
     printf '%s\n' "${path##*/}"
   done | sort
