@@ -1,0 +1,27 @@
+slug: helix-brief
+min_duration_s: 10
+min_assistant_chars: 200
+
+expect:
+  - kind: prompt
+    contains: "helix-frame"
+  - kind: assistant
+    contains: "authority order"
+  - kind: tool_call
+    name: Write
+    args_contain:
+      file_path: "docs/helix/00-discover/product-vision.md"
+  - kind: tool_call
+    name: Write
+    args_contain:
+      file_path: "docs/helix/01-frame/prd.md"
+  - kind: tool_call
+    name: Write
+    args_contain:
+      file_path: "docs/helix/01-frame/concerns.md"
+  - kind: tool_call
+    name: Write
+    args_contain:
+      file_path: "FEAT-001"
+  - kind: output
+    contains: "Authority order is now established"

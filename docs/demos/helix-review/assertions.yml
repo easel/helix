@@ -1,0 +1,31 @@
+slug: helix-review
+min_duration_s: 7
+min_assistant_chars: 150
+
+expect:
+  - kind: narration
+    contains: "fresh-eyes"
+  - kind: prompt
+    contains: "helix-review"
+  - kind: tool_call
+    name: Read
+    args_contain:
+      file_path: ".ddx/beads.jsonl"
+  - kind: tool_call
+    name: Read
+    args_contain:
+      file_path: "security-architecture"
+  - kind: tool_call
+    name: Read
+    args_contain:
+      file_path: "src/auth/refresh.ts"
+  - kind: tool_call
+    name: Read
+    args_contain:
+      file_path: "tests/auth/refresh_test.ts"
+  - kind: assistant
+    contains: "Review findings"
+  - kind: output
+    contains: "revocation"
+  - kind: output
+    contains: "bead-OAUTH-03a"

@@ -90,9 +90,19 @@ def parse_assertions(path: Path) -> dict:
 
         if indent == 6 and ":" in stripped and current_entry is not None and current_subkey:
             k, _, v = stripped.partition(":")
-            current_entry[current_subkey][k.strip()] = _coerce_scalar(
-                v.strip().strip('"').strip("'")
-            )
+            if isinstance(current_entry.get(current_subkey), dict):
+                current_entry[current_subkey][k.strip()] = _coerce_scalar(
+                    v.strip().strip('"').strip("'")
+                )
+            continue
+
+        if indent == 6 and stripped.startswith("- ") and current_entry is not None and current_subkey:
+            item = stripped[2:].strip().strip('"').strip("'")
+            existing = current_entry.get(current_subkey)
+            if not isinstance(existing, list):
+                existing = []
+                current_entry[current_subkey] = existing
+            existing.append(_coerce_scalar(item))
             continue
 
     return obj
@@ -178,6 +188,12 @@ def event_matches(event: dict, claim: dict) -> bool:
         contains = claim.get("contains")
         if contains and contains not in event[kind]:
             return False
+        contains_all = claim.get("contains_all")
+        if contains_all:
+            text = event[kind]
+            for needle in contains_all:
+                if needle not in text:
+                    return False
         return True
 
     return False

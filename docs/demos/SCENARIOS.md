@@ -92,7 +92,17 @@ expect:
       file_path: "docs/helix/01-frame/prd.md"
   - kind: assistant
     contains: "Found 3 alignment findings"
+  - kind: output
+    contains_all:
+      - "bead-001"
+      - "bead-002"
 ```
+
+Event kinds: `narration`, `shell`, `output`, `prompt`, `assistant`,
+`tool_call`. Use `contains` to require one substring in the matched
+event; use `contains_all` to require every substring in the *same*
+event. Entries match in order — a later entry only consumes events at
+or after the previous match — which catches out-of-order regressions.
 
 ## Capturing new sessions
 

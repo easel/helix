@@ -1,0 +1,27 @@
+slug: helix-plan
+min_duration_s: 7
+min_assistant_chars: 150
+
+expect:
+  - kind: narration
+    contains: "bounded implementation work"
+  - kind: prompt
+    contains: "helix-align --plan"
+  - kind: tool_call
+    name: Read
+    args_contain:
+      file_path: "docs/helix/01-frame/prd.md"
+  - kind: tool_call
+    name: Read
+    args_contain:
+      file_path: "FEAT-001"
+  - kind: assistant
+    contains: "Decomposing into beads"
+  - kind: output
+    contains_all:
+      - "bead-001"
+      - "bead-002"
+      - "bead-003"
+      - "bead-004"
+  - kind: output
+    contains: "ddx bead next --execute"
