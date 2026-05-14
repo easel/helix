@@ -1,0 +1,8 @@
+{"type":"system","subtype":"init","session_id":"demo-smoke","model":"claude-sonnet-4-6","cwd":"/tmp/demo"}
+{"type":"assistant","message":{"id":"msg_01","content":[{"type":"text","text":"I'll start by reading the artifact graph."}]}}
+{"type":"assistant","message":{"id":"msg_02","content":[{"type":"tool_use","id":"tu_01","name":"Read","input":{"file_path":"docs/helix/01-frame/prd.md"}}]}}
+{"type":"user","message":{"content":[{"type":"tool_result","tool_use_id":"tu_01","content":[{"type":"text","text":"# Product Requirements Document\n\nR-3: API-key only.\n"}]}]}}
+{"type":"assistant","message":{"id":"msg_03","content":[{"type":"tool_use","id":"tu_02","name":"Read","input":{"file_path":"docs/helix/02-design/adr/ADR-002-oauth-pivot.md"}}]}}
+{"type":"user","message":{"content":[{"type":"tool_result","tool_use_id":"tu_02","content":[{"type":"text","text":"# ADR-002\n\nProposes OAuth 2.1, supersedes ADR-001 (API-key-only).\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\n"}]}]}}
+{"type":"assistant","message":{"id":"msg_04","content":[{"type":"text","text":"Found 1 alignment finding: PRD R-3 contradicts ADR-002 at authority level."}]}}
+{"type":"result","subtype":"success","duration_ms":12000}
