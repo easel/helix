@@ -1,40 +1,34 @@
-# HELIX Evolve Demo
+# helix-evolve demo
 
-Demonstrates how `helix evolve` threads a new requirement through the entire artifact stack.
+The product-vision scenario, made concrete: a team adds OAuth to a
+service whose PRD says API-keys-only. One sentence in; the evolve
+skill walks the artifact graph in authority order and produces six
+ordered steps spanning security architecture, ADRs, feature specs,
+designs, tests, and beads.
 
-Starting from a working temperature converter (Fahrenheit/Celsius), a new requirement arrives: "Add Kelvin support." The agent updates the PRD, feature spec, and technical design, creates tracker issues, then implements the change via TDD.
+## Files
 
-## Prerequisites
+- `session.jsonl` — committed session record. Source of truth.
+- `fixture/` — minimal API-key-only artifact set the evolve runs against:
+  - `docs/helix/01-frame/prd.md` — R-3 says API-key only (non-goal: OAuth)
+  - `docs/helix/01-frame/features/FEAT-AUTH.md` — API-key flow
+  - `docs/helix/02-design/security-architecture.md` — API-key threat model
 
-- Docker
-- Claude Code credentials (`~/.claude/`, `~/.claude.json`)
-- DDx binary (mounted or in PATH)
+The session record's prompt is "Add OAuth login alongside the existing
+API-key auth." The skill should flag that PRD R-3 must change, propose a
+new ADR, and decompose downstream artifacts before any code changes.
 
-## Run
+## Rebuild the cast
 
-```bash
-# From the helix repo root:
-docker build -t helix-evolve-demo docs/demos/helix-evolve/
-docker run --rm \
-  -v ~/.claude.json:/root/.claude.json:ro \
-  -v ~/.claude:/root/.claude \
-  -v $(pwd):/helix:ro \
-  -v $(pwd)/../ddx/ddx:/usr/local/bin/ddx:ro \
-  -v $(pwd)/docs/demos/helix-evolve/recordings:/recordings \
-  helix-evolve-demo
+```
+python3 scripts/demos/render_session.py docs/demos/helix-evolve/session.jsonl
+bash tests/validate-demos.sh
 ```
 
-## What It Does
+## Re-capture from a live agent
 
-| Act | Phase | What Happens |
-|-----|-------|-------------|
-| 1 | Setup | Create a working v1 project with existing artifacts and code |
-| 2 | Evolve | Thread "Add Kelvin" through PRD, feature spec, design, tracker |
-| 3 | Build | TDD: failing Kelvin tests (Red), then implementation (Green) |
-| 4 | Verify | All tests pass, new CLI flags work |
-
-## Recordings
-
-```bash
-asciinema play recordings/helix-evolve-*.cast
+```
+python3 scripts/demos/capture_session.py helix-evolve \
+    --prompt "Add OAuth login alongside the existing API-key auth. Thread the change through the artifact graph in authority order." \
+    --fixture docs/demos/helix-evolve/fixture/
 ```
