@@ -1,0 +1,48 @@
+{
+  "attempt_id": "20260514T173812-60294d46",
+  "bead_id": "helix-e017c51b",
+  "base_rev": "dfd868696e302de0af9a08ffdd293e64d7b76b74",
+  "created_at": "2026-05-14T17:38:13.465244098Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-e017c51b",
+    "title": "Add ddx:depends_on graph-threading contract to evolve mode (degrades without DDx)",
+    "description": "The evolve route currently says 'thread a requirement through the artifact stack' but doesn't describe how to walk the graph. PRD R-2 + R-4 require that HELIX artifacts carry ddx:depends_on relationships (the instance graph lives in instance-doc depends_on lists per the schema bead helix-f063d395), and that the skill body work without any specific runtime present.\n\nTighten the Evolve contract in skills/helix/SKILL.md to specify:\n\n1. Read the instance frontmatter of the entry artifact; collect ddx.id and ddx.depends_on.\n2. Walk the depends_on graph forward (artifacts this one depends on — authority above) and reverse (artifacts that depend on this one — downstream impact) by scanning all governing artifacts for matching ddx.id references.\n3. When ddx: frontmatter is absent, fall back to filesystem traversal: phase-numbered directories provide authority order; artifact-type directories provide the type relationships.\n4. Order updates by authority (vision \u003e PRD \u003e FEAT \u003e stories \u003e ADR/SD \u003e TD \u003e TP \u003e impl plans \u003e code).\n5. Surface conflicts explicitly when a downstream artifact contradicts an updated upstream.\n\nAcceptance ties: the contract must read as runtime-neutral; no 'ddx ' or 'helix ' command appears in the normative body. Both pathways (graph present, graph absent) are named.",
+    "acceptance": "skills/helix/SKILL.md §Evolve names: ddx.id + ddx.depends_on read; forward and reverse graph walk; filesystem-only fallback when frontmatter absent; authority-ordered update sequence; explicit conflict surfacing. grep -nE '(ddx |helix [a-z])' skills/helix/SKILL.md still returns zero hits in the normative body (DDx execute-bead history footnote excepted).",
+    "parent": "helix-2b235e7e",
+    "labels": [
+      "helix",
+      "phase:build",
+      "kind:implementation",
+      "area:skills",
+      "area:workflow",
+      "modernization"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-14T17:37:27Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "227954",
+      "execute-loop-heartbeat-at": "2026-05-14T17:37:27.08096885Z",
+      "spec-id": "helix.prd"
+    }
+  },
+  "governing": [
+    {
+      "id": "helix.prd",
+      "path": "docs/helix/01-frame/prd.md",
+      "title": "Product Requirements Document"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260514T173812-60294d46",
+    "prompt": ".ddx/executions/20260514T173812-60294d46/prompt.md",
+    "manifest": ".ddx/executions/20260514T173812-60294d46/manifest.json",
+    "result": ".ddx/executions/20260514T173812-60294d46/result.json",
+    "checks": ".ddx/executions/20260514T173812-60294d46/checks.json",
+    "usage": ".ddx/executions/20260514T173812-60294d46/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-e017c51b-20260514T173812-60294d46"
+  },
+  "prompt_sha": "bc799dd1f7464569dd4d529c19ca952b9aa5bf38bf21d2dff862dce49c3aaffd"
+}
