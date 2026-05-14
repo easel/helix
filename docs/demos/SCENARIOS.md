@@ -69,13 +69,30 @@ animation) and emits an asciicast. The .cast files are also committed under
 
 `tests/validate-demos.sh` checks, for every demo:
 
-1. `session.jsonl` parses against the schema
-2. `assertions.yml` holds (named tool calls fired, expected files written,
-   expected text produced)
-3. `scripts/rebuild_demo.sh <slug>` produces a non-empty `.cast` that loads
-   in asciinema's player
-4. The rebuilt `.cast` matches the committed one within a tolerance, OR the
-   commit message contains `DEMO_REBUILD: <slug>` to flag intentional refresh
+1. `session.jsonl` parses against the schema (`scripts/demos/validate_session.py`).
+2. If `assertions.yml` is present, it holds against the session — expected
+   tool calls fired in order, expected text produced, minimum
+   duration/assistant-char thresholds met (`scripts/demos/check_assertions.py`).
+3. `python3 scripts/demos/render_session.py docs/demos/<slug>/session.jsonl`
+   produces a `.cast` byte-identical to the committed one. A diff fails CI
+   and forces an intentional re-render + recommit.
+
+`assertions.yml` schema (parser is hand-written, no dep):
+
+```yaml
+slug: helix-align
+min_duration_s: 8
+min_assistant_chars: 150
+expect:
+  - kind: narration
+    contains: "API-key only"
+  - kind: tool_call
+    name: Read
+    args_contain:
+      file_path: "docs/helix/01-frame/prd.md"
+  - kind: assistant
+    contains: "Found 3 alignment findings"
+```
 
 ## Capturing new sessions
 
