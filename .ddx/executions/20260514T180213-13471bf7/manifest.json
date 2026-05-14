@@ -1,0 +1,51 @@
+{
+  "attempt_id": "20260514T180213-13471bf7",
+  "bead_id": "helix-8944c622",
+  "base_rev": "ae7b7da0cb2682083e021648dfa1061613f42d42",
+  "created_at": "2026-05-14T18:02:13.987824198Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-8944c622",
+    "title": "Draft initial CRM solution design from framed artifacts",
+    "description": "\u003ccontext-digest\u003e\n\u003cprinciples\u003eDesign for Change · Design for Simplicity · Validate Your Work · Make Intent Explicit · Prefer Reversible Decisions\u003c/principles\u003e\n\u003cconcerns\u003ehugo-hextra | demo-asciinema\u003c/concerns\u003e\n\u003cpractices\u003eDefine the site's target audience and what content they need · Theme version: Hextra v0.12.1 — pinned in website/go.mod · Identify which workflows need demo reels — prioritize the \"first 5 minutes\" experience · Current demos: helix-quickstart (full lifecycle), helix-concerns (drift detection), helix-evolve (requirement threading), helix-experiment (metric-driven optimization)\u003c/practices\u003e\n\u003cgoverning\u003eCRM-001\u003c/governing\u003e\n\u003c/context-digest\u003e\n\nAfter CRM frame artifacts exist, draft the initial solution/technical design for the CRM.\n\nBecause the intake request is sparse, this bead is speculative. It should use the framed problem statement and any explicit assumptions, then define the minimal architecture and workflow design needed to move toward implementation.",
+    "acceptance": "1. CRM design artifacts exist after the frame artifacts are available.\n2. The design covers domain entities, major workflows, permissions/roles, reporting needs, external integrations, and MVP-vs-later scope boundaries.\n3. Any decisions that require human judgment become ADRs or escalation beads rather than hidden assumptions.",
+    "parent": "helix-db7d13a9",
+    "labels": [
+      "helix",
+      "phase:build",
+      "kind:speculative",
+      "area:artifacts",
+      "area:docs",
+      "ac-quality:needs-refinement"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-14T18:01:01Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "227954",
+      "events": [
+        {
+          "actor": "",
+          "body": "[{\"ac\":1,\"text\":\"CRM design artifacts exist after the frame artifacts are available.\",\"kind\":\"prose\",\"verifiable\":false},{\"ac\":2,\"text\":\"The design covers domain entities, major workflows, permissions/roles, reporting needs, external integrations, and MVP-vs-later scope boundaries.\",\"kind\":\"prose\",\"verifiable\":false},{\"ac\":3,\"text\":\"Any decisions that require human judgment become ADRs or escalation beads rather than hidden assumptions.\",\"kind\":\"prose\",\"verifiable\":false}]",
+          "created_at": "2026-05-14T18:01:01.873655414Z",
+          "kind": "ac-quality-low",
+          "source": "preclaim-ac-quality",
+          "summary": "score=0.00 threshold=0.50 verifiable=0/3"
+        }
+      ],
+      "execute-loop-heartbeat-at": "2026-05-14T18:01:01.75927625Z",
+      "spec-id": "CRM-001"
+    }
+  },
+  "paths": {
+    "dir": ".ddx/executions/20260514T180213-13471bf7",
+    "prompt": ".ddx/executions/20260514T180213-13471bf7/prompt.md",
+    "manifest": ".ddx/executions/20260514T180213-13471bf7/manifest.json",
+    "result": ".ddx/executions/20260514T180213-13471bf7/result.json",
+    "checks": ".ddx/executions/20260514T180213-13471bf7/checks.json",
+    "usage": ".ddx/executions/20260514T180213-13471bf7/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-8944c622-20260514T180213-13471bf7"
+  },
+  "prompt_sha": "b3e3f92cab9c87facfd637c2294f8c6ea63674d9fd443316c85083f1ad1eae7c"
+}
