@@ -1,0 +1,48 @@
+{
+  "attempt_id": "20260514T173422-3c34c6ac",
+  "bead_id": "helix-14ea60d0",
+  "base_rev": "f9353fb51afc16c569481ec25824286667513f91",
+  "created_at": "2026-05-14T17:34:23.267364483Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-14ea60d0",
+    "title": "Tighten gap-to-implementation handoff in align and check modes",
+    "description": "Per PRD R-3, the alignment skill should produce a structured report AND a plan ordered by authority. Today the Align contract in skills/helix/SKILL.md says 'create or identify follow-up work for every non-aligned gap' but doesn't specify what the handoff to implementation looks like in runtime-neutral terms.\n\nUpdate the Align and Check contracts so that for every non-aligned gap classified INCOMPLETE / UNDERSPECIFIED / DIVERGENT / STALE_PLAN the output names:\n- the destination artifact type (frame, design, test, etc.) for resolving the gap\n- the deliverable shape (e.g. 'a TD section answering X', 'a US covering Y')\n- the suggested next workflow mode (frame, design, polish, build) — not a CLI command\n- evidence references (paths + line numbers) supporting the finding\n\nAvoid prescribing any runtime command. The plan output must be readable as a checklist a human can review in under 10 minutes (PRD success criterion 2).",
+    "acceptance": "skills/helix/SKILL.md §Align lists the four fields the gap-to-impl handoff must name (artifact type, deliverable shape, suggested next mode, evidence). §Check references the same shape when recommending next action. Both sections remain CLI-free. The contract is testable: running the skill against docs/helix/ produces a plan whose entries carry all four fields.",
+    "parent": "helix-2b235e7e",
+    "labels": [
+      "helix",
+      "phase:build",
+      "kind:implementation",
+      "area:skills",
+      "area:workflow",
+      "modernization"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-14T17:33:22Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "227954",
+      "execute-loop-heartbeat-at": "2026-05-14T17:33:22.490779138Z",
+      "spec-id": "helix.prd"
+    }
+  },
+  "governing": [
+    {
+      "id": "helix.prd",
+      "path": "docs/helix/01-frame/prd.md",
+      "title": "Product Requirements Document"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260514T173422-3c34c6ac",
+    "prompt": ".ddx/executions/20260514T173422-3c34c6ac/prompt.md",
+    "manifest": ".ddx/executions/20260514T173422-3c34c6ac/manifest.json",
+    "result": ".ddx/executions/20260514T173422-3c34c6ac/result.json",
+    "checks": ".ddx/executions/20260514T173422-3c34c6ac/checks.json",
+    "usage": ".ddx/executions/20260514T173422-3c34c6ac/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-14ea60d0-20260514T173422-3c34c6ac"
+  },
+  "prompt_sha": "bca83a2906bf4cced9f6d583ccc3d9f01bcaefb6aa74a23ae9c80aaf512ab8f3"
+}
