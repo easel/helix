@@ -415,7 +415,10 @@ dispatch_managed_execution() {
 
 if [[ "\${1:-} \${2:-}" == "agent execute-loop" ]]; then
   if [[ " \$* " == *" --help "* ]]; then
-    exec "\$real_ddx" "\$@"
+    # Real ddx may not ship the agent subcommand; the mock owns the help
+    # contract so helix's availability probe sees managed execution as ready.
+    printf 'mock ddx agent execute-loop\n'
+    exit 0
   fi
   shift 2
   harness="codex"
@@ -441,7 +444,10 @@ fi
 
 if [[ "\${1:-} \${2:-}" == "agent execute-bead" ]]; then
   if [[ " \$* " == *" --help "* ]]; then
-    exec "\$real_ddx" "\$@"
+    # Real ddx may not ship the agent subcommand; the mock owns the help
+    # contract so helix's availability probe sees managed execution as ready.
+    printf 'mock ddx agent execute-bead\n'
+    exit 0
   fi
   shift 2
   issue_id="\${1:-}"

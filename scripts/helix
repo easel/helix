@@ -2389,15 +2389,16 @@ handle_issue_queue_drift() {
 
   # Unclaim logic for drift cases:
   # - in_progress: always unclaim (agent didn't close it, reset for retry)
-  # - closed + superseded-by set: reopen to surface the supersession; silently
-  #   closing a superseded bead hides a governance change that needs attention.
-  #   Must use --status open rather than --unclaim because --unclaim is a no-op
-  #   on closed beads (it only transitions in_progress → open).
+  # - closed + superseded-by set: reopen via `ddx bead reopen` to surface the
+  #   supersession; silently leaving a superseded bead closed hides a
+  #   governance change that needs attention. `ddx bead update --status open`
+  #   is rejected for terminal `closed` state, so the dedicated reopen
+  #   subcommand is required.
   # - closed + no supersession: respect the agent's close — do NOT reopen.
   if [[ "$status" == "in_progress" ]]; then
     tracker_update "$issue_id" --unclaim >/dev/null || true
   elif [[ "$status" == "closed" ]] && [[ -n "$superseded_by" ]]; then
-    tracker_update "$issue_id" --status open >/dev/null || true
+    ddx bead reopen "$issue_id" --reason "queue drift: stale close after supersession" >/dev/null 2>&1 || true
   fi
 
   return 0

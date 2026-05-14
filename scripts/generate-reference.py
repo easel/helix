@@ -78,6 +78,11 @@ PHASES = {
         "slug": "deploy",
         "label": "Deploy",
         "summary": "Ship to users with appropriate operational support, monitoring, and rollback plans.",
+        "contract": (
+            "Deploy artifacts cover four first-class surfaces in the current "
+            "HELIX contract: `deployment-checklist`, `monitoring-setup`, "
+            "`runbook`, and `release-notes`."
+        ),
     },
     "06-iterate": {
         "num": 6,
@@ -861,6 +866,10 @@ def render_activity_phase_index(phase_key: str, phase: dict, artifacts: list, sl
     out.append("")
     out.append(phase["summary"])
     out.append("")
+
+    if phase.get("contract"):
+        out.append(phase["contract"])
+        out.append("")
 
     if core:
         out.append("## Core Artifacts")

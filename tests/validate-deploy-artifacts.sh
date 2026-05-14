@@ -51,11 +51,16 @@ import sys
 
 path = Path(sys.argv[1])
 text = path.read_text(encoding="utf-8")
-needle = "    - input: Architecture\n      type: artifact\n      path: architecture\n      required: false\n      note: \"Service boundaries and dependencies that affect signal design\"\n"
-replacement = "    - input: Release Notes\n      type: artifact\n      path: release-notes\n      required: false\n      note: \"Invalid fixture: later deploy artifact dependency\"\n"
-if needle not in text:
-    raise SystemExit(f"expected fixture block not found in {path}")
-path.write_text(text.replace(needle, replacement, 1), encoding="utf-8")
+injection = (
+    "\ndependencies:\n"
+    "  requires:\n"
+    "    - input: Release Notes\n"
+    "      type: artifact\n"
+    "      path: release-notes\n"
+    "      required: false\n"
+    "      note: \"Invalid fixture: later deploy artifact dependency\"\n"
+)
+path.write_text(text.rstrip() + injection, encoding="utf-8")
 PYEOF
 
 set +e
@@ -75,11 +80,35 @@ import sys
 
 path = Path(sys.argv[1])
 text = path.read_text(encoding="utf-8")
-needle = "    - input: Architecture\n      type: artifact\n      path: architecture\n      required: false\n      note: \"Service boundaries and dependencies that affect signal design\"\n"
-replacement = "    - input: Runbook\n      type: artifact\n      path: runbook\n      required: false\n      note: \"Invalid fixture: creates a deploy dependency cycle\"\n"
-if needle not in text:
-    raise SystemExit(f"expected fixture block not found in {path}")
-path.write_text(text.replace(needle, replacement, 1), encoding="utf-8")
+injection = (
+    "\ndependencies:\n"
+    "  requires:\n"
+    "    - input: Runbook\n"
+    "      type: artifact\n"
+    "      path: runbook\n"
+    "      required: false\n"
+    "      note: \"Invalid fixture: creates a deploy dependency cycle\"\n"
+)
+path.write_text(text.rstrip() + injection, encoding="utf-8")
+PYEOF
+# Cycle requires runbook -> monitoring-setup too. runbook already informs monitoring;
+# we add the explicit reverse edge in runbook to complete the cycle.
+python3 - "$cycle_dir/runbook/meta.yml" <<'PYEOF'
+from pathlib import Path
+import sys
+
+path = Path(sys.argv[1])
+text = path.read_text(encoding="utf-8")
+injection = (
+    "\ndependencies:\n"
+    "  requires:\n"
+    "    - input: Monitoring Setup\n"
+    "      type: artifact\n"
+    "      path: monitoring-setup\n"
+    "      required: false\n"
+    "      note: \"Invalid fixture: creates a deploy dependency cycle\"\n"
+)
+path.write_text(text.rstrip() + injection, encoding="utf-8")
 PYEOF
 
 set +e
@@ -94,7 +123,7 @@ docs_dir="$tmpdir/docs-contract"
 mkdir -p "$docs_dir"
 cp -f "$repo_root/workflows/phases/05-deploy/README.md" "$docs_dir/README.md"
 cp -f "$repo_root/workflows/phases/05-deploy/enforcer.md" "$docs_dir/enforcer.md"
-cp -f "$repo_root/website/content/docs/glossary/artifacts.md" "$docs_dir/artifacts.md"
+cp -f "$repo_root/website/content/artifact-types/deploy/_index.md" "$docs_dir/artifacts.md"
 python3 - "$docs_dir/README.md" <<'PYEOF'
 from pathlib import Path
 import sys
@@ -131,7 +160,7 @@ docs_coexist_dir="$tmpdir/docs-coexist"
 mkdir -p "$docs_coexist_dir"
 cp -f "$repo_root/workflows/phases/05-deploy/README.md" "$docs_coexist_dir/README.md"
 cp -f "$repo_root/workflows/phases/05-deploy/enforcer.md" "$docs_coexist_dir/enforcer.md"
-cp -f "$repo_root/website/content/docs/glossary/artifacts.md" "$docs_coexist_dir/artifacts.md"
+cp -f "$repo_root/website/content/artifact-types/deploy/_index.md" "$docs_coexist_dir/artifacts.md"
 python3 - "$docs_coexist_dir/README.md" <<'PYEOF'
 from pathlib import Path
 import sys

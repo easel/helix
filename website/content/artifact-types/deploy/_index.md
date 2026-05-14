@@ -7,6 +7,8 @@ generated: true
 
 Ship to users with appropriate operational support, monitoring, and rollback plans.
 
+Deploy artifacts cover four first-class surfaces in the current HELIX contract: `deployment-checklist`, `monitoring-setup`, `runbook`, and `release-notes`.
+
 ## Core Artifacts
 
 {{< cards >}}
