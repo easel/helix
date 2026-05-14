@@ -1,0 +1,48 @@
+{
+  "attempt_id": "20260514T174218-28ab47a8",
+  "bead_id": "helix-8d4ba102",
+  "base_rev": "ffe87b7faa77cf7c7fab88241ed6ff443a23249c",
+  "created_at": "2026-05-14T17:42:18.86464763Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-8d4ba102",
+    "title": "Add template-conformance validate mode to HELIX routing skill",
+    "description": "skills/helix/SKILL.md currently has align (drift/gaps), evolve (thread changes), and check (next-action). It lacks an explicit mode for validating an artifact instance against its own template's prompt and structural shape — the dogfood loop described in PRD R-3 (alignment skill output) and R-6 (self-application).\n\nAdd a validate route to the routing table and a corresponding contract. Contract shape (mirroring the existing route contracts):\n\n1. Load the artifact instance and resolve its artifact type (via ddx: frontmatter when present, else by path/filename pattern).\n2. Load the template.md, prompt.md, and meta.yml for that artifact type from workflows/phases/*/artifacts/\u003ctype\u003e/.\n3. Compare instance to template structurally (required section headings present, required frontmatter fields populated) and compare instance content to prompt.md guidance (each prompt section answered or explicitly marked N/A).\n4. Emit findings keyed to template/prompt sections, classified as ALIGNED, INCOMPLETE, UNDERSPECIFIED, or STALE per existing align taxonomy.\n5. Produce updates (apply directly when the user invoked validate to fix, or surface a plan when they invoked it to audit).\n\nAdd 'validate' to the routing table with intent 'Check an artifact instance against its template and prompt; improve in place'. Keep the contract body under ~25 lines, matching the density of existing routes.",
+    "acceptance": "skills/helix/SKILL.md contains a 'validate' route in the Routing Rules table and a Validate section under Workflow Contracts. The contract names: artifact-type resolution; template+prompt+meta.yml load; structural and prompt-section conformance checks; finding classification; produce updates. Skill body remains runtime-neutral (no ddx/helix CLI commands in normative body). A grep for 'validate' in skills/helix/SKILL.md finds the new section.",
+    "parent": "helix-2b235e7e",
+    "labels": [
+      "helix",
+      "phase:build",
+      "kind:implementation",
+      "area:skills",
+      "area:workflow",
+      "modernization"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-14T17:41:17Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "227954",
+      "execute-loop-heartbeat-at": "2026-05-14T17:41:17.990233693Z",
+      "spec-id": "helix.prd"
+    }
+  },
+  "governing": [
+    {
+      "id": "helix.prd",
+      "path": "docs/helix/01-frame/prd.md",
+      "title": "Product Requirements Document"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260514T174218-28ab47a8",
+    "prompt": ".ddx/executions/20260514T174218-28ab47a8/prompt.md",
+    "manifest": ".ddx/executions/20260514T174218-28ab47a8/manifest.json",
+    "result": ".ddx/executions/20260514T174218-28ab47a8/result.json",
+    "checks": ".ddx/executions/20260514T174218-28ab47a8/checks.json",
+    "usage": ".ddx/executions/20260514T174218-28ab47a8/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-8d4ba102-20260514T174218-28ab47a8"
+  },
+  "prompt_sha": "7c74e2dc3d7edb89528d745f24aad3faedb34fd2c645173a9f8e00560d1b147d"
+}
