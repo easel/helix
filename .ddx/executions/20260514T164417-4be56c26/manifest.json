@@ -1,0 +1,47 @@
+{
+  "attempt_id": "20260514T164417-4be56c26",
+  "bead_id": "helix-f6332f6c",
+  "base_rev": "f4764fef26d04d9f07557666f1a079dd9b9b7f1b",
+  "created_at": "2026-05-14T16:44:17.496625506Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-f6332f6c",
+    "title": "Standardize template.md instance frontmatter shape across HELIX artifact templates",
+    "description": "template.md files across HELIX artifact directories vary in their opening frontmatter. Some carry just an id placeholder, some carry nothing, and a recent product-vision experiment briefly inlined large helix-specific blocks. The result: authors who copy a template do not get a consistent starting frontmatter, and instance documents created from these templates have inconsistent frontmatter shapes.\n\nScope: every workflows/phases/*/artifacts/*/template.md opens with a minimal ddx: frontmatter block carrying the id pattern an instance should fill in. For example FEAT templates open with 'id: FEAT-XXX' (a placeholder the author replaces on instantiation); root-level singletons like product-vision open with their fixed id ('id: helix.product-vision'). Body content unchanged.\n\nHELIX uses the ddx: namespace as the open schema for instance frontmatter — DDx ships it, HELIX adopts it, other substrates are free to consume the same shape. This bead is about consistency of that frontmatter shape across templates. Type-level metadata (description, output location, prompts, validation rules) belongs in meta.yml or prompt.md, not template.md frontmatter — see helix-ada6e67e for that work.",
+    "acceptance": "Every workflows/phases/*/artifacts/*/template.md opens with a ddx: frontmatter block. The block contains at minimum an id field with either a placeholder pattern (XXX) or a fixed slug for singletons. No helix-specific blocks are inlined. A walking script confirms uniform shape.",
+    "parent": "helix-f9207605",
+    "labels": [
+      "helix",
+      "phase:build",
+      "kind:implementation",
+      "area:artifacts",
+      "area:workflow"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-14T16:43:24Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "227954",
+      "execute-loop-heartbeat-at": "2026-05-14T16:43:24.741986254Z",
+      "spec-id": "FEAT-008"
+    }
+  },
+  "governing": [
+    {
+      "id": "FEAT-008",
+      "path": "docs/helix/01-frame/features/FEAT-008-artifact-template-quality.md",
+      "title": "Feature Specification: FEAT-008 — Artifact Template Quality and Completeness"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260514T164417-4be56c26",
+    "prompt": ".ddx/executions/20260514T164417-4be56c26/prompt.md",
+    "manifest": ".ddx/executions/20260514T164417-4be56c26/manifest.json",
+    "result": ".ddx/executions/20260514T164417-4be56c26/result.json",
+    "checks": ".ddx/executions/20260514T164417-4be56c26/checks.json",
+    "usage": ".ddx/executions/20260514T164417-4be56c26/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-f6332f6c-20260514T164417-4be56c26"
+  },
+  "prompt_sha": "006b6ac67b915ccd8cdbc7e6f3c311516bbe2244b319e2b913436d16b9732751"
+}
