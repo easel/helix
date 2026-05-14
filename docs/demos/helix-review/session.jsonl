@@ -1,0 +1,17 @@
+{"meta": {"title": "HELIX review: fresh-eyes audit against the governing artifacts", "width": 100, "height": 30, "scenario": "review", "timestamp": 1764951000}}
+{"narration": "Build cycle finished. Tests pass. Before merging, a different agent does a fresh-eyes review against the same artifacts that govern the work."}
+{"prompt": "/helix-review bead-OAUTH-03"}
+{"assistant": "Loading bead-OAUTH-03 acceptance criteria and the artifacts it depends on.", "pace_ms": 18}
+{"tool_call": {"name": "Read", "args": {"file_path": ".ddx/beads.jsonl"}}}
+{"tool_result": "bead-OAUTH-03: token refresh endpoint", "lines": 12}
+{"tool_call": {"name": "Read", "args": {"file_path": "docs/helix/02-design/security-architecture.md"}}}
+{"tool_result": "§3.2 token lifecycle, §4 revocation", "lines": 42}
+{"tool_call": {"name": "Read", "args": {"file_path": "src/auth/refresh.ts"}}}
+{"tool_result": "implementation", "lines": 88}
+{"tool_call": {"name": "Read", "args": {"file_path": "tests/auth/refresh_test.ts"}}}
+{"tool_result": "8 test cases", "lines": 64}
+{"assistant": "Review findings:", "pace_ms": 18}
+{"output": "\n  ✓ implements §3.2 — refresh token rotation works\n  ✓ acceptance: rejects expired refresh tokens (test 3)\n  ✗ §4 revocation NOT enforced — revoked tokens still grant access\n     evidence: missing revocation list check at refresh.ts:42\n  ✗ no test for revocation path\n  ⚠ token logged to stdout in error path (refresh.ts:71) — security leak\n"}
+{"assistant": "Two blocking findings, one warning. Filing as tracker issues:", "pace_ms": 18}
+{"output": "\n  → bead-OAUTH-03a · enforce revocation list at refresh\n  → bead-OAUTH-03b · add revocation regression test\n  → bead-OAUTH-03c · scrub token from error logs\n"}
+{"narration": "A second agent, looking at the same artifacts, found what the first one missed. The lever cuts both ways.", "pause_s": 2.0}

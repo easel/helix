@@ -1,0 +1,14 @@
+{"meta": {"title": "HELIX evolve: thread a new requirement through the artifact graph", "width": 100, "height": 30, "scenario": "evolve", "timestamp": 1764950800}}
+{"narration": "The classic example from the product vision: 'We want OAuth login.' One sentence. The agent invokes the evolve skill against existing artifacts."}
+{"prompt": "/helix-evolve Add OAuth login alongside the existing API-key auth"}
+{"assistant": "I'll walk the artifact graph in authority order and find what this change touches.", "pace_ms": 18}
+{"tool_call": {"name": "Glob", "args": {"pattern": "docs/helix/**/*.md"}}}
+{"tool_result": "23 governing artifacts", "lines": 23}
+{"tool_call": {"name": "Read", "args": {"file_path": "docs/helix/01-frame/prd.md"}}}
+{"tool_result": "auth section: R-3 (API-key only)", "lines": 8}
+{"tool_call": {"name": "Read", "args": {"file_path": "docs/helix/02-design/security-architecture.md"}}}
+{"tool_result": "current threat model: API-key", "lines": 42}
+{"assistant": "Impact analysis — three feature specs, two solution designs, the security architecture, one ADR conflicts. Plan, ordered by authority:", "pace_ms": 18}
+{"output": "\n  step 1  · revise security-architecture.md (token lifecycle, refresh, revocation)\n  step 2  · supersede ADR-002 (API-key-only) with ADR-007 (dual-auth)\n  step 3  · update FEAT-AUTH spec; add user stories US-OAUTH-{login,refresh,revoke}\n  step 4  · revise SD-AUTH and SD-SESSION designs\n  step 5  · update TP-AUTH test plan to cover both flows\n  step 6  · file beads bead-OAUTH-{01..05} against the updated specs\n"}
+{"assistant": "Each downstream change traces back to step 1. Nothing in implementation lands until the security architecture lands.", "pace_ms": 18}
+{"narration": "One sentence in. Six ordered steps out, anchored in the authority hierarchy. No vibe-coded auth. No drift.", "pause_s": 2.0}

@@ -1,0 +1,11 @@
+{"meta": {"title": "Run it in the factory: DDx executes a HELIX-planned bead", "width": 100, "height": 30, "scenario": "execute", "timestamp": 1764951100}}
+{"narration": "Plan is approved. The runtime takes over. HELIX stays offstage — its job was the artifacts."}
+{"shell": "$ ddx bead next --execute"}
+{"output": "Selected: bead-001 (CSV header sniffer)\nAcceptance: schema-mapping.yaml exists\nEvidence: tests/header_sniffer_test.go (3 fixtures)\n"}
+{"output": "\n[fzo] routing → claude-sonnet-4-6 (preset: fast, harness: claude)\n[fzo] git worktree: .ddx/worktrees/bead-001\n"}
+{"narration": "FZO picks the right model and harness for the task. A throwaway worktree isolates the work.", "pause_s": 1.0}
+{"output": "\n[claude-code] reading bead acceptance contract\n[claude-code] writing tests/header_sniffer_test.go\n[claude-code] writing internal/ingest/header_sniffer.go\n[claude-code] go test ./internal/ingest — PASS (3/3)\n[claude-code] writing schema-mapping.yaml\n"}
+{"output": "\n[ddx] running acceptance gate:\n  · schema-mapping.yaml exists ✓\n  · tests/header_sniffer_test.go has 3 fixtures ✓\n  · go test ./... ✓\n  · OWASP scan (no injection sinks) ✓\n"}
+{"output": "\n[ddx] running cross-model review: gpt-5.4-mini\n  · spec compliance ✓\n  · duplication check ✓\n  · code quality ✓\n"}
+{"output": "\n[ddx] merging bead-001 worktree → main\n[ddx] evidence appended: .ddx/evidence/bead-001/\n[ddx] bead closed · 4m 22s · $0.18 spent\n"}
+{"narration": "One bead, executed end-to-end. Tests, acceptance, cross-model review, evidence — all locked in. The artifact graph updates with what was actually done.", "pause_s": 2.5}

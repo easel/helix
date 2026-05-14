@@ -1,0 +1,13 @@
+{"meta": {"title": "HELIX plan: turn aligned artifacts into bounded work", "width": 100, "height": 30, "scenario": "plan", "timestamp": 1764950700}}
+{"narration": "The brief is written and aligned. Now turn it into bounded implementation work — beads the runtime can execute."}
+{"prompt": "/helix-align --plan"}
+{"assistant": "Reading PRD + feature specs to identify the work needed.", "pace_ms": 18}
+{"tool_call": {"name": "Read", "args": {"file_path": "docs/helix/01-frame/prd.md"}}}
+{"tool_result": "R-1..R-6", "lines": 88}
+{"tool_call": {"name": "Read", "args": {"file_path": "docs/helix/01-frame/features/FEAT-001-csv-ingest.md"}}}
+{"tool_result": "user stories: US-INGEST-{1..4}", "lines": 56}
+{"assistant": "Decomposing into beads — scoped, with explicit acceptance and evidence expectations.", "pace_ms": 18}
+{"output": "\n  bead-001  · CSV header sniffer · accepts: schema-mapping.yaml exists\n            · evidence: tests/header_sniffer_test.go (3 fixtures)\n  bead-002  · row-level validator · accepts: rejects malformed rows with diagnostic\n            · evidence: tests/validator_test.go (10 cases incl. unicode)\n  bead-003  · Parquet writer · accepts: round-trip equivalence on golden CSV\n            · evidence: tests/parquet_test.go + benchmarks/throughput\n  bead-004  · CLI surface · accepts: --help, --schema, --output flags documented\n            · evidence: e2e test against fixture/sample.csv\n"}
+{"assistant": "Plan ordered by dependency. bead-001 unblocks bead-002 unblocks bead-003. bead-004 is independent.", "pace_ms": 18}
+{"output": "\n  → run with: ddx bead next --execute\n"}
+{"narration": "Four beads, deterministic acceptance criteria, evidence locked in. Any agent picking one up knows what done means.", "pause_s": 2.0}
