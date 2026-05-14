@@ -54,36 +54,58 @@ workflows/phases/02-design/artifacts/adr/meta.yml
 | `description` | string | Practical description of what the artifact is for and when a team should create it. |
 | `output.location` | string | Conventional location for instances of this type in a HELIX project. |
 | `output.format` | string | Expected output format. Markdown is the default catalog format. |
-| `output.naming` | string | Naming pattern for an instance, such as `prd.md`, `FEAT-{number}-{title}.md`, or `ADR-{number}-{title}.md`. |
-| `template.file` | string | Template filename relative to the artifact-type directory. Usually `template.md`. |
-| `version` | string | Schema or template version for the artifact type metadata. |
-| `last_updated` | string | Last meaningful update date for the artifact type metadata. Use ISO `YYYY-MM-DD` when possible. |
 
 ### Recommended fields
 
 | Field | Type | Meaning |
 | --- | --- | --- |
+| `artifact.level` | string | Granularity tier the artifact targets, such as `project`, `feature`, `story`, or `interface`. Use when the type can exist at multiple levels of the artifact hierarchy. |
 | `artifact.optional` | boolean | Whether the artifact type is conditional rather than generally expected in its phase. Omit or set `false` for normal phase artifacts. |
+| `output.naming` | string | Naming pattern for an instance, such as `prd.md`, `FEAT-{number}-{title}.md`, or `ADR-{number}-{title}.md`. |
+| `output.examples` | list | Example filenames demonstrating the naming pattern. |
+| `id_format` | mapping | Identifier shape for instances of this type. See [Instance ID format](#instance-id-format-id_format) below. |
+| `reuse_policy` | string | Human-readable rule explaining whether instances are write-once, updated in place, superseded, or replaced. |
 | `dependencies.requires` | list | Inputs needed before this artifact can be authored responsibly. These are planning dependencies, not necessarily runtime blockers. |
 | `dependencies.enables` | list | Artifacts, decisions, or phase work this artifact unlocks. |
 | `dependencies.relates_to` | list | Peer or adjacent artifacts that should be considered together. |
 | `validation.required_sections` | list | Sections an instance should contain. |
 | `validation.required_fields` | list | Structured fields or table columns an instance should contain. |
 | `validation.quality_checks` | list | Human or automated checks that determine whether the artifact is useful enough to depend on. |
-| `validation.automated_checks` | list | Pattern or rule checks a consumer can run mechanically. |
+| `validation.pattern_checks` | list | Regex checks a consumer can run mechanically against instance content. |
+| `validation.automated_checks` | list | Rule-based checks beyond regex, such as uniqueness constraints. |
 | `variables` | list | Template variables expected when generating an instance. |
 | `prompts.generation` | string | Prompt file used to generate the artifact, usually `prompt.md`. |
 | `prompts.review` | string | Inline or referenced review guidance. |
 | `prompts.update` | string | Inline or referenced update guidance. |
+| `template.file` | string | Template filename relative to the artifact-type directory. Usually `template.md`. |
 | `template.sections` | list or mapping | Named sections the template contains, optionally with section-specific guidance. |
+| `example.file` | string | Single canonical example filename relative to the artifact-type directory. |
 | `examples` | list | Example files for the artifact type. Examples are illustrative, not governing unless explicitly marked. |
 | `workflow.creation_order` | number or string | Relative order inside a phase. Lower values generally come earlier. |
 | `workflow.review_cycles` | number or string | Expected review depth before the artifact becomes dependable. |
 | `workflow.approval_required` | boolean | Whether explicit approval is expected before downstream artifacts depend on this artifact. |
 | `workflow.approvers` | list | Roles that should approve the artifact when approval is required. |
 | `workflow.update_triggers` | list | Events that should cause the artifact to be revisited. |
-| `relationships` | mapping | Traceability relationships that are useful but do not fit `dependencies`. |
+| `relationships` | mapping | Traceability relationships such as `informed_by` and `informs` that are useful but do not fit `dependencies`. |
+| `references` | list | External references, books, papers, or grounding resources for the artifact type. Each entry typically has `title`, `file`, and `relationship`. |
 | `tags` | list | Search and classification labels for the artifact type. |
+| `version` | string | Schema or template version for the artifact type metadata. |
+| `last_updated` | string | Last meaningful update date for the artifact type metadata. Use ISO `YYYY-MM-DD` when possible. |
+
+### Instance ID format (`id_format`)
+
+Numbered artifact types declare an `id_format` mapping describing how
+instance IDs are shaped:
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `prefix` | string | Uppercase identifier prefix, such as `ADR`, `FEAT`, `TP`. |
+| `pattern` | string | Regular expression an instance ID must match, such as `ADR-[0-9]{3}`. |
+| `example` | string | A concrete valid ID, such as `ADR-001`. |
+| `description` | string | Human-readable rule covering numbering, reuse, and supersession. |
+
+Singleton artifact types (one instance per project) may omit `id_format`
+because their `ddx.id` is fixed (for example `helix.product-vision`).
 
 ### Dependency entries
 
@@ -114,14 +136,19 @@ listed in a required context by a specific artifact type.
 | `description` | string | Human-readable rule. |
 | `severity` | string | `blocking`, `warning`, or `informational`. |
 
-`validation.automated_checks` entries may be pattern-based or rule-based:
+`validation.pattern_checks` entries are regex-based:
 
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `pattern` | string | Regular expression to search for. |
-| `expected` | string or number | Expected match condition, such as `0` or `>0`. |
+| `expected` | string or number | Expected match condition, such as `0`, `>=1`, or `>0`. |
 | `message` | string | Failure message. |
-| `check` | string | Named automated rule when regex is not enough. |
+
+`validation.automated_checks` entries are rule-based when regex is not enough:
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `check` | string | Named automated rule. |
 | `type` | string | Rule type, such as `unique_constraint`. |
 | `field` | string | Field the rule applies to. |
 | `not_equals` | string | Disallowed placeholder or value. |
