@@ -1,0 +1,48 @@
+{
+  "attempt_id": "20260514T180612-3ddbb1c1",
+  "bead_id": "helix-763d8846",
+  "base_rev": "9265be2fb7cabb5f92edf504d4c8aea1d6a3240d",
+  "created_at": "2026-05-14T18:06:13.087312659Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-763d8846",
+    "title": "Define DDx adapter boundary after core HELIX collapse",
+    "description": "After the runtime-neutral core is clarified, define what remains in the DDx integration: package metadata, optional CLI wrappers, tracker mapping, execute-loop mapping, and compatibility/deprecation policy. This should absorb or re-scope existing DDx execution-contract epics rather than letting them define HELIX's product spine.",
+    "acceptance": "DDx integration boundary doc exists; existing DDx execution epics are either parented under this adapter work, superseded, or explicitly retained as maintenance; core HELIX docs do not depend on DDx adapter behavior.",
+    "parent": "helix-f9207605",
+    "labels": [
+      "helix",
+      "phase:design",
+      "kind:spec",
+      "area:workflow",
+      "area:cli",
+      "area:integration"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-14T18:05:18Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "227954",
+      "execute-loop-heartbeat-at": "2026-05-14T18:05:18.524985754Z",
+      "spec-id": "helix.prd"
+    }
+  },
+  "governing": [
+    {
+      "id": "helix.prd",
+      "path": "docs/helix/01-frame/prd.md",
+      "title": "Product Requirements Document"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260514T180612-3ddbb1c1",
+    "prompt": ".ddx/executions/20260514T180612-3ddbb1c1/prompt.md",
+    "manifest": ".ddx/executions/20260514T180612-3ddbb1c1/manifest.json",
+    "result": ".ddx/executions/20260514T180612-3ddbb1c1/result.json",
+    "checks": ".ddx/executions/20260514T180612-3ddbb1c1/checks.json",
+    "usage": ".ddx/executions/20260514T180612-3ddbb1c1/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-763d8846-20260514T180612-3ddbb1c1"
+  },
+  "prompt_sha": "4583f09024571a011ce749b6f8de99a0ce97f774e1c30bcb603178e6f9b478b0"
+}
