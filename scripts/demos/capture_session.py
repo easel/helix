@@ -125,6 +125,7 @@ def capture(prompt: str, cwd: Path) -> list[dict]:
         CLAUDE_BIN,
         "-p",
         "--output-format=stream-json",
+        "--verbose",
         "--no-session-persistence",
         "--dangerously-skip-permissions",
         prompt,
