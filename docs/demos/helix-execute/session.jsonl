@@ -2,10 +2,15 @@
 {"narration": "Plan is approved. The runtime takes over. HELIX stays offstage — its job was the artifacts."}
 {"shell": "$ ddx bead next --execute"}
 {"output": "Selected: bead-001 (CSV header sniffer)\nAcceptance: schema-mapping.yaml exists\nEvidence: tests/header_sniffer_test.go (3 fixtures)\n"}
-{"output": "\n[fzo] routing → claude-sonnet-4-6 (preset: fast, harness: claude)\n[fzo] git worktree: .ddx/worktrees/bead-001\n"}
-{"narration": "FZO picks the right model and harness for the task. A throwaway worktree isolates the work.", "pause_s": 1.0}
-{"output": "\n[claude-code] reading bead acceptance contract\n[claude-code] writing tests/header_sniffer_test.go\n[claude-code] writing internal/ingest/header_sniffer.go\n[claude-code] go test ./internal/ingest — PASS (3/3)\n[claude-code] writing schema-mapping.yaml\n"}
-{"output": "\n[ddx] running acceptance gate:\n  · schema-mapping.yaml exists ✓\n  · tests/header_sniffer_test.go has 3 fixtures ✓\n  · go test ./... ✓\n  · OWASP scan (no injection sinks) ✓\n"}
-{"output": "\n[ddx] running cross-model review: gpt-5.4-mini\n  · spec compliance ✓\n  · duplication check ✓\n  · code quality ✓\n"}
-{"output": "\n[ddx] merging bead-001 worktree → main\n[ddx] evidence appended: .ddx/evidence/bead-001/\n[ddx] bead closed · 4m 22s · $0.18 spent\n"}
-{"narration": "One bead, executed end-to-end. Tests, acceptance, cross-model review, evidence — all locked in. The artifact graph updates with what was actually done.", "pause_s": 2.5}
+{"assistant": "FZO routes by preset + harness. Build presets prefer fast, cheap models.", "pace_ms": 18}
+{"output": "\n[fzo] preset: fast → claude-sonnet-4-6 (harness: claude)\n[fzo] git worktree: .ddx/worktrees/bead-001\n[fzo] cost cap: $0.50\n"}
+{"narration": "Isolation: throwaway worktree, no pollution of main.", "pause_s": 0.8}
+{"output": "\n[claude] reading bead acceptance contract\n[claude] reading docs/helix/01-frame/features/FEAT-001-csv-ingest.md\n[claude] writing tests/header_sniffer_test.go (3 table-driven cases)\n[claude] writing internal/ingest/header_sniffer.go (84 lines)\n[claude] go test ./internal/ingest — PASS (3/3 in 0.04s)\n[claude] writing schema-mapping.yaml (4 column mappings)\n[claude] go test ./... — PASS (3/3)\n"}
+{"assistant": "Implementation done. Now the deterministic acceptance gate fires.", "pace_ms": 18}
+{"output": "\n[ddx] acceptance gate:\n  · schema-mapping.yaml exists ............................. ✓\n  · tests/header_sniffer_test.go has ≥3 fixtures ........... ✓ (3 found)\n  · go test ./... ......................................... ✓\n  · OWASP A03 injection scan (semgrep) .................... ✓ (0 sinks)\n"}
+{"assistant": "Cross-model adversarial review: a different model audits the work against the same artifacts.", "pace_ms": 18}
+{"output": "\n[ddx] review harness: gpt-5.4-mini\n[ddx] reviewing against FEAT-001 + acceptance contract\n  · spec compliance ........................................ ✓\n  · duplication check ...................................... ✓\n  · code quality (govet, staticcheck) ...................... ✓\n  · no hardcoded secrets, no broad excepts ................. ✓\n"}
+{"assistant": "Both models agree. Merge.", "pace_ms": 18}
+{"output": "\n[ddx] merging .ddx/worktrees/bead-001 → main\n[ddx] commit: feat(ingest): header sniffer (closes bead-001)\n[ddx] evidence appended: .ddx/evidence/bead-001/\n  · session.jsonl  (37 events)\n  · acceptance.log\n  · review.json\n  · diff.patch\n"}
+{"output": "\n[ddx] bead-001 closed · wall 4m22s · spent $0.18 / $0.50 cap\n[ddx] next ready bead: bead-002 (row-level validator) — run with `ddx bead next --execute`\n"}
+{"narration": "One bead, end-to-end. Tests, acceptance, cross-model review, evidence — all locked in and trace back to the artifacts that authorized the work.", "pause_s": 2.5}
