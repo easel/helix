@@ -1,0 +1,49 @@
+{
+  "attempt_id": "20260514T175401-6995f728",
+  "bead_id": "helix-8e0336bd",
+  "base_rev": "7a758891842c60fcc9cef2cb97f83355835910e8",
+  "created_at": "2026-05-14T17:54:02.090889148Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-8e0336bd",
+    "title": "Author docs/install/codex.md — OpenAI Codex CLI and Copilot Codex extension",
+    "description": "Author docs/install/codex.md covering two distinct Codex surfaces and naming the difference clearly:\n\nA) OpenAI Codex CLI (the newer agent CLI): the skill body and workflows catalog drop into the repo as referenced markdown; an AGENTS.md entry points Codex at the skill; invocation is natural language inside a Codex session.\n\nB) GitHub Copilot Workspace / Codex extension: a more chat-style prompt-loading model; document how to load skills/helix/SKILL.md into the workspace prompt context or via Copilot's instruction-file mechanism. Likely lighter-touch than the CLI install.\n\nBoth surfaces share the same source content (skills/helix/ + workflows/). The doc must make clear that HELIX is not Codex-specific; the differences are purely in how each surface discovers and invokes a skill.\n\nSections:\n1. Which Codex am I using? (decision matrix: CLI vs extension)\n2. Install A — Codex CLI: file layout, AGENTS.md entry, verify snippet.\n3. Install B — Codex extension / Copilot: prompt loading, repo-instruction file location, verify snippet.\n4. Shared content reference: workflows/ catalog discovery rules.\n5. Caveats: any feature parity gaps between the two surfaces.",
+    "acceptance": "docs/install/codex.md exists, names both Codex surfaces explicitly, and gives separate install steps for each. A 'Which Codex am I using?' decision matrix appears near the top. Both install paths share the same source content (skills/helix/ + workflows/) — no Codex-specific fork. The doc is reachable from the install README index.",
+    "parent": "helix-2b235e7e",
+    "labels": [
+      "helix",
+      "phase:build",
+      "kind:docs",
+      "area:docs",
+      "area:packaging",
+      "area:runtime",
+      "modernization"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-14T17:53:10Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "227954",
+      "execute-loop-heartbeat-at": "2026-05-14T17:53:10.073478292Z",
+      "spec-id": "helix.prd"
+    }
+  },
+  "governing": [
+    {
+      "id": "helix.prd",
+      "path": "docs/helix/01-frame/prd.md",
+      "title": "Product Requirements Document"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260514T175401-6995f728",
+    "prompt": ".ddx/executions/20260514T175401-6995f728/prompt.md",
+    "manifest": ".ddx/executions/20260514T175401-6995f728/manifest.json",
+    "result": ".ddx/executions/20260514T175401-6995f728/result.json",
+    "checks": ".ddx/executions/20260514T175401-6995f728/checks.json",
+    "usage": ".ddx/executions/20260514T175401-6995f728/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-8e0336bd-20260514T175401-6995f728"
+  },
+  "prompt_sha": "6981e5b1807f0268887a15249412f3b830b94d169e0aaac3ff1f96d70d4735d2"
+}
