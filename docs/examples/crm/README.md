@@ -3,10 +3,11 @@ ddx:
   id: crm.readme
 ---
 
-# CRM Example — Greenfield Frame Artifacts
+# CRM Example - Worked Example Artifacts
 
-This directory holds frame-phase artifacts for a hypothetical CRM product,
-authored from the sparse intake `"design a CRM"` via the HELIX methodology.
+This directory holds discover, frame, and design artifacts for a hypothetical
+CRM product, authored from the sparse intake `"design a CRM"` via the HELIX
+methodology.
 
 It exists for two reasons:
 
@@ -21,6 +22,7 @@ It exists for two reasons:
 |---|---|---|
 | `crm.vision` | `00-discover/product-vision.md` | North-star CRM product vision |
 | `crm.prd` | `01-frame/prd.md` | CRM product requirements (MVP scope) |
+| `crm.solution-design` | `02-design/solution-design.md` | CRM worked-example solution design grounded in `crm.prd` |
 
 ## Scope and authority
 
@@ -42,6 +44,7 @@ project's canonical artifact IDs.
 
 ## Status
 
-Frame artifacts only. Design (`02-design/`) and downstream phases are not
-authored here yet; those are tracked by sibling beads `helix-8944c622` (design)
-and `helix-7e8a9c4b` (decomposition).
+Discover, frame, and design artifacts exist. Downstream decomposition and
+later-phase implementation planning are not authored here yet; those remain
+tracked by sibling beads `helix-7e8a9c4b` (decomposition) and any follow-on
+CRM example planning work.
