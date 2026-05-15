@@ -1,0 +1,10 @@
+{
+  "bead_id": "helix-66e1bc40",
+  "attempt_id": "20260515T004845-bcb4118f",
+  "started_at": "2026-05-15T00:48:46.782163666Z",
+  "worktree_path": "/var/tmp/ddx-exec-wt/.execute-bead-wt-helix-66e1bc40-20260515T004845-bcb4118f",
+  "pid": 2469400,
+  "session_id": "eb-d5ac90f7",
+  "refreshed_at": "2026-05-15T00:49:26.856593152Z",
+  "expires_at": "2026-05-15T00:51:26.856593152Z"
+}
