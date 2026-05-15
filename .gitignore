@@ -25,6 +25,9 @@ experiments/
 # Codex config
 .codex
 
+# Claude Code sub-agent isolation worktrees
+.claude/worktrees/
+
 # Hugo build output
 website/public/
 website/resources/
