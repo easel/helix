@@ -351,7 +351,7 @@ validation surface.
 
 **Traceability metadata format**:
 ```markdown
-# TP-036-list-mcp-servers.md
+# STP-036-list-mcp-servers.md
 **User Story**: [[US-036-list-mcp-servers]]
 **Technical Design**: [[TD-036-list-mcp-servers]]
 
@@ -501,13 +501,13 @@ docs/helix/02-design/
   solution-designs/
     SD-001-test-solution.md [[FEAT-001, TD-001]]
   technical-designs/
-    TD-001-first-design.md [[US-001, TP-001]]
+    TD-001-first-design.md [[US-001, STP-001]]
 docs/helix/03-test/
   test-plans/
-    TP-001-first-tests.md [[TD-001]]
+    STP-001-first-tests.md [[TD-001]]
 ```
 
-Test: `helix input "change US-001 acceptance criteria"` should produce beads for TD-001, TP-001, and tests.
+Test: `helix input "change US-001 acceptance criteria"` should produce beads for TD-001, STP-001, and tests.
 
 ## Migration Path
 
