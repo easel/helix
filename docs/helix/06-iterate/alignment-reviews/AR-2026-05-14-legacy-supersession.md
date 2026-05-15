@@ -27,7 +27,7 @@ identified in that review.
 | `docs/helix/02-design/solution-designs/SD-001-helix-supervisory-control.md` | superseded-by-prd | Added `status: superseded`, `superseded_by: helix.prd`, and SUPERSEDED banner. |
 | `docs/helix/02-design/technical-designs/TD-002-helix-cli.md` | partially-superseded | Added `status: partially-superseded`, `superseded_by: helix.prd`, and PARTIALLY SUPERSEDED banner. Survives as DDx adapter documentation. |
 | `docs/helix/02-design/technical-designs/TD-011-slider-autonomy-implementation.md` | superseded-by-prd | Added `status: superseded`, `superseded_by: helix.prd`, and SUPERSEDED banner. |
-| `docs/helix/03-test/test-plans/TP-002-helix-cli.md` | partially-superseded | Added `status: partially-superseded`, `superseded_by: helix.prd`, and PARTIALLY SUPERSEDED banner. Survives as DDx adapter/transition compatibility test coverage. |
+| `docs/helix/03-test/test-plans/STP-002-helix-cli.md` | partially-superseded | Added `status: partially-superseded`, `superseded_by: helix.prd`, and PARTIALLY SUPERSEDED banner. Survives as DDx adapter/transition compatibility test coverage. |
 | `docs/helix/02-design/architecture.md` | needs-rework | Added `status: needs-rework` frontmatter and NEEDS REWORK banner. Rewrite required; follow-up bead filed (see below). |
 | `docs/helix/02-design/plan-2026-03-27-supervisory-concurrency.md` | superseded-by-prd | Added frontmatter with `status: superseded`, `superseded_by: helix.prd`, and SUPERSEDED banner. |
 | `docs/helix/04-build/implementation-plan.md` | superseded-by-prd | Added `status: superseded`, `superseded_by: helix.prd`, and SUPERSEDED banner. Scoped to FEAT-011 slider autonomy, which is superseded. |

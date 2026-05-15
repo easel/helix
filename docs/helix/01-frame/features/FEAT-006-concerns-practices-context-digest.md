@@ -315,7 +315,7 @@ email, push, and in-app channels with per-channel opt-out</governing>
 </context-digest>
 
 Implement user notification preferences per FEAT-007 Section 3.2.
-Governing: FEAT-007, SD-007, TP-007.
+Governing: FEAT-007, SD-007, STP-007.
 ```
 
 Each XML element is optional — omit it if there is no relevant content.

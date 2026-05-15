@@ -346,7 +346,7 @@ Migration rules:
 - `docs/helix/02-design/technical-designs/TD-002-helix-cli.md`
 - `docs/helix/02-design/contracts/CONTRACT-001-ddx-helix-boundary.md`
 - `docs/helix/01-frame/features/FEAT-011-slider-autonomy.md`
-- `docs/helix/03-test/test-plans/TP-002-helix-cli.md`
+- `docs/helix/03-test/test-plans/STP-002-helix-cli.md`
 - `workflows/README.md`
 - `workflows/EXECUTION.md`
 - DDx FEAT-004 (beads) and FEAT-006 (agent service)
