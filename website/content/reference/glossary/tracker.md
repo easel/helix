@@ -33,7 +33,7 @@ A bead is a work item — the atomic unit of tracked work in HELIX.
 
 Labels are organizational conventions for triage and traceability.
 
-### Phase Labels
+### Activity Labels
 
 | Label | Meaning |
 |-------|---------|

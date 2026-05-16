@@ -59,5 +59,5 @@ describe('User Story: [Story Title]', () => {
 - [ ] All acceptance criteria have corresponding tests
 - [ ] Edge cases and error conditions covered
 - [ ] Tests are independent and repeatable
-- [ ] All tests initially fail (Red phase)
+- [ ] All tests initially fail (Red activity)
 - [ ] Test coverage meets project standards

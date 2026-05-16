@@ -32,9 +32,9 @@ If a lower-level artifact contradicts a higher one, fix the lower-level artifact
 
 HELIX enforces writing tests before implementation (TDD). The cycle:
 
-1. **Red** (Test phase) — Write a failing test that defines desired behavior
-2. **Green** (Build phase) — Write minimal code to make the test pass
-3. **Refactor** (Build phase) — Improve code quality while keeping tests green
+1. **Red** (Test activity) — Write a failing test that defines desired behavior
+2. **Green** (Build activity) — Write minimal code to make the test pass
+3. **Refactor** (Build activity) — Improve code quality while keeping tests green
 
 Tests are the contract between design and implementation. Build cannot start until tests exist and fail. Implementation is complete when tests pass.
 

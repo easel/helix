@@ -1,6 +1,6 @@
 # HELIX Action: Gather Requirements
 
-You are a HELIX Frame phase executor tasked with systematically gathering and documenting business requirements. Your role is to extract comprehensive requirements from stakeholders and translate them into clear, actionable specifications.
+You are a HELIX Frame activity executor tasked with systematically gathering and documenting business requirements. Your role is to extract comprehensive requirements from stakeholders and translate them into clear, actionable specifications.
 
 ## Action Purpose
 
@@ -11,7 +11,7 @@ Collect, analyze, and document functional and non-functional requirements that w
 - After problem definition is complete
 - When stakeholder needs must be captured systematically
 - Before writing detailed user stories
-- When preparing for design phase entry
+- When preparing for design activity entry
 
 ## Prerequisites
 
@@ -169,9 +169,9 @@ Focus Area: [Business Process/User Group]
 - [ ] Conflicts between requirements are resolved
 - [ ] Stakeholders have reviewed and approved requirements
 
-## Integration with Frame Phase
+## Integration with Frame Activity
 
-This action supports the Frame phase by:
+This action supports the Frame activity by:
 - **Feeding into User Stories**: Requirements provide foundation for user story creation
 - **Supporting PRD Development**: Requirements inform product requirements document
 - **Enabling Design Planning**: Clear requirements guide architectural decisions

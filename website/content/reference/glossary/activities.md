@@ -4,8 +4,8 @@ weight: 1
 prev: /reference/glossary
 next: /artifact-types
 aliases:
-  - /docs/glossary/phases
-  - /reference/glossary/phases
+  - /docs/glossary/activities
+  - /reference/glossary/activities
 ---
 
 HELIX names seven **activities** in software development: Discover, Frame,
@@ -27,7 +27,7 @@ Each activity produces a defined set of [artifact types](/artifact-types/).
 Authority flows from higher-level activities (Discover, Frame) toward
 lower-level ones (Build, Deploy), but **feedback flows freely in all
 directions** — implementation reveals missing requirements; a deploy-time
-gap surfaces an ADR question; an iterate-phase metric revises the vision.
+gap surfaces an ADR question; an iterate-activity metric revises the vision.
 
 ## Discover
 

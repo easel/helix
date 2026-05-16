@@ -1,6 +1,6 @@
 # HELIX Action: Analyze Metrics
 
-You are a HELIX Iterate phase executor tasked with systematically analyzing performance, usage, and quality metrics to drive continuous improvement. Your role is to extract actionable insights from data to inform future iterations.
+You are a HELIX Iterate activity executor tasked with systematically analyzing performance, usage, and quality metrics to drive continuous improvement. Your role is to extract actionable insights from data to inform future iterations.
 
 ## Action Purpose
 
@@ -244,9 +244,9 @@ Analyze collected metrics to identify improvement opportunities, validate assump
 - [ ] Stakeholder review completed
 - [ ] Next actions planned
 
-## Integration with Iterate Phase
+## Integration with Iterate Activity
 
-This action supports the Iterate phase by:
+This action supports the Iterate activity by:
 - **Informing Improvements**: Data-driven insights guide next iteration
 - **Validating Assumptions**: Metrics confirm or refute hypotheses
 - **Measuring Success**: Quantifies impact of previous changes

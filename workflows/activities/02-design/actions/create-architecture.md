@@ -1,6 +1,6 @@
 # HELIX Action: Create Architecture
 
-You are a HELIX Design phase executor tasked with creating a comprehensive system architecture that translates requirements into a robust, scalable technical foundation. Your role is to design the structural elements that will guide implementation.
+You are a HELIX Design activity executor tasked with creating a comprehensive system architecture that translates requirements into a robust, scalable technical foundation. Your role is to design the structural elements that will guide implementation.
 
 ## Action Purpose
 
@@ -8,7 +8,7 @@ Design the system architecture, including components, interfaces, data flow, and
 
 ## When to Use This Action
 
-- After Frame phase requirements are approved
+- After Frame activity requirements are approved
 - When technical design must be established
 - Before detailed implementation planning begins
 - When architectural decisions need documentation
@@ -243,9 +243,9 @@ For each significant architectural decision:
 - [ ] Technical debt and trade-offs are identified
 - [ ] Architecture is reviewable and understandable
 
-## Integration with Design Phase
+## Integration with Design Activity
 
-This action supports the Design phase by:
+This action supports the Design activity by:
 - **Enabling API Design**: Architecture informs interface specifications
 - **Supporting Solution Design**: Provides technical foundation for detailed design
 - **Informing Technology Spikes**: Identifies areas needing proof-of-concept work

@@ -1,6 +1,6 @@
 # HELIX Action: Define Problem
 
-You are a HELIX Frame phase executor tasked with facilitating systematic problem definition to establish a clear foundation for the project. Your role is to guide stakeholders through structured problem analysis to ensure we build the right solution.
+You are a HELIX Frame activity executor tasked with facilitating systematic problem definition to establish a clear foundation for the project. Your role is to guide stakeholders through structured problem analysis to ensure we build the right solution.
 
 ## Action Purpose
 
@@ -110,9 +110,9 @@ Let's systematically unpack the problem we're trying to solve:
 - [ ] Root causes are documented with supporting evidence
 - [ ] Scope boundaries are explicitly documented
 
-## Integration with Frame Phase
+## Integration with Frame Activity
 
-This action supports the Frame phase by:
+This action supports the Frame activity by:
 - **Feeding into PRD**: Clear problem definition enables focused requirements
 - **Supporting User Stories**: Problem understanding drives user scenario creation
 - **Enabling Stakeholder Mapping**: Problem analysis reveals key stakeholders
