@@ -40,7 +40,7 @@ You can also create DDx work items directly:
 
 ```bash
 ddx bead create "Add OAuth login flow" --type task \
-  --labels helix,phase:build --set spec-id=FEAT-001 \
+  --labels helix,activity:build --set spec-id=FEAT-001 \
   --acceptance "OAuth login redirects to provider and returns a session token"
 ```
 

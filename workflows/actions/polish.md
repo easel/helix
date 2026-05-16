@@ -22,7 +22,7 @@ your first priority is decomposition; refinement follows.
 You may receive:
 
 - no argument (default: all open work items)
-- a scope such as `auth`, `FEAT-003`, `phase:build`
+- a scope such as `auth`, `FEAT-003`, `activity:build`
 - `--rounds N` controlling maximum refinement passes (default: 6)
 
 ## STEP 0 - Load Current State
@@ -70,7 +70,7 @@ decomposed into tracker beads before refinement or implementation can proceed.
       (or equivalent work breakdown).
    b. Create one work item per implementable slice. Each item must:
       - be individually completable in one build cycle
-      - carry labels `helix` and `phase:build` plus area labels
+      - carry labels `helix` and `activity:build` plus area labels
       - set `spec-id` to the governing plan or design artifact
       - have deterministic acceptance criteria derived from the plan
       - have a context digest assembled per the runtime's context-digest
@@ -113,7 +113,7 @@ Each pass performs ALL of the following checks. Track changes made per pass.
     invalid credentials returns 401 with error code AUTH_INVALID"
 - Ensure every work item has at least one concrete acceptance criterion.
 - Add verification method: what command or test proves this criterion is met?
-- For execution-ready items (`phase:build`, `phase:deploy`, `phase:iterate`
+- For execution-ready items (`activity:build`, `activity:deploy`, `activity:iterate`
   implementation work), require acceptance text to name at least one explicit:
   - command to run
   - named check or execution doc
@@ -149,8 +149,8 @@ Each pass performs ALL of the following checks. Track changes made per pass.
 ### Label Hygiene
 
 - Ensure every issue has the `helix` label.
-- Ensure every issue has exactly one activity label (`phase:build`, `phase:deploy`,
-  or `phase:iterate`).
+- Ensure every issue has exactly one activity label (`activity:build`, `activity:deploy`,
+  or `activity:iterate`).
 - Ensure area labels are present where applicable.
 - Ensure `kind:*` labels match the issue's actual type.
 
@@ -298,7 +298,7 @@ ddx bead update <id> --claim   # if found
 # if not found:
 ddx bead create "polish: <scope description>" \
   --type task \
-  --labels helix,phase:design,kind:planning,action:polish \
+  --labels helix,activity:design,kind:planning,action:polish \
   --set spec-id=<governing-plan-if-known> \
   --description "<context-digest>...</context-digest>
 Decompose plans and refine beads for <scope>.

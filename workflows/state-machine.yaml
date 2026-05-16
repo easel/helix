@@ -206,16 +206,16 @@ story_flow:
     test_plan: TP
     # Runtime-neutral descriptions: "tracker issue" means any issue-tracking
     # system. The DDx integration section below maps these to ddx bead commands.
-    implementation_issue: "tracker issue labeled phase:build"
-    deployment_issue: "tracker issue labeled phase:deploy"
+    implementation_issue: "tracker issue labeled activity:build"
+    deployment_issue: "tracker issue labeled activity:deploy"
     iterate_evidence: "all deploy issue(s) complete with no matching deploy issue remaining not closed, plus optional linked tracker follow-on work; canonical iterate outputs remain shared iteration context"
 
   # --- DDx integration ---
   # The following keys are DDx-specific and document how the runtime-neutral
   # prefix labels above map to DDx bead commands.
   ddx_integration:
-    implementation_issue: "ddx bead issue labeled phase:build"
-    deployment_issue: "ddx bead issue labeled phase:deploy"
+    implementation_issue: "ddx bead issue labeled activity:build"
+    deployment_issue: "ddx bead issue labeled activity:deploy"
 
   transitions:
     - from: US-{id}
@@ -225,12 +225,12 @@ story_flow:
       to: STP-{id}
       activity_change: design -> test
     - from: STP-{id}
-      to: "tracker issue(s) labeled helix, phase:build, story:US-{id}"
+      to: "tracker issue(s) labeled helix, activity:build, story:US-{id}"
       activity_change: test -> build
-    - from: "tracker issue(s) labeled helix, phase:build, story:US-{id}"
-      to: "tracker issue(s) labeled helix, phase:deploy, story:US-{id}"
+    - from: "tracker issue(s) labeled helix, activity:build, story:US-{id}"
+      to: "tracker issue(s) labeled helix, activity:deploy, story:US-{id}"
       activity_change: build -> deploy
-    - from: "tracker issue(s) labeled helix, phase:deploy, story:US-{id}"
+    - from: "tracker issue(s) labeled helix, activity:deploy, story:US-{id}"
       to: "all deploy issue(s) complete for story US-{id} with no matching deploy issue remaining not closed; optional linked tracker follow-on work"
       activity_change: deploy -> iterate
 

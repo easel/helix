@@ -90,13 +90,13 @@ Use a review-style research structure:
 
 1. Research epic
    - native `type: epic`
-   - labels: `helix`, `phase:review`, `kind:review`
+   - labels: `helix`, `kind:review`, `kind:review`
    - title pattern: `HELIX docs backfill: <scope>`
 
 2. Research issues
    - `type: task`
    - parented to the research epic
-   - labels: `helix`, `phase:review`, `kind:review`, plus area labels
+   - labels: `helix`, `kind:review`, `kind:review`, plus area labels
 
 3. Follow-up execution issues
    - created only after the backfill report exists

@@ -91,13 +91,13 @@ Its former umbrella scope is now split deliberately across the current deploy
 contract: `deployment-checklist` covers technical go/no-go readiness,
 `monitoring-setup` covers observability readiness, `runbook` covers operator
 response, `release-notes` cover release communication, and linked
-`phase:deploy` tracker issues carry coordination, owners, and dependencies.
+`activity:deploy` tracker issues carry coordination, owners, and dependencies.
 Restoring a separate launch checklist would collapse distinct responsibilities
 back into one vague surface without adding a new prompt or template contract.
 
 The deleted `gtm-plan` artifact stays retired. Its only durable HELIX-native
 responsibilities are already covered by the current deploy contract:
-`release-notes` handle release-scoped communication, and linked `phase:deploy`
+`release-notes` handle release-scoped communication, and linked `activity:deploy`
 tracker issues carry launch coordination, owners, approvals, and communication
 checkpoints. Broader go-to-market or adoption planning is project-specific
 business planning rather than a portable HELIX artifact, so restoring
@@ -110,7 +110,7 @@ replace release-scoped notes that are audience-filtered and action-oriented.
 ### Deploy Work Items
 **Output Location**: the runtime's work-item tracker
 
-Deploy work is tracked as `phase:deploy` work items in the runtime tracker
+Deploy work is tracked as `activity:deploy` work items in the runtime tracker
 rather than per-story deployment markdown plans. These items cover both
 story-scoped rollout execution and release-scoped coordination slices such as
 owners, dependencies, approval handoffs, and communication checkpoints. Deploy
@@ -119,7 +119,7 @@ are rolling out using native tracker IDs, dependencies, and labels.
 
 The deleted `story-deployment-plan` artifact stays retired. Its only durable
 responsibility is to define scoped rollout work, and the runtime tracker now
-does that more directly through `phase:deploy` work items linked to the
+does that more directly through `activity:deploy` work items linked to the
 governing deploy artifacts.
 
 ## Artifact Metadata

@@ -239,7 +239,7 @@ other workflows may implement a subset.
 HELIX is the reference implementation of DDx. It layers workflow-specific
 semantics on top of DDx tools:
 
-- **Activity labels** (`phase:build`, `phase:design`, etc.) on beads
+- **Activity labels** (`activity:build`, `activity:design`, etc.) on beads
 - **Spec-id enforcement** linking every bead to its governing artifact
 - **Execution-eligible** derivation from activity labels
 - **Supervisory run loop** that sequences build/check/design/review

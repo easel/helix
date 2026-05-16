@@ -471,7 +471,7 @@ Uses existing patterns:
 New bead labels:
 - `kind:escalation` - resolvable conflicts needing human review
 - `kind:speculative` - assumptions made in high autonomy mode
-- `phase:frame`, `phase:design`, etc. - existing activity labels preserved
+- `activity:frame`, `activity:design`, etc. - existing activity labels preserved
 
 ## Testing Strategy
 

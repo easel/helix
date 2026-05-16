@@ -109,7 +109,7 @@ Each user story progresses through all activities independently:
 ### Naming Pattern
 Canonical story document artifacts use `{Prefix}-{Number}-{descriptive-name}.md`.
 Build and deploy execution use native tracker issue IDs. A story enters
-ITERATE when all matching `phase:deploy` issues are complete and no matching
+ITERATE when all matching `activity:deploy` issues are complete and no matching
 deploy issue remains not closed. Shared iterate outputs stay project- or
 iteration-level context, while tracker-backed follow-on work adds
 story-specific evidence when needed.
@@ -119,9 +119,9 @@ story-specific evidence when needed.
 Frame:   US-036-list-mcp-servers.md
 Design:  TD-036-list-mcp-servers.md
 Test:    STP-036-list-mcp-servers.md
-Build:   runtime work item labeled `helix`, `phase:build`, `story:US-036`
-Deploy:  runtime work item labeled `helix`, `phase:deploy`, `story:US-036`
-Iterate: all `phase:deploy` work items for `story:US-036` are complete and no
+Build:   runtime work item labeled `helix`, `activity:build`, `story:US-036`
+Deploy:  runtime work item labeled `helix`, `activity:deploy`, `story:US-036`
+Iterate: all `activity:deploy` work items for `story:US-036` are complete and no
          matching deploy item remains not closed; optional tracker follow-on
          work may remain linked to US-036
 Context: `metrics-dashboard.md`, `security-metrics.md` (when relevant), and

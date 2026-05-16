@@ -11,7 +11,7 @@ class RefreshContextDigestsTest(unittest.TestCase):
             "title": "align: workflows/activities/05-deploy/artifacts",
             "description": "Review the artifact directory scope directly.",
             "acceptance": "Recover workflow and artifact area labels from the scope path.",
-            "labels": ["helix", "phase:build"],
+            "labels": ["helix", "activity:build"],
             "spec-id": "workflows/activities/05-deploy/artifacts",
         }
 

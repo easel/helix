@@ -13,7 +13,7 @@ and runs verification without re-executing the work.
 You may receive:
 
 - an explicit work item ID
-- a scope selector such as `FEAT-003`, `area:auth`, or `phase:build`
+- a scope selector such as `FEAT-003`, `area:auth`, or `activity:build`
 - `--rerun <id>` to re-measure a previously measured item
 
 ## Authority Order

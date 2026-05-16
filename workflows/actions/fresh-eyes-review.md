@@ -164,7 +164,7 @@ and appear in the ready queue for subsequent execution cycles.
 For each actionable finding, create a work item with:
 
 - a title with the category prefix
-- labels `helix,phase:build,review-finding` plus derived area labels
+- labels `helix,activity:build,review-finding` plus derived area labels
 - `spec-id` set to the governing artifact or file path where the finding
   was identified
 - description including: file and line, category, severity, full description,
@@ -255,7 +255,7 @@ ddx bead list --status open --label kind:planning,action:review --json
 # if not found:
 ddx bead create "review: <scope description>" \
   --type task \
-  --labels helix,phase:review,kind:planning,action:review \
+  --labels helix,kind:review,kind:planning,action:review \
   --set spec-id=<reviewed-commit-or-issue> \
   --description "<context-digest>...</context-digest>
 Fresh-eyes review of <target>.
@@ -273,7 +273,7 @@ derived `area:*` labels stay deterministic.
 ```bash
 new_id="$(ddx bead create "<category>: <short description>" \
   --type task \
-  --labels helix,phase:build,review-finding,<derived-area-labels> \
+  --labels helix,activity:build,review-finding,<derived-area-labels> \
   --set spec-id=<governing-artifact-or-file-path> \
   --description "Review finding from fresh-eyes review.
 File: <file>:<line>

@@ -66,7 +66,7 @@ should:
 - use the runtime's native issue types and dependencies
 - cite the governing canonical docs (e.g. via `spec-id` or the issue
   description)
-- carry at least one activity label (`phase:build`, `phase:deploy`, etc.) when the
+- carry at least one activity label (`activity:build`, `activity:deploy`, etc.) when the
   runtime supports labels
 - stay small enough to close independently
 

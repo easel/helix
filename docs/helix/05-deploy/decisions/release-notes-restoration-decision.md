@@ -74,7 +74,7 @@ the live contract even though the original artifact stub was pruned.
 
 The deleted `gtm-plan` artifact stays retired. `release-notes` cover the
 release communication that HELIX standardizes, while broader launch
-coordination or adoption planning belongs in linked `phase:deploy` tracker
+coordination or adoption planning belongs in linked `activity:deploy` tracker
 issues or project-specific business planning outside the portable artifact set.
 
 The deleted prompt and template were too generic to justify keeping. Restoration

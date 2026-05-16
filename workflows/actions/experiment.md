@@ -20,7 +20,7 @@ definition at `docs/helix/06-iterate/metrics/`.
 
 You may receive:
 
-- no argument (auto-select a ready `phase:iterate` work item)
+- no argument (auto-select a ready `activity:iterate` work item)
 - an explicit work item ID
 - a goal description such as `optimize test-suite-runtime`
 - a `--close` flag directing you to skip iteration and execute Step 3
@@ -51,7 +51,7 @@ Rules:
 
 Use the runtime tracker only.
 
-This action works only on execution work items labeled `phase:iterate`. Exclude
+This action works only on execution work items labeled `activity:iterate`. Exclude
 review items and build/deploy items by default.
 
 The experiment action claims one item at session setup, may create follow-on
@@ -93,14 +93,14 @@ This activity runs on the first invocation only. If resuming, Step 0 skips here.
 Select the experiment work item:
 
 1. If the input is an explicit work item ID: inspect that item.
-2. If the input is a goal description: search ready `phase:iterate` items
+2. If the input is a goal description: search ready `activity:iterate` items
    matching the goal.
-3. If no input is given: inspect ready `phase:iterate` execution items and
+3. If no input is given: inspect ready `activity:iterate` execution items and
    choose the best candidate.
 
 The selected item MUST:
 
-- be labeled `phase:iterate`
+- be labeled `activity:iterate`
 - have passing tests (the project's test suite must be green before
   experimenting)
 - have clear acceptance criteria defining what metric to optimize

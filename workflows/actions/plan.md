@@ -245,7 +245,7 @@ ddx bead update <id> --claim   # if found
 # if not found:
 ddx bead create "design: <scope description>" \
   --type task \
-  --labels helix,phase:design,kind:planning,action:design \
+  --labels helix,activity:design,kind:planning,action:design \
   --set spec-id=<governing-artifact-if-known> \
   --description "<context-digest>...</context-digest>
 Create comprehensive design document for <scope>.

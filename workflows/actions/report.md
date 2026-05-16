@@ -11,7 +11,7 @@ This action operates in two modes: per-item (closing one cycle) and batch
 You may receive:
 
 - an explicit work item ID (per-item mode)
-- a scope selector such as `FEAT-003`, `area:auth`, or `phase:build` (batch mode)
+- a scope selector such as `FEAT-003`, `area:auth`, or `activity:build` (batch mode)
 - `--since YYYY-MM-DD` to limit batch scope by time
 
 ## STEP 0 - Bootstrap
@@ -44,7 +44,7 @@ Classify the measurement outcome:
 ### STEP 3 - Create Follow-On Work Items
 
 For each follow-on item, create a work item with a category prefix in the
-title, labels including `helix` and `phase:build`, a `spec-id` pointing to the
+title, labels including `helix` and `activity:build`, a `spec-id` pointing to the
 nearest governing artifact, a context digest, a reference to the parent item in
 the description, and deterministic acceptance criteria.
 
@@ -180,7 +180,7 @@ Create follow-on beads:
 ```bash
 ddx bead create "<category>: <description>" \
   --type task \
-  --labels helix,phase:build \
+  --labels helix,activity:build \
   --set spec-id=<governing-artifact> \
   --description "<context-digest>...</context-digest>
 Follow-on from bead <parent-id>.

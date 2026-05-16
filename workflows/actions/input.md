@@ -71,7 +71,7 @@ Create or update work items for the identified work:
 
 1. Create new work items for new scope.
 2. Refine existing work items when the same scope already has an open item.
-3. Assign labels: `helix`, plus `phase:build`, `kind:implementation`, and any
+3. Assign labels: `helix`, plus `activity:build`, `kind:implementation`, and any
    relevant `area:` labels.
 4. Set `spec-id` to the nearest governing artifact (feature, user story, or
    design doc ID).
@@ -139,7 +139,7 @@ Search for existing governing beads via the tracker.
 ```bash
 # Create new work item
 ddx bead create "<title>" \
-  --labels helix,phase:build,kind:implementation \
+  --labels helix,activity:build,kind:implementation \
   --set spec-id=<governing-artifact> \
   --acceptance "<testable criteria>"
 

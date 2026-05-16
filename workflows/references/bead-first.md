@@ -77,11 +77,11 @@ Planning-helix beads use two labels:
 - `action:<name>` — identifies which action will execute this bead
 
 Combined with the standard `helix` label and activity labels, a typical planning
-bead has labels: `helix,kind:planning,action:design,phase:build`.
+bead has labels: `helix,kind:planning,action:design,activity:build`.
 
 Execution beads (those consumed by `helix build`) do not carry `kind:planning`
-or `action:*` labels — they carry `phase:build`, `phase:deploy`, or
-`phase:iterate` as before.
+or `action:*` labels — they carry `activity:build`, `activity:deploy`, or
+`activity:iterate` as before.
 
 ## Exceptions
 

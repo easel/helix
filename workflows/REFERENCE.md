@@ -232,8 +232,8 @@ required by every runtime and are not part of the portable HELIX methodology.
 Recommended DDx labels:
 
 - `helix` identifies HELIX-managed issues in a DDx tracker.
-- Activity labels: `phase:frame`, `phase:design`, `phase:test`, `phase:build`,
-  `phase:deploy`, `phase:iterate`, `phase:review`.
+- Activity labels: `activity:frame`, `activity:design`, `activity:test`, `activity:build`,
+  `activity:deploy`, `activity:iterate`, `kind:review`.
 - Kind labels: `kind:build`, `kind:deploy`, `kind:backlog`, `kind:review`.
 - Traceability labels: `story:US-XXX`, `feature:FEAT-XXX`, `area:<name>`,
   `source:metrics`.

@@ -15,7 +15,7 @@ You may receive:
 
 - no argument
 - `repo`
-- a scope selector such as `US-042`, `FEAT-003`, `area:auth`, or `phase:build`
+- a scope selector such as `US-042`, `FEAT-003`, `area:auth`, or `activity:build`
 
 If no scope is given, default to the repository.
 

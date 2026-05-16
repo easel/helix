@@ -67,7 +67,7 @@ deploy artifact surface in `workflows/DDX.md`, `workflows/conventions.md`,
 `runbook` is not replaced by `deployment-checklist` or `monitoring-setup`.
 Those artifacts define release decision points and observability configuration;
 the runbook is the durable response surface that ties signals to operator
-action. `phase:deploy` beads track rollout work, but they do not replace the
+action. `activity:deploy` beads track rollout work, but they do not replace the
 persistent per-service procedures operators need during incidents and
 recovery.
 

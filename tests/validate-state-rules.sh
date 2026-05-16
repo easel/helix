@@ -34,7 +34,7 @@ if "pattern:" in body:
     errors.append("story iterate rule must not include a static artifact pattern")
 if "query_only: true" not in body:
     errors.append("story iterate rule must be query-only")
-if "Inspect tracker issues labeled helix, phase:deploy, story:US-{id}" not in body:
+if "Inspect tracker issues labeled helix, activity:deploy, story:US-{id}" not in body:
     errors.append("story iterate query must inspect deploy issues by story label")
 if "all matching deploy issues are complete and no matching deploy issue remains not closed" not in body:
     errors.append("story iterate query must require all deploy issues complete with no matching deploy issue remaining not closed")
@@ -54,7 +54,7 @@ import sys
 text = Path(sys.argv[1]).read_text(encoding="utf-8")
 normalized = " ".join(text.split())
 errors = []
-if "completion of all matching `phase:deploy` issue(s) with no matching deploy issue remaining not closed." not in normalized:
+if "completion of all matching `activity:deploy` issue(s) with no matching deploy issue remaining not closed." not in normalized:
     errors.append("iterate README must require all matching deploy issues complete with no matching deploy issue remaining not closed")
 if "If any matching deploy issue is not closed, including `status: in_progress`, the story remains in DEPLOY." not in normalized:
     errors.append("iterate README must explicitly keep DEPLOY active for non-closed deploy issues, including in_progress")

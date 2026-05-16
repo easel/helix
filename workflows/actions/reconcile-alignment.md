@@ -51,13 +51,13 @@ Use two issue categories:
 
 1. Review epic
    - `type: epic`
-   - labels: `helix`, `phase:review`, `kind:review`
+   - labels: `helix`, `kind:review`, `kind:review`
    - title pattern: `HELIX alignment review: <scope>`
 
 2. Review issues
    - `type: task`
    - parented to the review epic
-   - labels: `helix`, `phase:review`, `kind:review`, plus area labels
+   - labels: `helix`, `kind:review`, `kind:review`, plus area labels
 
 Only after consolidation, create execution issues for approved follow-up work.
 Execution issues must use tracker IDs, `parent`, `deps`, `spec-id`, and
@@ -441,7 +441,7 @@ ddx bead update <id> --claim   # if found
 # if not found:
 ddx bead create "align: <scope description>" \
   --type task \
-  --labels helix,phase:review,kind:planning,action:align \
+  --labels helix,kind:review,kind:planning,action:align \
   --set spec-id=<governing-artifact-if-known> \
   --description "<context-digest>...</context-digest>
 Top-down reconciliation review for <scope>.

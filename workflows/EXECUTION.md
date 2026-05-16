@@ -753,7 +753,7 @@ ddx bead close <id>                     # resolve a finding
 ## Experiment Loop
 
 `helix experiment` runs a single iteration of a metric-optimization loop for
-`phase:iterate` issues. Each invocation: hypothesize → edit → test → benchmark →
+`activity:iterate` issues. Each invocation: hypothesize → edit → test → benchmark →
 keep/discard → log → exit.
 
 The loop is driven externally by the `helix-experiment` skill or by the

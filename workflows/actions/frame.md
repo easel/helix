@@ -258,7 +258,7 @@ Skip this activity if the principles file already exists.
 Create work items for Design-activity work implied by the framing:
 
 - One work item per feature spec that needs a solution design
-- Label with `helix,phase:design`
+- Label with `helix,activity:design`
 - Set `spec-id` to the feature spec ID
 - Set acceptance criteria to "solution design exists and covers feature requirements"
 

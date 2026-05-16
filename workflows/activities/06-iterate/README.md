@@ -159,7 +159,7 @@ old story-scoped intent is already covered by the current iterate contract:
   future expectations
 
 For story-state detection, the deterministic ITERATE threshold remains
-completion of all matching `phase:deploy` issue(s) with no matching deploy
+completion of all matching `activity:deploy` issue(s) with no matching deploy
 issue remaining not closed. If any matching deploy issue is not closed,
 including `status: in_progress`, the story remains in DEPLOY. Shared iterate
 outputs provide iteration-wide context, and linked tracker follow-on work adds

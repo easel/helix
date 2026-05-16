@@ -24,7 +24,7 @@ pruned.
 - `runbook` explains how operators respond when rollout fails or an incident
   occurs, but it is broader and more procedural than the release checklist.
 - Release communication belongs in `release-notes`, and broader launch
-  coordination belongs in linked `phase:deploy` tracker issues rather than the
+  coordination belongs in linked `activity:deploy` tracker issues rather than the
   technical deployment checklist.
 
 ## Canonical Inputs
@@ -65,5 +65,5 @@ Its surviving intent is intentionally decomposed: technical readiness lives in
 `deployment-checklist`, observability readiness lives in `monitoring-setup`,
 rollback and recovery procedures live in `runbook`, release communication lives
 in `release-notes`, and cross-functional coordination lives in linked
-`phase:deploy` tracker issues. Reintroducing `launch-checklist` would duplicate
+`activity:deploy` tracker issues. Reintroducing `launch-checklist` would duplicate
 those surfaces instead of defining a distinct deploy artifact.

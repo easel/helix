@@ -175,7 +175,7 @@ Create work items for the implementation work implied by the updated artifacts:
 1. For each updated artifact, determine what code changes are needed.
 2. Create work items that are individually implementable in one build cycle.
 3. Each work item must:
-   - carry labels `helix,phase:build,...`
+   - carry labels `helix,activity:build,...`
    - set `spec-id` to the updated artifact
    - have deterministic acceptance criteria
 4. Set parent if the items belong to an existing epic.
@@ -290,7 +290,7 @@ ddx bead update <id> --claim   # if found
 # if not found:
 ddx bead create "evolve: <requirement summary>" \
   --type task \
-  --labels helix,phase:design,kind:planning,action:evolve \
+  --labels helix,activity:design,kind:planning,action:evolve \
   --description "<context-digest>...</context-digest>
 Thread requirement through artifact stack: <requirement description>.
 Source: <--from value if provided>" \

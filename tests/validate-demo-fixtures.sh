@@ -78,8 +78,8 @@ if stale_command in prompt_line_set:
 PYEOF
 }
 
-expected_command='ddx bead create "drift: <description>" --type task --labels helix,phase:build,review-finding,area:testing'
-stale_command='ddx bead create "drift: <description>" --type task --labels helix,phase:build,review-finding'
+expected_command='ddx bead create "drift: <description>" --type task --labels helix,activity:build,review-finding,area:testing'
+stale_command='ddx bead create "drift: <description>" --type task --labels helix,activity:build,review-finding'
 
 [[ ! -e "$repo_root/docs/demos/helix-concerns/agent-dictionary/e049bf7ab8d7b559.json" ]] \
   || fail "stale helix-concerns replay fixture should be removed after prompt hash changes"

@@ -373,10 +373,10 @@ DDx-managed HELIX execution categories are expressed through native issue types,
 parents, dependencies, `spec-id`, and labels rather than custom HELIX queue
 files:
 
-- `phase:build` for story-level implementation work
-- `phase:deploy` for rollout execution work
-- `phase:iterate` and `kind:backlog` for prioritized follow-up work
-- `phase:review` and `kind:review` for reconciliation or audit work
+- `activity:build` for story-level implementation work
+- `activity:deploy` for rollout execution work
+- `activity:iterate` and `kind:backlog` for prioritized follow-up work
+- `kind:review` and `kind:review` for reconciliation or audit work
 - `kind:planning` plus `action:<name>` for bead-governed planning actions such
   as `align`, `design`, or `polish`
 

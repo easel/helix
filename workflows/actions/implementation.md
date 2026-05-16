@@ -23,7 +23,7 @@ You may receive:
 
 - no argument
 - an explicit work item ID
-- a scope selector such as `US-042`, `FEAT-003`, `area:auth`, or `phase:deploy`
+- a scope selector such as `US-042`, `FEAT-003`, `area:auth`, or `activity:deploy`
 
 If no argument is given, choose the best ready HELIX execution work item.
 
@@ -193,9 +193,9 @@ For the selected work item:
    - parent item or epic
    - linked user story, feature, design, or test artifacts
 5. Determine the work activity from labels:
-   - `phase:build`
-   - `phase:deploy`
-   - `phase:iterate`
+   - `activity:build`
+   - `activity:deploy`
+   - `activity:iterate`
 
 ## STEP 4 - Pre-Execution Validation
 
@@ -225,7 +225,7 @@ what IS specified, implement that, and create follow-on issues for the rest.
 
 ## STEP 5 - Activity-Appropriate Execution
 
-### `phase:build`
+### `activity:build`
 
 Follow Build-activity discipline strictly:
 
@@ -235,7 +235,7 @@ Follow Build-activity discipline strictly:
 - keep changes scoped to the issue
 - refactor only after verification is green
 
-### `phase:deploy`
+### `activity:deploy`
 
 Follow Deploy-activity discipline strictly:
 
@@ -243,7 +243,7 @@ Follow Deploy-activity discipline strictly:
 - do not expand product behavior or sneak in implementation changes unrelated to deployment safety
 - verify rollback and observability expectations where required
 
-### `phase:iterate`
+### `activity:iterate`
 
 Follow Iterate-activity discipline strictly:
 

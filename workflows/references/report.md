@@ -24,7 +24,7 @@ For each follow-on item:
 ```bash
 ddx bead create "<category>: <description>" \
   --type task \
-  --labels helix,phase:build \
+  --labels helix,activity:build \
   --set spec-id=<governing-artifact> \
   --description "<context-digest>...</context-digest>
 Follow-on from bead <parent-id>.
@@ -82,7 +82,7 @@ time range).
 ### Input
 
 ```bash
-helix report <scope>          # e.g., FEAT-003, area:auth, phase:build
+helix report <scope>          # e.g., FEAT-003, area:auth, activity:build
 helix report --since 2026-04-01
 ```
 

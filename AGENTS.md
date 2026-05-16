@@ -268,7 +268,7 @@ helix measure ddx-abc123              # verify bead against criteria + gates
 helix report FEAT-003                 # batch report across scope
 helix experiment hx-abc123            # one experiment iteration
 helix experiment --close              # squash-merge and close session
-ddx bead create "Title" --type task --labels helix,phase:build
+ddx bead create "Title" --type task --labels helix,activity:build
 ddx bead ready --json            # machine-readable ready queue
 ddx bead ready --json --execution # machine-readable execution-safe queue
 ddx bead status                  # tracker health summary
@@ -463,7 +463,7 @@ corresponding beads.
 
 For performance tuning, bundle size reduction, or other measurable optimization:
 
-1. Create a `phase:iterate` issue with the optimization goal
+1. Create a `activity:iterate` issue with the optimization goal
 2. `helix experiment [issue-id|goal]` — runs one experiment iteration
 3. The `helix-experiment` skill loops the action autonomously
 4. All existing tests must pass after every iteration — tests are the spec
@@ -490,7 +490,7 @@ ddx bead ready --json --execution
 
 ```bash
 ddx bead create "Issue title" --type task --description "Detailed context" --priority 1
-ddx bead create "Issue title" --labels helix,phase:build --spec-id TP-036
+ddx bead create "Issue title" --labels helix,activity:build --spec-id TP-036
 ```
 
 **Claim and update:**

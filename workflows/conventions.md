@@ -194,8 +194,8 @@ Labels are organizational conventions for triage and traceability. They are
 recommended for runtimes that support labels:
 
 - A `helix` label for discoverability
-- A activity label when applicable: `phase:frame`, `phase:design`, `phase:test`,
-  `phase:build`, `phase:deploy`, `phase:iterate`, or `phase:review`
+- A activity label when applicable: `activity:frame`, `activity:design`, `activity:test`,
+  `activity:build`, `activity:deploy`, `activity:iterate`, or `kind:review`
 - `kind:build`, `kind:deploy`, `kind:backlog`, or `kind:review` when helpful
 - Traceability labels such as `story:US-XXX`, `feature:FEAT-XXX`,
   `source:metrics`, or `area:auth`

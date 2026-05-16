@@ -47,7 +47,7 @@ Story-level work is tracked via `ddx bead` in `.ddx/beads.jsonl`.
 
 **Per-issue requirements**:
 
-- Labels: `helix`, `phase:build`, `kind:build`, `story:US-001`
+- Labels: `helix`, `activity:build`, `kind:build`, `story:US-001`
 - References: US-001, TD-001, STP-001, API-001, this build plan
 - `spec-id` pointing at the nearest governing artifact
 - Blockers as dependency links

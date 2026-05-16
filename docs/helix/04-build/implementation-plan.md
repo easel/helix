@@ -61,7 +61,7 @@ and public-doc updates so the shipped surface matches the governing design.
 Story-level work is tracked via `ddx bead` in `.ddx/beads.jsonl`.
 
 **Per-issue requirements**:
-- Labels: `helix`, `phase:build`, `kind:build`, `area:cli`, plus
+- Labels: `helix`, `activity:build`, `kind:build`, `area:cli`, plus
   `story:FEAT-011-<slice>` for grouping.
 - References: FEAT-011, TD-011, TP-002, and this build plan.
 - `spec-id` pointing at the nearest governing artifact.
