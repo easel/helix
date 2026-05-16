@@ -119,7 +119,6 @@ assert_helix_triage_blanket_priming_regression() {
     "$repo_root/.agents" \
     "$repo_root/.claude" \
     "$repo_root/.claude-plugin" \
-    "$repo_root/bin" \
     "$repo_root/docs" \
     "$repo_root/hooks" \
     "$repo_root/skills" \
@@ -171,14 +170,13 @@ PYEOF
 
 plugin_manifest="$repo_root/.claude-plugin/plugin.json"
 [[ -f "$plugin_manifest" ]] || fail "missing plugin manifest at .claude-plugin/plugin.json"
-plugin_bin="$repo_root/bin/helix"
 plugin_hooks="$repo_root/hooks/hooks.json"
 
 # Validate plugin.json is parseable JSON with required fields
 if command -v python3 &>/dev/null; then
-  python3 - "$plugin_manifest" "$plugin_bin" "$plugin_hooks" <<'PYEOF'
+  python3 - "$plugin_manifest" "$plugin_hooks" <<'PYEOF'
 import json, sys
-path, plugin_bin, plugin_hooks = sys.argv[1:4]
+path, plugin_hooks = sys.argv[1:3]
 try:
     manifest = json.load(open(path))
 except json.JSONDecodeError as e:
@@ -210,69 +208,7 @@ PYEOF
   [[ $? -eq 0 ]] || fail "plugin.json validation failed"
 fi
 
-[[ -f "$plugin_bin" ]] || fail "missing plugin wrapper at bin/helix"
-[[ -x "$plugin_bin" ]] || fail "expected bin/helix to be executable"
 [[ -f "$plugin_hooks" ]] || fail "missing plugin hooks at hooks/hooks.json"
-
-write_wrapper_probe() {
-  local path="$1"
-  local label="$2"
-
-  cat >"$path" <<EOF
-#!/usr/bin/env bash
-set -euo pipefail
-printf 'probe=%s\n' '$label'
-printf 'HELIX_ROOT=%s\n' "\${HELIX_ROOT:-}"
-printf 'ARGS=%s\n' "\$*"
-EOF
-  chmod +x "$path"
-}
-
-plugin_wrapper_root="$(mktemp -d)"
-claude_plugin_root="$(mktemp -d)"
-mkdir -p \
-  "$plugin_wrapper_root/bin" \
-  "$plugin_wrapper_root/scripts" \
-  "$claude_plugin_root/scripts"
-cp -f "$plugin_bin" "$plugin_wrapper_root/bin/helix"
-write_wrapper_probe "$plugin_wrapper_root/scripts/helix" "wrapper-path"
-write_wrapper_probe "$claude_plugin_root/scripts/helix" "claude-plugin-root"
-
-wrapper_output="$(
-  env -u HELIX_ROOT -u CLAUDE_PLUGIN_ROOT \
-    "$plugin_wrapper_root/bin/helix" probe 2>&1
-)"
-assert_output_contains \
-  "$wrapper_output" \
-  "probe=wrapper-path" \
-  "bin/helix should delegate to scripts/helix resolved from its own path"
-assert_output_contains \
-  "$wrapper_output" \
-  "HELIX_ROOT=$plugin_wrapper_root" \
-  "bin/helix should export HELIX_ROOT from wrapper path resolution"
-assert_output_contains \
-  "$wrapper_output" \
-  "ARGS=probe" \
-  "bin/helix should forward arguments through wrapper-path delegation"
-
-claude_wrapper_output="$(
-  env -u HELIX_ROOT \
-    CLAUDE_PLUGIN_ROOT="$claude_plugin_root" \
-    "$plugin_wrapper_root/bin/helix" probe 2>&1
-)"
-assert_output_contains \
-  "$claude_wrapper_output" \
-  "probe=claude-plugin-root" \
-  "bin/helix should delegate to CLAUDE_PLUGIN_ROOT/scripts/helix"
-assert_output_contains \
-  "$claude_wrapper_output" \
-  "HELIX_ROOT=$claude_plugin_root" \
-  "bin/helix should export HELIX_ROOT from CLAUDE_PLUGIN_ROOT"
-assert_output_contains \
-  "$claude_wrapper_output" \
-  "ARGS=probe" \
-  "bin/helix should forward arguments through CLAUDE_PLUGIN_ROOT delegation"
-rm -rf "$plugin_wrapper_root" "$claude_plugin_root"
 
 # Verify that workflows/ references in SKILL.md files resolve from plugin root
 while IFS= read -r wf_ref; do
@@ -429,7 +365,7 @@ assert_file_contains \
   "polish action must reject vague non-measurable acceptance wording"
 assert_file_contains \
   "$repo_root/workflows/actions/polish.md" \
-  "flag the bead as **not execution-ready**" \
+  "flag it as **not execution-ready**" \
   "polish action must define a not-execution-ready flagging path"
 assert_file_contains \
   "$repo_root/docs/helix/01-frame/features/FEAT-011-slider-autonomy.md" \
