@@ -12,7 +12,7 @@ context without being told twice.
 
 ## The Problem Concerns Solve
 
-In a multi-phase, multi-agent workflow, the same decisions need to be honored
+In a multi-activity, multi-agent workflow, the same decisions need to be honored
 everywhere:
 
 - "We use Bun, not Node" affects build scripts, test runners, CI, and design docs.
@@ -43,7 +43,7 @@ consists of two files:
 | File | Purpose |
 |------|---------|
 | `concern.md` | Category, areas, components, constraints, quality gates |
-| `practices.md` | Phase-specific practices (requirements, design, implementation, testing) |
+| `practices.md` | Activity-specific practices (requirements, design, implementation, testing) |
 
 ### Tech Stack Concerns
 

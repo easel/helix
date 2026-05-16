@@ -56,7 +56,7 @@ Graph metadata includes:
 **Storage**: Cross-references embedded in artifact frontmatter/body using `[[ID]]` notation. No separate registry needed initially.
 
 ### FR-02: Impact Detection via Search + Declared Links
-The system shall identify impacted artifacts through two-phase detection:
+The system shall identify impacted artifacts through two-activity detection:
 
 1. **Declared links first**: Follow existing `[[ID]]` cross-references from changed artifact
 2. **Search-based fallback**: Use `rg` to find term matches (e.g., "Postgres" → ADRs about database choice)
@@ -249,7 +249,7 @@ HELIX-authored stage stance rather than inventing a separate personality lane.
 ## Non-Requirements
 
 - This feature does NOT replace the existing CLI/skill contract immediately (deprecation timeline defined)
-- This feature does NOT eliminate phase enforcers (they become parameterized by slider)
+- This feature does NOT eliminate activity enforcers (they become parameterized by slider)
 - This feature is NOT production-ready until fully tested in sandbox branch
 - This feature does NOT require new artifact storage format (uses existing `[[ID]]` pattern)
 

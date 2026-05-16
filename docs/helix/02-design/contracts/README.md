@@ -1,6 +1,6 @@
 # Contracts
 
-`contracts` is restored as the canonical design-phase artifact for normative
+`contracts` is restored as the canonical design-activity artifact for normative
 interface and schema specifications that another team can implement against
 directly.
 

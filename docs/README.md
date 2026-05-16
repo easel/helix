@@ -1,33 +1,33 @@
 # Documentation Structure
 
-This document describes the organization of documentation in the HELIX repository, which follows the HELIX workflow phases to ensure consistency and traceability.
+This document describes the organization of documentation in the HELIX repository, which follows the HELIX workflow activities to ensure consistency and traceability.
 
 ## Overview
 
-The documentation structure mirrors the HELIX workflow phases, creating a logical progression from problem definition through deployment. This organization ensures that:
+The documentation structure mirrors the HELIX workflow activities, creating a logical progression from problem definition through deployment. This organization ensures that:
 
 - Documentation flows naturally through the development process
-- Artifacts are easy to locate based on their lifecycle phase
-- Cross-phase relationships are clear and traceable
-- Each phase has dedicated space for its specific outputs
+- Artifacts are easy to locate based on their lifecycle activity
+- Cross-activity relationships are clear and traceable
+- Each activity has dedicated space for its specific outputs
 
 ## Directory Structure
 
-In this repository, the canonical HELIX phase artifacts live under `docs/helix/`.
+In this repository, the canonical HELIX activity artifacts live under `docs/helix/`.
 
 ```
 docs/
 ├── README.md                     # This overview document
 └── helix/
-    ├── 00-discover/             # Phase 00: Discovery and validation
+    ├── 00-discover/             # Activity 00: Discovery and validation
     │   └── product-vision.md    # Product vision for HELIX
-    ├── 01-frame/                # Phase 01: Requirements & Problem Definition
+    ├── 01-frame/                # Activity 01: Requirements & Problem Definition
     │   ├── concerns.md          # Active project concerns and overrides
     │   ├── prd.md               # Product Requirements Document
     │   └── features/            # Feature specifications (plural)
     │       ├── FEAT-001-[name].md # Feature specification
     │       └── FEAT-011-[name].md # Feature specification
-    ├── 02-design/               # Phase 02: Technical Architecture
+    ├── 02-design/               # Activity 02: Technical Architecture
     │   ├── adr/                 # Architecture Decision Records (plural)
     │   │   ├── ADR-001-[title].md # Architectural decision record
     │   │   └── ADR-002-[title].md # Architectural decision record
@@ -42,19 +42,19 @@ docs/
     │   └── technical-designs/   # Technical designs (plural)
     │       ├── TD-002-[name].md # Technical implementation design
     │       └── TD-011-[name].md # Technical implementation design
-    ├── 03-test/                 # Phase 03: Test Strategy & Specifications
+    ├── 03-test/                 # Activity 03: Test Strategy & Specifications
     │   ├── executions/          # Recorded execution evidence
     │   │   └── README.md        # Execution log conventions
     │   └── test-plans/          # Test plans (plural)
     │       └── STP-002-[name].md # Story test plan
-    ├── 04-build/                # Phase 04: Implementation Strategy
+    ├── 04-build/                # Activity 04: Implementation Strategy
     │   └── implementation-plan.md # Build strategy and planning
-    ├── 05-deploy/               # Phase 05: Deployment & Operations
+    ├── 05-deploy/               # Activity 05: Deployment & Operations
     │   ├── deployment-checklist.md # Release go/no-go checklist
     │   ├── monitoring-setup.md  # Observability and alerting setup
     │   ├── release-notes.md     # Release communication artifact
     │   └── runbook.md           # Operator response and rollback guide
-    └── 06-iterate/              # Phase 06: Post-Deployment & Feedback
+    └── 06-iterate/              # Activity 06: Post-Deployment & Feedback
         ├── alignment-reviews/   # Alignment and drift review reports
         ├── improvement-backlog.md # Prioritized follow-on work
         ├── metrics/             # Metric definitions and fixtures
@@ -81,7 +81,7 @@ repository docs live as topic-specific files or directories directly under
 
 ### Identifier Systems
 
-The documentation uses systematic identifiers to ensure traceability across phases:
+The documentation uses systematic identifiers to ensure traceability across activities:
 
 - **FEAT-XXX**: Feature identifiers (e.g., FEAT-001, FEAT-002)
 - **US-XXX**: User Story identifiers (e.g., US-001, US-002)
@@ -125,9 +125,9 @@ The documentation uses systematic identifiers to ensure traceability across phas
 - Alignment Reviews (`docs/helix/06-iterate/alignment-reviews`)
 - Metrics Fixtures (`docs/helix/06-iterate/metrics`)
 
-## Phase-Specific Details
+## Activity-Specific Details
 
-### Frame Phase (01)
+### Frame Activity (01)
 **Purpose**: Define what to build and why
 **Key Outputs**:
 - Business requirements and success metrics
@@ -135,7 +135,7 @@ The documentation uses systematic identifiers to ensure traceability across phas
 - Feature identification and prioritization
 - Project constraints and principles
 
-### Design Phase (02)
+### Design Activity (02)
 **Purpose**: Define how to build the solution
 **Key Outputs**:
 - Technical architecture and component design
@@ -143,28 +143,28 @@ The documentation uses systematic identifiers to ensure traceability across phas
 - Data models and security design
 - Architecture decision rationale
 
-### Test Phase (03)
+### Test Activity (03)
 **Purpose**: Define how to verify the solution
 **Key Outputs**:
 - Comprehensive test strategy
 - Test execution procedures
 - Quality gates and coverage targets
 
-### Build Phase (04)
+### Build Activity (04)
 **Purpose**: Implement the solution
 **Key Outputs**:
 - Implementation strategy and timeline
 - Development procedures and standards
 - Code and build artifacts
 
-### Deploy Phase (05)
+### Deploy Activity (05)
 **Purpose**: Release the solution to production
 **Key Outputs**:
 - Deployment procedures and automation
 - Monitoring and observability setup
 - Go-live and rollback procedures
 
-### Iterate Phase (06)
+### Iterate Activity (06)
 **Purpose**: Improve based on feedback
 **Key Outputs**:
 - Performance analysis and improvements
@@ -173,7 +173,7 @@ The documentation uses systematic identifiers to ensure traceability across phas
 
 ## Traceability
 
-The structure enables clear traceability across phases:
+The structure enables clear traceability across activities:
 
 1. **Frame → Design**: Features (FEAT-XXX) become Solution Designs (SD-XXX)
 2. **Frame → Design**: User Stories (US-XXX) inform API Contracts (API-XXX)
@@ -185,9 +185,9 @@ The structure enables clear traceability across phases:
 
 ### For Authors
 1. **Start with Frame**: Always begin with business requirements
-2. **Follow Phase Order**: Complete prerequisites before moving to next phase
+2. **Follow Activity Order**: Complete prerequisites before moving to next activity
 3. **Use Identifiers**: Assign and track FEAT-XXX, US-XXX, etc.
-4. **Maintain Traceability**: Link related artifacts across phases
+4. **Maintain Traceability**: Link related artifacts across activities
 
 ### For Readers
 1. **Business Context**: Start in `docs/helix/01-frame/` for what and why
@@ -197,13 +197,13 @@ The structure enables clear traceability across phases:
 
 ### For Maintainers
 1. **Keep Structure Consistent**: Follow naming conventions
-2. **Update Cross-References**: Maintain links between phases
+2. **Update Cross-References**: Maintain links between activities
 3. **Archive Completed Cycles**: Move old iterations to archive
 4. **Document Changes**: Update this README when structure evolves
 
 ## Project Documentation Convention
 
-### Using Helix Phases in Projects
+### Using Helix Activities in Projects
 
 When applying the HELIX workflow to your project, organize governed workflow
 artifacts under `docs/helix/` and keep the reusable workflow library under
@@ -227,7 +227,7 @@ project-root/
 │   ├── operations/            # Operational procedures
 │   └── strategy/              # Strategic planning
 ├── workflows/
-│   └── phases/                # Shared HELIX artifact prompts/templates
+│   └── activities/                # Shared HELIX artifact prompts/templates
 ```
 
 This convention:
@@ -235,13 +235,13 @@ This convention:
 - Uses numbered prefixes for clear ordering
 - Stores project outputs under `docs/helix/`, while shared library assets live
   under `workflows/activities/`
-- Allows for project-specific documentation outside the phases
+- Allows for project-specific documentation outside the activities
 
 ### Why `docs/helix/`?
 
 The `docs/helix/` layout:
 1. Matches the active HELIX workflow contract used in this repository
-2. Separates phase artifacts from other documentation
+2. Separates activity artifacts from other documentation
 3. Maintains consistency across projects using HELIX
 4. Keeps the project artifact tree distinct from the shared workflow library in
    `workflows/activities/`
@@ -281,14 +281,14 @@ workflows/activities/02-design/artifacts/solution-design/
 
 This structure was established to replace the previous organization. Key changes:
 
-1. **Phase-Based Organization**: Documents organized by lifecycle phase
+1. **Activity-Based Organization**: Documents organized by lifecycle activity
 2. **Systematic Identifiers**: FEAT-XXX, US-XXX naming for traceability
 3. **Singular/Plural Distinction**: Clear separation of project-wide vs feature-specific artifacts
-4. **Workflow Alignment**: Structure mirrors HELIX workflow phases
+4. **Workflow Alignment**: Structure mirrors HELIX workflow activities
 
 For historical context, see the category notes above rather than treating them
 as live repository paths.
 
 ---
 
-*This documentation structure supports the HELIX workflow principle of clear phase separation while maintaining comprehensive traceability throughout the development lifecycle.*
+*This documentation structure supports the HELIX workflow principle of clear activity separation while maintaining comprehensive traceability throughout the development lifecycle.*

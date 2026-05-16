@@ -4,7 +4,7 @@ A comprehensive guide to incorporating research and technical investigation into
 
 ## Overview
 
-The HELIX workflow now includes research and technical investigation capabilities to handle uncertainty and risk before committing to detailed design and implementation. This document provides teams with practical guidance on when to use research artifacts, how to execute investigations effectively, and how to integrate findings into standard HELIX phases.
+The HELIX workflow now includes research and technical investigation capabilities to handle uncertainty and risk before committing to detailed design and implementation. This document provides teams with practical guidance on when to use research artifacts, how to execute investigations effectively, and how to integrate findings into standard HELIX activities.
 
 ## Research Philosophy
 
@@ -38,7 +38,7 @@ Avoid research when:
 
 ## Research Artifact Types
 
-### Frame Phase Research
+### Frame Activity Research
 
 #### Research Plan
 **Purpose**: Investigate unknown requirements or validate market assumptions
@@ -74,7 +74,7 @@ Avoid research when:
 - Regulatory compliance requirements
 - Resource-constrained project environments
 
-### Design Phase Research
+### Design Activity Research
 
 #### Technical Spike
 **Purpose**: Time-boxed technical investigation of specific unknowns
@@ -112,7 +112,7 @@ Avoid research when:
 
 ## Research Execution Guidelines
 
-### Planning Phase
+### Planning Activity
 
 #### Define Clear Objectives
 - **Specific Questions**: What exactly needs to be answered?
@@ -139,7 +139,7 @@ Avoid research when:
 - **Benchmarking**: Performance and scalability analysis
 - **Architecture Spikes**: Technical approach validation
 
-### Execution Phase
+### Execution Activity
 
 #### Time Management
 - **Strict Boundaries**: Respect time limits regardless of completeness
@@ -159,7 +159,7 @@ Avoid research when:
 - **Bias Mitigation**: What biases might affect findings?
 - **Confidence Levels**: How confident are conclusions?
 
-### Analysis Phase
+### Analysis Activity
 
 #### Synthesize Findings
 - **Pattern Recognition**: What themes emerge across data sources?
@@ -175,7 +175,7 @@ Avoid research when:
 
 ## Integration with HELIX Workflow
 
-### Frame Phase Integration
+### Frame Activity Integration
 
 #### Research Plan → PRD
 - User insights become personas and user needs
@@ -189,7 +189,7 @@ Avoid research when:
 - Resource constraints affect scope decisions
 - Go/no-go decisions prevent wasted investment
 
-### Design Phase Integration
+### Design Activity Integration
 
 #### Technical Spike → ADR
 - Technical validation becomes decision rationale
@@ -405,7 +405,7 @@ Before integrating research findings:
 
 ## Conclusion
 
-Research and technical investigation capabilities transform HELIX from a linear process into a more adaptive workflow that can handle uncertainty and risk effectively. By incorporating evidence-based decision making into Frame and Design phases, teams can:
+Research and technical investigation capabilities transform HELIX from a linear process into a more adaptive workflow that can handle uncertainty and risk effectively. By incorporating evidence-based decision making into Frame and Design activities, teams can:
 
 - Reduce project risk through early validation
 - Make confident decisions with concrete evidence

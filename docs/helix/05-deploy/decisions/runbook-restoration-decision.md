@@ -2,7 +2,7 @@
 
 > Historical decision; superseded by the worked example at `docs/helix/05-deploy/runbook.md`.
 
-`runbook` is restored as the canonical deploy-phase artifact for
+`runbook` is restored as the canonical deploy-activity artifact for
 service-specific on-call response, rollback, recovery, and routine operating
 procedures.
 

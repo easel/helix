@@ -259,7 +259,7 @@ def validate_artifacts(artifacts: list[ArtifactMeta]) -> list[str]:
 
 def parse_args() -> argparse.Namespace:
     repo_root = Path(__file__).resolve().parents[1]
-    default_artifacts_dir = repo_root / "workflows" / "phases" / "05-deploy" / "artifacts"
+    default_artifacts_dir = repo_root / "workflows" / "activities" / "05-deploy" / "artifacts"
 
     parser = argparse.ArgumentParser(
         description="Validate 05-deploy artifact creation-order consistency and dependency cycles."

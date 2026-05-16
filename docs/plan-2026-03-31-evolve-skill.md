@@ -80,11 +80,11 @@ order and surfacing conflicts with existing work.
 - **Alternatives**:
   - A) Pure prompt — agent reads, decides, writes
   - B) Script orchestration — script identifies files, agent fills content
-  - C) Prompt with structured phases — agent follows phases but makes all
+  - C) Prompt with structured activities — agent follows activities but makes all
     decisions
-- **Chosen**: C — structured phases in a prompt
+- **Chosen**: C — structured activities in a prompt
 - **Rationale**: The artifact identification and conflict detection require
-  judgment that a script can't provide. But structured phases keep the
+  judgment that a script can't provide. But structured activities keep the
   agent focused and prevent drift. Same pattern as helix-implement.
 
 ### Decision 2: Conflict handling
@@ -123,35 +123,35 @@ helix evolve --artifact SD-017 "Amend verification engine to support loom"
 helix evolve --from incident "INC-042 showed we need circuit breakers in ingest"
 ```
 
-### Skill Prompt Phases
+### Skill Prompt Activities
 
-**Phase 1 — Requirement Analysis**: Parse the input. Identify the core
+**Activity 1 — Requirement Analysis**: Parse the input. Identify the core
 requirement, its scope, and its type (new feature, amendment, constraint,
 bugfix policy).
 
-**Phase 2 — Artifact Discovery**: Search the docs tree for governing
+**Activity 2 — Artifact Discovery**: Search the docs tree for governing
 artifacts in the requirement's scope. Build a list ordered by authority
 (highest first).
 
-**Phase 3 — Conflict Detection**: For each affected artifact, check
+**Activity 3 — Conflict Detection**: For each affected artifact, check
 whether the new requirement contradicts existing content. Flag conflicts
 with specific line references.
 
-**Phase 4 — Artifact Evolution**: Update each non-conflicting artifact
+**Activity 4 — Artifact Evolution**: Update each non-conflicting artifact
 in authority order. For each update:
 - Read the current artifact
 - Draft the amendment
 - Validate it doesn't contradict higher-authority artifacts already updated
 - Write the update
 
-**Phase 5 — Issue Decomposition**: Create tracker issues for the
+**Activity 5 — Issue Decomposition**: Create tracker issues for the
 implementation work implied by the updated artifacts. Use helix-triage
 validation. Set spec-ids to the updated artifacts.
 
-**Phase 6 — Dependency Wiring**: Search existing open issues for overlap
+**Activity 6 — Dependency Wiring**: Search existing open issues for overlap
 with new issues. Add dependencies where ordering matters.
 
-**Phase 7 — Evolution Report**: Output a structured report:
+**Activity 7 — Evolution Report**: Output a structured report:
 - Requirement summary
 - Artifacts updated (with diff summaries)
 - Artifacts skipped due to conflicts (with conflict descriptions)
@@ -212,9 +212,9 @@ N/A — local artifacts and tracker.
 ### Issue Breakdown
 
 1. **Action prompt** — Write `workflows/actions/evolve.md` defining the
-   7-phase workflow. Reference authority order, artifact locations,
+   7-activity workflow. Reference authority order, artifact locations,
    tracker conventions.
-   AC: action prompt exists; phases match this design; references are valid.
+   AC: action prompt exists; activities match this design; references are valid.
 
 2. **Skill prompt** — Create `skills/helix-evolve/SKILL.md` with name,
    description, argument-hint. Reference the action.
@@ -232,9 +232,9 @@ N/A — local artifacts and tracker.
 
 | Risk | Likelihood | Impact | Mitigation |
 |------|-----------|--------|------------|
-| Agent updates artifact incorrectly | M | H | Phase 4 validates against higher-authority artifacts already updated |
+| Agent updates artifact incorrectly | M | H | Activity 4 validates against higher-authority artifacts already updated |
 | Evolution touches too many artifacts | M | M | Scope flag limits blast radius; agent can ask for guidance |
-| Conflicts not detected | L | H | Phase 3 explicitly checks before writing |
+| Conflicts not detected | L | H | Activity 3 explicitly checks before writing |
 
 ## Observability
 
@@ -243,7 +243,7 @@ N/A — local artifacts and tracker.
 
 ## Governing Artifacts
 
-- Authority order: `workflows/actions/implementation.md` (Phase 2)
+- Authority order: `workflows/actions/implementation.md` (Activity 2)
 - Artifact locations: project-specific `docs/helix/` tree
 - Tracker conventions: `workflows/TRACKER.md`
 - Triage validation: `scripts/tracker.sh`

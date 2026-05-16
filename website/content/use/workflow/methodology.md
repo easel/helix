@@ -9,7 +9,7 @@ HELIX is an opinionated, runtime-neutral methodology for AI-assisted
 software development. Named after the double helix of DNA, it encodes the
 idea that **planning and execution are two complementary strands** that feed
 back into each other. The methodology defines the artifact graph, authority
-order, lifecycle phases, and alignment practice; your chosen platform owns
+order, lifecycle activities, and alignment practice; your chosen platform owns
 the runtime mechanics.
 
 ## Why HELIX Exists
@@ -58,13 +58,13 @@ Higher layers govern lower layers. Source code reflects what exists, not what
 should exist. When layers disagree, HELIX resolves by escalating to the
 governing source — not by guessing from code alone.
 
-## Seven Phases
+## Seven Activities
 
-Work moves through seven phases. These are not a sequential pipeline — teams
-regularly loop back as they learn — but each phase has a distinct job in the
+Work moves through seven activities. These are not a sequential pipeline — teams
+regularly loop back as they learn — but each activity has a distinct job in the
 artifact graph.
 
-| Phase | Description | Key Activities |
+| Activity | Description | Key Activities |
 |-------|-------------|----------------|
 | **Discover** | Explore the problem space | Market analysis, competitive review, stakeholder research |
 | **Frame** | Decompose the problem into structured artifacts | Vision, PRD, Feature Specs, Acceptance Criteria |

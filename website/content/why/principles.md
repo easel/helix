@@ -17,14 +17,14 @@ workflow could both work, the principles say which one should win.
 > The framework is named after the double helix because the metaphor encodes
 > the architecture, not because it sounded good.
 
-Planning and execution are not sequential phases. They happen simultaneously,
+Planning and execution are not sequential activities. They happen simultaneously,
 at every zoom level, feeding back into each other continuously. A developer
 discovers a design flaw during implementation. A review surfaces a missing
 requirement. A metric reveals that a feature assumption was wrong. In each
 case, the execution strand feeds back into the planning strand, and the
 planning strand adjusts what happens next.
 
-This rejection of sequential phases is what makes HELIX different from
+This rejection of sequential activities is what makes HELIX different from
 waterfall and from the compromise variants of agile. The strands are not
 stages. They are simultaneous processes that exist at every layer.
 

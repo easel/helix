@@ -124,7 +124,7 @@ the first `NEXT_ACTION` result exactly:
   looping forever.
 - `NEXT_ACTION: BACKFILL`
   Stop and surface the explicit `helix backfill <scope>` command. Backfill is a
-  separate cross-phase action and is not auto-run by `helix run`.
+  separate cross-activity action and is not auto-run by `helix run`.
 - `NEXT_ACTION: WAIT`
   Stop immediately. `WAIT` means execution is blocked by claimed work or a
   truly external dependency; `helix run` must not attempt an unblock build

@@ -29,7 +29,7 @@ and Tim Oates. Refined for written delivery.
 
 The pitch arc that actually lands, in order:
 
-1. **The copy-paste phase.** You sat there with an LLM, copying code in
+1. **The copy-paste activity.** You sat there with an LLM, copying code in
    and pasting code out. Then you got tired of being the copy-paste
    b****. Claude Code and Codex solved that.
 2. **The orchestration sprawl.** Then you had two windows. Then four.

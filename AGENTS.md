@@ -128,7 +128,7 @@ ddx bead close hx-old
 
 - **Codex sandbox bypasses pre-commit hooks** — the run loop has a build
   gate that catches broken code, but the agent should also run
-  `lefthook run pre-commit` before pushing (Phase 8 in implementation.md).
+  `lefthook run pre-commit` before pushing (Activity 8 in implementation.md).
 - **Skill YAML front matter** — quote values containing colons or pipes,
   otherwise codex's skill loader silently rejects them.
 - **`asciinema rec` masks child failures** — the recorder can exit `0` and
@@ -156,7 +156,7 @@ Key rules:
 - Keep `implementation` single-shot and bounded to one issue per run.
 - Use `check` when the ready queue drains to decide whether to build,
   design, polish, align, backfill, wait, ask for guidance, or stop.
-- Keep alignment and backfill as separate cross-phase actions:
+- Keep alignment and backfill as separate cross-activity actions:
   - `workflows/actions/reconcile-alignment.md`
   - `workflows/actions/backfill-helix-docs.md`
 - Quality ratchets are documented in `workflows/ratchets.md`. Ratchet

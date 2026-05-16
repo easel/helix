@@ -11,7 +11,7 @@ These principles guide judgment calls across all HELIX activities when
 working on HELIX itself. They are not workflow rules or process enforcement
 — they are lenses applied when choosing between two valid options. The only
 constraint: principles cannot negate HELIX mechanics (artifact authority
-order, phase gates, tracker semantics).
+order, activity gates, tracker semantics).
 
 This file was authored from the vision; mechanics-describing items below
 (authority is the resolver; documents are the contract; alignment is

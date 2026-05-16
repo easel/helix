@@ -17,7 +17,7 @@ things:
    examples for every artifact type across the seven HELIX activities.
 2. A **routing skill** in `skills/helix/SKILL.md` — the single agent-facing
    surface that reads and writes the catalog's artifact instances.
-3. A **methodology specification** in `workflows/` — authority order, phase
+3. A **methodology specification** in `workflows/` — authority order, activity
    conventions, artifact-type schema, principles, and the alignment skill
    contract, expressed in runtime-neutral terms.
 
@@ -62,11 +62,11 @@ graph TB
         skill["skills/helix/SKILL.md<br/>Routing skill"]
         catalog["workflows/activities/…<br/>Artifact catalog<br/>templates · prompts · meta.yml"]
         schema["workflows/artifact-schema.md<br/>Instance schema"]
-        wfdocs["workflows/<br/>Methodology spec<br/>principles · concerns · phases"]
+        wfdocs["workflows/<br/>Methodology spec<br/>principles · concerns · activities"]
     end
 
     subgraph project["Project (dogfood or adopter)"]
-        instances["docs/helix/<br/>Artifact instances<br/>phase-numbered layout"]
+        instances["docs/helix/<br/>Artifact instances<br/>activity-numbered layout"]
     end
 
     subgraph runtime["Any compliant runtime"]
@@ -88,7 +88,7 @@ graph TB
 | `skills/helix/SKILL.md` | Markdown (skill frontmatter + body) | Single agent-facing surface; all routing modes; reads/writes artifact instances |
 | `workflows/activities/` | Markdown + YAML | Artifact type definitions: template, prompt, meta.yml, example per type |
 | `workflows/artifact-schema.md` | Markdown spec | Normative schema for `meta.yml` and `ddx:` instance frontmatter |
-| `workflows/` (non-phase dirs) | Markdown | Methodology spec: principles, concerns, phase contracts, alignment guidance |
+| `workflows/` (non-activity dirs) | Markdown | Methodology spec: principles, concerns, activity contracts, alignment guidance |
 | `docs/helix/` | Markdown + YAML | Project artifact instances; authored from catalog templates |
 | Per-runtime packages | Runtime-specific metadata | Thin wrappers that expose same source to DDx, Claude Code, Genie |
 | Runtime execution engine | Runtime-specific | Tracker, queue, loop, evidence — outside HELIX boundary |
@@ -99,7 +99,7 @@ The artifact catalog is HELIX's primary structural element. It defines every
 artifact type a HELIX-governed project may produce, organized by the seven
 HELIX activities:
 
-| Activity | Phase slug | Typical artifact types |
+| Activity | Activity slug | Typical artifact types |
 |----------|-----------|------------------------|
 | Discover | `00-discover` | Product vision, opportunity brief, constraints |
 | Frame | `01-frame` | PRD, feature specs, user stories, risks |
@@ -173,7 +173,7 @@ loads the skill exposes the same capability set.
 |-------|--------|
 | Artifact catalog (`workflows/activities/…`) — type definitions, templates, prompts | Project artifact instances (`docs/helix/…`) — new or updated content |
 | Project artifact instances — current state of the dependency graph | Alignment reports, work-item descriptions, design documents |
-| Methodology docs (`workflows/`) — principles, concerns, phase contracts | Follow-up work descriptions (runtime surfaces these as tracker items, GitHub issues, or markdown stubs) |
+| Methodology docs (`workflows/`) — principles, concerns, activity contracts | Follow-up work descriptions (runtime surfaces these as tracker items, GitHub issues, or markdown stubs) |
 
 The skill never writes to a tracker, queue, or evidence store. Those are runtime
 responsibilities.
@@ -263,14 +263,14 @@ HELIX maintains two complementary documentation trees:
 
 | Tree | Role |
 |------|------|
-| `workflows/` | Methodology specification — artifact-type schema, phase contracts, principles, concerns, alignment guidance. This is the normative content. |
+| `workflows/` | Methodology specification — artifact-type schema, activity contracts, principles, concerns, alignment guidance. This is the normative content. |
 | `docs/helix/` | Dogfood — HELIX's own governing artifacts, authored from HELIX templates. The dogfood is itself subject to alignment skill runs. |
 
 `workflows/` is what adopters install; `docs/helix/` demonstrates the
 methodology applied to HELIX's own development. The Hugo microsite (when
 generated) is a read-only projection of both trees, not a source of truth.
 
-Methodology invariants — principles, ratchets, phase contracts — are
+Methodology invariants — principles, ratchets, activity contracts — are
 maintained in `workflows/principles.md` and `workflows/ratchets.md`. Before
 relying on either for design decisions, verify the current state in the file;
 both are in active flux.

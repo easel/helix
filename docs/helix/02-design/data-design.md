@@ -57,7 +57,7 @@
 | `status` | Enum: `open`, `in_progress`, `blocked`, `closed`, `superseded` | Mutations validated by `ddx bead`; raw JSONL edits during a live run risk torn state |
 | `claimed-at` | ISO-8601 UTC; cleared on `--unclaim` and `close` | Orphan recovery uses age threshold + dead-PID check before clearing |
 | `claimed-pid`, `claimed-machine` | Free-form identifiers | Dead-PID check is part of orphan recovery; recovery never destroys unrelated worktree state |
-| `labels[]` | Free-form strings; `helix`, `phase:*`, `kind:*`, `area:*`, `story:US-*` are conventional | Convention enforced by HELIX skills; tracker accepts any label |
+| `labels[]` | Free-form strings; `helix`, `activity:*`, `kind:*`, `area:*`, `story:US-*` are conventional | Convention enforced by HELIX skills; tracker accepts any label |
 | `description`, `acceptance`, `title` | Free-form text — may include rendered context digests | No secret-bearing fields by contract; the tracker is checked into the repo by default. Operators must keep secrets out of bead bodies. |
 | `events[]` payloads | Append-only history | Never rewritten by HELIX; corruption is recoverable from git history |
 | File-level access | Repo-relative; readable by anyone with repo read access | Treat as public-ish: do not store secrets, customer data, or credentials |

@@ -35,7 +35,7 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-ARTIFACTS_SRC = ROOT / "workflows" / "phases"
+ARTIFACTS_SRC = ROOT / "workflows" / "activities"
 CONCERNS_SRC = ROOT / "workflows" / "concerns"
 CONTENT_ROOT = ROOT / "website" / "content"
 ARTIFACTS_DEST = CONTENT_ROOT / "artifact-types"

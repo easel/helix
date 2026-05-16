@@ -220,7 +220,7 @@ commit. Failed rows reported with reasons; partial-success allowed.
 
 ## Technical Context
 
-Stack decisions are deferred to ADRs in the design phase. The MVP target
+Stack decisions are deferred to ADRs in the design activity. The MVP target
 shape is:
 
 - **Delivery model**: Browser-based SaaS; multi-tenant per workspace.
@@ -268,34 +268,34 @@ work can confirm, override, or refine without re-discovering them.
 
 ### Dependencies
 
-- Design-phase ADRs for stack, hosting, and auth (downstream).
+- Design-activity ADRs for stack, hosting, and auth (downstream).
 - Bead `helix-5129f35d` (CRM repo-scope decision) — does not block frame
-  work but governs where subsequent phases land.
+  work but governs where subsequent activities land.
 
 ## Risks
 
 | Risk | Probability | Impact | Mitigation |
 |---|---|---|---|
-| MVP scope creeps to match enterprise CRM expectations | High | High | Non-goals list is enforced as a frame-phase artifact; new requirements must displace existing P0/P1 or move to P2 |
+| MVP scope creeps to match enterprise CRM expectations | High | High | Non-goals list is enforced as a frame-activity artifact; new requirements must displace existing P0/P1 or move to P2 |
 | Defaults don't fit any real customer because we tried to please everyone | Medium | High | Anchor defaults to one well-understood ICP (small B2B sales) and document the choice; resist "configurable for everyone" pull |
 | Spreadsheet-using teams don't switch because the cost of change > the cost of bad data | Medium | High | Time-to-first-value metric is a release gate; onboarding flow is treated as P0 |
-| Stack choice prematurely commits before design phase | Low | Medium | All stack selection deferred to ADRs; PRD lists only what affects requirements |
+| Stack choice prematurely commits before design activity | Low | Medium | All stack selection deferred to ADRs; PRD lists only what affects requirements |
 | Data export not credible → procurement blocks adoption | Low | High | R-8 (CSV export) is P0; document the export contract before launch |
 
 ## Open Questions
 
 - [ ] Pricing model (per-seat vs flat-team vs freemium) — blocks GTM and seat-mgmt UX; ask product/founder.
-- [ ] Stack selection: language, framework, database, hosting — blocks design phase; ask architecture (ADRs).
+- [ ] Stack selection: language, framework, database, hosting — blocks design activity; ask architecture (ADRs).
 - [ ] SSO provider scope for P2 — blocks auth ADR; ask product.
 - [ ] Definition of "team" for manager-scoped views: territory? reporting line? both? — blocks role/permission design; ask product.
-- [ ] Email-to-activity matching algorithm specifics (R-10) — blocks P1 design; ask design phase.
+- [ ] Email-to-activity matching algorithm specifics (R-10) — blocks P1 design; ask design activity.
 - [ ] Migration path from the major incumbent CRMs — out of scope for MVP but informs P1 priorities; revisit at design.
 
 ## Success Criteria
 
 The CRM frame is successful when:
 
-1. A design-phase author can produce a solution design from this PRD and the
+1. A design-activity author can produce a solution design from this PRD and the
    vision without re-deriving scope.
 2. Downstream beads (currently spec-id `CRM-001`) reference `crm.prd` as
    their canonical governing artifact.

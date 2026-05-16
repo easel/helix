@@ -208,7 +208,7 @@ Migration rules:
 - `ddx bead create` delegates to `ddx bead create` with HELIX-specific
   validation enforced via a DDx validation hook at
   `.ddx/hooks/validate-bead-create`.
-- HELIX validation requires: `helix` label, one phase label, `--spec-id` for
+- HELIX validation requires: `helix` label, one activity label, `--spec-id` for
   tasks, and deterministic `--acceptance` for tasks and epics.
 - Execution-ready implementation beads must also encode the real ordering
   constraints using parent-child relationships and `ddx bead dep add`, rather

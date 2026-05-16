@@ -18,7 +18,7 @@ runtime integration, not the definition of HELIX.
 ## The Core Flow
 
 1. **Adopt the artifact shape.** Use the [artifact catalog](/artifact-types/) to
-   decide which project artifacts matter for your current phase: vision, PRD,
+   decide which project artifacts matter for your current activity: vision, PRD,
    feature specs, design decisions, test plans, runbooks, metrics, and reports.
 2. **Create or collect your governing documents.** Put the highest-authority
    artifacts first: product vision, PRD, feature specs, and the design artifacts
@@ -99,5 +99,5 @@ See [Using HELIX with DDx](../ddx-runtime/) for the DDx-specific path.
 - Review the projected [HELIX self-artifacts](/artifacts/) to see HELIX applied
   to itself.
 - Read [Why HELIX](/why/) for the principles behind the methodology layer.
-- Continue to [The Workflow](../workflow/) for the lifecycle phases and where
+- Continue to [The Workflow](../workflow/) for the lifecycle activities and where
   alignment fits.

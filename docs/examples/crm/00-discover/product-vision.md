@@ -102,4 +102,4 @@ too big for spreadsheets and too small for Salesforce.
 - [x] Value propositions map to customer benefits, not internal capabilities
 - [x] Success metrics are measurable (≥80% WAU, ≥90% freshness, etc.)
 - [x] Why Now section names specific changes (SaaS infra commoditization; opinionated-defaults cost drop)
-- [x] No implementation details — architecture left to design phase
+- [x] No implementation details — architecture left to design activity

@@ -71,7 +71,7 @@ root your Codex session runs in:
   workflows/
     README.md
     principles.md
-    phases/
+    activities/
       00-discover/
       01-frame/
       02-design/
@@ -240,11 +240,11 @@ same content; it is not a fork.
 
 ### 4.2 Workflows catalog discovery
 
-`workflows/activities/` is the artifact-type catalog. Each phase directory
+`workflows/activities/` is the artifact-type catalog. Each activity directory
 follows the same layout:
 
 ```
-workflows/activities/<NN>-<phase>/
+workflows/activities/<NN>-<activity>/
   artifacts/
     <artifact-type>/
       template.md   # markdown skeleton
@@ -253,9 +253,9 @@ workflows/activities/<NN>-<phase>/
       example.md    # worked example (where present)
 ```
 
-The phases:
+The activities:
 
-| Phase | Purpose |
+| Activity | Purpose |
 |---|---|
 | `00-discover` | Intent, context, product vision |
 | `01-frame` | PRD, feature specs, user stories |

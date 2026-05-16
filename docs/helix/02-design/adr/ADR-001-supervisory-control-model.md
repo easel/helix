@@ -26,7 +26,7 @@ ddx:
 
 | Aspect | Description |
 |--------|-------------|
-| Problem | HELIX currently reads too much like a set of mirrored commands. That makes the system behave literally unless the user already knows the method and manually steers each phase transition. |
+| Problem | HELIX currently reads too much like a set of mirrored commands. That makes the system behave literally unless the user already knows the method and manually steers each activity transition. |
 | Current State | `helix-run` is documented mostly as a bounded operator loop over ready implementation work. Companion skills and commands are described as direct wrappers around individual actions. The repo does not yet clearly define how requirement changes should trigger design work, how spec changes should trigger issue refinement, how concurrent interactive refinement should affect a live run, or when autopilot should stop and ask for input. |
 | Requirements | HELIX must preserve bounded execution, authority order, tracker-first work management, and direct interactive operation. It must also reduce orchestration burden by autonomously selecting the least-powerful sufficient next action when authority is available. |
 

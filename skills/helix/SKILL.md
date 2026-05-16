@@ -128,7 +128,7 @@ the HELIX artifact stack.
    reverse by scanning all governing artifacts for `ddx.depends_on` entries
    pointing back at this `ddx.id` (downstream impact).
 3. When `ddx:` frontmatter is absent, fall back to filesystem traversal:
-   phase-numbered directories in the project's HELIX layout supply authority
+   activity-numbered directories in the project's HELIX layout supply authority
    order; artifact-type directories supply the type relationships.
 4. Detect conflicts with existing artifacts and open work.
 5. Apply updates in authority order: vision, PRD, feature specs/stories,

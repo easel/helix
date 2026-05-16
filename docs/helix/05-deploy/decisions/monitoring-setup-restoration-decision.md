@@ -2,7 +2,7 @@
 
 > Historical decision; superseded by the worked example at `docs/helix/05-deploy/monitoring-setup.md`.
 
-`monitoring-setup` is restored as the canonical deploy-phase artifact for
+`monitoring-setup` is restored as the canonical deploy-activity artifact for
 service-specific observability configuration and alerting readiness.
 
 ## Decision

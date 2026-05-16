@@ -8,17 +8,17 @@
 
 ## Overview
 
-This guide provides comprehensive instructions for implementing security practices within the HELIX workflow. Security is integrated into every phase of HELIX, following DevSecOps principles to ensure security is built-in from the start rather than added as an afterthought.
+This guide provides comprehensive instructions for implementing security practices within the HELIX workflow. Security is integrated into every activity of HELIX, following DevSecOps principles to ensure security is built-in from the start rather than added as an afterthought.
 
 ## Security Philosophy
 
 ### Core Principles
 
 #### 1. Security by Design
-Security considerations are integrated into every phase of development, not added at the end. This approach reduces risk, lowers costs, and ensures comprehensive protection.
+Security considerations are integrated into every activity of development, not added at the end. This approach reduces risk, lowers costs, and ensures comprehensive protection.
 
 #### 2. Shift-Left Security
-Security activities are moved earlier in the development lifecycle. Finding and fixing security issues in Frame or Design phases costs significantly less than discovering them in production.
+Security activities are moved earlier in the development lifecycle. Finding and fixing security issues in Frame or Design activities costs significantly less than discovering them in production.
 
 #### 3. Continuous Security
 Security is not a one-time activity but a continuous process of assessment, implementation, monitoring, and improvement throughout the development lifecycle.
@@ -26,9 +26,9 @@ Security is not a one-time activity but a continuous process of assessment, impl
 #### 4. Risk-Based Approach
 Security efforts are prioritized based on risk assessment. High-impact, high-likelihood threats receive immediate attention, while lower risks are addressed systematically.
 
-## Phase-by-Phase Security Integration
+## Activity-by-Activity Security Integration
 
-### Frame Phase: Security Foundation
+### Frame Activity: Security Foundation
 
 #### Objectives
 - Define security requirements alongside functional requirements
@@ -66,7 +66,7 @@ Security efforts are prioritized based on risk assessment. High-impact, high-lik
 - [ ] Compliance requirements identified and mapped
 - [ ] Security architecture principles defined
 
-### Design Phase: Security Architecture
+### Design Activity: Security Architecture
 
 #### Objectives
 - Design security controls that address identified threats
@@ -104,7 +104,7 @@ Security efforts are prioritized based on risk assessment. High-impact, high-lik
 - [ ] Authentication and authorization design completed
 - [ ] Data protection strategy defined
 
-### Test Phase: Security Validation
+### Test Activity: Security Validation
 
 #### Objectives
 - Create comprehensive security test suites
@@ -137,12 +137,12 @@ Security efforts are prioritized based on risk assessment. High-impact, high-lik
 - **Security Testing Procedures**: Manual testing checklists and procedures
 
 #### Quality Gates
-- [ ] Security test suites created and failing (Red phase)
+- [ ] Security test suites created and failing (Red activity)
 - [ ] SAST/DAST tools configured and integrated
 - [ ] Security test procedures documented
 - [ ] Penetration testing planned and scheduled
 
-### Build Phase: Secure Development
+### Build Activity: Secure Development
 
 #### Objectives
 - Implement secure coding practices
@@ -175,12 +175,12 @@ Security efforts are prioritized based on risk assessment. High-impact, high-lik
 - **Secure Configuration**: Hardened and validated security settings
 
 #### Quality Gates
-- [ ] All security tests passing (Green phase)
+- [ ] All security tests passing (Green activity)
 - [ ] SAST/DAST scans clean or acceptable
 - [ ] No secrets in source code
 - [ ] Security code review completed
 
-### Deploy Phase: Production Security
+### Deploy Activity: Production Security
 
 #### Objectives
 - Deploy secure configuration to production
@@ -218,7 +218,7 @@ Security efforts are prioritized based on risk assessment. High-impact, high-lik
 - [ ] Incident response procedures tested
 - [ ] Compliance reporting operational
 
-### Iterate Phase: Security Improvement
+### Iterate Activity: Security Improvement
 
 #### Objectives
 - Monitor security posture and effectiveness
@@ -268,34 +268,34 @@ Before implementing HELIX security integration, assess your organization's curre
 - **Risk Tolerance**: What is your organization's appetite for security risk?
 
 #### 2. Choose Security Tools and Technologies
-Select appropriate security tools for each phase:
+Select appropriate security tools for each activity:
 
-**Frame Phase Tools**:
+**Frame Activity Tools**:
 - Threat modeling tools (Microsoft Threat Modeling Tool, OWASP Threat Dragon)
 - Compliance tracking tools
 - Risk assessment templates
 
-**Design Phase Tools**:
+**Design Activity Tools**:
 - Architecture diagramming tools with security components
 - Security architecture frameworks (SABSA, TOGAF)
 - Identity and access management platforms
 
-**Test Phase Tools**:
+**Test Activity Tools**:
 - SAST tools (SonarQube, Checkmarx, Veracode)
 - DAST tools (OWASP ZAP, Burp Suite, Nessus)
 - Dependency scanning tools (Snyk, WhiteSource)
 
-**Build Phase Tools**:
+**Build Activity Tools**:
 - IDE security plugins
 - Git hooks for security scanning
 - Secrets detection tools (GitLeaks, TruffleHog)
 
-**Deploy Phase Tools**:
+**Deploy Activity Tools**:
 - SIEM platforms (Splunk, Azure Sentinel, AWS Security Hub)
 - Infrastructure scanning tools (Checkov, Terrascan)
 - Monitoring and alerting platforms
 
-**Iterate Phase Tools**:
+**Iterate Activity Tools**:
 - Security metrics dashboards
 - Vulnerability management platforms
 - Incident response tools

@@ -18,7 +18,7 @@ Two pieces of content move into a location Claude Code can see:
    workflow contract. There are no separate public `helix-*` skills; the
    router is the only entry point.
 2. **The artifact catalog** — `workflows/activities/00-discover` through
-   `06-iterate`. Each phase contains artifact-type directories (`prd`,
+   `06-iterate`. Each activity contains artifact-type directories (`prd`,
    `feature-specification`, `adr`, `test-plan`, and so on). Each artifact-type
    directory has `template.md`, `prompt.md`, `meta.yml`, and an example. The
    skill resolves these paths relative to the project root when it needs to
@@ -150,7 +150,7 @@ worker. Each mode has a workflow contract in the same file that the skill
 follows for the rest of the session.
 
 When the routed workflow needs a template, prompt, or quality rubric, it opens
-the matching file under `workflows/activities/<phase>/artifacts/<type>/`. For
+the matching file under `workflows/activities/<activity>/artifacts/<type>/`. For
 example, framing a PRD reads
 `workflows/activities/01-frame/artifacts/prd/template.md` and `prompt.md`. The
 skill never invents these paths; they come from the catalog directory layout.

@@ -2,7 +2,7 @@
 
 > Historical decision; superseded by the worked example at `docs/helix/06-iterate/security-metrics.md`.
 
-`security-metrics` is restored as the canonical iterate-phase security posture
+`security-metrics` is restored as the canonical iterate-activity security posture
 report artifact.
 
 ## Decision

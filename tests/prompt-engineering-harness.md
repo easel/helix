@@ -291,7 +291,7 @@ Important: a DDx preserve outcome is an execution result, not automatically a ph
 
 ## Test Execution Workflow
 
-### Phase 1: Prepare the experiment
+### Activity 1: Prepare the experiment
 
 1. Choose the scenario or real bead.
 2. Identify the exact bead ID to execute.
@@ -308,7 +308,7 @@ BASE_REV="$(git rev-parse HEAD)"
 
 Record both values in the experiment log.
 
-### Phase 2: Create prompt variants
+### Activity 2: Create prompt variants
 
 Use separate branches or worktrees so each variant is isolated in git.
 
@@ -319,7 +319,7 @@ Recommended naming:
 
 Because git is canonical, prompt variants should be represented as actual file changes, not hidden out-of-band state.
 
-### Phase 3: Run preserved attempts
+### Activity 3: Run preserved attempts
 
 For each prompt variant, execute the same bead from the same base revision:
 
@@ -335,7 +335,7 @@ Required properties of the run:
 
 Repeat runs when measuring variance across models or prompt variants.
 
-### Phase 4: Collect evidence
+### Activity 4: Collect evidence
 
 For each preserved attempt, collect:
 - attempt identifier / preserved ref
@@ -352,7 +352,7 @@ Then evaluate artifact outputs using the HELIX-side measurements:
 - correctness
 - graph coherence
 
-### Phase 5: Score and compare
+### Activity 5: Score and compare
 
 Use a per-attempt result table like this:
 
@@ -362,7 +362,7 @@ Use a per-attempt result table like this:
 | reworded | A | hx-abc123 | medium | agent | qwen3.5-27b | 91 | 85 | 95 | pass | pass | pass | merge-eligible |
 | alt | A | hx-abc123 | medium | agent | qwen3.5-27b | 74 | 70 | 90 | weak links | fail | pass | preserve-only |
 
-### Phase 6: Decide
+### Activity 6: Decide
 
 Use these rules:
 - **Adopt** the variant if it improves or maintains correctness, required execution success, and graph coherence while improving at least one major dimension.

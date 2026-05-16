@@ -203,7 +203,7 @@ without the creator present. The new-teammate review is a release criterion.
 
 **R-1 (catalog):** Given a fresh repo with no HELIX content, when HELIX
 content is installed, then 7 activity directories exist under `workflows/
-phases/`, each with at least one artifact-type directory; each artifact-type
+activities/`, each with at least one artifact-type directory; each artifact-type
 directory contains `template.md`, `prompt.md`, `meta.yml`, and an example.
 
 **R-3 (alignment skill):** Given a project with vision, PRD, feature specs,

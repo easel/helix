@@ -60,14 +60,14 @@ around the journeys HELIX actually supports:
 
 The core framework consists of:
 
-- **[Artifact types](/artifact-types/)** across seven phases — vision,
+- **[Artifact types](/artifact-types/)** across seven activities — vision,
   PRDs, feature specs, ADRs, technical designs, test plans, runbooks,
   alignment reviews. Each type defines its purpose, relationships,
   generation prompt, template, and, where available, a worked example.
 - **[Eighteen cross-cutting concerns](/concerns/)** — tech stacks
   (TypeScript+Bun, Go, Rust, etc.), quality attributes (accessibility,
   observability, testing, i18n), security postures, infrastructure
-  conventions. Each with components, constraints, and per-phase
+  conventions. Each with components, constraints, and per-activity
   practices.
 - **[Seven activities](/reference/glossary/activities/)** — Discover,
   Frame, Design, Test, Build, Deploy, Iterate — with the artifacts they

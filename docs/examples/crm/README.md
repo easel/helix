@@ -5,7 +5,7 @@ ddx:
 
 # CRM Example — Greenfield Frame Artifacts
 
-This directory holds frame-phase artifacts for a hypothetical CRM product,
+This directory holds frame-activity artifacts for a hypothetical CRM product,
 authored from the sparse intake `"design a CRM"` via the HELIX methodology.
 
 It exists for two reasons:
@@ -36,6 +36,6 @@ exercise hosted inside the HELIX repo, not a HELIX product surface.
 
 ## Status
 
-Frame artifacts only. Design (`02-design/`) and downstream phases are not
+Frame artifacts only. Design (`02-design/`) and downstream activities are not
 authored here yet; those are tracked by sibling beads `helix-8944c622` (design)
 and `helix-7e8a9c4b` (decomposition).

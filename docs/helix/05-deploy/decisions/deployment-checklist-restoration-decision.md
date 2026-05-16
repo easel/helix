@@ -2,7 +2,7 @@
 
 > Historical decision; superseded by the worked example at `docs/helix/05-deploy/deployment-checklist.md`.
 
-`deployment-checklist` is restored as the canonical deploy-phase artifact for
+`deployment-checklist` is restored as the canonical deploy-activity artifact for
 technical release readiness and rollout go/no-go checks.
 
 ## Decision

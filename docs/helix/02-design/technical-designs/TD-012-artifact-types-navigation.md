@@ -53,7 +53,7 @@ lighter treatment or inline disclosure.
 - **Left nav and right nav have separate jobs**: Left nav is site hierarchy and
   location. Right nav is current-page headings. Styling must make that
   relationship obvious.
-- **Generated content owns ordering**: Ordering comes from the phase and
+- **Generated content owns ordering**: Ordering comes from the activity and
   core/supporting lists in the generator, not from hand-edited sidebar files.
 - **CSS follows the content model**: Custom CSS may differentiate supporting
   artifacts, but it cannot create hidden IA by itself.

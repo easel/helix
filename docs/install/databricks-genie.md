@@ -44,7 +44,7 @@ Source content (unchanged across runtimes):
   entry point for HELIX's planning, alignment, design, review, evolution,
   and execution routes.
 - `workflows/activities/00-discover` through `workflows/activities/06-iterate` —
-  the artifact catalog. Each phase directory holds artifact types with
+  the artifact catalog. Each activity directory holds artifact types with
   `template.md`, `prompt.md`, `meta.yml`, and examples.
 
 Recommended bundle layout for a Genie skill named `helix`:
@@ -55,7 +55,7 @@ helix-genie-bundle/
   skill/
     SKILL.md                    # copy of skills/helix/SKILL.md
   catalog/
-    phases/
+    activities/
       00-discover/              # copy of workflows/activities/00-discover
       01-frame/
       02-design/
@@ -104,7 +104,7 @@ permission to register workspace skills.
 
 1. **Assemble the bundle.** Copy `skills/helix/SKILL.md` into
    `helix-genie-bundle/skill/SKILL.md`. Copy the `workflows/activities/` tree
-   into `helix-genie-bundle/catalog/phases/`. Author `manifest.yaml`.
+   into `helix-genie-bundle/catalog/activities/`. Author `manifest.yaml`.
 2. **Upload the bundle to the workspace filesystem.** Per the
    [Genie Code skills documentation](https://docs.databricks.com/aws/en/genie-code/skills),
    workspace-scoped skills are installed under
@@ -123,7 +123,7 @@ permission to register workspace skills.
    registration. Verify this against the current
    [Genie Code skills documentation](https://docs.databricks.com/aws/en/genie-code/skills).
 4. **Grant permissions.** Genie needs read access to the entire catalog
-   (`catalog/phases/**`) and to whatever project artifact root the user
+   (`catalog/activities/**`) and to whatever project artifact root the user
    wants HELIX to operate over (typically `docs/helix/` inside the user's
    repo or workspace folder). Genie needs write access only to the project
    artifact root, not to the catalog itself. The catalog is read-only
@@ -181,13 +181,13 @@ or the entrypoint path is wrong.
 **Step 2.** Confirm the artifact catalog is reachable:
 
 ```text
-Using HELIX, list the artifact types defined under phase 01-frame, and
+Using HELIX, list the artifact types defined under activity 01-frame, and
 show the path of each artifact-type directory in the catalog.
 ```
 
 Expected: Genie returns the artifact-type directories under
 `workflows/activities/01-frame/artifacts/` (as packaged into
-`catalog/phases/01-frame/artifacts/`), with paths anchored at the catalog
+`catalog/activities/01-frame/artifacts/`), with paths anchored at the catalog
 root. If Genie returns generic descriptions without paths, the catalog
 resources are not visible to the skill.
 

@@ -196,7 +196,7 @@ contract. Let each runtime own only the mechanics it is good at.
 ### Manual or mixed usage contract
 
 Manual operation is valid when judgment matters more than automation. Mixed
-operation is valid when different runtimes are best for different phases. The
+operation is valid when different runtimes are best for different activities. The
 non-negotiable rule is that the artifacts remain the shared source of truth:
 each runtime may add evidence or edits, but none should become a private fork
 of the plan.

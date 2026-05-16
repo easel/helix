@@ -59,7 +59,7 @@ interactive entrypoints. Per CONTRACT-001, HELIX owns the supervisory
 
 **Key Decisions**:
 - `helix run` is the default autonomous control surface: users should not need
-  to restate phase transitions explicitly once HELIX has sufficient authority.
+  to restate activity transitions explicitly once HELIX has sufficient authority.
 - `helix run` must remain responsive to concurrent local refinement activity:
   tracker and governing-artifact changes are new supervisory input, not noise.
 - The tracker is the steering wheel for execution: state mutations in
@@ -85,7 +85,7 @@ interactive entrypoints. Per CONTRACT-001, HELIX owns the supervisory
   every HELIX skill to the shared `workflows/` library.
 
 **Trade-offs**:
-- Gain: lower orchestration burden and better continuity across phases.
+- Gain: lower orchestration burden and better continuity across activities.
 - Lose: a simpler "bag of commands" mental model; the supervisory contract must
   be documented and tested more carefully.
 

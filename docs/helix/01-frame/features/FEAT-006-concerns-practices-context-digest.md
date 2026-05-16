@@ -25,7 +25,7 @@ agents rarely need to read upstream files).
 
 This feature extends the cross-cutting injection model established by
 FEAT-003 (principles). Where principles guide **judgment**, concerns guide
-**choices and conventions** across every phase.
+**choices and conventions** across every activity.
 
 ## Problem Statement
 
@@ -160,12 +160,12 @@ the design system conventions.
 
 ### Practices
 
-Each concern ships a `practices.md` with conventions organized by phase:
+Each concern ships a `practices.md` with conventions organized by activity:
 
 ```markdown
 # Practices: a11y-wcag-aa
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 - All user stories involving UI must include a11y acceptance criteria
 - WCAG 2.1 AA is the minimum compliance target
 

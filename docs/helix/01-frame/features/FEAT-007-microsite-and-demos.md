@@ -51,7 +51,7 @@ The microsite must include at minimum:
 |---------|---------|--------|
 | **Home** | Hero, value prop, feature grid, embedded demo, CTA | Done |
 | **Getting Started** | Install and first supervised build in under 10 minutes | Done |
-| **Workflow** | Phases, authority order, supervisory loop, stopping conditions | Done |
+| **Workflow** | Activities, authority order, supervisory loop, stopping conditions | Done |
 | **CLI Reference** | Every command with options, env vars, and examples | Done |
 | **Skills** | Agent skill listing, installation modes, naming conventions | Done |
 | **Glossary** | Definitions for all HELIX terms, organized by category | Done |
@@ -61,8 +61,8 @@ The microsite must include at minimum:
 
 The glossary must define every user-facing HELIX concept:
 
-- **Phases**: All 6 lifecycle phases with key artifacts and commands
-- **Artifacts**: Every artifact type by phase, with file locations and the
+- **Activities**: All 6 lifecycle activities with key artifacts and commands
+- **Artifacts**: Every artifact type by activity, with file locations and the
   authority order
 - **Actions**: Every supervisory command with usage and behavior
 - **Concerns**: The concern library, how filtering works, drift signals
@@ -145,7 +145,7 @@ concerns and must not drift without an ADR.
 - US-022: As a HELIX user, I want a glossary so I can look up unfamiliar
   terms without reading the full workflow docs.
 - US-023: As a HELIX user building my own project, I want an artifact
-  reference so I know what documents to create at each phase.
+  reference so I know what documents to create at each activity.
 - US-024: As a HELIX contributor, I want the site to build and deploy
   automatically so I can focus on content, not infrastructure.
 

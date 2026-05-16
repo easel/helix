@@ -58,17 +58,17 @@ test.describe('Why HELIX', () => {
   test('thesis page describes the methodology layer', async ({ page }) => {
     await page.goto('/why/the-thesis/')
     await expect(article(page).getByText(/methodology layer/i)).toBeVisible()
-    await expect(article(page).getByText(/seven phases/i).first()).toBeVisible()
+    await expect(article(page).getByText(/seven activities/i).first()).toBeVisible()
   })
 })
 
 test.describe('Artifacts', () => {
-  test('index lists artifacts grouped by phase', async ({ page }) => {
+  test('index lists artifacts grouped by activity', async ({ page }) => {
     await page.goto('/artifacts/')
-    // Phase headings should be visible (h2)
-    await expect(page.getByRole('heading', { name: /Phase 0.*Discover/ })).toBeVisible()
-    await expect(page.getByRole('heading', { name: /Phase 1.*Frame/ })).toBeVisible()
-    await expect(page.getByRole('heading', { name: /Phase 6.*Iterate/ })).toBeVisible()
+    // Activity headings should be visible (h2)
+    await expect(page.getByRole('heading', { name: /Activity 0.*Discover/ })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /Activity 1.*Frame/ })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /Activity 6.*Iterate/ })).toBeVisible()
   })
 
   test('artifact pages render generation prompt and template', async ({ page }) => {
@@ -136,7 +136,7 @@ test.describe('Concerns', () => {
   test('concern detail page shows description and practices', async ({ page }) => {
     await page.goto('/concerns/typescript-bun/')
     await expect(page.getByRole('heading', { name: /Description/ })).toBeVisible()
-    await expect(page.getByRole('heading', { name: /Practices by phase/ })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /Practices by activity/ })).toBeVisible()
     await expect(article(page).getByText(/Bun 1\.x/)).toBeVisible()
   })
 })
@@ -154,7 +154,7 @@ test.describe('Use HELIX', () => {
     await expect(article(page).getByText('DDx and HELIX')).toBeVisible()
   })
 
-  test('Workflow page explains phases', async ({ page }) => {
+  test('Workflow page explains activities', async ({ page }) => {
     await page.goto('/use/workflow/')
     await expect(page.getByRole('heading', { name: 'Workflow' }).first()).toBeVisible()
   })
@@ -190,19 +190,19 @@ test.describe('Reference', () => {
       page,
     }) => {
       await page.goto('/reference/glossary/')
-      await expect(article(page).getByRole('link', { name: /Phases/ })).toBeVisible()
+      await expect(article(page).getByRole('link', { name: /Activities/ })).toBeVisible()
       await expect(article(page).getByRole('link', { name: /Actions/ })).toBeVisible()
       await expect(article(page).getByRole('link', { name: /Concepts/ })).toBeVisible()
       await expect(article(page).getByRole('link', { name: /Tracker/ })).toBeVisible()
     })
 
-    test('phases page covers all seven phases with artifact links', async ({ page }) => {
-      await page.goto('/reference/glossary/phases/')
-      await expect(page.getByRole('heading', { name: /Phase 0.*Discover/ })).toBeVisible()
-      await expect(page.getByRole('heading', { name: /Phase 1.*Frame/ })).toBeVisible()
-      await expect(page.getByRole('heading', { name: /Phase 4.*Build/ })).toBeVisible()
-      await expect(page.getByRole('heading', { name: /Phase 6.*Iterate/ })).toBeVisible()
-      // Artifact links inside phase tables
+    test('activities page covers all seven activities with artifact links', async ({ page }) => {
+      await page.goto('/reference/glossary/activities/')
+      await expect(page.getByRole('heading', { name: /Activity 0.*Discover/ })).toBeVisible()
+      await expect(page.getByRole('heading', { name: /Activity 1.*Frame/ })).toBeVisible()
+      await expect(page.getByRole('heading', { name: /Activity 4.*Build/ })).toBeVisible()
+      await expect(page.getByRole('heading', { name: /Activity 6.*Iterate/ })).toBeVisible()
+      // Artifact links inside activity tables
       await expect(article(page).getByRole('link', { name: 'PRD' })).toBeVisible()
       await expect(article(page).getByRole('link', { name: /ADR/ })).toBeVisible()
     })
@@ -223,7 +223,7 @@ test.describe('Reference', () => {
     test('tracker page documents beads', async ({ page }) => {
       await page.goto('/reference/glossary/tracker/')
       await expect(article(page).getByText('ddx bead').first()).toBeVisible()
-      await expect(article(page).getByRole('heading', { name: 'Phase Labels' })).toBeVisible()
+      await expect(article(page).getByRole('heading', { name: 'Activity Labels' })).toBeVisible()
     })
   })
 })
@@ -241,7 +241,7 @@ test.describe('Backward-compat aliases', () => {
       '/docs/cli/',
       '/docs/skills/',
       '/docs/glossary/',
-      '/docs/glossary/phases/',
+      '/docs/glossary/activities/',
       '/docs/glossary/artifacts/',
       '/docs/glossary/concerns/',
       '/docs/demos/',

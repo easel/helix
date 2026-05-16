@@ -2,7 +2,7 @@
 
 > Historical decision; superseded by the worked example at `docs/helix/06-iterate/improvement-backlog.md`.
 
-`improvement-backlog` is restored as the canonical iterate-phase inventory of
+`improvement-backlog` is restored as the canonical iterate-activity inventory of
 prioritized follow-up work.
 
 ## Decision

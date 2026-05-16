@@ -14,7 +14,7 @@ that makes them execution-eligible. This causes:
    (no `spec-id`, `acceptance`, or `design` fields).
 2. Agents waste cycles reading issues only to discover they lack enough context
    to implement.
-3. Label taxonomy is inconsistent — missing phase, kind, or area labels.
+3. Label taxonomy is inconsistent — missing activity, kind, or area labels.
 4. Blocked issues lack structured descriptions, making human triage harder.
 5. Epic decomposition creates children that don't reference the parent's
    acceptance criteria, so there's no way to verify coverage.
@@ -27,8 +27,8 @@ ensuring every issue enters the tracker execution-ready.
 ### Functional
 
 1. **Validate required fields by type**: tasks need `spec-id`, `acceptance`,
-   and at least one phase label. Epics need `acceptance` that defines "done."
-2. **Enforce label taxonomy**: every issue must have `helix` + one `phase:*`
+   and at least one activity label. Epics need `acceptance` that defines "done."
+2. **Enforce label taxonomy**: every issue must have `helix` + one `activity:*`
    label. Warn on missing `kind:*` or `area:*` labels.
 3. **Validate dependencies**: deps must reference existing issue IDs. Detect
    and reject circular dependencies.
@@ -123,7 +123,7 @@ Return 0 on success, 1 on hard error (with message to stderr),
 | Rule | Type | Scope |
 |------|------|-------|
 | `helix` label present | hard | create, update |
-| At least one `phase:*` label | hard | create |
+| At least one `activity:*` label | hard | create |
 | `spec-id` non-empty for tasks | hard | create |
 | `acceptance` non-empty for tasks and epics | hard | create |
 | deps reference existing issues | hard | create, update |
@@ -139,7 +139,7 @@ The `SKILL.md` prompt guides the agent to:
 
 1. Identify the governing artifact (spec-id)
 2. Write deterministic acceptance criteria
-3. Choose correct type, phase, and kind labels
+3. Choose correct type, activity, and kind labels
 4. Set parent and dependencies
 5. Assess execution eligibility
 
