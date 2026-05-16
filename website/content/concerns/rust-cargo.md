@@ -66,11 +66,11 @@ additional deny-level lints.
 
 ## ADR References
 
-## Practices by phase
+## Practices by activity
 
-Agents working in any of these phases inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below via the bead's context digest.
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 - Specify MSRV explicitly; it must be stable enough for CI and local dev
 - Identify crates that are libraries vs binaries — error handling strategy differs
 - If concurrency correctness is a requirement, plan for `loom`-based testing

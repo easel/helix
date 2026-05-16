@@ -2,7 +2,7 @@
 title: "Monitoring Setup"
 linkTitle: "Monitoring Setup"
 slug: monitoring-setup
-phase: "Deploy"
+activity: "Deploy"
 artifactRole: "supporting"
 weight: 12
 generated: true
@@ -161,7 +161,7 @@ Use these local resources as grounding:
 - Every page-worthy alert has an operator action or runbook entrypoint.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: monitoring-setup
 ---
 
 # Monitoring Setup

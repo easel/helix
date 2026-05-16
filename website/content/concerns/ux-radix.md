@@ -123,11 +123,11 @@ is the reference implementation for React projects.
 
 ## ADR References
 
-## Practices by phase
+## Practices by activity
 
-Agents working in any of these phases inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below via the bead's context digest.
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 
 - User stories involving interactive UI must specify which interaction
   patterns apply (search, edit, navigate, select, disclose)

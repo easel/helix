@@ -41,11 +41,11 @@ services need service discovery, ingress, or multi-container orchestration.
 
 ## ADR References
 
-## Practices by phase
+## Practices by activity
 
-Agents working in any of these phases inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below via the bead's context digest.
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 - Identify all services that need to run locally together
 - Confirm production target is Kubernetes (not serverless/PaaS)
 - Plan for secrets management strategy before first deployment

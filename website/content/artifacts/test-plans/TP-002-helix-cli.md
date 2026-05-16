@@ -1,12 +1,31 @@
 ---
 title: "Test Plan: TP-002-helix-cli"
 slug: TP-002-helix-cli
-weight: 380
+weight: 400
 activity: "Test"
 source: "03-test/test-plans/TP-002-helix-cli.md"
 generated: true
 collection: test-plans
 ---
+
+> **Source identity** (from `03-test/test-plans/TP-002-helix-cli.md`):
+
+```yaml
+ddx:
+  id: TP-002
+  status: partially-superseded
+  superseded_by: helix.prd
+```
+
+> **PARTIALLY SUPERSEDED** — This test plan validates wrapper CLI behavior,
+> tracker operations, and run-loop mechanics. The current PRD (`helix.prd`)
+> removes the CLI and execution loop from HELIX's scope. This test plan
+> survives only as **DDx adapter / transition compatibility test coverage**
+> for the duration that the wrapper CLI exists as a reference-runtime tool.
+> Core HELIX verification must instead test catalog completeness, artifact
+> schema conformance, and portable alignment skill behavior — not wrapper
+> command behavior.
+
 # Test Plan: TP-002-helix-cli
 
 **Status**: backfilled

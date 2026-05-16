@@ -37,11 +37,11 @@ far cheaper than retrofitting.
 
 ## ADR References
 
-## Practices by phase
+## Practices by activity
 
-Agents working in any of these phases inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below via the bead's context digest.
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 
 - All user stories involving user-facing text must specify i18n handling
 - Target locales must be declared in the project config

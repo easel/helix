@@ -157,11 +157,11 @@ demonstrated.
 
 ## ADR References
 
-## Practices by phase
+## Practices by activity
 
-Agents working in any of these phases inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below via the bead's context digest.
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 - Identify which user journeys need demo reels — prioritize the "first
   impression" experience (dashboard → search → create → verify)
 - Define the narrative arc: what should the viewer understand after watching?

@@ -2,7 +2,7 @@
 title: "Product Requirements Document"
 linkTitle: "PRD"
 slug: prd
-phase: "Frame"
+activity: "Frame"
 artifactRole: "core"
 weight: 10
 generated: true
@@ -452,7 +452,7 @@ committing.
 - [ ] Open Questions name who can answer and what&#x27;s blocked</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: prd
 ---
 
 # Product Requirements Document

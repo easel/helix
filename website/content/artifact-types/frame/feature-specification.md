@@ -2,7 +2,7 @@
 title: "Feature Specification"
 linkTitle: "Feature Specification"
 slug: feature-specification
-phase: "Frame"
+activity: "Frame"
 artifactRole: "core"
 weight: 13
 generated: true
@@ -439,7 +439,7 @@ committing.
 - [ ] Out of scope excludes something plausible</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: FEAT-XXX
 ---
 
 # Feature Specification: FEAT-XXX — [Feature Name]

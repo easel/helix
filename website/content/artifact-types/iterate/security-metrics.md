@@ -2,7 +2,7 @@
 title: "Security Metrics"
 linkTitle: "Security Metrics"
 slug: security-metrics
-phase: "Iterate"
+activity: "Iterate"
 artifactRole: "supporting"
 weight: 13
 generated: true
@@ -159,7 +159,7 @@ recommendations (&quot;improve security posture&quot;) are not acceptable.
 Use the template at `.ddx/plugins/helix/workflows/activities/06-iterate/artifacts/security-metrics/template.md`.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: security-metrics
 ---
 
 # Security Metrics - [Iteration / Date Range]

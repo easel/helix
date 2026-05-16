@@ -1,7 +1,7 @@
 ---
 title: "HERO-2026-05-12 Document Spine Helix Concept"
 slug: HERO-2026-05-12-document-spine-helix
-weight: 280
+weight: 290
 activity: "Design"
 source: "02-design/hero-image-concepts/HERO-2026-05-12-document-spine-helix.md"
 generated: true
@@ -12,7 +12,8 @@ collection: hero-image-concepts
 ## Purpose
 
 Explore a homepage hero image for HELIX around the "document spine" concept.
-The image should support the declarative hero line: "The Spine for AI Work."
+The accepted homepage hero at capture time uses the headline
+"Product lifecycle for AI."
 
 ## Design intent
 
@@ -190,3 +191,197 @@ Output paths:
 - Dark review copy: `/tank/home/erik/Downloads/document-spine-helix-dark-quality-cutout-2026-05-12.png`
 - Light screencheck: `/tmp/helix-screencheck/home-light-quality.png`
 - Dark screencheck: `/tmp/helix-screencheck/home-dark-quality.png`
+
+## Accepted homepage hero box implementation
+
+Status: accepted for the current homepage pass on 2026-05-12.
+
+Design decision:
+
+- Use the higher-quality opaque light and dark hero images, not chroma-key cutouts.
+- Make the hero container itself a solid compositing surface.
+- Match the hero surface to the opaque image background instead of relying on a page-wide gradient.
+- Clip the hero image inside the hero surface so the graphic does not escape the box.
+- Use image-panel overlay gradients to dissolve the opaque image edges into the solid hero surface.
+- Keep light and dark images separate because the dark image requires different color and background treatment.
+
+Active assets:
+
+- Light site asset: `website/static/hero/concepts/document-spine-helix-light-2026-05-12.png`
+- Dark site asset: `website/static/hero/concepts/document-spine-helix-dark-2026-05-12.png`
+- Light artifact copy: `docs/helix/02-design/hero-image-concepts/HERO-2026-05-12-document-spine-helix-light.png`
+- Dark artifact copy: `docs/helix/02-design/hero-image-concepts/HERO-2026-05-12-document-spine-helix-dark.png`
+- Light review source used for active asset: `/tank/home/erik/Downloads/document-spine-helix-light-2026-05-12.png`
+- Dark review source used for active asset: `/tank/home/erik/Downloads/document-spine-helix-dark-muted-2026-05-12.png`
+
+Local server expectation:
+
+- Root-mounted local review server: `http://eitri:1315/`
+- Production/baseURL server may mount under `/helix/`; do not mix the two when checking CSS.
+
+### Verbatim homepage markup
+
+Source: `website/content/_index.md`
+
+```html
+<div class="helix-hero-layout">
+<div class="helix-hero-copy">
+
+{{< hextra/hero-badge link="why/the-thesis" >}}
+  <span>See the details</span>
+  {{< icon name="arrow-circle-right" attributes="height=14" >}}
+{{< /hextra/hero-badge >}}
+
+{{< hextra/hero-headline >}}
+Product lifecycle for AI.
+{{< /hextra/hero-headline >}}
+
+{{< hextra/hero-subtitle >}}
+Agents do better work with context they can trust. HELIX is a document discipline for teams building software with agents. It turns project intent and evidence into shared memory, then keeps that memory current as the work changes.
+{{< /hextra/hero-subtitle >}}
+
+</div>
+<figure class="helix-hero-image-panel" aria-label="Document spine double helix">
+  <img class="helix-hero-image helix-hero-image-light" src="hero/concepts/document-spine-helix-light-2026-05-12.png" alt="A document spine double helix connecting human intent, AI execution, and governed artifacts." />
+  <img class="helix-hero-image helix-hero-image-dark" src="hero/concepts/document-spine-helix-dark-2026-05-12.png" alt="" aria-hidden="true" />
+</figure>
+</div>
+```
+
+### Verbatim hero CSS
+
+Source: `website/assets/css/custom.css`
+
+```css
+.helix-hero-layout {
+  position: relative;
+  display: flex;
+  align-items: center;
+  isolation: isolate;
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  padding: clamp(1.5rem, 4vw, 3.5rem) clamp(1rem, 2.8vw, 2.5rem) 1rem clamp(1.5rem, 4vw, 3.5rem);
+  overflow: hidden;
+  border-radius: 42px;
+  background: #fbf6eb;
+}
+
+.dark .helix-hero-layout {
+  background: #111721;
+}
+
+.helix-hero-layout::before {
+  content: none;
+}
+
+.dark .helix-hero-layout::before {
+  content: none;
+}
+
+.helix-hero-text,
+.helix-hero-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.helix-hero-copy {
+  flex: 1 1 58rem;
+  max-width: 62rem;
+}
+
+.helix-hero-image-panel {
+  position: relative;
+  flex: 0 1 min(58vw, 56rem);
+  min-width: min(100%, 34rem);
+  margin: clamp(-1.2rem, -1.8vw, -0.6rem) clamp(-1rem, -1.4vw, -0.35rem) clamp(-1rem, -1.4vw, -0.5rem) clamp(-1.5rem, -2vw, -0.75rem);
+  overflow: hidden;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.helix-hero-image-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, #fbf6eb 0%, rgba(251, 246, 235, 0.96) 8%, rgba(251, 246, 235, 0) 28%),
+    linear-gradient(180deg, #fbf6eb 0%, rgba(251, 246, 235, 0) 16%, rgba(251, 246, 235, 0) 78%, #fbf6eb 100%);
+}
+
+.helix-hero-image-panel::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 3;
+  height: 26%;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(251, 246, 235, 0), #fbf6eb 78%);
+}
+
+.helix-hero-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  object-position: center right;
+  filter: saturate(0.95) contrast(0.98);
+  mix-blend-mode: normal;
+  opacity: 0.98;
+}
+
+.helix-hero-image-dark {
+  display: none;
+}
+
+.dark .helix-hero-image-panel {
+  background: transparent;
+  box-shadow: none;
+}
+
+.dark .helix-hero-image-panel::before {
+  background:
+    linear-gradient(90deg, #111721 0%, rgba(17, 23, 33, 0.96) 8%, rgba(17, 23, 33, 0) 28%),
+    linear-gradient(180deg, #111721 0%, rgba(17, 23, 33, 0) 16%, rgba(17, 23, 33, 0) 78%, #111721 100%);
+}
+
+.dark .helix-hero-image-panel::after {
+  background: linear-gradient(180deg, rgba(17, 23, 33, 0), #111721 78%);
+}
+
+.dark .helix-hero-image {
+  filter: saturate(0.94) contrast(0.98) brightness(1.01);
+  mix-blend-mode: normal;
+  opacity: 0.98;
+}
+
+.dark .helix-hero-image-light {
+  display: none;
+}
+
+.dark .helix-hero-image-dark {
+  display: block;
+}
+
+@media (max-width: 767px) {
+  .helix-hero-layout {
+    flex-direction: column-reverse;
+    text-align: center;
+  }
+
+  .helix-hero-proof,
+  .helix-hero-actions {
+    justify-content: center;
+  }
+
+  .helix-hero-image-panel {
+    flex-basis: auto;
+    width: min(100%, 30rem);
+  }
+
+  .helix-hero-image {
+    aspect-ratio: 4 / 3;
+  }
+}
+```

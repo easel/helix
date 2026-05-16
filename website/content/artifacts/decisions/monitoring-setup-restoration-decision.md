@@ -1,7 +1,7 @@
 ---
 title: "Monitoring Setup — Restoration Decision"
 slug: monitoring-setup-restoration-decision
-weight: 420
+weight: 440
 activity: "Deploy"
 source: "05-deploy/decisions/monitoring-setup-restoration-decision.md"
 generated: true
@@ -11,7 +11,7 @@ collection: decisions
 
 > Historical decision; superseded by the worked example at `docs/helix/05-deploy/monitoring-setup.md`.
 
-`monitoring-setup` is restored as the canonical deploy-phase artifact for
+`monitoring-setup` is restored as the canonical deploy-activity artifact for
 service-specific observability configuration and alerting readiness.
 
 ## Decision

@@ -2,7 +2,7 @@
 title: "Implementation Plan"
 linkTitle: "Implementation Plan"
 slug: implementation-plan
-phase: "Build"
+activity: "Build"
 artifactRole: "core"
 weight: 10
 generated: true
@@ -53,7 +53,7 @@ or match generation.
 ## Shared Constraints
 
 - API-001 is normative.
-- Failing tests from TP-001 must exist before behavior implementation.
+- Failing tests from STP-001 must exist before behavior implementation.
 - Raw CSV row values must not appear in logs.
 - Storage failure must not leave partial session metadata.
 - Build slices should stay small enough for review and rollback.
@@ -62,11 +62,11 @@ or match generation.
 
 | Slice | Story / Area | Governing Artifacts | Depends On | Validation Gate | Notes |
 |-------|---------------|---------------------|------------|-----------------|-------|
-| B-001 | Database migration and repository | TD-001, TP-001 | None | `pnpm test -- importSessionRepository` | Establish persistence contract first |
-| B-002 | Source-file storage adapter and upload service tests | TD-001, TP-001 | B-001 | `pnpm test -- importUploadService` | Add red tests before service implementation |
-| B-003 | API route and contract tests | API-001, TD-001, TP-001 | B-001, B-002 | `pnpm test -- importSessions` | Proves success and problem-details errors |
-| B-004 | React upload UI and component tests | US-001, TD-001, TP-001 | B-003 | `pnpm test -- ImportSessionUpload` | Uses API response `next.href` directly |
-| B-005 | P0 E2E smoke and closeout | US-001, TP-001 | B-004 | `pnpm test:e2e -- upload-csv` | Final story evidence |
+| B-001 | Database migration and repository | TD-001, STP-001 | None | `pnpm test -- importSessionRepository` | Establish persistence contract first |
+| B-002 | Source-file storage adapter and upload service tests | TD-001, STP-001 | B-001 | `pnpm test -- importUploadService` | Add red tests before service implementation |
+| B-003 | API route and contract tests | API-001, TD-001, STP-001 | B-001, B-002 | `pnpm test -- importSessions` | Proves success and problem-details errors |
+| B-004 | React upload UI and component tests | US-001, TD-001, STP-001 | B-003 | `pnpm test -- ImportSessionUpload` | Uses API response `next.href` directly |
+| B-005 | P0 E2E smoke and closeout | US-001, STP-001 | B-004 | `pnpm test:e2e -- upload-csv` | Final story evidence |
 
 ## Issue Decomposition
 
@@ -74,8 +74,8 @@ Story-level work is tracked via `ddx bead` in `.ddx/beads.jsonl`.
 
 **Per-issue requirements**:
 
-- Labels: `helix`, `phase:build`, `kind:build`, `story:US-001`
-- References: US-001, TD-001, TP-001, API-001, this build plan
+- Labels: `helix`, `activity:build`, `kind:build`, `story:US-001`
+- References: US-001, TD-001, STP-001, API-001, this build plan
 - `spec-id` pointing at the nearest governing artifact
 - Blockers as dependency links
 
@@ -140,7 +140,7 @@ Story-level work is tracked via `ddx bead` in `.ddx/beads.jsonl`.
 <tr><th>HELIX documents</th><td><a href="https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/04-build/implementation-plan.md"><code>docs/helix/04-build/implementation-plan.md</code></a></td></tr>
 <tr><th>Generation prompt</th><td><details><summary>Show the full generation prompt</summary><pre><code># Build Plan Generation Prompt
 
-Create the canonical build plan for the Build phase. Keep it short, but preserve the sequencing, issue boundaries, and verification rules needed to execute implementation against the test plan and technical designs.
+Create the canonical build plan for the Build activity. Keep it short, but preserve the sequencing, issue boundaries, and verification rules needed to execute implementation against the test plan and technical designs.
 
 ## Purpose
 
@@ -194,7 +194,7 @@ Use this local resource summary as grounding:
 For tracker conventions see `ddx bead --help`.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: implementation-plan
 ---
 
 # Build Plan
@@ -222,7 +222,7 @@ ddx:
 Story-level work is tracked via `ddx bead` in `.ddx/beads.jsonl`.
 
 **Per-issue requirements**:
-- Labels: `helix`, `phase:build`, `kind:build`, `story:US-{story-id}`
+- Labels: `helix`, `activity:build`, `kind:build`, `story:US-{story-id}`
 - References: user story, technical design, story test plan, this build plan
 - `spec-id` pointing at the nearest governing artifact
 - Blockers as dependency links
@@ -236,7 +236,7 @@ Story-level work is tracked via `ddx bead` in `.ddx/beads.jsonl`.
 - [ ] Failing tests exist before implementation starts
 - [ ] All required tests pass before closing a build issue
 - [ ] Behavior changes update canonical documents
-- [ ] Code review is complete before phase exit
+- [ ] Code review is complete before activity exit
 
 ## Risks and Rollbacks
 

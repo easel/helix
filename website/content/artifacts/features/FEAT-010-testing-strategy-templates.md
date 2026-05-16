@@ -35,7 +35,7 @@ write better tests and help humans define what "works" means.
 
 ## Problem Statement
 
-- **Current situation**: HELIX has a Plan phase that converts acceptance
+- **Current situation**: HELIX has a Plan activity that converts acceptance
   criteria into tests, but no structured templates for different testing
   strategies. Agents default to unit tests and miss integration patterns,
   property-based testing, performance benchmarking, and flow testing.
@@ -129,7 +129,7 @@ tests, and performance benchmarks simultaneously.
 ## Constraints
 
 - Must work with the existing concern system (FEAT-006).
-- Must integrate with HELIX's Plan phase workflow.
+- Must integrate with HELIX's Plan activity workflow.
 - Templates are advisory — they guide agents but don't enforce specific
   tools.
 

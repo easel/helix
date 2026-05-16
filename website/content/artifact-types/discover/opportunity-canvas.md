@@ -2,7 +2,7 @@
 title: "Opportunity Canvas"
 linkTitle: "Opportunity Canvas"
 slug: opportunity-canvas
-phase: "Discover"
+activity: "Discover"
 artifactRole: "supporting"
 weight: 13
 generated: true
@@ -214,7 +214,7 @@ Frame. It owns problem-solution fit and readiness to create requirements.
 - [ ] Go/no-go decision includes unresolved assumptions and next action</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: opportunity-canvas
 ---
 
 # Opportunity Canvas

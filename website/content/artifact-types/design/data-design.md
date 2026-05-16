@@ -2,7 +2,7 @@
 title: "Data Design"
 linkTitle: "Data Design"
 slug: data-design
-phase: "Design"
+activity: "Design"
 artifactRole: "supporting"
 weight: 15
 generated: true
@@ -147,7 +147,7 @@ constraints, and migration consequences that technical designs must honor.
   implementation and tests.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: data-design
 ---
 
 # Data Design

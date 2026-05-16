@@ -2,7 +2,7 @@
 title: "Business Case"
 linkTitle: "Business Case"
 slug: business-case
-phase: "Discover"
+activity: "Discover"
 artifactRole: "supporting"
 weight: 11
 generated: true
@@ -189,7 +189,7 @@ Vision owns direction; PRD owns what to build.
 - [ ] Recommendation follows from the numbers and alternatives</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: business-case
 ---
 
 # Business Case

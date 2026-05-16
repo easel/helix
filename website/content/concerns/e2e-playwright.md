@@ -189,11 +189,11 @@ Any project with a web UI that users interact with. This includes:
 
 ## ADR References
 
-## Practices by phase
+## Practices by activity
 
-Agents working in any of these phases inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below via the bead's context digest.
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 - Identify all user-facing pages and workflows that need testing
 - Define what "test data" means for this project — what states must the UI show?
 - Determine visual regression strategy: which pages get screenshot baselines?

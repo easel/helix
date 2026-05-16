@@ -37,11 +37,11 @@ for production debugging, performance monitoring, and incident response.
 
 ## ADR References
 
-## Practices by phase
+## Practices by activity
 
-Agents working in any of these phases inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below via the bead's context digest.
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 
 - All services must define SLOs for availability and latency
 - Incident response requires structured logs and traces

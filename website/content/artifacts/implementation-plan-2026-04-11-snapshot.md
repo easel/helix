@@ -1,7 +1,7 @@
 ---
 title: "Implementation Plan — 2026-04-11 Live Queue Snapshot"
 slug: implementation-plan-2026-04-11-snapshot
-weight: 390
+weight: 410
 activity: "Build"
 source: "04-build/implementation-plan-2026-04-11-snapshot.md"
 generated: true
@@ -141,7 +141,7 @@ Recently landed decisions in this chain:
 | 4 | Repair deploy artifact contract consistency | Deploy artifact metadata/templates, review findings | Resolve ordering contradictions and missing artifact references before extending deploy docs further. |
 | 5 | Restore the public site proof lane | FEAT-007, site concerns, Playwright/Hugo verification | Fix route/search regressions and extend deterministic site coverage so the published docs lane is green again. |
 | 6 | Finish design-taxonomy follow-ons | Artifact hierarchy, design artifact docs, workspace-state design work | Complete the deleted-artifact audit, first-class contract support, and workspace-state modeling before new artifact types are introduced. |
-| 7 | Stage DDx tier-policy adoption behind queue-contract stabilization | DDx tier-policy/model-catalog contract | Keep `helix-81c0c0df` queued as a cross-phase follow-on while higher-priority execution-contract work lands first. |
+| 7 | Stage DDx tier-policy adoption behind queue-contract stabilization | DDx tier-policy/model-catalog contract | Keep `helix-81c0c0df` queued as a cross-activity follow-on while higher-priority execution-contract work lands first. |
 
 ## Verification Expectations
 

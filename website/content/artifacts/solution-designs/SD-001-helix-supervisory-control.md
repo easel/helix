@@ -1,7 +1,7 @@
 ---
 title: "Solution Design"
 slug: SD-001-helix-supervisory-control
-weight: 310
+weight: 330
 activity: "Design"
 source: "02-design/solution-designs/SD-001-helix-supervisory-control.md"
 generated: true
@@ -16,7 +16,18 @@ ddx:
   depends_on:
     - FEAT-001
     - ADR-001
+  status: superseded
+  superseded_by: helix.prd
 ```
+
+> **SUPERSEDED** — This solution design modeled HELIX as a supervisory
+> control system with `helix run` as the autonomous execution controller.
+> The current PRD (`helix.prd`) removes the execution loop and supervisory
+> autopilot from HELIX's scope. The still-useful concepts from this design —
+> authority-ordered artifact processing, alignment triggers, and stop-for-
+> human-judgment conditions — survive in the methodology documentation and
+> alignment skill contract, not as an execution-loop design. This document
+> is retained for historical context only and must not govern new HELIX work.
 
 # Solution Design
 
@@ -60,7 +71,7 @@ interactive entrypoints. Per CONTRACT-001, HELIX owns the supervisory
 
 **Key Decisions**:
 - `helix run` is the default autonomous control surface: users should not need
-  to restate phase transitions explicitly once HELIX has sufficient authority.
+  to restate activity transitions explicitly once HELIX has sufficient authority.
 - `helix run` must remain responsive to concurrent local refinement activity:
   tracker and governing-artifact changes are new supervisory input, not noise.
 - The tracker is the steering wheel for execution: state mutations in
@@ -86,7 +97,7 @@ interactive entrypoints. Per CONTRACT-001, HELIX owns the supervisory
   every HELIX skill to the shared `workflows/` library.
 
 **Trade-offs**:
-- Gain: lower orchestration burden and better continuity across phases.
+- Gain: lower orchestration burden and better continuity across activities.
 - Lose: a simpler "bag of commands" mental model; the supervisory contract must
   be documented and tested more carefully.
 

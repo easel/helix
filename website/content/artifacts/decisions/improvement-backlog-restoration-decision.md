@@ -1,7 +1,7 @@
 ---
 title: "Improvement Backlog — Restoration Decision"
 slug: improvement-backlog-restoration-decision
-weight: 570
+weight: 600
 activity: "Iterate"
 source: "06-iterate/decisions/improvement-backlog-restoration-decision.md"
 generated: true
@@ -11,7 +11,7 @@ collection: decisions
 
 > Historical decision; superseded by the worked example at `docs/helix/06-iterate/improvement-backlog.md`.
 
-`improvement-backlog` is restored as the canonical iterate-phase inventory of
+`improvement-backlog` is restored as the canonical iterate-activity inventory of
 prioritized follow-up work.
 
 ## Decision

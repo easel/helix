@@ -2,7 +2,7 @@
 title: "Release Notes"
 linkTitle: "Release Notes"
 slug: release-notes
-phase: "Deploy"
+activity: "Deploy"
 artifactRole: "core"
 weight: 11
 generated: true
@@ -196,7 +196,7 @@ changes, migrations, and known issues explicit. If no action is required or no
 breaking changes exist, say that clearly.
 
 Do not produce roadmap filler, a GTM plan, or a cross-functional launch
-checklist. Launch coordination belongs in linked `phase:deploy` tracker work
+checklist. Launch coordination belongs in linked `activity:deploy` tracker work
 plus the adjacent deploy artifacts (`deployment-checklist`, `monitoring-setup`,
 and `runbook`), not inside release notes.
 
@@ -210,7 +210,7 @@ and `runbook`), not inside release notes.
 Use the template at `.ddx/plugins/helix/workflows/activities/05-deploy/artifacts/release-notes/template.md`.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: release-notes
 ---
 
 # Release Notes - [Release / Version]

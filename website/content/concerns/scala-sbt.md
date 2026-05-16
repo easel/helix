@@ -44,11 +44,11 @@ maintain `scala-sbt` only for the remaining Scala surface.
 
 ## ADR References
 
-## Practices by phase
+## Practices by activity
 
-Agents working in any of these phases inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below via the bead's context digest.
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 - Identify whether the project is greenfield Scala or has a migration plan to another runtime
 - If mid-migration, scope new work to the target stack and minimize new Scala surface
 

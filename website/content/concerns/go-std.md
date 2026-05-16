@@ -62,11 +62,11 @@ All Go projects — CLIs, services, libraries. The standard toolchain and
 
 ## ADR References
 
-## Practices by phase
+## Practices by activity
 
-Agents working in any of these phases inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below via the bead's context digest.
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 - Specify minimum Go version in `go.mod`
 - Identify test levels needed: unit, integration (VCR/stubbed), functional (binary), E2E (live)
 - If the project hits external HTTP APIs, plan for VCR recording in integration tests

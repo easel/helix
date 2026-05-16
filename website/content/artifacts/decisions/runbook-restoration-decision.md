@@ -1,7 +1,7 @@
 ---
 title: "Runbook — Restoration Decision"
 slug: runbook-restoration-decision
-weight: 440
+weight: 460
 activity: "Deploy"
 source: "05-deploy/decisions/runbook-restoration-decision.md"
 generated: true
@@ -11,7 +11,7 @@ collection: decisions
 
 > Historical decision; superseded by the worked example at `docs/helix/05-deploy/runbook.md`.
 
-`runbook` is restored as the canonical deploy-phase artifact for
+`runbook` is restored as the canonical deploy-activity artifact for
 service-specific on-call response, rollback, recovery, and routine operating
 procedures.
 
@@ -76,7 +76,7 @@ deploy artifact surface in `workflows/DDX.md`, `workflows/conventions.md`,
 `runbook` is not replaced by `deployment-checklist` or `monitoring-setup`.
 Those artifacts define release decision points and observability configuration;
 the runbook is the durable response surface that ties signals to operator
-action. `phase:deploy` beads track rollout work, but they do not replace the
+action. `activity:deploy` beads track rollout work, but they do not replace the
 persistent per-service procedures operators need during incidents and
 recovery.
 

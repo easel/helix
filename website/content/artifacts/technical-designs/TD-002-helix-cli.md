@@ -1,12 +1,31 @@
 ---
 title: "Technical Design: TD-002-helix-cli"
 slug: TD-002-helix-cli
-weight: 330
+weight: 350
 activity: "Design"
 source: "02-design/technical-designs/TD-002-helix-cli.md"
 generated: true
 collection: technical-designs
 ---
+
+> **Source identity** (from `02-design/technical-designs/TD-002-helix-cli.md`):
+
+```yaml
+ddx:
+  id: TD-002
+  status: partially-superseded
+  superseded_by: helix.prd
+```
+
+> **PARTIALLY SUPERSEDED** — The portions of this technical design that
+> describe `helix run` as the primary execution surface, queue-drain
+> mechanics, and CLI wrapper behavior as core HELIX architecture are
+> superseded by the current PRD (`helix.prd`). HELIX does not own a CLI or
+> execution loop. This design survives only as documentation for the
+> **DDx reference-runtime adapter** — the thin CLI wrapper used when running
+> HELIX commands in a DDx-backed environment. It must not be read as
+> specifying the portable HELIX methodology surface.
+
 # Technical Design: TD-002-helix-cli
 
 **Status**: backfilled
@@ -117,7 +136,7 @@ the first `NEXT_ACTION` result exactly:
   looping forever.
 - `NEXT_ACTION: BACKFILL`
   Stop and surface the explicit `helix backfill <scope>` command. Backfill is a
-  separate cross-phase action and is not auto-run by `helix run`.
+  separate cross-activity action and is not auto-run by `helix run`.
 - `NEXT_ACTION: WAIT`
   Stop immediately. `WAIT` means execution is blocked by claimed work or a
   truly external dependency; `helix run` must not attempt an unblock build

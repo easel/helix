@@ -2,7 +2,7 @@
 title: "Parking Lot"
 linkTitle: "Parking Lot"
 slug: parking-lot
-phase: "Frame"
+activity: "Frame"
 artifactRole: "supporting"
 weight: 18
 generated: true
@@ -56,7 +56,7 @@ CSV-first pilot scope.
 - **Dependencies**: Pilot proves time savings and willingness to pay.
 - **Revisit Trigger**: At least 3 of 5 pilot firms convert at target pricing
   and request bank-feed support.
-- **Target Phase/Milestone**: Post-pilot
+- **Target Activity/Milestone**: Post-pilot
 - **Owner**: Product Lead
 - **Last Reviewed**: 2026-05-12
 
@@ -73,7 +73,7 @@ CSV-first pilot scope.
   partner selection.
 - **Revisit Trigger**: Pilot customers complete review-log export workflow but
   cite manual ledger update as a blocker to renewal.
-- **Target Phase/Milestone**: Post-pilot discovery
+- **Target Activity/Milestone**: Post-pilot discovery
 - **Owner**: Product / Engineering
 - **Last Reviewed**: 2026-05-12
 
@@ -89,7 +89,7 @@ CSV-first pilot scope.
   tolerance, and audit-log design.
 - **Revisit Trigger**: Accepted suggestion accuracy exceeds 98% for two months
   and pilot firms request supervised automation.
-- **Target Phase/Milestone**: Future trust-model review
+- **Target Activity/Milestone**: Future trust-model review
 - **Owner**: Product / Compliance
 - **Last Reviewed**: 2026-05-12
 
@@ -145,7 +145,7 @@ or cancelled, not parked forever.
 - Every item has source, rationale, owner, and revisit trigger.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: parking-lot
 ---
 
 # Parking Lot (Deferred / Future Work)
@@ -167,7 +167,7 @@ ddx:
 - **Impact if Omitted**: [Risk/impact]
 - **Dependencies**: [Blocked by / prerequisites]
 - **Revisit Trigger**: [What must happen before reconsidering]
-- **Target Phase/Milestone**: [Phase or release]
+- **Target Activity/Milestone**: [Activity or release]
 - **Owner**: [Person/team responsible for review]
 - **Last Reviewed**: [Date]
 

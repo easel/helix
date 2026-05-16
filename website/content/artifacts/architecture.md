@@ -14,278 +14,314 @@ ddx:
   id: helix.architecture
   depends_on:
     - helix.prd
-    - ADR-001
-    - ADR-002
-    - CONTRACT-001
+    - CONTRACT-003
+  status: active
 ```
 
 # Architecture
 
-HELIX is a methodology layer running on the
-[DDx](https://github.com/DocumentDrivenDX/ddx) platform substrate. Architecturally it is three things:
+HELIX is a methodology and artifact catalog for AI-assisted software teams. It
+ships portable content and a single routing skill. Architecturally it is three
+things:
 
-1. A **knowledge graph of artifacts** in `docs/<project>/helix/` that captures
-   product, design, test, and operational intent across seven phases.
-2. A **set of workflow tools** — `scripts/helix` and the agent skills that
-   wrap it — that operate across the graph: select work, dispatch agents,
-   review output, propagate change, and stop for human judgment.
-3. A library of **prompts, templates, and concerns** in `workflows/` that
-   define what each artifact is and how agents produce it.
+1. An **artifact catalog** in `workflows/` — templates, prompts, metadata, and
+   examples for every artifact type across the seven HELIX activities.
+2. A **routing skill** in `skills/helix/SKILL.md` — the single agent-facing
+   surface that reads and writes the catalog's artifact instances.
+3. A **methodology specification** in `workflows/` — authority order, activity
+   conventions, artifact-type schema, principles, and the alignment skill
+   contract, expressed in runtime-neutral terms.
 
-These run on top of DDx, which provides the bead tracker, the agent
-execution loop, document graph indexing, and execution-evidence storage.
-The boundary between HELIX and DDx is codified in
-[CONTRACT-001](contracts/CONTRACT-001-ddx-helix-boundary.md): DDx owns
-substrate; HELIX owns workflow semantics.
+HELIX does not provide a CLI, tracker, queue, or execution loop. Those are
+runtime concerns. The boundary between HELIX portable content and any
+specific runtime is defined in
+[CONTRACT-003](contracts/CONTRACT-003-ddx-adapter-boundary.md).
 
 ## Level 1: System Context
 
 ```mermaid
 graph TB
-    operator[Operator<br/>engineer or PM]
-    agent[AI Agents<br/>Claude / OpenRouter /<br/>local lmstudio / omlx]
-    helix[HELIX<br/>methodology layer]
-    ddx[DDx<br/>platform substrate]
-    git[Git remote<br/>GitHub / GitLab / etc.]
+    team["Software team<br/>(engineer, PM, tech lead)"]
+    skill["HELIX routing skill<br/>skills/helix/SKILL.md"]
+    catalog["Artifact catalog<br/>workflows/activities/…"]
+    artifacts["Project artifact graph<br/>docs/&lt;project&gt;/helix/"]
+    runtime["Runtime<br/>(DDx / Claude Code / Genie / …)"]
 
-    operator -->|frame, design, build,<br/>align, evolve, run| helix
-    helix -->|delegates execution to| ddx
-    ddx -->|dispatches via| agent
-    agent -->|reads/writes through| helix
-    helix -->|commits/pushes to| git
+    team -->|"invokes skill via agent"| runtime
+    runtime -->|"loads and runs"| skill
+    skill -->|"reads artifact types from"| catalog
+    skill -->|"reads/writes instances in"| artifacts
+    runtime -->|"executes work derived from"| artifacts
 ```
 
-| Element | Type | Purpose | Protocol |
-|---------|------|---------|----------|
-| Operator | Human | Defines intent, approves gates, reviews output, steers via tracker | CLI (`scripts/helix`) |
-| HELIX | This system | Workflow routing, supervision, artifact-flow policy, prompt strategy | Bash + Markdown + YAML |
-| DDx | External substrate | Bead tracker, agent execution loop, graph index, execution evidence | gRPC/HTTP + CLI |
-| AI Agents | External | Execute work per HELIX-authored prompts | OpenAI-compatible HTTP, Anthropic API, local LM Studio, MLX |
-| Git remote | External | Source of truth, durable history, collaboration | SSH / HTTPS |
+| Element | Type | Purpose |
+|---------|------|---------|
+| Software team | Human | Authors governing artifacts; approves plans; steers alignment |
+| HELIX routing skill | This system | Single skill entry point: routing, alignment, planning, review |
+| Artifact catalog | This system | Canonical artifact type definitions — templates, prompts, metadata |
+| Project artifact graph | Per-project | Instances of HELIX artifact types for a specific project |
+| Runtime | External | Executes skill sessions; owns tracker, queue, evidence, packaging |
+
+The team never invokes a HELIX command, because there is not one. They invoke
+their agent runtime, and the runtime invokes the HELIX routing skill.
 
 ## Level 2: Container Diagram
 
 ```mermaid
 graph TB
     subgraph helix["HELIX (this system)"]
-        cli[scripts/helix<br/>Bash CLI orchestrator]
-        wf[workflows/<br/>Phase prompts, templates,<br/>concerns, principles]
-        skills[.claude/skills, .agents/skills<br/>Agent skill bindings<br/>symlink → skills/]
-        artifacts[docs/&lt;project&gt;/helix/<br/>Project artifact graph]
+        skill["skills/helix/SKILL.md<br/>Routing skill"]
+        catalog["workflows/activities/…<br/>Artifact catalog<br/>templates · prompts · meta.yml"]
+        schema["workflows/artifact-schema.md<br/>Instance schema"]
+        wfdocs["workflows/<br/>Methodology spec<br/>principles · concerns · activities"]
     end
 
-    subgraph ddx["DDx platform substrate"]
-        server[ddx-server<br/>systemd user service]
-        bead[ddx bead<br/>Tracker primitives]
-        loop[ddx agent execute-loop<br/>Queue-drain primitive]
-        state[.ddx/<br/>Per-project state]
+    subgraph project["Project (dogfood or adopter)"]
+        instances["docs/helix/<br/>Artifact instances<br/>activity-numbered layout"]
     end
 
-    cli -->|invokes for execution| loop
-    cli -->|reads/writes via| bead
-    cli -->|loads prompts from| wf
-    skills -.wraps.-> cli
-    artifacts -.indexed by.-> server
-    bead --> state
-    loop --> server
+    subgraph runtime["Any compliant runtime"]
+        engine["Execution engine<br/>tracker · queue · loop · evidence"]
+        packages["Per-runtime packages<br/>DDx plugin · Claude Code skill · Genie skill"]
+    end
+
+    skill -->|"reads artifact types"| catalog
+    skill -->|"reads/writes"| instances
+    catalog -->|"instances conform to"| schema
+    packages -->|"wraps same source"| skill
+    packages -->|"wraps same source"| catalog
+    engine -->|"loads skill into agent session"| skill
+    engine -->|"installs per runtime contract"| packages
 ```
 
-| Container | Technology | Responsibilities | Communication |
-|-----------|------------|------------------|---------------|
-| `scripts/helix` | Bash + jq | Phase command dispatch, supervisory loop, bead authoring, escalation policy | shell, JSON via `ddx` CLIs |
-| `workflows/` | Markdown + YAML | Phase prompts, artifact templates, concern declarations, principles | filesystem reads at runtime |
-| `.claude/skills`, `.agents/skills` | Markdown (symlinks) | Agent-facing entry points; one per CLI verb | invoked by harness |
-| `docs/<project>/helix/` | Markdown + YAML | The project's artifact graph (phase 0–6 outputs) | filesystem; DDx graph indexes it |
-| `ddx-server` | Go | Long-running platform service: routing, indexing, evidence | systemd user service on port 7743 |
-| `ddx bead` | Go (CLI) | Tracker primitives (create, claim, ready, close, list) | invoked by `scripts/helix` |
-| `ddx agent execute-loop` | Go (CLI) | Bounded queue-drain: claim → dispatch → close-or-preserve | invoked by `helix run` |
-| `.ddx/` | JSONL + dirs | `beads.jsonl` tracker, `executions/`, `plugins/`, runtime state | scripts/helix and DDx both read |
+| Container | Technology | Responsibilities |
+|-----------|------------|-----------------|
+| `skills/helix/SKILL.md` | Markdown (skill frontmatter + body) | Single agent-facing surface; all routing modes; reads/writes artifact instances |
+| `workflows/activities/` | Markdown + YAML | Artifact type definitions: template, prompt, meta.yml, example per type |
+| `workflows/artifact-schema.md` | Markdown spec | Normative schema for `meta.yml` and `ddx:` instance frontmatter |
+| `workflows/` (non-activity dirs) | Markdown | Methodology spec: principles, concerns, activity contracts, alignment guidance |
+| `docs/helix/` | Markdown + YAML | Project artifact instances; authored from catalog templates |
+| Per-runtime packages | Runtime-specific metadata | Thin wrappers that expose same source to DDx, Claude Code, Genie |
+| Runtime execution engine | Runtime-specific | Tracker, queue, loop, evidence — outside HELIX boundary |
 
-## Level 3: Component Diagram (`scripts/helix` only)
+## Artifact Catalog
 
-Most containers are simple. The non-trivial one is the orchestrator.
+The artifact catalog is HELIX's primary structural element. It defines every
+artifact type a HELIX-governed project may produce, organized by the seven
+HELIX activities:
 
-```mermaid
-graph TB
-    main[scripts/helix<br/>main entry]
+| Activity | Activity slug | Typical artifact types |
+|----------|-----------|------------------------|
+| Discover | `00-discover` | Product vision, opportunity brief, constraints |
+| Frame | `01-frame` | PRD, feature specs, user stories, risks |
+| Design | `02-design` | Architecture, ADRs, solution designs, technical designs, contracts |
+| Test | `03-test` | Test plans, test strategies, acceptance criteria |
+| Build | `04-build` | Implementation plans, execution documents |
+| Deploy | `05-deploy` | Release plans, operations runbooks, rollout docs |
+| Iterate | `06-iterate` | Alignment reviews, metrics, retrospectives |
 
-    subgraph dispatch["Command dispatch"]
-        frame[helix frame]
-        design[helix design]
-        build[helix build]
-        run[helix run<br/>supervisory loop]
-        align[helix align]
-        evolve[helix evolve]
-        review[helix review]
-    end
+Each artifact type in the catalog provides four files:
 
-    subgraph supervision["Supervision (used by run)"]
-        select[Bead selection<br/>highest-leverage<br/>least-power]
-        bound[Bounded execution<br/>delegate to ddx]
-        gate[Stop conditions<br/>missing authority /<br/>unresolvable ambiguity /<br/>human judgment]
-    end
+| File | Purpose |
+|------|---------|
+| `meta.yml` | Artifact-type metadata per the artifact schema |
+| `template.md` | Markdown skeleton for new instances |
+| `prompt.md` | Authoring guidance for agents or humans |
+| `example.md` | Canonical illustrative instance |
 
-    subgraph injection["Bead authoring"]
-        digest[Context digest assembly]
-        principles[Principles injection]
-        concerns_inj[Concerns injection]
-        ac[Acceptance + measurement<br/>criteria]
-    end
+The full `meta.yml` schema — required fields, recommended fields, validation
+entries, id-format, dependency declarations, and extension sections — is
+specified in [`workflows/artifact-schema.md`](../../../workflows/artifact-schema.md).
 
-    main --> dispatch
-    run --> supervision
-    select --> bound
-    supervision --> gate
-    dispatch -.uses.-> injection
+### Authority order
+
+Every artifact type declares its position in the authority order. Higher-level
+artifacts govern lower-level ones; conflicts resolve upward:
+
+```
+product vision
+  └─ PRD
+       └─ feature specs / user stories
+            └─ architecture · ADRs
+                 └─ solution designs · technical designs
+                      └─ test plans
+                           └─ implementation plans · code
 ```
 
-| Component | Purpose | Implementation Notes |
-|-----------|---------|---------------------|
-| Command dispatch | Route operator verbs to phase modules | Bash `case` over arg-1; each verb in `workflows/activities/<phase>/` |
-| Bead selection | Pick highest-leverage least-power next move | Reads `ddx bead ready --json`; applies HELIX-side priority and least-power filters |
-| Bounded execution | Delegate one bead to DDx | Calls `ddx agent execute-loop --once`; HELIX does not own the inner loop mechanics |
-| Stop conditions | Detect ungovernable next moves | Checks for missing upstream authority, unresolvable artifact contradiction, P0 product questions |
-| Context digest | Assemble compact upstream summary at triage | Pulls principles + active concerns + relevant ADRs into a `<context-digest>` block on the bead |
-| Principles injection | Inject project + HELIX defaults | Per FEAT-003; loaded from `docs/helix/01-frame/principles.md` or HELIX defaults |
-| Concerns injection | Inject active project concerns | Per FEAT-006; loaded from `docs/helix/01-frame/concerns.md`, expanded from `workflows/concerns/` |
-| Acceptance authoring | Make beads execute-loop-closeable | Deterministic acceptance + success-measurement criteria so DDx can close on success without manual judgment |
+The routing skill's `evolve` mode threads changes downward through this order;
+`align` mode audits consistency across it. Authority order is a HELIX
+invariant — no runtime changes it.
 
-## Deployment
+### Artifact instance frontmatter
 
-HELIX is local-first. The default deployment is a single operator's
-development machine.
+Project artifact instances carry YAML frontmatter under the `ddx:` key. The
+namespace is historical (DDx is the reference consumer); it does not mean
+artifacts require DDx. Minimal instance frontmatter:
 
-```mermaid
-graph TB
-    subgraph dev["Operator's machine"]
-        repo[Project repo<br/>git working tree]
-        helix_cli[scripts/helix]
-        ddx_srv[ddx-server<br/>systemd user service<br/>port 7743]
-        ddx_state[.ddx/ per project]
-    end
-
-    subgraph remote["Optional remote"]
-        gh[Git remote<br/>GitHub etc.]
-        ts[ts-net peers<br/>remote workers]
-    end
-
-    subgraph providers["AI providers (pluggable)"]
-        anthropic[Anthropic API]
-        openrouter[OpenRouter]
-        lmstudio[Local lmstudio]
-        omlx[Local omlx]
-    end
-
-    helix_cli --> ddx_srv
-    ddx_srv --> providers
-    ddx_srv -.optionally.-> ts
-    repo --> gh
+```yaml
+---
+ddx:
+  id: FEAT-001
+  type: feature-spec
+  depends_on:
+    - helix.prd
+  status: draft
+---
 ```
 
-| Component | Infrastructure | Instances | Scaling |
-|-----------|---------------|-----------|---------|
-| `ddx-server` | systemd user service | 1 per machine | per-operator; not shared |
-| Project working trees | filesystem | many per operator | trivially horizontal |
-| Workers | DDx agent harness processes | 1+ per server | H: more workers ⇒ more parallel beads, but per-project lock prevents two `helix run`s on the same repo |
-| AI providers | external API or local LM Studio | per-provider | provider-managed |
+`ddx.id` is the only required field. `ddx.depends_on` builds the traceability
+graph the routing skill traverses. Full field definitions are in
+[`workflows/artifact-schema.md`](../../../workflows/artifact-schema.md).
 
-Network: HELIX requires no inbound network. Outbound is optional —
-local-only AI providers (lmstudio, omlx) keep the entire flow on the
-operator's machine.
+## Routing Skill
 
-## Data Flow: One supervisory pass
+`skills/helix/SKILL.md` is the single agent-facing surface. Any runtime that
+loads the skill exposes the same capability set.
 
-```mermaid
-sequenceDiagram
-    participant op as Operator
-    participant cli as scripts/helix
-    participant tracker as ddx bead<br/>(.ddx/beads.jsonl)
-    participant loop as ddx agent<br/>execute-loop
-    participant agent as AI agent
-    participant repo as project repo
+### What the skill reads and writes
 
-    op->>cli: helix run
-    cli->>cli: assemble supervisory<br/>bead set (review/<br/>align/evolve injection)
-    cli->>loop: delegate execute-loop --once
-    loop->>tracker: claim ready bead
-    loop->>cli: load context digest<br/>(governing artifacts +<br/>concerns + principles)
-    loop->>agent: dispatch with prompt
-    agent->>repo: edit files, run tests
-    agent->>loop: result + execution evidence
-    loop->>repo: commit + merge (on success)
-    loop->>tracker: close bead OR preserve attempt
-    loop->>cli: emit result event
-    cli->>cli: cross-model review<br/>(adversarial alternate)<br/>or stop for operator
-    cli->>op: status (running, blocked, or stopped)
-```
+| Reads | Writes |
+|-------|--------|
+| Artifact catalog (`workflows/activities/…`) — type definitions, templates, prompts | Project artifact instances (`docs/helix/…`) — new or updated content |
+| Project artifact instances — current state of the dependency graph | Alignment reports, work-item descriptions, design documents |
+| Methodology docs (`workflows/`) — principles, concerns, activity contracts | Follow-up work descriptions (runtime surfaces these as tracker items, GitHub issues, or markdown stubs) |
 
-The loop continues until either no ready beads remain or one of the three
-stop conditions fires. Operator-visible state lives in three places: the
-tracker (`.ddx/beads.jsonl`), the artifact graph (`docs/helix/`), and
-execution evidence (`.ddx/executions/`).
+The skill never writes to a tracker, queue, or evidence store. Those are runtime
+responsibilities.
 
-## Architecture Summary
+### Routing modes
 
-| Layer | Technology | Rationale |
-|-------|------------|-----------|
-| CLI orchestrator | Bash + jq + ddx CLI | Local-first, scriptable, no compile step; workflow logic is mostly pipelines over `ddx` JSON |
-| Workflow content | Markdown + YAML | Human-editable, agent-readable, version-controlled |
-| Tracker | DDx beads (JSONL on disk) | Append-mostly, git-friendly, single-writer per project |
-| Agent execution | DDx agent loop (Go) | Provided by substrate; HELIX does not reimplement |
-| Document graph | DDx graph primitives | Provided by substrate; HELIX adds policy on top |
-| Project state | `.ddx/` + `docs/<project>/helix/` | Local filesystem, committed to git where appropriate |
+| Mode | Purpose |
+|------|---------|
+| `input` | Convert rough intent into governed work |
+| `frame` | Create or refine vision, PRD, feature specs, user stories |
+| `align` | Identify drift, gaps, and contradictions across the artifact graph |
+| `validate` | Check one artifact instance against its type template and prompt |
+| `evolve` | Thread a changed requirement through the authority order |
+| `design` | Author a technical design before implementation |
+| `backfill` | Reconstruct missing artifacts from evidence |
+| `review` | Fresh-eyes review of plans, PRs, or recent work |
+| `polish` | Refine work items for execution readiness |
+| `check` / `next` | Decide the safe next action when intent is ambiguous |
+| `build` / `run` | Bounded implementation pass or operator loop (delegates to runtime) |
+| `commit` | Commit verified work with traceable message |
+| `release` | Cut a HELIX content release |
 
-**Patterns**:
+### Skill composability
 
-- **Methodology over substrate.** HELIX defines workflow semantics; DDx
-  provides execution mechanics. CONTRACT-001 codifies the boundary so
-  neither side accumulates the other's responsibilities.
-- **Bounded autopilot.** Every supervisory pass has explicit stop
-  conditions. The loop never runs unbounded; the operator is always
-  one human-judgment moment away from being asked.
-- **Authority order as control law.** Conflicts between artifacts resolve
-  by deferring to the higher-authority layer. Implemented in `helix
-  evolve` (propagates change downward) and `helix align` (audits
-  consistency).
-- **Pluggable providers.** HELIX is provider-agnostic; DDx routes to
-  whatever provider is configured per tier. A project can run entirely
-  locally (lmstudio + omlx) or escalate to remote frontier models.
+The routing skill reads the artifact catalog at runtime; it does not bundle
+catalog content inside the skill body. This means:
+
+- Any runtime that installs the HELIX package exposes the same routing modes.
+- Catalog updates (new artifact types, revised templates) take effect without
+  changing the skill body.
+- The skill body contains zero runtime-specific commands (PRD R-4). Per-runtime
+  packaging notes live in `docs/install/<runtime>.md`.
+
+The skill's normative behavior is self-contained. Runtimes may surface
+additional affordances (bead authoring, execute-loop delegation, prose checking)
+through their own packaging layers; those extensions live in per-runtime
+packaging, not in the skill body.
+
+## Artifact Schema as Runtime Contract
+
+[`workflows/artifact-schema.md`](../../../workflows/artifact-schema.md)
+is the contract that lets any compliant runtime register and consume HELIX
+artifact types. A runtime claiming HELIX compatibility must:
+
+1. Read `meta.yml` for artifact-type metadata.
+2. Resolve `ddx.id` and `ddx.depends_on` in instance frontmatter for graph
+   traversal.
+3. Treat `workflows/artifact-schema.md` as the schema authority — not its own
+   internal documentation.
+4. Preserve unknown fields rather than stripping them.
+
+The schema is intentionally open. Runtimes may add extension fields under `ddx:`
+for operational state, but those fields must be ignorable by other runtimes
+without changing artifact meaning.
+
+Minimum runtime primitives required to run the alignment skill:
+
+1. Read markdown files from the project filesystem.
+2. Write markdown files to the project filesystem.
+3. Search files by path or pattern.
+
+Shell execution (item 4) is optional. A runtime satisfying only items 1–3 can
+run every HELIX routing mode that does not involve direct code execution.
+
+## Packaging
+
+HELIX ships as three distribution packages around the same source content
+(PRD R-7). The source in `workflows/` and `skills/helix/` is never forked.
+
+| Package | Target runtime | Format | Install |
+|---------|---------------|--------|---------|
+| DDx plugin | DDx | DDx plugin manifest + catalog layout under `.ddx/plugins/helix/` | `ddx install helix` |
+| Claude Code skill | Claude Code | Skill frontmatter + symlinked content under `.claude/skills/` | Copy or symlink |
+| Databricks Genie skill | Databricks Genie | Genie skill descriptor + bundled catalog | Genie skill loader |
+
+Per-runtime packaging notes — install paths, invocation details, DDx-specific
+bead conventions, Genie-specific descriptor fields — live in `docs/install/`.
+None of that detail appears in the routing skill body or the artifact catalog.
+
+The adapter boundary between HELIX portable content and DDx-specific surfaces is
+specified in [CONTRACT-003](contracts/CONTRACT-003-ddx-adapter-boundary.md).
+DDx is one reference runtime, not the architecture center.
+
+## Documentation Projection
+
+HELIX maintains two complementary documentation trees:
+
+| Tree | Role |
+|------|------|
+| `workflows/` | Methodology specification — artifact-type schema, activity contracts, principles, concerns, alignment guidance. This is the normative content. |
+| `docs/helix/` | Dogfood — HELIX's own governing artifacts, authored from HELIX templates. The dogfood is itself subject to alignment skill runs. |
+
+`workflows/` is what adopters install; `docs/helix/` demonstrates the
+methodology applied to HELIX's own development. The Hugo microsite (when
+generated) is a read-only projection of both trees, not a source of truth.
+
+Methodology invariants — principles, ratchets, activity contracts — are
+maintained in `workflows/principles.md` and `workflows/ratchets.md`. Before
+relying on either for design decisions, verify the current state in the file;
+both are in active flux.
+
+## DDx as One Reference Runtime
+
+DDx is the reference runtime for HELIX's own development. HELIX uses DDx for
+bead tracking, execute-loop dispatch, and execution evidence on its own work
+items. This is HELIX-using-DDx, not HELIX-coupled-to-DDx — the same
+relationship any adopter has with their chosen runtime.
+
+The DDx adapter boundary is defined in
+[CONTRACT-003](contracts/CONTRACT-003-ddx-adapter-boundary.md). In brief:
+
+- HELIX provides to DDx: artifact catalog, routing skill, artifact-type schema.
+- DDx provides to HELIX (as runtime): bead tracker, execute-loop, evidence
+  store, plugin packaging, prose checker.
+- Neither side owns the other's internals.
+
+CONTRACT-003 also catalogs known boundary leaks — places in the current
+codebase where runtime-specific language has crept into HELIX portable content —
+and describes the resolution for each.
 
 ## Quality Attributes
 
-| Attribute | Strategy | Key Decisions |
-|-----------|----------|---------------|
-| Bounded autonomy | `helix run` has explicit stop conditions: missing authority, unresolvable ambiguity, human-judgment gate. | [ADR-001](adr/ADR-001-supervisory-control-model.md) |
-| Tracker write safety | Local single-writer per project with malformed-state surfacing; no transactional multi-writer pretense. | [ADR-002](adr/ADR-002-tracker-write-safety-model.md) |
-| Cross-model verification | Adversarial review via DDx tier escalation (cheap → standard → smart) and alternating harnesses on review beads. | DDx routing config per project |
-| Authority-order coherence | `helix align` audits consistency across the artifact graph; produces alignment-review artifacts. | `workflows/activities/06-iterate/` |
-| Local-first | All state on disk; ddx-server is a local user service; AI providers are pluggable, including fully local. | systemd user service, no inbound network |
-| Observability | Per-bead execution evidence in `.ddx/executions/`; alignment reviews and metrics in `docs/helix/06-iterate/`. | bead event-log model |
-| Concurrency safety | Per-project `helix run` advisory lock; second invocation exits 2 with the lock-holder PID. | parallel-run mutex (in TD-026) |
-
-**Disaster recovery**: HELIX is an operator's local development tool;
-recovery is `git clone` and reinstall. Project state lives in the repo
-and `.ddx/`; everything else is reproducible from those.
-
-## Decisions and Trade-offs
-
-| Decision | Choice | Trade-off |
-|---------|---------|-----------|
-| Build vs adopt for tracker | Adopted DDx bead tracker | HELIX doesn't own tracker semantics; DDx owns the surface and may evolve it independently. Accepted because we want methodology decoupled from substrate. See [CONTRACT-001](contracts/CONTRACT-001-ddx-helix-boundary.md). |
-| Bash vs Go for orchestrator | Bash | Faster iteration on workflow logic; harder to test deeply. Acceptable because the workflow logic is mostly pipelines over `ddx` JSON output. See [TD-002](technical-designs/TD-002-helix-cli.md). |
-| Centralized server vs per-invocation | `ddx-server` long-running | Bead routing and provider state need persistence; per-invocation cold starts are slow. |
-| Provider lock-in vs pluggability | Pluggable | Local-first development requires no network; remote providers are an option, not a requirement. |
-| Synchronous vs async loop | Synchronous (`helix run` is foreground) | Easier to reason about supervision and stop conditions; doesn't preclude future async modes. |
-| Single-writer vs multi-writer tracker | Single-writer per project | Avoids implementing distributed-transaction semantics that would be wasted at this scale. See [ADR-002](adr/ADR-002-tracker-write-safety-model.md). |
-| Reuse DDx execute-loop vs reimplement | Reuse | HELIX adds the supervisory wrapper, not the queue-drain mechanics. Keeps HELIX small and tightly scoped to workflow concerns. |
+| Attribute | Strategy |
+|-----------|---------|
+| Runtime portability | Skill body and catalog contain zero runtime-specific commands; portability check on every release (PRD R-4) |
+| Authority-order coherence | `align` mode audits consistency; `evolve` mode propagates change in authority order |
+| Catalog completeness | Seven-activity coverage; each type has template, prompt, meta, example |
+| Self-application | `docs/helix/` is authored from HELIX templates; alignment skill runs catch dogfood drift (PRD R-6) |
+| Schema openness | Consumers add extension fields; unknown fields are preserved, not stripped |
+| Distribution breadth | Three packaging targets (DDx, Claude Code, Genie); source never forked (PRD R-7) |
 
 ## References
 
-- [ADR-001: Supervisory Control Model](adr/ADR-001-supervisory-control-model.md)
-- [ADR-002: Tracker Write Safety Model](adr/ADR-002-tracker-write-safety-model.md)
-- [CONTRACT-001: DDx / HELIX Boundary](contracts/CONTRACT-001-ddx-helix-boundary.md)
-- [SD-001: HELIX Supervisory Control](solution-designs/SD-001-helix-supervisory-control.md)
-- [SD-002: First-Class Principles](solution-designs/SD-002-first-class-principles.md)
-- [TD-002: HELIX CLI](technical-designs/TD-002-helix-cli.md)
-- [TD-003: HELIX Start/Stop](technical-designs/TD-003-helix-start-stop.md)
-- [TD-011: Slider Autonomy Implementation](technical-designs/TD-011-slider-autonomy-implementation.md)
+- [Product Vision](../00-discover/product-vision.md)
+- [PRD](../01-frame/prd.md) — especially R-4 (runtime-neutral), R-5 (methodology spec), R-7 (packaging)
+- [CONTRACT-003: DDx Adapter Boundary](contracts/CONTRACT-003-ddx-adapter-boundary.md) — the boundary between HELIX and DDx
+- [Artifact Schema](../../../workflows/artifact-schema.md) — normative schema for `meta.yml` and `ddx:` frontmatter
+- [Routing Skill](../../../skills/helix/SKILL.md) — the single agent-facing surface
+- [workflows/principles.md](../../../workflows/principles.md)
+- [workflows/ratchets.md](../../../workflows/ratchets.md)

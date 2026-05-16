@@ -2,7 +2,7 @@
 title: "Project Concerns"
 linkTitle: "Project Concerns"
 slug: concerns
-phase: "Frame"
+activity: "Frame"
 artifactRole: "core"
 weight: 12
 generated: true

@@ -2,7 +2,7 @@
 title: "Deployment Checklist"
 linkTitle: "Deployment Checklist"
 slug: deployment-checklist
-phase: "Deploy"
+activity: "Deploy"
 artifactRole: "core"
 weight: 10
 generated: true
@@ -154,7 +154,7 @@ Use these local resource summaries as grounding:
 - The final decision section makes the release auditable.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: deployment-checklist
 ---
 
 # Deployment Checklist

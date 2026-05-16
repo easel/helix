@@ -2,7 +2,7 @@
 title: "Contract"
 linkTitle: "Contract"
 slug: contract
-phase: "Design"
+activity: "Design"
 artifactRole: "core"
 weight: 12
 generated: true
@@ -234,7 +234,7 @@ Use these local resource summaries as grounding:
 - Tests can be derived directly from the contract.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: CONTRACT-XXX
 ---
 
 # Contract

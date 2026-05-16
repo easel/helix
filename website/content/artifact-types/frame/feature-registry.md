@@ -2,7 +2,7 @@
 title: "Feature Registry"
 linkTitle: "Feature Registry"
 slug: feature-registry
-phase: "Frame"
+activity: "Frame"
 artifactRole: "supporting"
 weight: 17
 generated: true
@@ -138,7 +138,7 @@ requirements; Feature Specifications define behavior; DDx beads track execution.
 - Every active feature links to its governing artifact or clearly states the missing link.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: feature-registry
 ---
 
 # Feature Registry

@@ -2,7 +2,7 @@
 title: "Threat Model"
 linkTitle: "Threat Model"
 slug: threat-model
-phase: "Frame"
+activity: "Frame"
 artifactRole: "supporting"
 weight: 24
 generated: true
@@ -242,7 +242,7 @@ true; Security Architecture places those controls in the design.
 - High-risk threats have owners and verification hooks.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: threat-model
 ---
 
 # Threat Model

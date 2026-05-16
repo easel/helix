@@ -2,7 +2,7 @@
 title: "Security Tests"
 linkTitle: "Security Tests"
 slug: security-tests
-phase: "Test"
+activity: "Test"
 artifactRole: "supporting"
 weight: 12
 generated: true
@@ -164,11 +164,11 @@ Use these local resource summaries as grounding:
 ## Completion Criteria
 - Relevant threat coverage is explicit.
 - Expected failures and pass criteria are clear.
-- The output is usable in the Red phase.
+- The output is usable in the Red activity.
 - Residual risks are named with an owner or follow-up.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: security-tests
 ---
 
 # Security Tests

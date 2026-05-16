@@ -2,7 +2,7 @@
 title: "Test Plan"
 linkTitle: "Test Plan"
 slug: test-plan
-phase: "Test"
+activity: "Test"
 artifactRole: "core"
 weight: 10
 generated: true
@@ -148,7 +148,7 @@ coverage minimums hold; no raw financial fixture values appear in logs.
 <tr><th>HELIX documents</th><td><a href="https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/03-test/test-plans/TP-002-helix-cli.md"><code>docs/helix/03-test/test-plans/TP-002-helix-cli.md</code></a></td></tr>
 <tr><th>Generation prompt</th><td><details><summary>Show the full generation prompt</summary><pre><code># Test Plan Generation Prompt
 
-Create the project-level test plan for the Test phase. Keep it concise, but include the minimum structure needed to drive failing tests before implementation.
+Create the project-level test plan for the Test activity. Keep it concise, but include the minimum structure needed to drive failing tests before implementation.
 
 ## Purpose
 
@@ -202,7 +202,7 @@ Use these local resource summaries as grounding:
 Use template at `.ddx/plugins/helix/workflows/activities/03-test/artifacts/test-plan/template.md`.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: TP-XXX
 ---
 
 # Test Plan

@@ -2,7 +2,7 @@
 title: "Research Plan"
 linkTitle: "Research Plan"
 slug: research-plan
-phase: "Frame"
+activity: "Frame"
 artifactRole: "supporting"
 weight: 20
 generated: true
@@ -125,7 +125,7 @@ exception ownership, pilot pricing, and success metrics.
 
 ## Timeline
 
-| Phase | Duration | Activities | Deliverables |
+| Activity | Duration | Activities | Deliverables |
 |-------|----------|------------|--------------|
 | Planning | 1 day | Finalize screener, interview guide, data-handling plan | Approved plan |
 | Investigation | 6 days | Interviews, CSV sample collection, workflow probes | Notes and sample inventory |
@@ -175,7 +175,7 @@ Plan the smallest useful research effort that will close the key knowledge gaps.
 Use these local resource summaries as grounding:
 
 - `docs/resources/nng-ux-research-methods.md` grounds matching research
-  methods to questions, evidence types, and product phase.
+  methods to questions, evidence types, and product activity.
 - `docs/resources/sba-market-research-competitive-analysis.md` grounds demand,
   pricing, customer, and market evidence expectations.
 
@@ -198,7 +198,7 @@ pricing, metrics, or design assumptions.
 - Success criteria say what decision the evidence will enable.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: research-plan
 ---
 
 # Research Plan: {{research_topic}}
@@ -244,7 +244,7 @@ ddx:
 
 ## Timeline
 
-| Phase | Duration | Activities | Deliverables |
+| Activity | Duration | Activities | Deliverables |
 |-------|----------|------------|--------------|
 | Planning | | Define scope, recruit | Plan approved |
 | Investigation | | Execute methods | Raw data |

@@ -2,7 +2,7 @@
 title: "Security Requirements"
 linkTitle: "Security Requirements"
 slug: security-requirements
-phase: "Frame"
+activity: "Frame"
 artifactRole: "supporting"
 weight: 22
 generated: true
@@ -205,7 +205,7 @@ controls are implemented.
 - Acceptance criteria are testable and traceable to controls, risks, or compliance obligations.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: security-requirements
 ---
 
 # Security Requirements

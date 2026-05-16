@@ -1,7 +1,7 @@
 ---
 title: "Metrics Dashboard — Restoration Decision"
 slug: metrics-dashboard-restoration-decision
-weight: 580
+weight: 610
 activity: "Iterate"
 source: "06-iterate/decisions/metrics-dashboard-restoration-decision.md"
 generated: true
@@ -11,7 +11,7 @@ collection: decisions
 
 > Historical decision; superseded by the worked example at `docs/helix/06-iterate/metrics-dashboard.md`.
 
-`metrics-dashboard` is restored as the canonical iterate-phase summary
+`metrics-dashboard` is restored as the canonical iterate-activity summary
 artifact.
 
 ## Decision

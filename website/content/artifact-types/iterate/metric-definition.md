@@ -2,7 +2,7 @@
 title: "Metric Definition"
 linkTitle: "Metric Definition"
 slug: metric-definition
-phase: "Iterate"
+activity: "Iterate"
 artifactRole: "core"
 weight: 10
 generated: true
@@ -107,7 +107,7 @@ The command must be deterministic, repeatable, and free of side effects or exter
 - The filename matches the `name` field.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: METRIC-name
 ---
 
 # Metric Definition: [NAME]

@@ -57,11 +57,11 @@ target state and the drift signals above identify what needs correction.
 
 ## ADR References
 
-## Practices by phase
+## Practices by activity
 
-Agents working in any of these phases inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below via the bead's context digest.
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 - All user stories involving TypeScript must assume Bun as runtime and package manager
 - If a library dependency requires a Node.js adapter, flag it as a concern at framing — it may require a Bun-compatible alternative
 

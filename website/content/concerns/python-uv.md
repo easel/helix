@@ -47,11 +47,11 @@ and script running.
 
 ## ADR References
 
-## Practices by phase
+## Practices by activity
 
-Agents working in any of these phases inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below via the bead's context digest.
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 - Specify minimum Python version (3.12+ preferred)
 - Identify whether the project is a library (published) or an application (not published)
 - If ML/GPU dependencies exist, plan for `[tool.uv.sources]` with custom package indexes

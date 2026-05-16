@@ -2,7 +2,7 @@
 title: "Test Procedures"
 linkTitle: "Test Procedures"
 slug: test-procedures
-phase: "Test"
+activity: "Test"
 artifactRole: "supporting"
 weight: 13
 generated: true
@@ -181,7 +181,7 @@ Use these local resource summaries as grounding:
 Use template at `.ddx/plugins/helix/workflows/activities/03-test/artifacts/test-procedures/template.md`.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: test-procedures
 ---
 
 # Test Procedures

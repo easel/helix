@@ -2,7 +2,7 @@
 title: "Validation Checklist"
 linkTitle: "Validation Checklist"
 slug: validation-checklist
-phase: "Frame"
+activity: "Frame"
 artifactRole: "supporting"
 weight: 25
 generated: true
@@ -33,7 +33,7 @@ ddx:
     - example.stakeholder-map.depositmatch
 ---
 
-# Frame Phase Validation Checklist
+# Frame Activity Validation Checklist
 
 **Status**: [ ] Not Started | [ ] In Progress | [x] Complete
 **Validated By**: Product Lead
@@ -54,7 +54,7 @@ ddx:
 
 ## Result
 
-- [ ] **PASS**: Ready for Design phase
+- [ ] **PASS**: Ready for Design activity
 - [x] **CONDITIONAL PASS**: Proceed with noted conditions
 - [ ] **FAIL**: Address blocking issues first
 
@@ -104,7 +104,7 @@ Use this local resource summary as grounding:
 ## Role Boundary
 
 Validation Checklist is not a replacement for PRD review, risk review, or
-stakeholder review. It is the final Frame phase gate: it records whether the
+stakeholder review. It is the final Frame activity gate: it records whether the
 required artifacts are coherent enough for Design and what conditions remain.
 
 ## Completion Criteria
@@ -114,10 +114,10 @@ required artifacts are coherent enough for Design and what conditions remain.
 - Result is Pass, Conditional Pass, or Fail with named conditions.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: validation-checklist
 ---
 
-# Frame Phase Validation Checklist
+# Frame Activity Validation Checklist
 
 **Status**: [ ] Not Started | [ ] In Progress | [ ] Complete
 **Validated By**: [Name]
@@ -136,7 +136,7 @@ ddx:
 | Required stakeholders have reviewed the plan | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |
 
 ## Result
-- [ ] **PASS**: Ready for Design phase
+- [ ] **PASS**: Ready for Design activity
 - [ ] **CONDITIONAL PASS**: Proceed with noted conditions
 - [ ] **FAIL**: Address blocking issues first
 

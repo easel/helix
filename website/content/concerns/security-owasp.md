@@ -47,16 +47,16 @@ all
 ## When to use
 
 All projects with network-facing services, user authentication, or data storage.
-Security is a cross-cutting concern — it is not a phase or a separate checklist,
-it applies throughout every phase of development.
+Security is a cross-cutting concern — it is not a activity or a separate checklist,
+it applies throughout every activity of development.
 
 ## ADR References
 
-## Practices by phase
+## Practices by activity
 
-Agents working in any of these phases inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below via the bead's context digest.
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 - Identify trust boundaries: where does data enter the system from untrusted sources?
 - Classify data sensitivity: what data requires encryption at rest or in transit?
 - Identify authentication model: who authenticates, how, and what are the session semantics?

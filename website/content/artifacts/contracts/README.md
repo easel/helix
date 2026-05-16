@@ -1,7 +1,7 @@
 ---
 title: "Contracts"
 slug: README
-weight: 240
+weight: 250
 activity: "Design"
 source: "02-design/contracts/README.md"
 generated: true
@@ -9,7 +9,7 @@ collection: contracts
 ---
 # Contracts
 
-`contracts` is restored as the canonical design-phase artifact for normative
+`contracts` is restored as the canonical design-activity artifact for normative
 interface and schema specifications that another team can implement against
 directly.
 

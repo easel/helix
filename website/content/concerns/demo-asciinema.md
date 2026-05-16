@@ -393,11 +393,11 @@ because they can be regenerated from scripts.
 
 ## ADR References
 
-## Practices by phase
+## Practices by activity
 
-Agents working in any of these phases inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below via the bead's context digest.
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 - Identify which workflows need demo reels — prioritize the "first 5 minutes" experience
 - Define the narrative arc: what story should the viewer walk away understanding?
 - Determine target audience: new users evaluating the tool, or existing users learning a feature?

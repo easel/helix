@@ -2,7 +2,7 @@
 title: "Test Suites"
 linkTitle: "Test Suites"
 slug: test-suites
-phase: "Test"
+activity: "Test"
 artifactRole: "supporting"
 weight: 14
 generated: true
@@ -41,7 +41,7 @@ ddx:
 | Integration | `tests/integration/` | CSV import to normalized records, match suggestions, review decisions, audit writes | under 3m | Yes |
 | Contract | `tests/contract/` | import, match queue, review decision, export, and problem-details API behavior | under 2m | Yes |
 | Security | `tests/security/` | tenant isolation, malicious CSV, telemetry, support access, audit-log controls | under 3m | Yes |
-| E2E | `tests/e2e/` | one reviewer import-to-decision smoke journey | under 5m | No for pilot red phase |
+| E2E | `tests/e2e/` | one reviewer import-to-decision smoke journey | under 5m | No for pilot red activity |
 
 ## Coverage Mapping
 
@@ -119,7 +119,7 @@ npx playwright test tests/e2e/reviewer-smoke.spec.ts
 | Integration | `test-results/integration.xml` | Yes |
 | Contract | `test-results/contract.xml` | Yes |
 | Security | `test-results/security/` | Yes |
-| E2E | Playwright trace on failure | No for pilot red phase |
+| E2E | Playwright trace on failure | No for pilot red activity |
 
 ## Readiness
 - [x] Suite boundaries are defined
@@ -141,7 +141,7 @@ npx playwright test tests/e2e/reviewer-smoke.spec.ts
 <tr><th>Informs</th><td><a href="/artifact-types/deploy/deployment-checklist/">Deployment Checklist</a></td></tr>
 <tr><th>Generation prompt</th><td><details><summary>Show the full generation prompt</summary><pre><code># Test Suites Generation Prompt
 
-Create the test suite layout for the Red phase. Keep it concise and project-specific: define the suite boundaries, the minimum behavior each suite must cover, and any shared data conventions needed to make the tests executable.
+Create the test suite layout for the Red activity. Keep it concise and project-specific: define the suite boundaries, the minimum behavior each suite must cover, and any shared data conventions needed to make the tests executable.
 
 ## Reference Anchors
 
@@ -175,7 +175,7 @@ Use these local resource summaries as grounding:
 Use template at `.ddx/plugins/helix/workflows/activities/03-test/artifacts/test-suites/template.md`.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: test-suites
 ---
 
 # Test Suite Structure

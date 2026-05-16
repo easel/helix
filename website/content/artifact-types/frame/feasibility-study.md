@@ -2,7 +2,7 @@
 title: "Feasibility Study"
 linkTitle: "Feasibility Study"
 slug: feasibility-study
-phase: "Frame"
+activity: "Frame"
 artifactRole: "supporting"
 weight: 16
 generated: true
@@ -201,7 +201,7 @@ Solution Design owns the chosen implementation approach.
 - The preferred alternative is justified against at least one rejected alternative.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: feasibility-study
 ---
 
 # Feasibility Study: {{project_name}}

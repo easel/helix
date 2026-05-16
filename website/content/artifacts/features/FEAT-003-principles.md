@@ -27,7 +27,7 @@ ddx:
 ## Overview
 
 Principles are cross-cutting design concerns that guide decision-making across
-all HELIX phases. They are not workflow rules or process enforcement — they are
+all HELIX activities. They are not workflow rules or process enforcement — they are
 lenses applied when choosing between two valid options.
 
 Today, principles exist as a gate artifact: produce the document, check the
@@ -48,7 +48,7 @@ to review criteria.
 - **Pain points**: Agents make judgment calls (design trade-offs, abstraction
   boundaries, error handling strategies) without reference to what the project
   values. Each skill re-derives its own implicit principles from context,
-  producing inconsistent guidance across phases.
+  producing inconsistent guidance across activities.
 - **Desired outcome**: A small, project-owned set of design principles that
   HELIX injects into every skill and action that makes judgment calls. Agents
   apply the same values whether they are framing requirements, designing
@@ -79,7 +79,7 @@ Example defaults (illustrative, not final):
 **Layer 2 — Project principles** (`docs/helix/01-frame/principles.md`): The
 project's own principles. Users can add, modify, reorder, or remove any
 principle, including HELIX defaults. The only constraint: principles cannot
-negate HELIX mechanics (artifact hierarchy, phase gates, tracker semantics).
+negate HELIX mechanics (artifact hierarchy, activity gates, tracker semantics).
 
 ### Bootstrap and precedence
 
@@ -217,7 +217,7 @@ them.
 
 ### Non-Functional Requirements
 
-- **Consistency**: The same principles must be applied across all phases —
+- **Consistency**: The same principles must be applied across all activities —
   no skill should derive its own implicit principles.
 - **Maintainability**: Adding a new skill to HELIX should make it obvious
   that principles injection is expected.
@@ -323,8 +323,8 @@ principles at all
 
 ## Out of Scope
 
-- Per-phase principles (e.g., "build-phase principles" distinct from
-  "design-phase principles") — principles are cross-cutting by definition.
+- Per-activity principles (e.g., "build-activity principles" distinct from
+  "design-activity principles") — principles are cross-cutting by definition.
 - Automated principle enforcement in CI — principles guide judgment, they
   are not linting rules.
 - Principle versioning or history beyond what git provides.

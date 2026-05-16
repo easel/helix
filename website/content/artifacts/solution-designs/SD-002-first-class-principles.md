@@ -1,7 +1,7 @@
 ---
 title: "Solution Design: SD-002 — First-Class Principles"
 slug: SD-002-first-class-principles
-weight: 320
+weight: 340
 activity: "Design"
 source: "02-design/solution-designs/SD-002-first-class-principles.md"
 generated: true
@@ -104,12 +104,12 @@ The six current "principles" map to existing enforcement surfaces:
 
 | Current "Principle" | Relocation Target | Rationale |
 |---|---|---|
-| Specification Completeness | Frame phase enforcer + exit gate | Already partially enforced by `exit-gates.yml`; make explicit in enforcer |
-| Test-First Development | Test phase enforcer + build phase enforcer | Build enforcer already says "test-driven"; strengthen the contract |
-| Simplicity First | Design phase enforcer | Already present as "Simplicity by Default"; strengthen wording |
-| Observable Interfaces | Design phase enforcer | Design concern about API surface and testability |
+| Specification Completeness | Frame activity enforcer + exit gate | Already partially enforced by `exit-gates.yml`; make explicit in enforcer |
+| Test-First Development | Test activity enforcer + build activity enforcer | Build enforcer already says "test-driven"; strengthen the contract |
+| Simplicity First | Design activity enforcer | Already present as "Simplicity by Default"; strengthen wording |
+| Observable Interfaces | Design activity enforcer | Design concern about API surface and testability |
 | Continuous Validation | Ratchets (`workflows/ratchets.md`) | Already referenced by ratchets as Principle 5; update to be self-contained |
-| Feedback Integration | Iterate phase + ratchets | Already referenced by ratchets as Principle 6; move fully into iterate phase |
+| Feedback Integration | Iterate activity + ratchets | Already referenced by ratchets as Principle 6; move fully into iterate activity |
 
 After relocation, `workflows/ratchets.md` must update its references from
 "Principle 5/6" to point at the new locations.
@@ -149,15 +149,15 @@ action prompts reference it.
 ### Component: Action prompt injection
 
 Each judgment-making action prompt adds a principles loading step to its
-Phase 0 / bootstrap section:
+Activity 0 / bootstrap section:
 
 | Action Prompt | File | Injection Point |
 |---|---|---|
-| Implementation | `workflows/actions/implementation.md` | Phase 0 (Bootstrap) — load alongside quality gates |
-| Fresh-eyes review | `workflows/actions/fresh-eyes-review.md` | Phase 0 (Identify Review Target) — load as review criteria |
+| Implementation | `workflows/actions/implementation.md` | Activity 0 (Bootstrap) — load alongside quality gates |
+| Fresh-eyes review | `workflows/actions/fresh-eyes-review.md` | Activity 0 (Identify Review Target) — load as review criteria |
 | Plan/Design | `workflows/actions/plan.md` | Before first refinement round — load as design guidance |
-| Evolve | `workflows/actions/evolve.md` | Phase 1 (Requirement Analysis) — load as scoping guidance |
-| Reconcile-alignment | `workflows/actions/reconcile-alignment.md` | Phase 0 — load as alignment criteria |
+| Evolve | `workflows/actions/evolve.md` | Activity 1 (Requirement Analysis) — load as scoping guidance |
+| Reconcile-alignment | `workflows/actions/reconcile-alignment.md` | Activity 0 — load as alignment criteria |
 | Polish | `workflows/actions/polish.md` | Bootstrap — load as refinement guidance |
 | Frame | `workflows/actions/frame.md` | Bootstrap — load to shape requirements priorities |
 | Check | `workflows/actions/check.md` | Not injected — check is mechanical queue evaluation, not judgment |
@@ -245,10 +245,10 @@ declares the interface it needs.
 
 ### Component: Enforcer updates
 
-Phase enforcers that currently have their own inline "Core Principles You
+Activity enforcers that currently have their own inline "Core Principles You
 Enforce" sections (build, design, test, etc.) should be reviewed:
 
-- Enforcers keep their phase-specific rules (these are enforcement
+- Enforcers keep their activity-specific rules (these are enforcement
   concerns, not cross-cutting principles).
 - The relocated workflow rules from `workflows/principles.md` are absorbed
   into the appropriate enforcers as enforcement rules, not as "principles."
@@ -349,7 +349,7 @@ tension_detection:
 | FR-3: Default fallback | Resolution function | Project file > defaults | Test with and without project file |
 | FR-4: Bootstrap on frame | Frame action + skill | Bootstrap conversation flow | End-to-end frame run on empty project |
 | FR-5: Project precedence | Resolution function | Single-source rule | Test that defaults are ignored when project file exists |
-| FR-6: Downstream injection | All judgment action prompts | Preamble injection at Phase 0 | Verify each action prompt includes resolution step |
+| FR-6: Downstream injection | All judgment action prompts | Preamble injection at Activity 0 | Verify each action prompt includes resolution step |
 | FR-7: Update scaffolding | meta.yml, template.md, prompt.md | Rewritten to match new design | Validation checks pass on new template |
 | FR-8: Tension detection | Management sub-capability | Pairwise evaluation + flagging | Test with known-conflicting principle pairs |
 | FR-9: Tension resolution section | Template + management | Resolution section in template | Test that tensions produce resolution prompts |

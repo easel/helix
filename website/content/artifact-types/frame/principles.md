@@ -2,7 +2,7 @@
 title: "Project Principles"
 linkTitle: "Project Principles"
 slug: principles
-phase: "Frame"
+activity: "Frame"
 artifactRole: "core"
 weight: 11
 generated: true
@@ -91,7 +91,7 @@ it becomes a technology decision, move it into Concerns or an ADR.
 <tr><th>Generation prompt</th><td><details><summary>Show the full generation prompt</summary><pre><code># Principles Generation Prompt
 
 Help the user create a project principles document that guides judgment calls
-across all HELIX phases.
+across all HELIX activities.
 
 ## Purpose
 
@@ -207,18 +207,18 @@ When evaluating a set of principles for tensions:
 - The user has reviewed and approved the final set.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: principles
 ---
 
 # Project Principles
 
-These principles guide judgment calls across all HELIX phases. They are not
+These principles guide judgment calls across all HELIX activities. They are not
 requirements, concerns, ADRs, workflow rules, or process enforcement. They are
 lenses applied when choosing between two valid options.
 
 This document was bootstrapped from HELIX defaults. You own it now — add,
 modify, reorder, or remove any principle. The only constraint: principles
-cannot negate HELIX mechanics (artifact hierarchy, phase gates, tracker
+cannot negate HELIX mechanics (artifact hierarchy, activity gates, tracker
 semantics).
 
 ## Principles

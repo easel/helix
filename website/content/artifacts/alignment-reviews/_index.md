@@ -15,3 +15,4 @@ generated: true
 - [Alignment Review: Repository](AR-2026-04-11-repo/)
 - [Alignment Review: Public Examples Audit](AR-2026-05-01-public-examples/)
 - [Alignment Review: Legacy CLI and Autopilot Artifact Classification](AR-2026-05-12-legacy-cli-autopilot-classification/)
+- [Alignment Review: Legacy CLI/Autopilot Artifact Supersession](AR-2026-05-14-legacy-supersession/)

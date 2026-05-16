@@ -237,11 +237,11 @@ minimal configuration.
 
 ## ADR References
 
-## Practices by phase
+## Practices by activity
 
-Agents working in any of these phases inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below via the bead's context digest.
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 - Define the site's target audience and what content they need
 - List the documentation sections required (at minimum: getting started, concepts, CLI reference)
 - Determine whether demo recordings are needed (see `demo-asciinema` concern)
@@ -290,7 +290,7 @@ same evolution or build pass.
 Any change to a HELIX artifact that is surfaced on the microsite:
 - New or renamed CLI commands → update CLI Reference
 - New, renamed, or removed features → update glossary/artifacts page
-- Changed phases, authority order, or workflow rules → update workflow page
+- Changed activities, authority order, or workflow rules → update workflow page
 - New or changed artifact types → update glossary/artifacts with description
   from `.ddx/plugins/helix/workflows/activities/*/artifacts/<name>/meta.yml` (description field)
   and `.ddx/plugins/helix/workflows/activities/*/artifacts/<name>/prompt.md` (Purpose section)
@@ -302,7 +302,7 @@ Any change to a HELIX artifact that is surfaced on the microsite:
 ### Glossary generation from artifact metadata
 
 Each HELIX artifact type has structured metadata at
-`.ddx/plugins/helix/workflows/activities/<NN>-<phase>/artifacts/<name>/`:
+`.ddx/plugins/helix/workflows/activities/<NN>-<activity>/artifacts/<name>/`:
 
 | File | What it provides |
 |------|-----------------|

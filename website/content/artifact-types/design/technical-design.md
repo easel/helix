@@ -2,7 +2,7 @@
 title: "Technical Design"
 linkTitle: "Technical Design"
 slug: technical-design
-phase: "Design"
+activity: "Design"
 artifactRole: "core"
 weight: 14
 generated: true
@@ -306,7 +306,7 @@ Use these local resource summaries as grounding:
   reviewable changes without losing test coverage.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: TD-XXX
 ---
 
 # Technical Design: TD-XXX-[story-name]

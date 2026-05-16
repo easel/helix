@@ -2,7 +2,7 @@
 title: "Architecture Decision Record"
 linkTitle: "ADR"
 slug: adr
-phase: "Design"
+activity: "Design"
 artifactRole: "core"
 weight: 11
 generated: true
@@ -171,7 +171,7 @@ Use these local resource summaries as grounding:
 - Reconsideration triggers are concrete when the decision has uncertainty.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: ADR-XXX
 ---
 
 # ADR-[NUMBER]: [Title]

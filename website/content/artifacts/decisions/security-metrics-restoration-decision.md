@@ -1,7 +1,7 @@
 ---
 title: "Security Metrics — Restoration Decision"
 slug: security-metrics-restoration-decision
-weight: 590
+weight: 620
 activity: "Iterate"
 source: "06-iterate/decisions/security-metrics-restoration-decision.md"
 generated: true
@@ -11,7 +11,7 @@ collection: decisions
 
 > Historical decision; superseded by the worked example at `docs/helix/06-iterate/security-metrics.md`.
 
-`security-metrics` is restored as the canonical iterate-phase security posture
+`security-metrics` is restored as the canonical iterate-activity security posture
 report artifact.
 
 ## Decision

@@ -97,7 +97,7 @@ A single-page methodology overview suitable for the microsite that covers:
 
 - The double-helix metaphor.
 - The progressive abstraction layers.
-- The phases (Discover → Frame → Plan → Build/Iterate → Polish).
+- The activities (Discover → Frame → Plan → Build/Iterate → Polish).
 - The multi-directional workflow (changes can enter at any layer).
 - When to use which command.
 

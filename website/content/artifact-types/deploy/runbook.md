@@ -2,7 +2,7 @@
 title: "Runbook"
 linkTitle: "Runbook"
 slug: runbook
-phase: "Deploy"
+activity: "Deploy"
 artifactRole: "supporting"
 weight: 13
 generated: true
@@ -232,7 +232,7 @@ release coordination plan.
 Use the template at `.ddx/plugins/helix/workflows/activities/05-deploy/artifacts/runbook/template.md`.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: runbook
 ---
 
 # Runbook - [Service / System]

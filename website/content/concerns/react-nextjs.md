@@ -62,11 +62,11 @@ patterns, component library conventions, and E2E testing requirements.
 - ADR-010: Frontend validation architecture (Zod shared schemas)
 - ADR-011: ERP component library and navigation (shadcn/ui + Radix + Tailwind)
 
-## Practices by phase
+## Practices by activity
 
-Agents working in any of these phases inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below via the bead's context digest.
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 - User stories involving UI must specify which pages or components are affected
 - Acceptance criteria for UI features must include Playwright E2E coverage
 - Data-heavy views (tables, dashboards) must specify expected row counts for virtualization decisions

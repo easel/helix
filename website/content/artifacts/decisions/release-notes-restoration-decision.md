@@ -1,7 +1,7 @@
 ---
 title: "Release Notes — Restoration Decision"
 slug: release-notes-restoration-decision
-weight: 430
+weight: 450
 activity: "Deploy"
 source: "05-deploy/decisions/release-notes-restoration-decision.md"
 generated: true
@@ -11,7 +11,7 @@ collection: decisions
 
 > Historical decision; superseded by the worked example at `docs/helix/05-deploy/release-notes.md`.
 
-`release-notes` is restored as the canonical deploy-phase artifact for
+`release-notes` is restored as the canonical deploy-activity artifact for
 release-specific communication that summarizes user-visible or operator-visible
 changes.
 
@@ -22,7 +22,7 @@ This artifact is restored rather than retired.
 Current HELIX still names `release-notes` in `workflows/DDX.md`,
 `workflows/state-machine.yaml`, `deployment-checklist`, and
 `feature-registry`. The deploy state machine also still expects release notes
-to be published before the phase exits. The intent therefore still exists in
+to be published before the activity exits. The intent therefore still exists in
 the live contract even though the original artifact stub was pruned.
 
 ## Why It Exists
@@ -83,7 +83,7 @@ the live contract even though the original artifact stub was pruned.
 
 The deleted `gtm-plan` artifact stays retired. `release-notes` cover the
 release communication that HELIX standardizes, while broader launch
-coordination or adoption planning belongs in linked `phase:deploy` tracker
+coordination or adoption planning belongs in linked `activity:deploy` tracker
 issues or project-specific business planning outside the portable artifact set.
 
 The deleted prompt and template were too generic to justify keeping. Restoration

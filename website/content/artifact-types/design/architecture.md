@@ -2,7 +2,7 @@
 title: "Architecture"
 linkTitle: "Architecture"
 slug: architecture
-phase: "Design"
+activity: "Design"
 artifactRole: "core"
 weight: 10
 generated: true
@@ -11,7 +11,7 @@ generated: true
 ## Purpose
 
 Architecture is the **highest-authority structural artifact** in the Design
-phase. Its unique job is to describe the durable system shape: boundaries,
+activity. Its unique job is to describe the durable system shape: boundaries,
 containers, externally visible integrations, deployment topology, critical data
 flows, quality attributes, and structural tradeoffs.
 
@@ -201,7 +201,7 @@ operate, and evolve the system.
 ## Purpose
 
 Architecture is the **highest-authority structural artifact** in the Design
-phase. Its unique job is to describe the durable system shape: boundaries,
+activity. Its unique job is to describe the durable system shape: boundaries,
 containers, externally visible integrations, deployment topology, critical data
 flows, quality attributes, and structural tradeoffs.
 
@@ -249,7 +249,7 @@ Use these local resource summaries as grounding:
 - Major decisions link to ADRs or include an inline decision note.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: architecture
 ---
 
 # Architecture

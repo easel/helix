@@ -86,7 +86,7 @@ Execution documents should use normal HELIX / DDx graph identity patterns:
 ddx:
   id: EXEC-001
   depends_on:
-    - TP-036
+    - STP-036
     - FEAT-011
 ---
 ```
@@ -110,7 +110,7 @@ exists.
 | Execution purpose | Minimum governing link |
 |---|---|
 | feature-level validation | `FEAT-*` or `US-*` |
-| implementation / design validation | `TD-*` or `TP-*` |
+| implementation / design validation | `TD-*` or `STP-*` |
 | cross-cutting technical validation | `ADR-*` and/or `SD-*` |
 | workflow / policy validation | workflow doc or contract doc ID |
 | ratchet enforcement | metric definition + ratchet policy source |
@@ -124,7 +124,7 @@ ddx:
   id: EXEC-002
   depends_on:
     - FEAT-011
-    - TP-011
+    - STP-011
 ---
 ```
 
@@ -132,7 +132,7 @@ ddx:
 # EXEC-002: Slider autonomy verification
 
 **Governing Feature**: [[FEAT-011]]  
-**Governing Test Plan**: [[TP-011]]
+**Governing Test Plan**: [[STP-011]]
 ```
 
 ### No redundant authority chains
@@ -234,18 +234,18 @@ ratchet:
 
 Do not collapse all three concerns into one file.
 
-## Relationship to Phase Gates and Existing Workflow Docs
+## Relationship to Activity Gates and Existing Workflow Docs
 
 HELIX already contains workflow-gate YAML files such as:
 - `workflows/activities/*/input-gates.yml`
 - `workflows/activities/*/exit-gates.yml`
 
-These remain the source of truth for generic phase gate requirements.
+These remain the source of truth for generic activity gate requirements.
 
 Execution docs should relate to them as follows:
 
-### Phase gates
-Phase gate YAML describes the gate requirement at the workflow level.
+### Activity gates
+Activity gate YAML describes the gate requirement at the workflow level.
 
 ### Execution docs
 Execution docs provide the graph-authored validation artifact that DDx can
@@ -258,7 +258,7 @@ Metric YAML defines the measured quantity and command shape.
 `workflows/ratchets.md` defines the ratchet pattern and how floor enforcement
 fits into HELIX.
 
-Execution docs may reference phase gate YAML or ratchet policy, but should not
+Execution docs may reference activity gate YAML or ratchet policy, but should not
 restate those contracts unnecessarily.
 
 ## Relationship to Implementation Beads and Verification Passes

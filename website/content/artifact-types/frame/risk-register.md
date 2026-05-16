@@ -2,7 +2,7 @@
 title: "Risk Register"
 linkTitle: "Risk Register"
 slug: risk-register
-phase: "Frame"
+activity: "Frame"
 artifactRole: "supporting"
 weight: 21
 generated: true
@@ -288,7 +288,7 @@ mitigate, accept, transfer, avoid, or escalate them.
 - High and critical risks have concrete triggers and contingency responses.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: risk-register
 ---
 
 # Risk Register

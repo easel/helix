@@ -2,7 +2,7 @@
 title: "User Stories"
 linkTitle: "User Stories"
 slug: user-stories
-phase: "Frame"
+activity: "Frame"
 artifactRole: "core"
 weight: 14
 generated: true
@@ -300,7 +300,7 @@ committing.
 - [ ] Story does not invent behavior outside the parent feature spec</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: US-XXX
 ---
 
 # US-XXX: [Story Title]

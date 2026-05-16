@@ -2,7 +2,7 @@
 title: "Compliance Requirements"
 linkTitle: "Compliance Requirements"
 slug: compliance-requirements
-phase: "Frame"
+activity: "Frame"
 artifactRole: "supporting"
 weight: 15
 generated: true
@@ -212,7 +212,7 @@ Model analyzes abuse paths and mitigations.
 - No generic filler is added.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: compliance-requirements
 ---
 
 # Compliance Requirements

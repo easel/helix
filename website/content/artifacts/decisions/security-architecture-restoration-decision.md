@@ -1,7 +1,7 @@
 ---
 title: "Security Architecture — Restoration Decision"
 slug: security-architecture-restoration-decision
-weight: 270
+weight: 280
 activity: "Design"
 source: "02-design/decisions/security-architecture-restoration-decision.md"
 generated: true
@@ -11,7 +11,7 @@ collection: decisions
 
 > Historical decision; superseded by the worked example at `docs/helix/02-design/security-architecture.md`.
 
-`security-architecture` is restored as the canonical design-phase artifact for
+`security-architecture` is restored as the canonical design-activity artifact for
 trust boundaries, controls, and design-level security decisions.
 
 ## Decision

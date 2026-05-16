@@ -1,7 +1,7 @@
 ---
 title: "Data Design — Restoration Decision"
 slug: data-design-restoration-decision
-weight: 260
+weight: 270
 activity: "Design"
 source: "02-design/decisions/data-design-restoration-decision.md"
 generated: true
@@ -11,7 +11,7 @@ collection: decisions
 
 > Historical decision; superseded by the worked example at `docs/helix/02-design/data-design.md`.
 
-`data-design` is restored as the canonical design-phase artifact for schema,
+`data-design` is restored as the canonical design-activity artifact for schema,
 storage, access-pattern, and migration design.
 
 ## Decision

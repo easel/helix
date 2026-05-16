@@ -1,7 +1,7 @@
 ---
 title: "Technical Design: TD-012 — Artifact Types Navigation"
 slug: TD-012-artifact-types-navigation
-weight: 360
+weight: 380
 activity: "Design"
 source: "02-design/technical-designs/TD-012-artifact-types-navigation.md"
 generated: true
@@ -66,7 +66,7 @@ lighter treatment or inline disclosure.
 - **Left nav and right nav have separate jobs**: Left nav is site hierarchy and
   location. Right nav is current-page headings. Styling must make that
   relationship obvious.
-- **Generated content owns ordering**: Ordering comes from the phase and
+- **Generated content owns ordering**: Ordering comes from the activity and
   core/supporting lists in the generator, not from hand-edited sidebar files.
 - **CSS follows the content model**: Custom CSS may differentiate supporting
   artifacts, but it cannot create hidden IA by itself.

@@ -2,7 +2,7 @@
 title: "PR-FAQ"
 linkTitle: "PR-FAQ"
 slug: pr-faq
-phase: "Frame"
+activity: "Frame"
 artifactRole: "supporting"
 weight: 19
 generated: true
@@ -390,7 +390,7 @@ See:
 - Next steps, experiments, and downstream projection targets are explicit.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: pr-faq
 ---
 
 # PR-FAQ: [PRODUCT NAME]

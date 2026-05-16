@@ -2,7 +2,7 @@
 title: "Stakeholder Map"
 linkTitle: "Stakeholder Map"
 slug: stakeholder-map
-phase: "Frame"
+activity: "Frame"
 artifactRole: "supporting"
 weight: 23
 generated: true
@@ -199,7 +199,7 @@ where unresolved decisions escalate.
 - Every critical decision has exactly one accountable role in the RACI matrix.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: stakeholder-map
 ---
 
 # Stakeholder Map

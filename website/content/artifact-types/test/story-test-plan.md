@@ -2,7 +2,7 @@
 title: "Story Test Plan"
 linkTitle: "Story Test Plan"
 slug: story-test-plan
-phase: "Test"
+activity: "Test"
 artifactRole: "core"
 weight: 11
 generated: true
@@ -33,7 +33,7 @@ ddx:
     - example.test-plan.depositmatch
 ---
 
-# Story Test Plan: TP-001-upload-csv-files
+# Story Test Plan: STP-001-upload-csv-files
 
 ## Story Reference
 
@@ -160,7 +160,7 @@ pnpm test:e2e -- upload-csv
 <table class="helix-reference-table">
 <tbody>
 <tr><th>Activity</th><td><a href="/reference/glossary/activities/"><strong>Test</strong></a> — Define how we know it works. Plans, suites, and procedures that bind specs to implementation.</td></tr>
-<tr><th>Default location</th><td><code>docs/helix/03-test/test-plans/TP-{id}-{name}.md</code></td></tr>
+<tr><th>Default location</th><td><code>docs/helix/03-test/test-plans/STP-{id}-{name}.md</code></td></tr>
 <tr><th>Requires</th><td><em>None</em></td></tr>
 <tr><th>Enables</th><td><em>None</em></td></tr>
 <tr><th>Informs</th><td><a href="/artifact-types/test/test-suites/">Test Suites</a><br><a href="/artifact-types/build/implementation-plan/">Implementation Plan</a></td></tr>
@@ -192,7 +192,7 @@ Use these local resource summaries as grounding:
 
 ## Storage Location
 
-`docs/helix/03-test/test-plans/TP-{id}-{name}.md`
+`docs/helix/03-test/test-plans/STP-{id}-{name}.md`
 
 ## What to Include
 
@@ -223,10 +223,10 @@ Use these local resource summaries as grounding:
 Use template at `.ddx/plugins/helix/workflows/activities/03-test/artifacts/story-test-plan/template.md`.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: STP-XXX
 ---
 
-# Story Test Plan: TP-XXX-[story-name]
+# Story Test Plan: STP-XXX-[story-name]
 
 ## Story Reference
 

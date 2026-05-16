@@ -1,7 +1,7 @@
 ---
 title: "TD-011: Slider Autonomy Implementation Design (Revised)"
 slug: TD-011-slider-autonomy-implementation
-weight: 350
+weight: 370
 activity: "Design"
 source: "02-design/technical-designs/TD-011-slider-autonomy-implementation.md"
 generated: true
@@ -17,7 +17,16 @@ ddx:
     - FEAT-011
     - helix.workflow.artifact-hierarchy
     - ADR-001
+  status: superseded
+  superseded_by: helix.prd
 ```
+
+> **SUPERSEDED** — This technical design implemented the slider autonomy
+> concept from the now-superseded FEAT-011. The current PRD (`helix.prd`)
+> removes execution-loop autonomy controls, `helix run`, and runtime
+> orchestration from HELIX's scope. This document is retained for historical
+> context only. Any runtime that wants an autonomy slider must author that in
+> its own runtime-owned documentation with no dependency on this design.
 
 # TD-011: Slider Autonomy Implementation Design (Revised)
 
@@ -40,7 +49,7 @@ This technical design specifies implementation details for the slider autonomy m
 
 From FEAT-011:
 1. Artifact graph traversal using existing `[[ID]]` cross-references
-2. Two-phase impact detection (declared links + search fallback)
+2. Two-activity impact detection (declared links + search fallback)
 3. Physics-level vs resolvable conflict classification
 4. Autonomy slider (low/medium/high) controlling flow behavior
 5. Verification loop with failure triage and traceback
@@ -56,7 +65,7 @@ From FEAT-011:
 **Approach**: HELIX consumes DDx graph primitives to collect the impacted subgraph, then applies HELIX authority-order policy to that subgraph.
 
 ```pseudocode
-# Phase 1: Collect all impacted artifacts using DDx graph primitives
+# Activity 1: Collect all impacted artifacts using DDx graph primitives
 function collectImpactedSubgraph(startArtifact):
     visited = set()
     queue = [startArtifact]
@@ -77,7 +86,7 @@ function collectImpactedSubgraph(startArtifact):
 
     return visited
 
-# Phase 2: HELIX orders the impacted set by authority tier
+# Activity 2: HELIX orders the impacted set by authority tier
 function orderByAuthority(artifacts):
     authorityTiers = {
         "vision": 0, "prd": 1,
@@ -104,18 +113,18 @@ function orderByAuthority(artifacts):
 7. Implementation Plans
 8. Source Code and Build Artifacts
 
-### Decision 2: Impact Detection Three-Phase System (Revised)
+### Decision 2: Impact Detection Three-Activity System (Revised)
 
-**Phase 0: DDx graph index (authoritative)**
+**Activity 0: DDx graph index (authoritative)**
 - DDx indexes body `[[ID]]` links and frontmatter dependencies.
 - DDx provides the authoritative upstream/downstream lookup used by HELIX.
 - HELIX does not build or cache a separate reverse index outside the DDx substrate.
 
-**Phase 1: Declared links (primary)**
+**Activity 1: Declared links (primary)**
 - Use DDx graph lookups to resolve explicitly declared artifact relationships first.
 - This is the authoritative impact surface for normal traversal.
 
-**Phase 2: Search fallback (supplemental)**
+**Activity 2: Search fallback (supplemental)**
 ```bash
 # Extract key terms from input text or change diff
 if [ -n "$INPUT_TEXT" ]; then
@@ -378,7 +387,7 @@ test('list MCP servers returns array', async () => {
 
 **Failure traceback algorithm (integrated with helix measure/report)**:
 ```pseudocode
-# Runs as part of helix measure phase after build completes
+# Runs as part of helix measure activity after build completes
 function traceBackFromFailure(failingTest, testOutput):
     # Step 1: Extract spec reference from test metadata
     specRef = parseTestMetadata(failingTest).spec_ref
@@ -408,7 +417,7 @@ function traceBackFromFailure(failingTest, testOutput):
 ```
 
 **Integration with existing HELIX workflow**:
-- Runs during `helix measure` phase (after build, before report)
+- Runs during `helix measure` activity (after build, before report)
 - Uses existing `ddx bead create` for failure triage output
 - Results feed into `helix report` for follow-on bead creation
 
@@ -427,9 +436,9 @@ function traceBackFromFailure(failingTest, testOutput):
                        ▼
 ┌─────────────────────────────────────────────────────────────┐
 │  Impact Detector                                             │
-│  Phase 0: Build reverse index (cached)                      │
-│  Phase 1: Parse [[ID]] cross-references                     │
-│  Phase 2: Search fallback for term matches                  │
+│  Activity 0: Build reverse index (cached)                      │
+│  Activity 1: Parse [[ID]] cross-references                     │
+│  Activity 2: Search fallback for term matches                  │
 └──────────────────────┬──────────────────────────────────────┘
                        ▼
 ┌─────────────────────────────────────────────────────────────┐
@@ -474,7 +483,7 @@ Uses existing patterns:
 New bead labels:
 - `kind:escalation` - resolvable conflicts needing human review
 - `kind:speculative` - assumptions made in high autonomy mode
-- `phase:frame`, `phase:design`, etc. - existing phase labels preserved
+- `activity:frame`, `activity:design`, etc. - existing activity labels preserved
 
 ## Testing Strategy
 
@@ -514,40 +523,40 @@ Test: `helix input "change US-001 acceptance criteria"` should produce beads for
 
 ## Migration Path
 
-### Phase 1: Planning (Current)
+### Activity 1: Planning (Current)
 - [ ] FEAT-011 feature spec approved
 - [ ] TD-011 technical design approved
 - [ ] Implementation beads created
 
-### Phase 2: Core Implementation
+### Activity 2: Core Implementation
 - [ ] Graph traversal module
 - [ ] Impact detection (declared links + search)
 - [ ] Conflict classification logic
 - [ ] Slider config loader
 
-### Phase 3: CLI Integration
+### Activity 3: CLI Integration
 - [ ] `helix input` command implementation
 - [ ] Bead creator integration with DDx tracker
 - [ ] `execute-loop` queue-drain adoption path and compatibility wrappers
 - [ ] Verification loop traceback
 
-### Phase 4: Bead-Contract Hardening
+### Activity 4: Bead-Contract Hardening
 - [ ] Triage/polish guidance requires execute-loop-friendly success criteria
 - [ ] Measurement and acceptance conventions align with DDx close-with-evidence semantics
 - [ ] Queue-ready beads can be evaluated without hidden wrapper logic
 
-### Phase 5: Testing and Validation
+### Activity 5: Testing and Validation
 - [ ] Unit tests for all components
 - [ ] Integration tests with fixture projects
 - [ ] Acceptance criteria validation
 
-### Phase 6: Deprecation Period (v0.4.x)
+### Activity 6: Deprecation Period (v0.4.x)
 - [ ] Decide which HELIX CLI surfaces remain first-class vs compatibility-only
 - [ ] Add deprecation warnings to thin execution wrappers if DDx parity holds
 - [ ] Document migration path
 - [ ] Monitor usage patterns
 
-### Phase 7: Full Release (v1.0)
+### Activity 7: Full Release (v1.0)
 - [ ] Remove deprecated commands (optional, can keep as aliases)
 - [ ] Update all documentation
 - [ ] Training materials for new model

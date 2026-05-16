@@ -2,7 +2,7 @@
 title: "Security Architecture"
 linkTitle: "Security Architecture"
 slug: security-architecture
-phase: "Design"
+activity: "Design"
 artifactRole: "supporting"
 weight: 17
 generated: true
@@ -157,7 +157,7 @@ Use these local resource summaries as grounding:
 - Residual risks are named instead of hidden.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: security-architecture
 ---
 
 # Security Architecture

@@ -2,7 +2,7 @@
 title: "Resource Summary"
 linkTitle: "Resource Summary"
 slug: resource-summary
-phase: "Discover"
+activity: "Discover"
 artifactRole: "supporting"
 weight: 14
 generated: true
@@ -131,7 +131,7 @@ a short note about access limitations.
 - [ ] External links live in the resource summary, not scattered through artifact prompts</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: resource-summary
 ---
 
 # [Resource Title]

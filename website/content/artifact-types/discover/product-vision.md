@@ -2,7 +2,7 @@
 title: "Product Vision"
 linkTitle: "Product Vision"
 slug: product-vision
-phase: "Discover"
+activity: "Discover"
 artifactRole: "core"
 weight: 10
 generated: true
@@ -306,7 +306,7 @@ committing.
 - [ ] No sentence&#x27;s main predicate is `not &lt;noun&gt;` without a positive predicate in the same sentence</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: product-vision
 ---
 
 # Product Vision

@@ -1,7 +1,7 @@
 ---
 title: "Alignment Review: Legacy CLI and Autopilot Artifact Classification"
 slug: AR-2026-05-12-legacy-cli-autopilot-classification
-weight: 560
+weight: 580
 activity: "Iterate"
 source: "06-iterate/alignment-reviews/AR-2026-05-12-legacy-cli-autopilot-classification.md"
 generated: true

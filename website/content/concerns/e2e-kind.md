@@ -220,11 +220,11 @@ against the real service stack. Particularly valuable when:
 
 ## ADR References
 
-## Practices by phase
+## Practices by activity
 
-Agents working in any of these phases inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below via the bead's context digest.
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 - Identify all services the application depends on at runtime
 - Define what test data is needed to exercise the full feature set
 - Determine test scope: smoke tests, integration tests, chaos tests, or all three

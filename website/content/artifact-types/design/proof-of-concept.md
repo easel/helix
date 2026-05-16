@@ -2,7 +2,7 @@
 title: "Proof of Concept"
 linkTitle: "Proof of Concept"
 slug: proof-of-concept
-phase: "Design"
+activity: "Design"
 artifactRole: "supporting"
 weight: 16
 generated: true
@@ -220,7 +220,7 @@ evidence.
 - The production implications and remaining gaps are explicit.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: POC-XXX
 ---
 
 # Proof of Concept: {{poc_title}}

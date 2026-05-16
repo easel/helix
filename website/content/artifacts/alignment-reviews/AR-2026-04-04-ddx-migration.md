@@ -1,7 +1,7 @@
 ---
 title: "Alignment Review: DDx Migration"
 slug: AR-2026-04-04-ddx-migration
-weight: 510
+weight: 530
 activity: "Iterate"
 source: "06-iterate/alignment-reviews/AR-2026-04-04-ddx-migration.md"
 generated: true

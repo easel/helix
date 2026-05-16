@@ -2,7 +2,7 @@
 title: "Metrics Dashboard"
 linkTitle: "Metrics Dashboard"
 slug: metrics-dashboard
-phase: "Iterate"
+activity: "Iterate"
 artifactRole: "core"
 weight: 11
 generated: true
@@ -144,7 +144,7 @@ Use this local resource summary as grounding:
 - The conclusion is actionable and easy to hand to the next iteration.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: metrics-dashboard
 ---
 
 # Metrics Dashboard: [iteration or release]

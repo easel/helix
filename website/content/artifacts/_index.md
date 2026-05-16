@@ -25,10 +25,11 @@ _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 
 - [Architecture](/artifacts/architecture/)
 - [Data Design — HELIX Bead Tracker](/artifacts/data-design/)
+- [Homepage Worked Example Graph](/artifacts/homepage-worked-example-graph/)
 - [HELIX Plan: Supervisory Concurrency And Interactive Refinement](/artifacts/plan-2026-03-27-supervisory-concurrency/)
 - [Security Architecture — DDx Agent Execution Surface](/artifacts/security-architecture/)
 - [adr](/artifacts/adr/) _(2 items)_
-- [contracts](/artifacts/contracts/) _(5 items)_
+- [contracts](/artifacts/contracts/) _(6 items)_
 - [decisions](/artifacts/decisions/) _(2 items)_
 - [hero image concepts](/artifacts/hero-image-concepts/) _(1 item)_
 - [solution designs](/artifacts/solution-designs/) _(2 items)_
@@ -59,5 +60,5 @@ _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 - [HELIX Prompt Iteration Protocol and Evaluation Rubric](/artifacts/prompt-iteration-protocol/)
 - [Research: Principles Injection Strategy Effectiveness](/artifacts/research-principles-injection-2026-04-05/)
 - [Security Metrics — HELIX 2026-Q2 (post-`v0.3.3`)](/artifacts/security-metrics/)
-- [alignment reviews](/artifacts/alignment-reviews/) _(8 items)_
+- [alignment reviews](/artifacts/alignment-reviews/) _(9 items)_
 - [decisions](/artifacts/decisions/) _(3 items)_

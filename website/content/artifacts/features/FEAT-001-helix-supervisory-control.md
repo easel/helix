@@ -15,7 +15,17 @@ ddx:
   id: FEAT-001
   depends_on:
     - helix.prd
+  status: superseded
+  superseded_by: helix.prd
 ```
+
+> **SUPERSEDED** — This feature defined `helix-run` as HELIX's supervisory
+> autopilot and treated tracker-first execution as a core product capability.
+> The current PRD (`helix.prd`) reverses that scope: HELIX is a portable
+> methodology and artifact catalog; CLI, execution loop, and runtime
+> orchestration are out of scope and belong to the adopting runtime (DDx,
+> Genie, etc.). This document is retained for historical context only and
+> must not govern new HELIX work.
 
 # Feature Specification: FEAT-001 - HELIX Supervisory Control
 
@@ -80,11 +90,11 @@ judgment is actually needed.
 ### US-001: Steer HELIX autopilot [FEAT-001]
 **As a** HELIX operator
 **I want** `helix-run` to keep advancing work until human input is required
-**So that** I do not have to manually decide every phase transition
+**So that** I do not have to manually decide every activity transition
 
 **Acceptance Criteria:**
 - [ ] Given a repository with vision and PRD, when HELIX can safely continue,
-  then `helix-run` advances the next bounded layer without asking for a phase
+  then `helix-run` advances the next bounded layer without asking for a activity
   name.
 - [ ] Given a user-requested functionality change, when it affects downstream
   artifacts, then HELIX routes to alignment, evolve, or design before build
@@ -116,9 +126,9 @@ directly
 
 ## Success Metrics
 
-- `helix-run` can continue autonomous progress across multiple phases without
-  explicit phase instructions.
-- Users spend less time manually orchestrating phase transitions.
+- `helix-run` can continue autonomous progress across multiple activities without
+  explicit activity instructions.
+- Users spend less time manually orchestrating activity transitions.
 - Trigger correctness is observable in deterministic tests and workflow docs.
 
 ## Constraints and Assumptions

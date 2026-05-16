@@ -7,6 +7,25 @@ source: "01-frame/features/FEAT-011-slider-autonomy.md"
 generated: true
 collection: features
 ---
+
+> **Source identity** (from `01-frame/features/FEAT-011-slider-autonomy.md`):
+
+```yaml
+ddx:
+  id: FEAT-011
+  status: superseded
+  superseded_by: helix.prd
+```
+
+> **SUPERSEDED** — This feature defined operator-facing autonomy controls
+> (`low`/`medium`/`high`) for `helix-run` and the supervisory execution loop.
+> The current PRD (`helix.prd`) removes the execution loop, runtime UX, and
+> supervisory autopilot from HELIX's scope entirely. Autonomy configuration
+> is a runtime concern. If DDx or another runtime wants an autonomy slider,
+> it must be authored in runtime-owned documentation with no implication that
+> HELIX owns the execution model. This document is retained for historical
+> context only and must not govern new HELIX work.
+
 # FEAT-011: Slider Autonomy Control
 
 **Status**: Planning  
@@ -49,7 +68,7 @@ Graph metadata includes:
 **Storage**: Cross-references embedded in artifact frontmatter/body using `[[ID]]` notation. No separate registry needed initially.
 
 ### FR-02: Impact Detection via Search + Declared Links
-The system shall identify impacted artifacts through two-phase detection:
+The system shall identify impacted artifacts through two-activity detection:
 
 1. **Declared links first**: Follow existing `[[ID]]` cross-references from changed artifact
 2. **Search-based fallback**: Use `rg` to find term matches (e.g., "Postgres" → ADRs about database choice)
@@ -242,7 +261,7 @@ HELIX-authored stage stance rather than inventing a separate personality lane.
 ## Non-Requirements
 
 - This feature does NOT replace the existing CLI/skill contract immediately (deprecation timeline defined)
-- This feature does NOT eliminate phase enforcers (they become parameterized by slider)
+- This feature does NOT eliminate activity enforcers (they become parameterized by slider)
 - This feature is NOT production-ready until fully tested in sandbox branch
 - This feature does NOT require new artifact storage format (uses existing `[[ID]]` pattern)
 

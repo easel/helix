@@ -2,7 +2,7 @@
 title: "Technical Spike"
 linkTitle: "Technical Spike"
 slug: tech-spike
-phase: "Design"
+activity: "Design"
 artifactRole: "supporting"
 weight: 18
 generated: true
@@ -190,7 +190,7 @@ Use these local resource summaries as grounding:
 - Any remaining uncertainty is named.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: SPIKE-XXX
 ---
 
 # Technical Spike: {{spike_title}}

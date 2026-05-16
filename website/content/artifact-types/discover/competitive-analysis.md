@@ -2,7 +2,7 @@
 title: "Competitive Analysis"
 linkTitle: "Competitive Analysis"
 slug: competitive-analysis
-phase: "Discover"
+activity: "Discover"
 artifactRole: "supporting"
 weight: 12
 generated: true
@@ -174,7 +174,7 @@ defend. Business Case owns investment logic; PRD owns product requirements.
 - [ ] Strategic implications name where to attack, defend, and avoid</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: competitive-analysis
 ---
 
 # Competitive Analysis

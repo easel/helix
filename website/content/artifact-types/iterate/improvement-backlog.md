@@ -2,7 +2,7 @@
 title: "Improvement Backlog"
 linkTitle: "Improvement Backlog"
 slug: improvement-backlog
-phase: "Iterate"
+activity: "Iterate"
 artifactRole: "core"
 weight: 12
 generated: true
@@ -127,7 +127,7 @@ Use this local resource summary as grounding:
 - The next iteration candidates are explicit.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
-  id: &quot;[artifact-id]&quot;
+  id: improvement-backlog
 ---
 
 # Improvement Backlog
