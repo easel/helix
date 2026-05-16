@@ -38,3 +38,8 @@ __pycache__/
 
 # Scratch/intermediate working files
 tmp/
+
+# Local-only bead snapshots and per-user prompt scratchpads
+.ddx/beads.jsonl.pre-rename
+.ddx/beads.jsonl.*.bak
+.claude/prompts/
