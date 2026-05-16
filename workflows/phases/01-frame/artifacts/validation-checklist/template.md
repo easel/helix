@@ -3,7 +3,7 @@ ddx:
   id: validation-checklist
 ---
 
-# Frame Phase Validation Checklist
+# Frame Activity Validation Checklist
 
 **Status**: [ ] Not Started | [ ] In Progress | [ ] Complete
 **Validated By**: [Name]
@@ -22,7 +22,7 @@ ddx:
 | Required stakeholders have reviewed the plan | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |
 
 ## Result
-- [ ] **PASS**: Ready for Design phase
+- [ ] **PASS**: Ready for Design activity
 - [ ] **CONDITIONAL PASS**: Proceed with noted conditions
 - [ ] **FAIL**: Address blocking issues first
 

@@ -34,7 +34,7 @@ When artifacts disagree, use this order:
 The plan you produce sits at levels 4-7 and must be consistent with levels 1-3
 when they exist.
 
-## PHASE 0 - Context Load
+## STEP 0 - Context Load
 
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
@@ -70,14 +70,14 @@ when they exist.
      existing artifact on disk. If a target does not exist, stop and request
      guidance before writing the file.
 
-## PHASE 0.5 - Work Item Acquisition
+## STEP 0.5 - Work Item Acquisition
 
 Before writing any design content, acquire a governing work item for this
 design pass to record progress, govern changes, and capture measurement
 results. See the runtime's work-item acquisition reference for the full
 pattern.
 
-## PHASE 1 - First Draft
+## STEP 1 - First Draft
 
 Produce a comprehensive design document covering ALL of the following sections.
 Do not skip sections; mark them "N/A" with rationale if genuinely inapplicable.
@@ -124,13 +124,13 @@ mandatory (not just "recommended"):
   instrumentation plan with specific spans, metrics, and trace propagation.
 - `a11y-wcag-aa` active → Add a **12. Accessibility** section covering WCAG AA
   compliance strategy for all user-facing surfaces.
-- Other active concerns → Check each concern's `practices.md` for design-phase
+- Other active concerns → Check each concern's `practices.md` for design-activity
   requirements and ensure the plan addresses them.
 
 The governing bead's acceptance criteria include concern-mandated section
 completeness.
 
-## PHASE 2 through N - Iterative Refinement
+## STEP 2 through N - Iterative Refinement
 
 For each subsequent round:
 
@@ -167,7 +167,7 @@ security, or architecture — not formatting or wording.
 When velocity drops below 5 substantive changes for two consecutive rounds,
 declare convergence and stop refinement.
 
-## PHASE N+1 - Finalize
+## ACTIVITY N+1 - Finalize
 
 1. Remove the Refinement Delta section (it served its purpose during iteration).
 2. Write the final plan to:
@@ -177,7 +177,7 @@ declare convergence and stop refinement.
    without reading other documents, though it should cross-reference governing
    artifacts by path.
 
-## PHASE N+2 - Measure
+## ACTIVITY N+2 - Measure
 
 Verify the design document against the governing work item's acceptance
 criteria. See the measure action for the full pattern.
@@ -186,11 +186,11 @@ criteria. See the measure action for the full pattern.
    path and contains all required sections (including concern-mandated ones).
 2. **Convergence**: Confirm refinement velocity dropped below threshold or
    explain why it did not.
-3. **Concern coverage**: Verify each active concern's design-phase requirements
+3. **Concern coverage**: Verify each active concern's design-activity requirements
    are addressed in the plan.
 4. **Record results** on the governing work item via the runtime tracker.
 
-## PHASE N+3 - Report
+## ACTIVITY N+3 - Report
 
 Close the design cycle and feed back into the planning cycle. See the report
 action for the full pattern.
@@ -225,7 +225,7 @@ FOLLOW_ON_CREATED: N
 
 This appendix applies when DDx is the active HELIX runtime.
 
-### PHASE 0 — DDx references
+### STEP 0 — DDx references
 
 - Principles: `.ddx/plugins/helix/workflows/references/principles-resolution.md`
 - Concerns: `.ddx/plugins/helix/workflows/references/concern-resolution.md`
@@ -234,7 +234,7 @@ This appendix applies when DDx is the active HELIX runtime.
 
 Validate `depends_on` entries in each artifact's ddx frontmatter before writing.
 
-### PHASE 0.5 — DDx bead acquisition
+### STEP 0.5 — DDx bead acquisition
 
 ```bash
 ddx bead list --status open --label kind:planning,action:design --json
@@ -249,7 +249,7 @@ ddx bead create "design: <scope description>" \
   --set spec-id=<governing-artifact-if-known> \
   --description "<context-digest>...</context-digest>
 Create comprehensive design document for <scope>.
-Inputs: <list governing artifacts loaded in Phase 0>" \
+Inputs: <list governing artifacts loaded in Step 0>" \
   --acceptance "Design document converged with all required sections including concern-mandated sections; written to canonical path"
 ```
 
@@ -264,7 +264,7 @@ helix design auth
 helix design --rounds 8 FEAT-003
 ```
 
-### PHASE N+2 — DDx record results
+### ACTIVITY N+2 — DDx record results
 
 ```bash
 ddx bead update <id> --notes "<measure-results>...</measure-results>"

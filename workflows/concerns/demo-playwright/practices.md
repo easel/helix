@@ -1,6 +1,6 @@
 # Practices: demo-playwright
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 - Identify which user journeys need demo reels — prioritize the "first
   impression" experience (dashboard → search → create → verify)
 - Define the narrative arc: what should the viewer understand after watching?

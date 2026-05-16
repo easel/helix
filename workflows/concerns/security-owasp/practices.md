@@ -1,6 +1,6 @@
 # Practices: security-owasp
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 - Identify trust boundaries: where does data enter the system from untrusted sources?
 - Classify data sensitivity: what data requires encryption at rest or in transit?
 - Identify authentication model: who authenticates, how, and what are the session semantics?

@@ -1,6 +1,6 @@
 # Practices: Observability (OpenTelemetry)
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 
 - All services must define SLOs for availability and latency
 - Incident response requires structured logs and traces

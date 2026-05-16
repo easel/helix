@@ -13,7 +13,7 @@ ddx:
 The HELIX workflow uses a consistent artifact naming system that enables:
 - **Traceability**: Track artifacts from requirements to deployment
 - **Vertical Slicing**: Implement stories independently
-- **Parallel Development**: Multiple stories in different phases
+- **Parallel Development**: Multiple stories in different activities
 - **Clear Organization**: Predictable file locations
 
 The workflow also supports a project-level **Parking Lot** registry at
@@ -49,7 +49,7 @@ HELIX artifacts disagree, this is the canonical authority order:
 ### Notes
 
 - Feature specifications and user stories refine the PRD and remain above downstream design and implementation artifacts.
-- Tests govern Build phase execution because they are executable specifications, but they are still derived from Frame and Design artifacts.
+- Tests govern Build activity execution because they are executable specifications, but they are still derived from Frame and Design artifacts.
 - Source code must conform to higher-order artifacts; it does not redefine them.
 - Issues are not part of the canonical authority order. They are execution
   records derived from authoritative artifacts.
@@ -104,7 +104,7 @@ graph TD
 
 ## Story-Level Progression and Execution
 
-Each user story progresses through all phases independently:
+Each user story progresses through all activities independently:
 
 ### Naming Pattern
 Canonical story document artifacts use `{Prefix}-{Number}-{descriptive-name}.md`.
@@ -114,7 +114,7 @@ deploy issue remains not closed. Shared iterate outputs stay project- or
 iteration-level context, while tracker-backed follow-on work adds
 story-specific evidence when needed.
 
-### Phase Progression
+### Activity Progression
 ```
 Frame:   US-036-list-mcp-servers.md
 Design:  TD-036-list-mcp-servers.md
@@ -130,7 +130,7 @@ Context: `metrics-dashboard.md`, `security-metrics.md` (when relevant), and
 
 ### Artifact Descriptions
 
-| Surface | Artifact Type | Phase | Purpose |
+| Surface | Artifact Type | Activity | Purpose |
 |--------|--------------|-------|---------|
 | US | User Story | Frame | Defines WHAT needs to be built |
 | TD | Technical Design | Design | Details HOW to build it |
@@ -193,7 +193,7 @@ docs/
         ├── security-metrics.md        # Project-level
         ├── improvement-backlog.md     # Project-level
         ├── alignment-reviews/
-        │   └── AR-YYYY-MM-DD-*.md    # Cross-phase reconciliation reports
+        │   └── AR-YYYY-MM-DD-*.md    # Cross-activity reconciliation reports
         └── backfill-reports/
             └── BF-YYYY-MM-DD-*.md    # Research-first backfill reports
 ```
@@ -234,10 +234,10 @@ FEAT-001 → SD-001 → US-036 → TD-036 → STP-036 → build issue(s) → dep
 ## Naming Rules
 
 ### Consistency Rules
-1. **Number stays constant**: 036 throughout all phases
+1. **Number stays constant**: 036 throughout all activities
 2. **Name stays constant**: "list-mcp-servers" throughout
 3. **Only canonical story document prefixes change**: US → TD → STP
-4. **Build, Deploy, and Iterate use tracker issues and phase docs**: execution is tracked in the built-in tracker, and iterate outcomes land in canonical iterate outputs rather than a numbered HELIX story file
+4. **Build, Deploy, and Iterate use tracker issues and activity docs**: execution is tracked in the built-in tracker, and iterate outcomes land in canonical iterate outputs rather than a numbered HELIX story file
 
 ### Valid Examples
 ✅ `US-001-initialize-ddx.md`
@@ -332,7 +332,7 @@ Story Level:
   US-038-configure-mcp-server.md → ... → deploy issue(s) → all deploy issue(s) complete with no matching deploy issue remaining not closed + optional follow-on tracker work
 ```
 
-### Example 2: Story in Multiple Phases
+### Example 2: Story in Multiple Activities
 
 ```
 Monday:   Create US-041-user-authentication.md (FRAME)

@@ -14,7 +14,7 @@ reference-runtime appendix.
 
 - [README.md](README.md): high-level model, authority order, runtime boundary,
   and alignment methodology
-- `phases/*/artifacts/`: canonical artifact-type catalog, prompts, templates,
+- `activities/*/artifacts/`: canonical artifact-type catalog, prompts, templates,
   metadata, and examples
 - [reconcile-alignment.md](actions/reconcile-alignment.md): top-down review
 - [backfill-helix-docs.md](actions/backfill-helix-docs.md): conservative
@@ -28,9 +28,9 @@ reference-runtime appendix.
 - [metric-definition.yaml](templates/metric-definition.yaml): shared metric
   definitions
 
-## Phase Summary
+## Activity Summary
 
-| Phase | Primary Output | Main Location |
+| Activity | Primary Output | Main Location |
 |---|---|---|
 | Optional `00-discover` | vision and opportunity framing | `docs/helix/00-discover/` |
 | `01-frame` | requirements and stories | `docs/helix/01-frame/` |
@@ -96,13 +96,13 @@ Use these as capability names regardless of runtime:
 
 Use the prompts and templates under the package's shared workflow root:
 
-- `phases/00-discover/artifacts/`
-- `phases/01-frame/artifacts/`
-- `phases/02-design/artifacts/`
-- `phases/03-test/artifacts/`
-- `phases/04-build/artifacts/`
-- `phases/05-deploy/artifacts/`
-- `phases/06-iterate/artifacts/`
+- `activities/00-discover/artifacts/`
+- `activities/01-frame/artifacts/`
+- `activities/02-design/artifacts/`
+- `activities/03-test/artifacts/`
+- `activities/04-build/artifacts/`
+- `activities/05-deploy/artifacts/`
+- `activities/06-iterate/artifacts/`
 
 These artifact directories support canonical project docs under `docs/helix/`.
 They are the portable HELIX shape; runtime queue mechanics are integration
@@ -232,7 +232,7 @@ required by every runtime and are not part of the portable HELIX methodology.
 Recommended DDx labels:
 
 - `helix` identifies HELIX-managed issues in a DDx tracker.
-- Phase labels: `phase:frame`, `phase:design`, `phase:test`, `phase:build`,
+- Activity labels: `phase:frame`, `phase:design`, `phase:test`, `phase:build`,
   `phase:deploy`, `phase:iterate`, `phase:review`.
 - Kind labels: `kind:build`, `kind:deploy`, `kind:backlog`, `kind:review`.
 - Traceability labels: `story:US-XXX`, `feature:FEAT-XXX`, `area:<name>`,

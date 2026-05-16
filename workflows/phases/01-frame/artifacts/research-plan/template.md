@@ -46,7 +46,7 @@ ddx:
 
 ## Timeline
 
-| Phase | Duration | Activities | Deliverables |
+| Activity | Duration | Activities | Deliverables |
 |-------|----------|------------|--------------|
 | Planning | | Define scope, recruit | Plan approved |
 | Investigation | | Execute methods | Raw data |

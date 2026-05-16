@@ -16,19 +16,19 @@ justification.
 Ratchets operationalize three existing HELIX commitments:
 
 - **Continuous Validation**: "Tests checked for coverage and quality" — ratchets
-  make this check quantitative and persistent. (Enforced by the Build phase
+  make this check quantitative and persistent. (Enforced by the Build activity
   enforcer exit gate.)
-- **Build Phase Exit Gate**: "Coverage targets met" and "Performance targets
+- **Build Activity Exit Gate**: "Coverage targets met" and "Performance targets
   met" — ratchets define *how* those targets are tracked and prevented from
   regressing.
 - **Feedback Integration**: "Metrics inform requirement updates" — ratchet
-  trends are iterate-phase inputs that feed back into the next cycle. (Enforced
-  by the Iterate phase enforcer.)
+  trends are iterate-activity inputs that feed back into the next cycle. (Enforced
+  by the Iterate activity enforcer.)
 
 ## Scope Boundary
 
 This document defines the ratchet *pattern* — what it is, how it works, and
-where it connects to HELIX phases and actions. It does not ship enforcement
+where it connects to HELIX activities and actions. It does not ship enforcement
 scripts or fixture files. Those belong in the adopting project because the
 measurement tools, languages, and thresholds are project-specific.
 
@@ -103,7 +103,7 @@ HELIX recognizes three ratchet types. A project may adopt any combination.
 
 **What it measures**: the ratio of acceptance criteria classified as SATISFIED
 to total active criteria, as determined by the reconcile-alignment action's
-Phase 3 (Acceptance Criteria Validation).
+Step 3 (Acceptance Criteria Validation).
 
 **How it connects to HELIX**: reconcile-alignment already classifies each
 criterion as SATISFIED, TESTED_NOT_PASSING, UNTESTED, or UNIMPLEMENTED. The
@@ -131,7 +131,7 @@ the same commit to maintain traceability.
 **What it measures**: source-line coverage percentage (or equivalent) produced
 by the project's test suite.
 
-**How it connects to HELIX**: the Build phase enforcer requires "coverage
+**How it connects to HELIX**: the Build activity enforcer requires "coverage
 targets met" as an exit gate. The ratchet defines what the target is, prevents
 it from regressing, and auto-bumps it when coverage improves.
 
@@ -150,7 +150,7 @@ from becoming a ceiling.
 quantitative ratios or absolute values (e.g., I/O efficiency ratios, p99
 latency, throughput).
 
-**How it connects to HELIX**: the Build phase enforcer requires "performance
+**How it connects to HELIX**: the Build activity enforcer requires "performance
 targets met" as an exit gate. The ratchet provides the targets and prevents
 them from regressing.
 
@@ -164,45 +164,45 @@ different hardware.
 an empty performance ratchet fixture. Introduce it only when the project
 defines concrete metrics to track.
 
-## Integration with HELIX Phases and Actions
+## Integration with HELIX Activities and Actions
 
 ### Implementation Action
 
-- **Phase 0 (Bootstrap)**: load ratchet floor fixtures from the project if they
+- **Step 0 (Bootstrap)**: load ratchet floor fixtures from the project if they
   exist, alongside other project quality gates.
-- **Phase 7 (Verification)**: run ratchet enforcement commands as part of
+- **Step 7 (Verification)**: run ratchet enforcement commands as part of
   verification. A ratchet failure blocks issue closure. If the measured value
   exceeds the auto-bump threshold, update the floor fixture and include the
   change in the issue commit.
 
 ### Check Action
 
-- **Phase 2 (Artifact Health)**: report ratchet status (current measured value
+- **Step 2 (Artifact Health)**: report ratchet status (current measured value
   vs. floor, trend direction) as part of the artifact-health assessment. A
   ratchet that is trending downward toward the floor is a signal worth
   surfacing even if it has not yet failed.
 
 ### Reconcile-Alignment Action
 
-- **Phase 3 (Acceptance Criteria Validation)**: the acceptance criteria
-  classification that this phase already performs is the measurement input for
+- **Step 3 (Acceptance Criteria Validation)**: the acceptance criteria
+  classification that this activity already performs is the measurement input for
   the acceptance criteria ratchet. When a ratchet floor fixture exists,
   compare the current satisfaction count against the floor and flag any
   regression.
-- **Phase 7 (Execution Issues)**: if a ratchet regression is detected, create
+- **Step 7 (Execution Issues)**: if a ratchet regression is detected, create
   a regression issue that references the specific criteria or metrics that
   dropped below the floor.
 
-### Build Phase Enforcer
+### Build Activity Enforcer
 
 The existing exit requirements "coverage targets met" and "performance targets
 met" are enforced through the ratchet mechanism when the project has adopted
 coverage or performance ratchets. The floor fixture defines the target; the
 enforcement script validates it.
 
-### Iterate Phase
+### Iterate Activity
 
-Ratchet floor trends are iterate-phase metrics. The iterate phase should:
+Ratchet floor trends are iterate-activity metrics. The iterate activity should:
 
 - compare current floors to floors at the start of the cycle
 - include floor deltas in the canonical iterate outputs (`metrics-dashboard`

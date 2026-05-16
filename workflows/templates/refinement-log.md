@@ -10,7 +10,7 @@
 
 {{BRIEF_DESCRIPTION}}
 
-**Affected Phases**: {{AFFECTED_PHASES}} <!-- frame|design|test|build|deploy|iterate -->
+**Affected Activities**: {{AFFECTED_PHASES}} <!-- frame|design|test|build|deploy|iterate -->
 
 ## Original State
 
@@ -47,9 +47,9 @@
 **Impact**: code: {{code_changes}}; tests: {{test_updates}}; effort: {{effort_estimate}}
 {{/each}}
 
-## Phase Updates
+## Activity Updates
 
-| Phase | Changes |
+| Activity | Changes |
 |-------|---------|
 | Frame | {{#each story_modifications}}{{section_name}}: {{change_type}} — {{updated_content}}; {{/each}} |
 | Design | {{#each architecture_changes}}{{component_name}}: {{change_description}}; {{/each}} |

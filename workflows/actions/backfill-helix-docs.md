@@ -153,7 +153,7 @@ Use these stages in order:
 Do not draft canonical docs before the inventory pass and at least one leaf
 evidence extraction pass are complete for the relevant scope.
 
-## PHASE 0 - Scope and Baseline
+## STEP 0 - Scope and Baseline
 
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
@@ -166,7 +166,7 @@ evidence extraction pass are complete for the relevant scope.
    linters, formatters, test frameworks, CI config) and match them against
    available concerns in the runtime's concern library. Include `concerns.md`
    creation as part of the backfill output — propose active concerns and project
-   overrides based on the evidence discovered during Phase 1 research. Concern
+   overrides based on the evidence discovered during Step 1 research. Concern
    selection requires user confirmation before canonization (treat as a guidance
    gate).
 1. Determine the backfill scope.
@@ -218,13 +218,13 @@ The only acceptable non-complete outcomes are:
 Never end by telling the user to rerun the action in a different session unless
 you actually attempted the command that failed.
 
-## PHASE 0.5 - Work Item Acquisition
+## STEP 0.5 - Work Item Acquisition
 
 Before modifying any files or creating tracker work items, acquire a governing
 work item for this backfill pass. See the runtime's work-item acquisition
 reference for the full pattern.
 
-## PHASE 1 - Current-State Research
+## STEP 1 - Current-State Research
 
 Research the current system aggressively before drafting docs.
 
@@ -254,7 +254,7 @@ Produce:
 - leaf review notes for every reviewed file-set
 - folder/domain consolidation notes for every non-leaf review node
 
-At this phase, separate:
+At this activity, separate:
 
 - direct evidence
 - strong inference
@@ -262,7 +262,7 @@ At this phase, separate:
 
 Do not write canonical artifacts yet unless confidence is already high.
 
-## PHASE 2 - Canonical Mapping
+## STEP 2 - Canonical Mapping
 
 Map evidence into the HELIX artifact structure.
 
@@ -289,7 +289,7 @@ Do not mark a domain as ready for drafting until:
 - its coverage ledger is complete
 - its local contradictions and ambiguities are logged
 
-## PHASE 3 - Guidance Gates
+## STEP 3 - Guidance Gates
 
 Ask the user for guidance after local research is exhausted and before writing
 low-confidence canonical content.
@@ -316,7 +316,7 @@ Keep questions short and grouped by decision area.
 If a guidance gate affects a whole subtree, pause drafting for that subtree and
 continue elsewhere where confidence is sufficient.
 
-## PHASE 4 - Draft Backfill Artifacts
+## STEP 4 - Draft Backfill Artifacts
 
 Create or update canonical HELIX artifacts from highest authority downward.
 
@@ -343,7 +343,7 @@ Expected outputs may include:
 
 Only create the artifacts justified by the scope and evidence.
 
-When backfilling `concerns.md`, use the evidence from Phase 1 research to:
+When backfilling `concerns.md`, use the evidence from Step 1 research to:
 
 1. Match the project's observed tooling to library concerns.
 2. Document project-specific overrides for any deviations from the library
@@ -358,7 +358,7 @@ Where scope is large, draft in the same order as the consolidation tree:
 - then area summaries
 - then cross-area canonical artifacts
 
-## PHASE 5 - Assumption Ledger
+## STEP 5 - Assumption Ledger
 
 Record every inferred or unresolved item in the backfill report.
 
@@ -373,7 +373,7 @@ For each item include:
 
 If a low-confidence item blocks canonical drafting, stop and ask the user.
 
-## PHASE 6 - Consistency Pass
+## STEP 6 - Consistency Pass
 
 After drafting:
 
@@ -395,7 +395,7 @@ Backfill is not complete until:
 - no canonical artifact was drafted from unresolved low-confidence assumptions
 - all remaining ambiguity is captured as guidance gates or follow-up issues
 
-## PHASE 7 - Durable Backfill Report
+## STEP 7 - Durable Backfill Report
 
 Create or update the durable report at:
 
@@ -415,7 +415,7 @@ The report must capture:
 - required user guidance
 - follow-up work
 
-## PHASE 8 - Follow-Up Issues
+## STEP 8 - Follow-Up Issues
 
 Create or update follow-up execution issues only after the backfill report
 exists.
@@ -462,12 +462,12 @@ Produce these sections in order:
 
 Be precise, evidence-driven, and conservative about canonizing uncertain intent.
 
-## PHASE 9 - Measure
+## STEP 9 - Measure
 
 Verify the backfill against the governing bead's acceptance criteria.
 See `.ddx/plugins/helix/workflows/references/measure.md` for the full pattern.
 
-1. **Artifact completeness**: All missing artifacts identified in Phase 2 have
+1. **Artifact completeness**: All missing artifacts identified in Step 2 have
    been created or explicitly deferred with rationale.
 2. **Consistency**: Backfilled artifacts are consistent with each other and
    with higher-authority existing artifacts.
@@ -476,7 +476,7 @@ See `.ddx/plugins/helix/workflows/references/measure.md` for the full pattern.
 4. **Assumption ledger**: All inferred items are recorded with confidence levels.
 5. **Record results** on the governing work item via the runtime tracker.
 
-## PHASE 10 - Report
+## STEP 10 - Report
 
 Close the backfill cycle and feed back into the planning cycle. See the
 report action for the full pattern.
@@ -484,7 +484,7 @@ report action for the full pattern.
 1. If measurement passed, close the governing work item with evidence summary.
 2. If low-confidence items remain, create follow-on work items labeled
    `kind:planning` for guidance-dependent work.
-3. The follow-up items created in Phase 8 re-enter the planning cycle.
+3. The follow-up items created in Step 8 re-enter the planning cycle.
 
 After those sections, emit this machine-readable trailer exactly:
 
@@ -501,7 +501,7 @@ FOLLOW_ON_CREATED: N
 
 This appendix applies when DDx is the active HELIX runtime.
 
-### PHASE 0 — DDx bootstrap
+### STEP 0 — DDx bootstrap
 
 ```bash
 ddx bead status  # stop immediately if this fails
@@ -512,7 +512,7 @@ Use `ddx bead` output as the authoritative queue source for the run.
 Load concerns from `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
 Match observed tooling against concerns in `.ddx/plugins/helix/workflows/concerns/`.
 
-### PHASE 0.5 — DDx bead acquisition
+### STEP 0.5 — DDx bead acquisition
 
 ```bash
 ddx bead list --status open --label kind:planning,action:backfill --json
@@ -525,14 +525,14 @@ ddx bead create "backfill: <scope description>" \
   --labels helix,kind:planning,action:backfill \
   --description "<context-digest>...</context-digest>
 Reconstruct missing HELIX artifacts for <scope>.
-Existing coverage: <summary from Phase 0 inventory>" \
+Existing coverage: <summary from Step 0 inventory>" \
   --acceptance "Missing artifacts reconstructed with evidence; assumption ledger complete; follow-up issues created for guidance-dependent items"
 ```
 
 Record the bead ID. All subsequent file modifications and tracker changes are
 governed by this bead.
 
-### PHASE 0 — DDx tracker commands
+### STEP 0 — DDx tracker commands
 
 ```bash
 ddx bead ready
@@ -540,7 +540,7 @@ ddx bead show <id>
 ddx bead list --status open --json
 ```
 
-### PHASE 8 — DDx follow-up issues
+### STEP 8 — DDx follow-up issues
 
 ```bash
 ddx bead dep add <blocked-id> <blocking-id>

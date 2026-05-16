@@ -16,7 +16,7 @@ You may receive:
 - a work item ID — review all changes associated with that item
 - a file list — review those specific files
 
-## PHASE 0 - Identify Review Target
+## STEP 0 - Identify Review Target
 
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
@@ -40,7 +40,7 @@ You may receive:
 2. Load the governing artifacts for the reviewed code (acceptance criteria,
    test plans, design docs).
 
-## PHASE 0.5 - Work Item Acquisition
+## STEP 0.5 - Work Item Acquisition
 
 Before performing review passes, acquire a governing work item for this
 review. See the runtime's work-item acquisition reference for the full
@@ -88,7 +88,7 @@ For every changed test:
 
 ### Concern-Specific Practices
 
-For each active concern loaded in Phase 0b, verify the changes follow
+For each active concern loaded in Activity 0b, verify the changes follow
 the concern's declared practices:
 
 1. **Tech-stack concerns**: Does the code use the declared linter, formatter,
@@ -235,7 +235,7 @@ FOLLOW_ON_CREATED: N
 
 This appendix applies when DDx is the active HELIX runtime.
 
-### PHASE 0 — DDx references
+### STEP 0 — DDx references
 
 - Principles: `.ddx/plugins/helix/workflows/references/principles-resolution.md`
 - Concerns: `.ddx/plugins/helix/workflows/references/concern-resolution.md`
@@ -247,7 +247,7 @@ In the automated execution loop, prefer `commit:<sha>` from the executed
 bead's `closing_commit_sha` when tracker-closure bookkeeping produced a newer
 tracker-only commit after the implementation commit.
 
-### PHASE 0.5 — DDx bead acquisition
+### STEP 0.5 — DDx bead acquisition
 
 ```bash
 ddx bead list --status open --label kind:planning,action:review --json

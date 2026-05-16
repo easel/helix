@@ -17,7 +17,7 @@ Read these files in order when you need the canonical contract:
 
 1. [README.md](README.md) — high-level model, authority order, and runtime
    boundary
-2. [REFERENCE.md](REFERENCE.md) — phase summary, methodology actions, and
+2. [REFERENCE.md](REFERENCE.md) — activity summary, methodology actions, and
    decision guide
 3. [conventions.md](conventions.md) — documentation layout and naming
 4. The runtime integration appendix for your runtime (see [DDX.md](DDX.md) for
@@ -33,7 +33,7 @@ Use the bounded action prompts only when you are doing the corresponding work:
 ## Build The Canonical Planning Stack
 
 Prompts and templates live under
-`.ddx/plugins/helix/workflows/phases/<phase>/artifacts/` when HELIX is installed
+`.ddx/plugins/helix/workflows/phases/<activity>/artifacts/` when HELIX is installed
 as a DDx plugin. Other runtimes may resolve the same content from their own
 package layout. Use them to draft or refine the canonical docs under
 `docs/helix/`.
@@ -66,7 +66,7 @@ should:
 - use the runtime's native issue types and dependencies
 - cite the governing canonical docs (e.g. via `spec-id` or the issue
   description)
-- carry at least one phase label (`phase:build`, `phase:deploy`, etc.) when the
+- carry at least one activity label (`phase:build`, `phase:deploy`, etc.) when the
   runtime supports labels
 - stay small enough to close independently
 
@@ -97,7 +97,7 @@ Execution rules:
 ## Common Next Steps
 
 - Need artifact structure or naming rules:
-  Read [conventions.md](conventions.md) and the relevant phase README.
+  Read [conventions.md](conventions.md) and the relevant activity README.
 - Need queue behavior:
   See the runtime integration appendix.
 - Need a top-down audit:

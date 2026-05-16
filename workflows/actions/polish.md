@@ -25,7 +25,7 @@ You may receive:
 - a scope such as `auth`, `FEAT-003`, `phase:build`
 - `--rounds N` controlling maximum refinement passes (default: 6)
 
-## PHASE 0 - Load Current State
+## STEP 0 - Load Current State
 
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
@@ -48,15 +48,15 @@ You may receive:
    - Check other planning artifacts (PRD, feature specs, architecture docs)
 4. Record initial item count and state as the baseline.
 
-## PHASE 0.5 - Work Item Acquisition
+## STEP 0.5 - Work Item Acquisition
 
 Before modifying any work items, acquire a governing work item for this polish
 pass to record progress and govern changes. See the runtime's work-item
 acquisition reference for the full pattern.
 
-## PHASE 1 - Plan Decomposition
+## STEP 1 - Plan Decomposition
 
-**This phase runs first and is mandatory when a plan exists.** Plans must be
+**This activity runs first and is mandatory when a plan exists.** Plans must be
 decomposed into tracker beads before refinement or implementation can proceed.
 
 1. Locate the governing plan documents for the scope:
@@ -84,7 +84,7 @@ decomposed into tracker beads before refinement or implementation can proceed.
 Only after decomposition is complete (or confirmed already done) should
 refinement passes begin.
 
-## PHASE 2 through N - Refinement Passes
+## STEP 2 through N - Refinement Passes
 
 Each pass performs ALL of the following checks. Track changes made per pass.
 
@@ -149,7 +149,7 @@ Each pass performs ALL of the following checks. Track changes made per pass.
 ### Label Hygiene
 
 - Ensure every issue has the `helix` label.
-- Ensure every issue has exactly one phase label (`phase:build`, `phase:deploy`,
+- Ensure every issue has exactly one activity label (`phase:build`, `phase:deploy`,
   or `phase:iterate`).
 - Ensure area labels are present where applicable.
 - Ensure `kind:*` labels match the issue's actual type.
@@ -208,7 +208,7 @@ scope:
 ## Convergence Detection
 
 Track a change count per round: number of issues modified, created, or merged.
-Decomposition (Phase 1) does not count toward convergence — it is a one-time
+Decomposition (Step 1) does not count toward convergence — it is a one-time
 setup step, not an iterative pass.
 
 When change count drops below 3 for two consecutive refinement rounds, declare
@@ -217,7 +217,7 @@ convergence and stop refinement.
 If max rounds is reached without convergence, report the current state and
 recommend additional rounds or user guidance.
 
-## PHASE N+1 - Measure
+## ACTIVITY N+1 - Measure
 
 Verify the polish pass against the governing bead's acceptance criteria.
 See `.ddx/plugins/helix/workflows/references/measure.md` for the full pattern.
@@ -230,7 +230,7 @@ See `.ddx/plugins/helix/workflows/references/measure.md` for the full pattern.
    resolve to existing artifacts.
 5. **Record results** on the governing work item via the runtime tracker.
 
-## PHASE N+2 - Report
+## ACTIVITY N+2 - Report
 
 Close the polish cycle and feed back into the planning cycle. See the report
 action for the full pattern.
@@ -272,7 +272,7 @@ FOLLOW_ON_CREATED: N
 
 This appendix applies when DDx is the active HELIX runtime.
 
-### PHASE 0 — DDx bootstrap
+### STEP 0 — DDx bootstrap
 
 ```bash
 ddx bead status  # stop immediately if this fails
@@ -288,7 +288,7 @@ ddx bead list --status open --json
 ddx bead list --status in_progress --json
 ```
 
-### PHASE 0.5 — DDx bead acquisition
+### STEP 0.5 — DDx bead acquisition
 
 ```bash
 ddx bead list --status open --label kind:planning,action:polish --json
@@ -302,15 +302,15 @@ ddx bead create "polish: <scope description>" \
   --set spec-id=<governing-plan-if-known> \
   --description "<context-digest>...</context-digest>
 Decompose plans and refine beads for <scope>.
-Plans to decompose: <list plan docs found in Phase 0>" \
+Plans to decompose: <list plan docs found in Step 0>" \
   --acceptance "All plans in scope decomposed into beads; convergence reached (< 3 changes for 2 consecutive rounds); context digests refreshed; concern-appropriate acceptance criteria on all beads"
 ```
 
-### PHASE 1 — DDx decomposition
+### STEP 1 — DDx decomposition
 
 Wire dependencies with `ddx bead dep add` based on the plan's dependency graph.
 
-### PHASE N+1 — DDx measure
+### ACTIVITY N+1 — DDx measure
 
 ```bash
 ddx bead update <id> --notes "<measure-results>...</measure-results>"

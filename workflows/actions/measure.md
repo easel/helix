@@ -4,7 +4,7 @@ You are performing standalone measurement of one or more work items against
 their acceptance criteria, concern-declared quality gates, and ratchet
 enforcement.
 
-This action can be invoked standalone or runs as an embedded phase within
+This action can be invoked standalone or runs as an embedded activity within
 other actions. When standalone, it reads the work item's acceptance criteria
 and runs verification without re-executing the work.
 
@@ -29,7 +29,7 @@ When artifacts disagree, use this order:
 7. Implementation Plans
 8. Source Code / Build Artifacts
 
-## PHASE 0 - Bootstrap
+## STEP 0 - Bootstrap
 
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory.
@@ -38,7 +38,7 @@ When artifacts disagree, use this order:
    reference for this runtime.
 3. Load ratchet floor fixtures if the project has adopted quality ratchets.
 
-## PHASE 1 - Target Selection
+## STEP 1 - Target Selection
 
 1. If an explicit work item ID is given, load that item.
 2. If a scope is given, load all items in scope that have been executed
@@ -49,7 +49,7 @@ When artifacts disagree, use this order:
    - Context digest (if present)
    - Previous measurement results (if any, for comparison)
 
-## PHASE 2 - Acceptance Criteria Verification
+## STEP 2 - Acceptance Criteria Verification
 
 For each target work item, verify every acceptance criterion:
 
@@ -64,7 +64,7 @@ For each target work item, verify every acceptance criterion:
 4. If acceptance scripts exist (`scripts/check-acceptance-traceability.sh`,
    `scripts/check-acceptance-coverage.sh`), run them.
 
-## PHASE 3 - Concern-Declared Quality Gates
+## STEP 3 - Concern-Declared Quality Gates
 
 For each target work item:
 
@@ -77,7 +77,7 @@ For each target work item:
 5. Use project overrides from `docs/helix/01-frame/concerns.md` when they
    specify alternative commands.
 
-## PHASE 4 - Ratchet Enforcement
+## STEP 4 - Ratchet Enforcement
 
 If the project has adopted quality ratchets:
 
@@ -85,7 +85,7 @@ If the project has adopted quality ratchets:
 2. Record measured value vs. floor.
 3. If auto-bump is triggered, note the updated floor value.
 
-## PHASE 5 - Concern Propagation Check
+## STEP 5 - Concern Propagation Check
 
 Verify that the bead's context digest includes all active concerns for its
 area scope:
@@ -95,7 +95,7 @@ area scope:
    flag it.
 3. Record propagation status.
 
-## PHASE 6 - Record Results
+## STEP 6 - Record Results
 
 Record measurement results on the work item via the runtime tracker. The
 result record should capture:
@@ -147,7 +147,7 @@ Be precise, quantitative, and evidence-driven.
 
 This appendix applies when DDx is the active HELIX runtime.
 
-### PHASE 0 — DDx bootstrap
+### STEP 0 — DDx bootstrap
 
 ```bash
 ddx bead status  # stop immediately if this fails
@@ -156,7 +156,7 @@ ddx bead status  # stop immediately if this fails
 Load concerns following `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
 Load ratchet floor fixtures from `.ddx/plugins/helix/workflows/ratchets.md` if adopted.
 
-### PHASE 1 — DDx target selection
+### STEP 1 — DDx target selection
 
 - If an explicit bead ID is given: `ddx bead show <id> --json`
 - If a scope: `ddx bead list --status in_progress --label <scope> --json`
@@ -164,7 +164,7 @@ Load ratchet floor fixtures from `.ddx/plugins/helix/workflows/ratchets.md` if a
 For each target bead, load the `<measure-results>` block from its notes for
 comparison.
 
-### PHASE 6 — DDx record results
+### STEP 6 — DDx record results
 
 ```bash
 ddx bead update <id> --notes "<measure-results>

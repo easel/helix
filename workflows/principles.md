@@ -14,7 +14,7 @@ at `docs/helix/01-frame/principles.md`. When no project file exists, HELIX loads
 these defaults.
 
 Principles guide decisions; they are not workflow rules. Process enforcement
-belongs in phase enforcers and ratchets.
+belongs in activity enforcers and ratchets.
 
 ## Principles
 

@@ -17,7 +17,7 @@ Use this local resource summary as grounding:
 ## Role Boundary
 
 Validation Checklist is not a replacement for PRD review, risk review, or
-stakeholder review. It is the final Frame phase gate: it records whether the
+stakeholder review. It is the final Frame activity gate: it records whether the
 required artifacts are coherent enough for Design and what conditions remain.
 
 ## Completion Criteria

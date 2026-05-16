@@ -1,10 +1,10 @@
-# Phase 00: Discover
+# Activity 00: Discover
 
 Validate ideas and opportunities before committing to Frame.
 
 ## Purpose
 
-The Discover phase is a **pre-commitment checkpoint** where ideas are evaluated for viability, market fit, and strategic alignment. This phase prevents wasted effort by validating opportunities before investing in detailed requirements.
+The Discover activity is a **pre-commitment checkpoint** where ideas are evaluated for viability, market fit, and strategic alignment. This activity prevents wasted effort by validating opportunities before investing in detailed requirements.
 
 ## When to Use Discover
 
@@ -19,7 +19,7 @@ The Discover phase is a **pre-commitment checkpoint** where ideas are evaluated 
 
 ## Input Gates
 
-Prerequisites to enter this phase:
+Prerequisites to enter this activity:
 - **Idea or opportunity identified**: A potential solution, market gap, or user need
 - **Sponsor commitment**: Someone willing to champion the investigation
 
@@ -78,7 +78,7 @@ Discover is complete when:
 4. **Problem validation**: Customer pain points are confirmed
 5. **Decision made**: Clear go/pivot/no-go with rationale
 
-## Next Phase: Frame
+## Next Activity: Frame
 
 Once Discover validates the opportunity, proceed to Frame where you will:
 - Define detailed requirements (PRD)

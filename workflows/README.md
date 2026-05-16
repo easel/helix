@@ -30,7 +30,7 @@ agent invocation, review handoffs, and status reporting.
 
 DDx is the current reference runtime and preserves the most complete operational
 integration. Other runtimes can use HELIX without adopting DDx if they honor the
-artifact authority order, phase gates, and alignment methodology described here.
+artifact authority order, activity gates, and alignment methodology described here.
 
 ## Normative Methodology Contract
 
@@ -41,7 +41,7 @@ contract:
   boundary
 - [DDX.md](DDX.md) for historical methodology background and the DDx reference
   integration model
-- `phases/*/artifacts/` for the canonical artifact-type catalog, prompts,
+- `activities/*/artifacts/` for the canonical artifact-type catalog, prompts,
   templates, metadata, and examples
 - [reconcile-alignment.md](actions/reconcile-alignment.md) for top-down
   reconciliation across the artifact stack
@@ -52,7 +52,7 @@ contract:
 - [metric-definition.yaml](templates/metric-definition.yaml) for shared metric
   definitions referenced by ratchets, experiments, and monitoring
 
-Supporting action prompts, phase guides, diagrams, and examples are explanatory
+Supporting action prompts, activity guides, diagrams, and examples are explanatory
 unless this file explicitly names them as part of the normative contract. If a
 supporting document conflicts with the authority order or artifact catalog,
 follow the higher-authority document and update the stale support document.
@@ -70,7 +70,7 @@ HELIX work moves through a repeatable artifact loop:
 5. **Deploy** with rollout, monitoring, and recovery evidence.
 6. **Iterate** by recording measurements, review findings, and follow-up work.
 
-The optional **Discover** phase can precede Frame when the opportunity itself
+The optional **Discover** activity can precede Frame when the opportunity itself
 needs validation before requirements are committed.
 
 ```mermaid
@@ -86,7 +86,7 @@ graph TB
     end
 ```
 
-## Phases
+## Activities
 
 0. **Discover** (optional) - Validate the opportunity before committing to Frame.
 1. **Frame** - Define the problem, users, product requirements, principles, and
@@ -101,7 +101,7 @@ graph TB
 
 ## Input Gates
 
-Each phase after Frame has input gates that validate the previous phase's
+Each activity after Frame has input gates that validate the previous activity's
 outputs before allowing progression:
 
 - **Design** cannot start until Frame outputs are coherent enough to govern it.
@@ -135,10 +135,10 @@ solution design.
 ## Conflict Resolution Rules
 
 - Higher-order artifacts govern lower-order artifacts.
-- Tests are executable specifications for the Build phase: code must satisfy
+- Tests are executable specifications for the Build activity: code must satisfy
   tests, not the other way around.
 - Tests do not override upstream requirements or design. If tests conflict with
-  higher-order artifacts, return to the earlier phase and fix the inconsistency
+  higher-order artifacts, return to the earlier activity and fix the inconsistency
   there.
 - Source code is evidence of implementation, not the source of truth for
   requirements, design, or behavior.
@@ -236,7 +236,7 @@ AI agent responsibilities:
 
 ## Security Integration
 
-HELIX integrates security practices throughout every phase, following DevSecOps
+HELIX integrates security practices throughout every activity, following DevSecOps
 principles to ensure security is built in rather than bolted on.
 
 Security-first approach:
@@ -264,10 +264,10 @@ HELIX addresses these problems through:
 1. **Specification-first development**: requirements become executable checks.
 2. **Built-in quality**: tests and acceptance evidence are defined before work is
    treated as complete.
-3. **Clear gates**: later phases inherit authority from earlier phases instead
+3. **Clear gates**: later activities inherit authority from earlier activities instead
    of replacing it.
 4. **Human-AI synergy**: collaboration boundaries are explicit.
-5. **Security integration**: security is woven through every phase.
+5. **Security integration**: security is woven through every activity.
 
 ## When to Use HELIX
 
@@ -301,7 +301,7 @@ implementation because:
 
 ## The TDD Cycle
 
-Within the Test and Build phases, HELIX follows the Red-Green-Refactor cycle:
+Within the Test and Build activities, HELIX follows the Red-Green-Refactor cycle:
 
 1. **Red**: write a failing test or acceptance check that defines desired
    behavior.
@@ -312,10 +312,10 @@ Within the Test and Build phases, HELIX follows the Red-Green-Refactor cycle:
 
 To use HELIX in any runtime:
 
-1. Start with the artifact catalog under `phases/*/artifacts/` in the HELIX
+1. Start with the artifact catalog under `activities/*/artifacts/` in the HELIX
    content package.
 2. Create or update the highest-authority artifact that governs the work.
-3. Move downward through the phase gates until a bounded implementation slice is
+3. Move downward through the activity gates until a bounded implementation slice is
    authorized.
 4. Have your runtime execute that slice and record evidence.
 5. Run alignment when artifacts, runtime state, or public documentation appear to
@@ -329,9 +329,9 @@ DDx is documented below as the current reference runtime.
 - [Quick Start Guide](QUICKSTART.md): getting started with HELIX concepts
 - [Visual Diagrams](diagrams/): workflow and artifact visualizations
 - [Reference Card](REFERENCE.md): quick lookup for actions and concepts
-- [Phase Guides](phases/): deep dive into each phase
+- [Activity Guides](activities/): deep dive into each activity
 - [Artifact Prompt Roots](REFERENCE.md): canonical prompt and template
-  directories by phase
+  directories by activity
 
 ## DDx Reference-Runtime Appendix
 

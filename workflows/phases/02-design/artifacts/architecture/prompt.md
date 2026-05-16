@@ -6,7 +6,7 @@ operate, and evolve the system.
 ## Purpose
 
 Architecture is the **highest-authority structural artifact** in the Design
-phase. Its unique job is to describe the durable system shape: boundaries,
+activity. Its unique job is to describe the durable system shape: boundaries,
 containers, externally visible integrations, deployment topology, critical data
 flows, quality attributes, and structural tradeoffs.
 

@@ -61,9 +61,9 @@ Use two issue categories:
 
 Only after consolidation, create execution issues for approved follow-up work.
 Execution issues must use tracker IDs, `parent`, `deps`, `spec-id`, and
-HELIX labels appropriate to the work phase.
+HELIX labels appropriate to the work activity.
 
-## PHASE 0 - Review Bootstrap
+## STEP 0 - Review Bootstrap
 
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
@@ -108,7 +108,7 @@ HELIX labels appropriate to the work phase.
    changed finding). This prevents repeated alignment reruns from bloating
    tracker records with duplicate evidence paragraphs.
 
-## PHASE 0.5 - Work Item Acquisition
+## STEP 0.5 - Work Item Acquisition
 
 Before modifying any tracker work items or writing reports, acquire a governing
 work item for this alignment pass. See the runtime's work-item acquisition
@@ -122,7 +122,7 @@ Whenever this action creates or materially updates a work item's description,
 assemble or refresh its context digest. If the runtime provides a digest-refresh
 helper, use it so digests and area labels stay deterministic.
 
-## PHASE 1 - Reconstruct Intent
+## STEP 1 - Reconstruct Intent
 
 Using planning artifacts only, summarize:
 
@@ -136,9 +136,9 @@ Using planning artifacts only, summarize:
 - test plans
 - implementation plans
 
-Do not use source code to fill planning gaps in this phase.
+Do not use source code to fill planning gaps in this activity.
 
-## PHASE 2 - Planning Stack Consistency
+## STEP 2 - Planning Stack Consistency
 
 Validate traceability as a dependency graph, not a forced linear chain.
 
@@ -163,7 +163,7 @@ Identify:
   frameworks, quality gates, or conventions that conflict with the active
   concerns and their merged practices
 
-## PHASE 3 - Implementation Review
+## STEP 3 - Implementation Review
 
 Inspect implementation and map it to the planning stack.
 
@@ -220,7 +220,7 @@ For each user story and feature spec in the reviewed scope:
    — a decrease in SATISFIED criteria that was not accompanied by a floor
    override.
 
-## PHASE 4 - Gap Classification
+## STEP 4 - Gap Classification
 
 For each relevant area, assign exactly one classification:
 
@@ -255,10 +255,10 @@ For each area classified as ALIGNED or INCOMPLETE, evaluate:
 
 Quality concerns do not change the gap classification. Instead, record them as
 supplementary findings in the Gap Register with resolution direction
-`quality-improvement` and create backlog-type execution issues in Phase 7 when
+`quality-improvement` and create backlog-type execution issues in Step 7 when
 warranted.
 
-## PHASE 5 - Traceability Matrix
+## STEP 5 - Traceability Matrix
 
 Produce a matrix with:
 
@@ -272,7 +272,7 @@ Produce a matrix with:
 - Code status
 - Classification
 
-## PHASE 6 - Consolidated Report
+## STEP 6 - Consolidated Report
 
 Create or update the durable report at:
 
@@ -285,7 +285,7 @@ the alignment-review template in the runtime's templates directory.
 The report must consolidate all review items into one coherent repo artifact.
 It is the durable output of the review run.
 
-## PHASE 7 - Execution Work Items
+## STEP 7 - Execution Work Items
 
 After consolidation, create or update deterministic execution work items only
 for real gaps that require follow-up work.
@@ -294,7 +294,7 @@ Execution work item rules:
 
 - one coherent gap per work item
 - use native upstream types such as `task`, `chore`, or `decision`
-- assign HELIX phase/kind labels that match the actual work
+- assign HELIX activity/kind labels that match the actual work
 - set `spec-id` to the nearest governing canonical artifact
 - link to the source review item using description, parenting, or
   `discovered-from` dependencies
@@ -328,12 +328,12 @@ If coverage gaps remain, create the missing execution items before proceeding.
 The item set must fully represent the work required to move from current state
 to the end state defined by the planning stack.
 
-If a ratchet regression was detected in Phase 3, create a regression item that
+If a ratchet regression was detected in Step 3, create a regression item that
 references the specific criteria or metrics that dropped below the floor. The
 item must include the previous floor value, the current measured value, and the
 governing artifact where the regression is visible.
 
-## PHASE 8 - Execution Order
+## STEP 8 - Execution Order
 
 Output:
 
@@ -354,7 +354,7 @@ Every non-trivial claim must cite:
 Be explicit about inference when a conclusion is not directly stated by the
 artifacts.
 
-## PHASE 9 - Measure
+## STEP 9 - Measure
 
 Verify the alignment review against the governing work item's acceptance
 criteria. See the measure action for the full pattern.
@@ -367,7 +367,7 @@ criteria. See the measure action for the full pattern.
    corresponding execution items.
 5. **Record results** on the governing work item via the runtime tracker.
 
-## PHASE 10 - Report
+## STEP 10 - Report
 
 Close the alignment cycle and feed back into the planning cycle. See the
 report action for the full pattern.
@@ -375,7 +375,7 @@ report action for the full pattern.
 1. If measurement passed, close the governing work item with evidence summary.
 2. If measurement identified gaps in the review itself (incomplete areas,
    missing traceability), create follow-on work items.
-3. The execution items created in Phase 7 are the primary output — they
+3. The execution items created in Step 7 are the primary output — they
    re-enter the planning cycle for polish and then build.
 
 ## Output Format
@@ -416,7 +416,7 @@ Be precise, deterministic, and evidence-driven.
 
 This appendix applies when DDx is the active HELIX runtime.
 
-### PHASE 0 — DDx bootstrap
+### STEP 0 — DDx bootstrap
 
 ```bash
 ddx bead status  # stop immediately if this fails
@@ -431,7 +431,7 @@ ddx bead status  # stop immediately if this fails
 For beads in scope, check whether `<context-digest>` blocks reflect current
 upstream state. Stale digests are an alignment finding.
 
-### PHASE 0.5 — DDx bead acquisition
+### STEP 0.5 — DDx bead acquisition
 
 ```bash
 ddx bead list --status open --label kind:planning,action:align --json
@@ -455,13 +455,13 @@ description, assemble or refresh its context digest per
 `scripts/refresh_context_digests.py`, use it so digests and `area:*` labels
 stay deterministic.
 
-### PHASE 3 — DDx acceptance criteria ratchet
+### STEP 3 — DDx acceptance criteria ratchet
 
 ```bash
 # check ratchet floor fixtures from .ddx/plugins/helix/workflows/ratchets.md
 ```
 
-### PHASE 7 — DDx execution work items
+### STEP 7 — DDx execution work items
 
 ```bash
 ddx bead dep add <blocked-id> <blocking-id>

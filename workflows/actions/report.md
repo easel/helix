@@ -14,7 +14,7 @@ You may receive:
 - a scope selector such as `FEAT-003`, `area:auth`, or `phase:build` (batch mode)
 - `--since YYYY-MM-DD` to limit batch scope by time
 
-## PHASE 0 - Bootstrap
+## STEP 0 - Bootstrap
 
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory.
@@ -24,14 +24,14 @@ You may receive:
 
 ## Per-Item Mode
 
-### PHASE 1 - Load Measurement Results
+### STEP 1 - Load Measurement Results
 
 1. Load the target work item from the tracker.
 2. Parse the measurement results block from the item's notes.
 3. If no measurement results exist, recommend running the measure action first
    and stop.
 
-### PHASE 2 - Analyze Results
+### STEP 2 - Analyze Results
 
 Classify the measurement outcome:
 
@@ -41,7 +41,7 @@ Classify the measurement outcome:
 - **Follow-on**: Failures or findings require new work outside this item's
   scope.
 
-### PHASE 3 - Create Follow-On Work Items
+### STEP 3 - Create Follow-On Work Items
 
 For each follow-on item, create a work item with a category prefix in the
 title, labels including `helix` and `phase:build`, a `spec-id` pointing to the
@@ -62,7 +62,7 @@ Follow-on categories:
 Follow-on work items enter the planning cycle — they will be refined by the
 polish action before execution.
 
-### PHASE 4 - Close the Governing Work Item
+### STEP 4 - Close the Governing Work Item
 
 If measurement status is PASS or all failures are captured as follow-on items,
 close the governing work item. The close comment should summarize:
@@ -86,13 +86,13 @@ FOLLOW_ON_CREATED: N
 
 ## Batch Mode
 
-### PHASE 1 - Collect Work Items
+### STEP 1 - Collect Work Items
 
 1. Load all work items in scope that have measurement result notes.
 2. If `--since` is specified, filter by the measurement timestamp.
 3. Load each item's measurement results.
 
-### PHASE 2 - Aggregate Statistics
+### STEP 2 - Aggregate Statistics
 
 Compute:
 
@@ -102,7 +102,7 @@ Compute:
 - Follow-on item categories (how much new work did execution generate?)
 - Acceptance criteria satisfaction rate
 
-### PHASE 3 - Identify Patterns
+### STEP 3 - Identify Patterns
 
 Look for:
 
@@ -115,7 +115,7 @@ Look for:
 - **Follow-on volume**: High follow-on creation rate may indicate that items
   are under-specified or that the planning cycle needs more polish passes.
 
-### PHASE 4 - Write Batch Report
+### STEP 4 - Write Batch Report
 
 Write the report to:
 `docs/helix/06-iterate/reports/RPT-YYYY-MM-DD[-scope].md`
@@ -159,7 +159,7 @@ Be precise, quantitative, and evidence-driven.
 
 This appendix applies when DDx is the active HELIX runtime.
 
-### PHASE 0 — DDx bootstrap
+### STEP 0 — DDx bootstrap
 
 ```bash
 ddx bead status  # stop immediately if this fails

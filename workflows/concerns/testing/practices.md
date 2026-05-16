@@ -1,6 +1,6 @@
 # Practices: Testing
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 
 - Every user story must have testable acceptance criteria
 - Acceptance criteria must be specific enough to write a failing test before

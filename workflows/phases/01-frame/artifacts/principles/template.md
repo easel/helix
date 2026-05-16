@@ -5,13 +5,13 @@ ddx:
 
 # Project Principles
 
-These principles guide judgment calls across all HELIX phases. They are not
+These principles guide judgment calls across all HELIX activities. They are not
 requirements, concerns, ADRs, workflow rules, or process enforcement. They are
 lenses applied when choosing between two valid options.
 
 This document was bootstrapped from HELIX defaults. You own it now — add,
 modify, reorder, or remove any principle. The only constraint: principles
-cannot negate HELIX mechanics (artifact hierarchy, phase gates, tracker
+cannot negate HELIX mechanics (artifact hierarchy, activity gates, tracker
 semantics).
 
 ## Principles

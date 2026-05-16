@@ -1,24 +1,24 @@
-phase: deploy
+activity: deploy
 number: "05"
 
 entry_requirements:
   automated:
     - check: previous_phase_complete
-      phase: 04-build
+      activity: 04-build
 
     - check: tests_passing
       command: "npm test || go test ./... || pytest"
-      description: "All tests from Build phase must pass"
+      description: "All tests from Build activity must pass"
 
     - check: coverage_threshold
       threshold: 80
       command: "npm run coverage || go test -cover ./..."
-      description: "Coverage threshold from Build phase met"
+      description: "Coverage threshold from Build activity met"
 
     - check: security_scan_clean
       command: "npm audit --audit-level=high || gosec ./..."
       severity: high
-      description: "Security scan from Build phase clean"
+      description: "Security scan from Build activity clean"
 
     - check: file_exists
       path: README.md
@@ -96,4 +96,4 @@ exit_requirements:
     - "Production go/no-go decision approved"
     - "Release notes published"
 
-next_phase: iterate
+next_activity: iterate

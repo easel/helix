@@ -1,10 +1,10 @@
-phase: iterate
+activity: iterate
 number: "06"
 
 entry_requirements:
   automated:
     - check: previous_phase_complete
-      phase: 05-deploy
+      activity: 05-deploy
 
     - check: file_exists
       path: docs/helix/05-deploy/deployment-checklist.md
@@ -12,7 +12,7 @@ entry_requirements:
 
     - check: file_exists
       path: docs/helix/05-deploy/monitoring-setup.md
-      description: "Monitoring configured from Deploy phase"
+      description: "Monitoring configured from Deploy activity"
 
   manual:
     - "System deployed and operational in production"
@@ -62,5 +62,5 @@ exit_requirements:
     - "Improvement priorities agreed by stakeholders"
     - "Decision made: continue to next iteration or project complete"
 
-next_phase: frame
+next_activity: frame
 cycle_complete: true

@@ -1,10 +1,10 @@
-# Phase 03: Test
+# Activity 03: Test
 
-The specification phase where we define how the system will be verified through comprehensive test creation.
+The specification activity where we define how the system will be verified through comprehensive test creation.
 
 ## Purpose
 
-The Test phase transforms specifications from Frame and Design phases into executable tests that define system behavior. Following Specification-Driven Development (SDD) principles, this phase creates tests BEFORE implementation, establishing clear success criteria for the Build phase.
+The Test activity transforms specifications from Frame and Design activities into executable tests that define system behavior. Following Specification-Driven Development (SDD) principles, this activity creates tests BEFORE implementation, establishing clear success criteria for the Build activity.
 
 ## Key Principle
 
@@ -12,11 +12,11 @@ The Test phase transforms specifications from Frame and Design phases into execu
 
 ## Workflow Principles
 
-This phase operates under the HELIX workflow principles, emphasizing:
+This activity operates under the HELIX workflow principles, emphasizing:
 
 - **Test-First Development**: Tests precede implementation, defining behavior before code
 - **Specification-Driven**: Tests are derived from Frame and Design specifications
-- **Quality Gates**: Tests must fail initially (Red phase) before proceeding to Build
+- **Quality Gates**: Tests must fail initially (Red activity) before proceeding to Build
 - **Human-AI Collaboration**: Humans define test strategy; AI generates comprehensive test suites
 - **Iterative Refinement**: Tests evolve with specifications through the cycle
 
@@ -24,27 +24,27 @@ The test-first approach ensures that quality is built-in, not bolted-on, and tha
 
 ## Input Gates
 
-Prerequisites to enter this phase (defined in `input-gates.yml`):
+Prerequisites to enter this activity (defined in `input-gates.yml`):
 
 1. **Design documents complete and approved**
    - Requirement: Architecture and API contracts fully specified
    - Validation: manual review checklist or manual review checklist
-   - Source: 02-design phase
+   - Source: 02-design activity
 
 2. **User stories have clear acceptance criteria**
    - Requirement: Each story has testable Given/When/Then scenarios
    - Validation: All stories in `docs/helix/01-frame/user-stories/` have criteria
-   - Source: 01-frame phase
+   - Source: 01-frame activity
 
 3. **Non-functional requirements defined**
    - Requirement: Performance, security, scalability metrics specified
    - Validation: NFRs documented with measurable targets
-   - Source: 01-frame phase
+   - Source: 01-frame activity
 
 4. **Security architecture completed**
    - Requirement: Security controls and architecture documented
    - Validation: Security architecture and threat model approved
-   - Source: 02-design phase
+   - Source: 02-design activity
 
 These gates ensure we have complete specifications to derive comprehensive tests, including security test requirements.
 
@@ -198,11 +198,11 @@ Security validation testing:
 
 ## Alignment with Spec-Driven Development
 
-This phase embodies SDD principles from `docs/resources/spec-driven.md`:
+This activity embodies SDD principles from `docs/resources/spec-driven.md`:
 
 ### Test-First Imperative (Article III)
 - **No code before tests**: Tests must be written and approved first
-- **Red-Green-Refactor**: Tests must fail initially (Red phase)
+- **Red-Green-Refactor**: Tests must fail initially (Red activity)
 - **Behavior-driven**: Tests define behavior, not implementation
 
 ### Integration-First Testing (Article IX)
@@ -235,7 +235,7 @@ Every test traces to specifications:
 
 ## Quality Gates
 
-Before proceeding to Build phase, ensure:
+Before proceeding to Build activity, ensure:
 
 ### Test Completeness
 - [ ] All user stories have acceptance tests
@@ -284,11 +284,11 @@ Before proceeding to Build phase, ensure:
 
 ## Exit Criteria
 
-The Test phase is complete and Build phase can begin when:
+The Test activity is complete and Build activity can begin when:
 
 1. **All Tests Written**: Tests exist for all requirements and scenarios
    - Validation: `npm test` or `go test ./...` shows tests exist
-2. **Tests Are Failing**: Red phase of TDD confirmed
+2. **Tests Are Failing**: Red activity of TDD confirmed
    - Validation: Test runner shows failures (no implementation yet)
 3. **Coverage Plan Met**: Test coverage targets defined and achievable
    - Validation: Coverage report shows test structure in place
@@ -299,15 +299,15 @@ The Test phase is complete and Build phase can begin when:
 6. **Documentation Complete**: Test plan and strategies documented
    - Validation: `docs/helix/03-test/test-plan.md` exists and is complete
 
-## Next Phase: Build
+## Next Activity: Build
 
-Once Test phase completes, proceed to Build where you'll:
+Once Test activity completes, proceed to Build where you'll:
 - Implement code to make tests pass
 - Follow TDD red-green-refactor cycle
 - Achieve all coverage targets
 - Refactor while keeping tests green
 
-Remember: Build phase success is simple—make all these tests pass!
+Remember: Build activity success is simple—make all these tests pass!
 
 ## Test Organization Best Practices
 
@@ -343,7 +343,7 @@ tests/
 - **Integration Tests**: All API endpoints and service boundaries
 - **Contract Tests**: 100% of public APIs
 - **E2E Tests**: Critical user paths and edge cases
-- **Acceptance Tests**: All user stories from Frame phase
+- **Acceptance Tests**: All user stories from Frame activity
 
 ## Tips for Success
 
@@ -358,7 +358,7 @@ tests/
 ## Using AI Assistance
 
 Test prompts live under `.ddx/plugins/helix/workflows/phases/03-test/artifacts/`, with
-phase-local helper prompts under `.ddx/plugins/helix/workflows/phases/03-test/actions/`.
+activity-local helper prompts under `.ddx/plugins/helix/workflows/phases/03-test/actions/`.
 Open the relevant prompt, use the adjacent template, and keep outputs in
 `docs/helix/03-test/` plus executable files under `tests/`.
 
@@ -390,4 +390,4 @@ This separation keeps test templates reusable while organizing actual tests logi
 
 ---
 
-*The Test phase defines success. What follows in Build is simply making that definition reality.*
+*The Test activity defines success. What follows in Build is simply making that definition reality.*

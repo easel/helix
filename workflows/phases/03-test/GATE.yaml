@@ -1,18 +1,18 @@
-phase: test
+activity: test
 number: "03"
 
 entry_requirements:
   automated:
     - check: previous_phase_complete
-      phase: 02-design
+      activity: 02-design
 
     - check: file_exists
       path: docs/helix/02-design/architecture.md
-      description: "Architecture from Design phase must exist"
+      description: "Architecture from Design activity must exist"
 
     - check: dir_not_empty
       path: docs/helix/02-design/contracts
-      description: "API contracts from Design phase must exist"
+      description: "API contracts from Design activity must exist"
 
     - check: grep_absent
       pattern: "\\[TO BE DEFINED\\]"
@@ -47,10 +47,10 @@ exit_requirements:
       path: tests/contracts
       description: "Contract tests must exist"
 
-    # Tests are failing (Red phase of TDD)
+    # Tests are failing (Red activity of TDD)
     - check: tests_failing
       command: "npm test || go test ./... || pytest"
-      description: "Tests must be failing (Red phase) before Build"
+      description: "Tests must be failing (Red activity) before Build"
 
     # CI/CD configuration
     - check: file_exists
@@ -83,4 +83,4 @@ exit_requirements:
     - "Test coverage plan reviewed and approved"
     - "Test infrastructure verified operational"
 
-next_phase: build
+next_activity: build

@@ -1,4 +1,4 @@
-phase: frame
+activity: frame
 number: "01"
 
 entry_requirements:
@@ -85,4 +85,4 @@ exit_requirements:
     - "Stakeholder sign-off on PRD obtained"
     - "Product Owner approval confirmed"
 
-next_phase: design
+next_activity: design

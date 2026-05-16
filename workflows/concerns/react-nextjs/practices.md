@@ -1,6 +1,6 @@
 # Practices: react-nextjs
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 - User stories involving UI must specify which pages or components are affected
 - Acceptance criteria for UI features must include Playwright E2E coverage
 - Data-heavy views (tables, dashboards) must specify expected row counts for virtualization decisions

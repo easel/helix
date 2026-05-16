@@ -1,18 +1,18 @@
-phase: design
+activity: design
 number: "02"
 
 entry_requirements:
   automated:
     - check: previous_phase_complete
-      phase: 01-frame
+      activity: 01-frame
 
     - check: file_exists
       path: docs/helix/01-frame/prd.md
-      description: "PRD from Frame phase must exist"
+      description: "PRD from Frame activity must exist"
 
     - check: file_exists
       path: docs/helix/01-frame/principles.md
-      description: "Principles from Frame phase must exist"
+      description: "Principles from Frame activity must exist"
 
     - check: grep_absent
       pattern: "\\[NEEDS CLARIFICATION\\]"
@@ -84,4 +84,4 @@ exit_requirements:
     - "Technical Lead approval on architecture"
     - "Security review completed"
 
-next_phase: test
+next_activity: test

@@ -1,10 +1,10 @@
-# Phase 02: Design
+# Activity 02: Design
 
-The architecture phase where we transform requirements into a concrete technical plan with contracts, tests, and implementation strategy.
+The architecture activity where we transform requirements into a concrete technical plan with contracts, tests, and implementation strategy.
 
 ## Purpose
 
-The Design phase transforms validated business requirements from Frame into a comprehensive technical architecture. This phase focuses on making and documenting architectural decisions, defining system structure, and establishing contracts that will guide implementation.
+The Design activity transforms validated business requirements from Frame into a comprehensive technical architecture. This activity focuses on making and documenting architectural decisions, defining system structure, and establishing contracts that will guide implementation.
 
 ## Key Principle
 
@@ -244,7 +244,7 @@ When deciding which artifact to use, ask these questions in order:
 
 4. **Are you defining how to implement an architectural approach?**
    - YES → **Solution Design** (e.g., "GraphQL federation architecture", "Database sharding strategy")
-   - NO → Consider if this belongs in Build phase as an Implementation Guide
+   - NO → Consider if this belongs in Build activity as an Implementation Guide
 
 ### Artifact Boundaries and Relationships
 
@@ -285,7 +285,7 @@ Here's how artifacts build on each other:
    ↓ (Feature-level approach defined)
 4. CONTRACT-004: "Internal GraphQL schema and error contract"
    ↓ (Normative interface defined)
-5. Build Phase: Implementation guides and code
+5. Build Activity: Implementation guides and code
 ```
 
 ### Common Mistakes to Avoid
@@ -312,7 +312,7 @@ Each artifact should reference related artifacts:
 - ADRs, solution designs, and technical designs should reference contracts rather than duplicating normative fields or schemas
 
 ### Reference
-For complete artifact boundary definitions, see [ADR-011: Design Phase Artifact Boundaries](/docs/helix/02-design/adr/adr-011-design-artifact-boundaries.md) in the DDX documentation.
+For complete artifact boundary definitions, see [ADR-011: Design Activity Artifact Boundaries](/docs/helix/02-design/adr/adr-011-design-artifact-boundaries.md) in the DDX documentation.
 
 ## Process Flow
 
@@ -332,7 +332,7 @@ graph TD
     J -->|Yes| L[Technical Review]
     L --> M{Approved?}
     M -->|No| C
-    M -->|Yes| N[Gate to Test Phase]
+    M -->|Yes| N[Gate to Test Activity]
 ```
 
 ## Human vs AI Responsibilities
@@ -376,7 +376,7 @@ Track design complexity to prevent over-engineering:
 
 ## Quality Gates
 
-Before proceeding to Test phase:
+Before proceeding to Test activity:
 
 ### Completeness Checklist
 - [ ] All contracts fully specified with examples
@@ -427,7 +427,7 @@ Before proceeding to Test phase:
 
 ## Success Criteria
 
-The Design phase is complete when:
+The Design activity is complete when:
 
 1. **Solution Defined**: Requirements mapped to technical approach
 2. **Architecture Documented**: Visual diagrams and component structure clear
@@ -436,11 +436,11 @@ The Design phase is complete when:
 5. **Data Model Complete**: Schema and patterns designed
 6. **Security Addressed**: Threats identified and mitigated
 
-## Next Phase: Test
+## Next Activity: Test
 
-Once Design is validated, proceed to Test phase where you'll:
+Once Design is validated, proceed to Test activity where you'll:
 - Write comprehensive test specifications
-- Implement failing tests (Red phase)
+- Implement failing tests (Red activity)
 - Define test data and scenarios
 - Establish test infrastructure
 

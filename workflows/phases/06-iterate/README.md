@@ -1,10 +1,10 @@
-# Phase 06: Iterate
+# Activity 06: Iterate
 
-The continuous learning phase where production insights, user feedback, and team experiences transform into actionable improvements for the next cycle.
+The continuous learning activity where production insights, user feedback, and team experiences transform into actionable improvements for the next cycle.
 
 ## Purpose
 
-The Iterate phase closes the HELIX loop by systematically capturing learnings from production deployment and user interaction. This phase emphasizes data-driven decision making, AI-assisted pattern recognition, and continuous improvement. Every iteration makes the next cycle more efficient, higher quality, and better aligned with user needs.
+The Iterate activity closes the HELIX loop by systematically capturing learnings from production deployment and user interaction. This activity emphasizes data-driven decision making, AI-assisted pattern recognition, and continuous improvement. Every iteration makes the next cycle more efficient, higher quality, and better aligned with user needs.
 
 ## Key Principle
 
@@ -12,29 +12,29 @@ The Iterate phase closes the HELIX loop by systematically capturing learnings fr
 
 ## Workflow Principles
 
-This phase embodies the HELIX workflow's commitment to:
+This activity embodies the HELIX workflow's commitment to:
 
 - **Continuous Learning**: Every data point contributes to organizational knowledge
 - **AI-Powered Insights**: Machine learning identifies patterns humans might miss
 - **Predictive Improvement**: Anticipate issues before they become problems
 - **Human-AI Synthesis**: Combine human intuition with AI analysis
-- **Feedback Loop Closure**: Learnings directly influence the next Frame phase
+- **Feedback Loop Closure**: Learnings directly influence the next Frame activity
 
-The Iterate phase transforms HELIX from a linear process into a true spiral of continuous improvement.
+The Iterate activity transforms HELIX from a linear process into a true spiral of continuous improvement.
 
 ## Input Gates
 
-Prerequisites to enter this phase (defined in `input-gates.yml`):
+Prerequisites to enter this activity (defined in `input-gates.yml`):
 
 1. **System deployed to production**
    - Requirement: Application running in production environment
    - Validation: Health checks passing, monitoring active
-   - Source: 05-deploy phase
+   - Source: 05-deploy activity
 
 2. **Monitoring and observability active**
    - Requirement: Metrics, logs, and traces being collected
    - Validation: Dashboards populated with real data
-   - Source: 05-deploy phase
+   - Source: 05-deploy activity
 
 3. **Initial user interaction**
    - Requirement: Sufficient usage to generate meaningful data
@@ -64,7 +64,7 @@ graph TD
     H --> I[Update Backlog]
     I --> J[Plan Next Iteration]
     J --> K{Continue?}
-    K -->|Yes| L[Return to Frame Phase]
+    K -->|Yes| L[Return to Frame Activity]
     K -->|No| M[Project Complete]
 ```
 
@@ -171,17 +171,17 @@ canonical report. Reintroducing `story-iteration-report` would duplicate
 evidence already owned by execution issues, iterate summary artifacts, and the
 tracker-backed follow-on system.
 
-#### Cross-Phase Action: Alignment Review
+#### Cross-Activity Action: Alignment Review
 **Action Location**: `../../actions/reconcile-alignment.md`
 **Output Location**: `docs/helix/06-iterate/alignment-reviews/AR-YYYY-MM-DD[-scope].md`
 
-Cross-phase reconciliation review:
+Cross-activity reconciliation review:
 - creates or reconciles a review epic and review issues in the tracker
 - audits the canonical HELIX stack against implementation evidence
 - writes a consolidated alignment report for the review run
 - emits follow-up execution issues only where explicit gaps exist
 
-#### Cross-Phase Action: Queue Check
+#### Cross-Activity Action: Queue Check
 **Action Location**: `../../actions/check.md`
 **Output Location**: terminal response only
 
@@ -191,7 +191,7 @@ Bounded execution-state review:
 - returns a deterministic `NEXT_ACTION` code and the exact next command
 - should be used when the implementation queue drains instead of looping blindly
 
-#### Cross-Phase Action: Documentation Backfill
+#### Cross-Activity Action: Documentation Backfill
 **Action Location**: `../../actions/backfill-helix-docs.md`
 **Output Location**: `docs/helix/06-iterate/backfill-reports/BF-YYYY-MM-DD[-scope].md`
 
@@ -230,7 +230,7 @@ Each artifact directory includes a `meta.yml` file that defines:
 
 ## Quality Gates
 
-Before proceeding to the next Frame phase, ensure:
+Before proceeding to the next Frame activity, ensure:
 
 ### Analysis Completeness
 - [ ] All production metrics analyzed
@@ -279,7 +279,7 @@ Before proceeding to the next Frame phase, ensure:
 
 ## Success Criteria
 
-The Iterate phase is complete when:
+The Iterate activity is complete when:
 
 1. **Data Analyzed**: All metrics, logs, and feedback processed
 2. **Insights Generated**: Clear learnings extracted from data
@@ -312,14 +312,14 @@ Track these metrics across iterations to measure improvement:
 
 ## Analysis Tools
 
-Iterate work is driven by the cross-phase methodology actions (**align**,
+Iterate work is driven by the cross-activity methodology actions (**align**,
 **review**, **experiment**) and metric definitions in
 `artifacts/metric-definition/`. See the runtime integration appendix below
 for the concrete dispatch commands.
 
 ## Integration with Next Cycle
 
-The Iterate phase outputs directly influence the next Frame phase:
+The Iterate activity outputs directly influence the next Frame activity:
 
 ### Feedback → Requirements
 - User feedback becomes new user stories
@@ -349,7 +349,7 @@ The Iterate phase outputs directly influence the next Frame phase:
 ## Using AI Assistance
 
 Iterate work is decided through the **check** methodology action and the
-canonical cross-phase action prompts:
+canonical cross-activity action prompts:
 - `actions/reconcile-alignment.md`
 - `actions/backfill-helix-docs.md`
 
@@ -362,7 +362,7 @@ judgment remains responsible for prioritization, tradeoffs, and scheduling.
 ## File Organization
 
 ### Structure Overview
-- **Analysis Artifacts**: `phases/06-iterate/artifacts/` in the HELIX
+- **Analysis Artifacts**: `activities/06-iterate/artifacts/` in the HELIX
   content package
   - Templates for capturing and analyzing learnings
   - Prompts for AI-assisted insight generation
@@ -389,4 +389,4 @@ contract.
 
 ---
 
-*The Iterate phase transforms each ending into a new beginning, ensuring every cycle builds on the learnings of the last. This is where the HELIX spiral ascends.*
+*The Iterate activity transforms each ending into a new beginning, ensuring every cycle builds on the learnings of the last. This is where the HELIX spiral ascends.*

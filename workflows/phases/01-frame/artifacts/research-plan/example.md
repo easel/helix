@@ -104,7 +104,7 @@ exception ownership, pilot pricing, and success metrics.
 
 ## Timeline
 
-| Phase | Duration | Activities | Deliverables |
+| Activity | Duration | Activities | Deliverables |
 |-------|----------|------------|--------------|
 | Planning | 1 day | Finalize screener, interview guide, data-handling plan | Approved plan |
 | Investigation | 6 days | Interviews, CSV sample collection, workflow probes | Notes and sample inventory |

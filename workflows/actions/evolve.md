@@ -36,7 +36,7 @@ When artifacts disagree, use this precedence:
 Update higher-authority documents FIRST, then propagate downward. Never
 update a lower-authority artifact in a way that contradicts a higher one.
 
-## PHASE 0 — Bootstrap
+## STEP 0 — Bootstrap
 
 0. **Load active design principles** following the principles-resolution
    reference for this runtime. Use these as scoping guidance when evaluating
@@ -57,20 +57,20 @@ update a lower-authority artifact in a way that contradicts a higher one.
      the other artifact updates.
    - If the requirement removes or replaces a technology covered by an active
      concern, the concern declaration and project overrides must be updated as
-     part of Phase 4 artifact evolution.
+     part of Step 4 artifact evolution.
 0b. **Context digest**: When this action creates or modifies work items, it
    must assemble a context digest per the runtime's context-digest reference
    and prepend it to the item description. If a repo helper exists for digest
    assembly, use it instead of hand-writing the XML. The concerns element must
    contain matched concern names, never area labels.
 
-## PHASE 0.5 — Work Item Acquisition
+## STEP 0.5 — Work Item Acquisition
 
 Before modifying any artifacts, acquire a governing work item for this
 evolution pass. See the runtime's work-item acquisition reference for the full
 pattern.
 
-## PHASE 1 — Requirement Analysis
+## STEP 1 — Requirement Analysis
 
 Parse the input requirement:
 
@@ -83,7 +83,7 @@ Parse the input requirement:
    and proceed. Do not halt for clarification on things you can reasonably
    infer.
 
-## PHASE 2 — Artifact Discovery
+## STEP 2 — Artifact Discovery
 
 Search the project's doc tree for governing artifacts in scope:
 
@@ -112,7 +112,7 @@ Use commands like:
 - `find docs/ -name "*.md" | xargs grep -l "keyword"`
 - List open work items from the runtime tracker to find related open items
 
-## PHASE 3 — Conflict Detection
+## STEP 3 — Conflict Detection
 
 For each affected artifact:
 
@@ -144,7 +144,7 @@ When a concern conflict is identified, the resolution options are:
 - **Reject**: The requirement is incompatible with the project's technology
   commitments and should be reconsidered.
 
-## PHASE 4 — Artifact Evolution
+## STEP 4 — Artifact Evolution
 
 For each non-conflicting artifact, in authority order (highest first):
 
@@ -153,7 +153,7 @@ For each non-conflicting artifact, in authority order (highest first):
 3. Validate the amendment does not contradict any higher-authority artifact
    that was already updated in this session.
 4. For any **new** artifact being written (not an update to an existing file):
-   - Confirm the ID was assigned from the scanned-next-ID computed in Phase 2,
+   - Confirm the ID was assigned from the scanned-next-ID computed in Step 2,
      not guessed.
    - Inspect the artifact frontmatter `depends_on` list. For each referenced
      ID, verify the target artifact exists on disk before writing. If a target
@@ -168,7 +168,7 @@ For each non-conflicting artifact, in authority order (highest first):
 Keep amendments minimal and scoped. Do not rewrite sections that aren't
 affected by the requirement.
 
-## PHASE 5 — Work Item Decomposition
+## STEP 5 — Work Item Decomposition
 
 Create work items for the implementation work implied by the updated artifacts:
 
@@ -182,7 +182,7 @@ Create work items for the implementation work implied by the updated artifacts:
 5. Group related items under a new epic if the requirement implies
    multiple implementation slices.
 
-## PHASE 6 — Dependency Wiring
+## STEP 6 — Dependency Wiring
 
 Search existing open work items for overlap with the new items:
 
@@ -192,13 +192,13 @@ Search existing open work items for overlap with the new items:
 3. Add dependency links where ordering matters.
 4. If the new requirement supersedes an existing item, record the supersession.
 
-## PHASE 7 — Evolution Report and Commit
+## STEP 7 — Evolution Report and Commit
 
 1. Commit all artifact changes with a message referencing the requirement
    and the governing work item ID.
 2. Push to the remote.
 
-## PHASE 8 — Measure
+## STEP 8 — Measure
 
 Verify the evolution against the governing work item's acceptance criteria.
 See the measure action for the full pattern.
@@ -214,7 +214,7 @@ See the measure action for the full pattern.
    in new work items.
 5. **Record results** on the governing work item via the runtime tracker.
 
-## PHASE 9 — Report
+## STEP 9 — Report
 
 Close the evolution cycle and feed back into the planning cycle. See the
 report action for the full pattern.
@@ -268,7 +268,7 @@ governing artifacts and cannot proceed without human decision.
 
 This appendix applies when DDx is the active HELIX runtime.
 
-### PHASE 0 — DDx references
+### STEP 0 — DDx references
 
 - Principles: `.ddx/plugins/helix/workflows/references/principles-resolution.md`
 - Concerns: `.ddx/plugins/helix/workflows/references/concern-resolution.md`
@@ -280,7 +280,7 @@ This appendix applies when DDx is the active HELIX runtime.
 The `<concerns>` element in a context digest must contain matched concern
 names, never `area:*` labels.
 
-### PHASE 0.5 — DDx bead acquisition
+### STEP 0.5 — DDx bead acquisition
 
 ```bash
 ddx bead list --status open --label kind:planning,action:evolve --json
@@ -300,13 +300,13 @@ Source: <--from value if provided>" \
 Record the bead ID. All subsequent artifact modifications are governed by
 this bead.
 
-### PHASE 2 — DDx find related items
+### STEP 2 — DDx find related items
 
 ```bash
 ddx bead list --json
 ```
 
-### PHASE 6 — DDx dependency wiring
+### STEP 6 — DDx dependency wiring
 
 ```bash
 ddx bead list --status open --json
@@ -314,7 +314,7 @@ ddx bead dep add <blocked-id> <blocking-id>
 ddx bead update <id> --superseded-by <new-id>
 ```
 
-### PHASE 7 — DDx commit
+### STEP 7 — DDx commit
 
 Commit with a message referencing the requirement and the governing bead ID.
 

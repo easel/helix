@@ -1,12 +1,12 @@
-# Reference: Report Phase
+# Reference: Report Activity
 
-The report phase closes the feedback loop between the execution helix and the
+The report activity closes the feedback loop between the execution helix and the
 planning helix. It analyzes measurement results, creates follow-on beads for
 new work identified, and closes the governing bead with evidence.
 
 ## Per-Bead Report (Default)
 
-Every action's final phase is a per-bead report. After measure completes:
+Every action's final activity is a per-bead report. After measure completes:
 
 ### 1. Analyze Measurement Results
 
@@ -76,7 +76,7 @@ COMMITS: <list>
 
 ## Batch Report (`helix report <scope>`)
 
-Batch report aggregates across beads in a scope (epic, area, phase, or
+Batch report aggregates across beads in a scope (epic, area, activity, or
 time range).
 
 ### Input

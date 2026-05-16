@@ -1,6 +1,6 @@
 # Practices: e2e-playwright
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 - Identify all user-facing pages and workflows that need testing
 - Define what "test data" means for this project — what states must the UI show?
 - Determine visual regression strategy: which pages get screenshot baselines?

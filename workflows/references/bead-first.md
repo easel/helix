@@ -13,12 +13,12 @@ what the action intended to do. Bead-first ensures:
   acceptance criteria, and governing artifact references.
 - **Measurability**: After execution, the bead's acceptance criteria define what
   "done" means, and measurement results are recorded on the bead.
-- **Feedback**: The report phase creates follow-on beads from measurement
+- **Feedback**: The report activity creates follow-on beads from measurement
   findings, closing the loop between the execution helix and the planning helix.
 
 ## Bead Acquisition Pattern
 
-Every action (except `triage` and `check`) includes a Phase 0.5 — Bead
+Every action (except `triage` and `check`) includes a Activity 0.5 — Bead
 Acquisition immediately after bootstrap:
 
 ### 1. Search for an existing governing bead
@@ -39,7 +39,7 @@ If a matching open bead exists:
 ```bash
 ddx bead create "<action>: <scope description>" \
   --type task \
-  --labels helix,phase:<appropriate-phase>,kind:planning,action:<name> \
+  --labels helix,activity:<appropriate-activity>,kind:planning,action:<name> \
   --set spec-id=<governing-artifact> \
   --description "<context-digest>...</context-digest>
 <action-specific description of what this pass will do>" \
@@ -76,7 +76,7 @@ Planning-helix beads use two labels:
 - `kind:planning` — distinguishes planning work from execution work
 - `action:<name>` — identifies which action will execute this bead
 
-Combined with the standard `helix` label and phase labels, a typical planning
+Combined with the standard `helix` label and activity labels, a typical planning
 bead has labels: `helix,kind:planning,action:design,phase:build`.
 
 Execution beads (those consumed by `helix build`) do not carry `kind:planning`
@@ -101,7 +101,7 @@ next.
 
 When an operator (human or outer agent) dispatches an action, they may create
 the governing bead themselves via `ddx bead create` or `helix triage` before
-invoking the action. In this case, the action's bead acquisition phase finds
+invoking the action. In this case, the action's bead acquisition activity finds
 the existing bead rather than creating a new one. This is the preferred pattern
 for deliberate work — the operator decides what to do (planning helix), then
 the agent executes it (execution helix).
@@ -112,12 +112,12 @@ the agent executes it (execution helix).
 create/find → claim → execute → measure → report → close
 ```
 
-1. **Create/find**: Phase 0.5 of every action.
+1. **Create/find**: Activity 0.5 of every action.
 2. **Claim**: `ddx bead update <id> --claim` to prevent concurrent work.
-3. **Execute**: The action's main phases (Phase 1 through N).
+3. **Execute**: The action's main activities (Activity 1 through N).
 4. **Measure**: Verify acceptance criteria; record results on the bead.
 5. **Report**: Create follow-on beads; close the governing bead with evidence.
 6. **Close**: `ddx bead close <id>` with a summary of what was done.
 
 See `.ddx/plugins/helix/workflows/references/measure.md` and `.ddx/plugins/helix/workflows/references/report.md`
-for the measure and report phases.
+for the measure and report activities.

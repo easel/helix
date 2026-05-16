@@ -1,6 +1,6 @@
 # Test Suites Generation Prompt
 
-Create the test suite layout for the Red phase. Keep it concise and project-specific: define the suite boundaries, the minimum behavior each suite must cover, and any shared data conventions needed to make the tests executable.
+Create the test suite layout for the Red activity. Keep it concise and project-specific: define the suite boundaries, the minimum behavior each suite must cover, and any shared data conventions needed to make the tests executable.
 
 ## Reference Anchors
 

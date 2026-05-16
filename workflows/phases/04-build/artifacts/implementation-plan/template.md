@@ -42,7 +42,7 @@ Story-level work is tracked via `ddx bead` in `.ddx/beads.jsonl`.
 - [ ] Failing tests exist before implementation starts
 - [ ] All required tests pass before closing a build issue
 - [ ] Behavior changes update canonical documents
-- [ ] Code review is complete before phase exit
+- [ ] Code review is complete before activity exit
 
 ## Risks and Rollbacks
 

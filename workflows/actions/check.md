@@ -81,7 +81,7 @@ Rules:
 - Do not treat open implementation work as proof that the plan is complete.
 - Prefer a real queue-ready view from the tracker over status-only heuristics.
 
-## PHASE 0 - Bootstrap
+## STEP 0 - Bootstrap
 
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
@@ -96,7 +96,7 @@ Rules:
    - check `docs/helix/`
    - check for alignment or backfill reports relevant to the scope when useful
 
-## PHASE 1 - Queue Health
+## STEP 1 - Queue Health
 
 Inspect the current execution queue using tracker commands. At minimum,
 inspect:
@@ -108,7 +108,7 @@ inspect:
 
 Do not use review items as evidence that implementation should continue.
 
-## PHASE 2 - Artifact Health
+## STEP 2 - Artifact Health
 
 Assess whether the planning stack is sufficient for continued execution.
 
@@ -169,7 +169,7 @@ If active concerns are declared:
   polish pass completed. If so, recommend `POLISH` even if work items appear
   ready, because their context digests and acceptance criteria may be stale.
 
-## PHASE 3 - Decision Logic
+## STEP 3 - Decision Logic
 
 Apply these rules in order:
 
@@ -218,7 +218,7 @@ exhaustion from planning gaps. Be explicit when a returned `ALIGN` is carrying
 a broader supervisory need to reconcile, plan, or polish before implementation
 can safely resume.
 
-## PHASE 4 - Suggested Command
+## STEP 4 - Suggested Command
 
 Provide the recommended next action and enough context for the runtime to
 invoke it. Name the scope and any specific work item or artifact that prompted
@@ -248,7 +248,7 @@ Be concise, explicit, and operational.
 
 This appendix applies when DDx is the active HELIX runtime.
 
-### PHASE 0 — DDx bootstrap
+### STEP 0 — DDx bootstrap
 
 ```bash
 ddx bead status  # stop immediately if this fails
@@ -265,7 +265,7 @@ helix check FEAT-003
 helix check area:auth
 ```
 
-### PHASE 1 — DDx queue health commands
+### STEP 1 — DDx queue health commands
 
 ```bash
 ddx bead status
@@ -276,7 +276,7 @@ ddx bead blocked --json
 
 Prefer a real `ddx bead ready` view over status-only heuristics.
 
-### PHASE 2 — DDx artifact health references
+### STEP 2 — DDx artifact health references
 
 - Ratchets: `.ddx/plugins/helix/workflows/ratchets.md`
 - Concern library: `.ddx/plugins/helix/workflows/concerns/`
@@ -285,7 +285,7 @@ Prefer a real `ddx bead ready` view over status-only heuristics.
   against the timestamp of the most recent `kind:planning,action:polish` bead
   closed.
 
-### PHASE 4 — DDx suggested commands
+### STEP 4 — DDx suggested commands
 
 - `BUILD`: `helix build`
 - `DESIGN`: `helix design <scope>`

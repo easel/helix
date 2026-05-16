@@ -1,6 +1,6 @@
 # Practices: rust-cargo
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 - Specify MSRV explicitly; it must be stable enough for CI and local dev
 - Identify crates that are libraries vs binaries — error handling strategy differs
 - If concurrency correctness is a requirement, plan for `loom`-based testing

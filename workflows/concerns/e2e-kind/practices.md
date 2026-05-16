@@ -1,6 +1,6 @@
 # Practices: e2e-kind
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 - Identify all services the application depends on at runtime
 - Define what test data is needed to exercise the full feature set
 - Determine test scope: smoke tests, integration tests, chaos tests, or all three

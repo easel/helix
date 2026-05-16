@@ -37,7 +37,7 @@ all
 ## When to use
 
 All projects with network-facing services, user authentication, or data storage.
-Security is a cross-cutting concern — it is not a phase or a separate checklist,
-it applies throughout every phase of development.
+Security is a cross-cutting concern — it is not a activity or a separate checklist,
+it applies throughout every activity of development.
 
 ## ADR References

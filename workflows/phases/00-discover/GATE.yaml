@@ -1,7 +1,7 @@
-# Gate Criteria for Discover Phase
-# Entry and exit criteria for Phase 00
+# Gate Criteria for Discover Activity
+# Entry and exit criteria for Activity 00
 
-phase: 00-discover
+activity: 00-discover
 name: Discover
 
 entry_gates:
@@ -94,7 +94,7 @@ validation_rules:
     path: docs/helix/00-discover/competitive-analysis.md
     severity: warning
 
-# Phase Transition
+# Activity Transition
 transition:
   to_phase: 01-frame
   approval_required: true
@@ -106,7 +106,7 @@ transition:
   pre_transition_tasks:
     - Archive discovery artifacts
     - Communicate decision to stakeholders
-    - Schedule Frame phase kickoff
+    - Schedule Frame activity kickoff
     - Ensure Frame team has access to discovery outputs
 
   rollback_conditions:

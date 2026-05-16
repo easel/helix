@@ -1,6 +1,6 @@
 # Test Plan Generation Prompt
 
-Create the project-level test plan for the Test phase. Keep it concise, but include the minimum structure needed to drive failing tests before implementation.
+Create the project-level test plan for the Test activity. Keep it concise, but include the minimum structure needed to drive failing tests before implementation.
 
 ## Purpose
 

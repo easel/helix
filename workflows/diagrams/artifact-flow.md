@@ -1,6 +1,6 @@
 # HELIX Artifact Flow and Dependencies
 
-## Artifact Flow Between Phases
+## Artifact Flow Between Activities
 
 ```mermaid
 graph LR
@@ -148,7 +148,7 @@ graph TD
     style Deploy fill:#c8e6c9
 ```
 
-## Cross-Phase Traceability
+## Cross-Activity Traceability
 
 ```mermaid
 graph TB

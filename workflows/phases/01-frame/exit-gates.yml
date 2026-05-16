@@ -1,5 +1,5 @@
-# Exit Gates for Frame Phase
-# These criteria must be met before proceeding to the Design phase
+# Exit Gates for Frame Activity
+# These criteria must be met before proceeding to the Design activity
 
 exit_gates:
   # Documentation Completeness
@@ -181,7 +181,7 @@ validation_rules:
     check: metrics_have_numbers
     severity: blocking
 
-# Phase Transition Criteria
+# Activity Transition Criteria
 transition:
   to_phase: 02-design
   approval_required: true
@@ -191,9 +191,9 @@ transition:
     - Key Stakeholders
 
   pre_transition_tasks:
-    - Archive Frame phase decisions
-    - Communicate phase completion to team
-    - Schedule Design phase kickoff
+    - Archive Frame activity decisions
+    - Communicate activity completion to team
+    - Schedule Design activity kickoff
     - Ensure Design team has access to all Frame artifacts
 
   rollback_conditions:

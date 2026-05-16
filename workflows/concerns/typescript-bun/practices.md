@@ -1,6 +1,6 @@
 # Practices: typescript-bun
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 - All user stories involving TypeScript must assume Bun as runtime and package manager
 - If a library dependency requires a Node.js adapter, flag it as a concern at framing — it may require a Bun-compatible alternative
 

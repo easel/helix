@@ -69,7 +69,7 @@
 
 | Issue ID | Type | Labels | Goal | Dependencies | Verification |
 |----------|------|--------|------|--------------|-------------|
-| [ID] | [task/chore/decision] | [phase:... kind:...] | [goal] | [deps] | [checks] |
+| [ID] | [task/chore/decision] | [activity:... kind:...] | [goal] | [deps] | [checks] |
 
 ## Issue Coverage
 

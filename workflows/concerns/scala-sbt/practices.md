@@ -1,6 +1,6 @@
 # Practices: scala-sbt
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 - Identify whether the project is greenfield Scala or has a migration plan to another runtime
 - If mid-migration, scope new work to the target stack and minimize new Scala surface
 

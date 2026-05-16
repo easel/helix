@@ -28,11 +28,11 @@ graph TB
     style I fill:#fce4ec,stroke:#880e4f,stroke-width:3px
 ```
 
-## Phase Flow with Gates
+## Activity Flow with Gates
 
 ```mermaid
 graph LR
-    subgraph "Phase Progression with Quality Gates"
+    subgraph "Activity Progression with Quality Gates"
         Start([Start]) --> IG1{Input<br/>Gate}
         IG1 -->|✓| Frame[1. FRAME]
         Frame --> EG1{Exit<br/>Gate}
@@ -127,10 +127,10 @@ graph LR
         Refactor --> Red
     end
 
-    Frame[FRAME Phase] -->|Requirements| Red
-    Red -->|Test Phase| TestPhase[TEST Phase]
-    Green -->|Build Phase| BuildPhase[BUILD Phase]
-    Refactor -->|Build Phase| BuildPhase
+    Frame[FRAME Activity] -->|Requirements| Red
+    Red -->|Test Activity| TestPhase[TEST Activity]
+    Green -->|Build Activity| BuildPhase[BUILD Activity]
+    Refactor -->|Build Activity| BuildPhase
 
     style Red fill:#ffcdd2,stroke:#d32f2f,stroke-width:3px
     style Green fill:#c8e6c9,stroke:#388e3c,stroke-width:3px
@@ -172,7 +172,7 @@ The HELIX workflow is named after the double helix structure of DNA, representin
 - **Two Complementary Strands**: Human creativity and AI capabilities
 - **Connection Points**: Quality gates ensure structural integrity
 - **Ascending Spiral**: Each iteration builds on the previous
-- **Information Transfer**: Requirements transform through phases like genetic information
+- **Information Transfer**: Requirements transform through activities like genetic information
 - **Evolution**: The system evolves and improves with each cycle
 
 This biological metaphor emphasizes the organic, evolutionary nature of software development when humans and AI collaborate effectively.

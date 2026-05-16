@@ -1,10 +1,10 @@
-# Phase 04: Build
+# Activity 04: Build
 
-The execution phase where we transform designs and contracts into working code using test-driven development.
+The execution activity where we transform designs and contracts into working code using test-driven development.
 
 ## Purpose
 
-The Build phase is where code comes to life. Following the contracts and test specifications from Design, this phase emphasizes test-driven development (TDD), incremental delivery, and continuous validation. Every line of code is written to make a failing test pass.
+The Build activity is where code comes to life. Following the contracts and test specifications from Design, this activity emphasizes test-driven development (TDD), incremental delivery, and continuous validation. Every line of code is written to make a failing test pass.
 
 ## Key Principle
 
@@ -12,9 +12,9 @@ The Build phase is where code comes to life. Following the contracts and test sp
 
 ## Input Gate
 
-Before starting Build phase, verify Test phase outputs:
+Before starting Build activity, verify Test activity outputs:
 - [ ] All test suites written and reviewed
-- [ ] Tests are failing (Red phase of TDD)
+- [ ] Tests are failing (Red activity of TDD)
 - [ ] Test coverage plan approved
 - [ ] CI/CD pipeline configured for tests
 - [ ] Test procedures documented
@@ -30,7 +30,7 @@ Before starting Build phase, verify Test phase outputs:
 **Output**: `docs/helix/04-build/implementation-plan.md`
 
 Technical execution strategy:
-- **Build Phases**: Incremental delivery approach
+- **Build Activities**: Incremental delivery approach
 - **Component Order**: What to build first
 - **Technology Setup**: Development environment
 - **Coding Standards**: Conventions and patterns
@@ -43,7 +43,7 @@ responsibility is already covered by the current build contract:
 
 - `docs/helix/01-frame/security-requirements.md` defines the security obligations
 - `docs/helix/01-frame/threat-model.md` and `docs/helix/02-design/security-architecture.md` define the design-level controls
-- `docs/helix/03-test/security-tests.md` and build-phase security scans verify the implementation
+- `docs/helix/03-test/security-tests.md` and build-activity security scans verify the implementation
 - project concerns can add stack-specific practices without promoting a generic checklist into the core workflow
 
 Reintroducing `secure-coding` as its own artifact would recreate the same thin,
@@ -70,7 +70,7 @@ feature-specific Build actions only when the work is already explicitly scoped
 to that story or feature.
 
 When the ready queue drains, do not switch to an unconditional loop. Run the
-cross-phase **check** action instead — it determines whether the next step is
+cross-activity **check** action instead — it determines whether the next step is
 more implementation, alignment, backfill, waiting on blockers, user guidance,
 or stopping.
 
@@ -122,9 +122,9 @@ graph LR
 - **Documentation**: Generate inline documentation
 - **Pattern Application**: Apply consistent coding patterns
 
-## Build Phases
+## Build Activities
 
-### Phase 1: Foundation (Red)
+### Activity 1: Foundation (Red)
 **Goal**: All tests written and failing
 
 Deliverables:
@@ -139,7 +139,7 @@ Deliverables:
 - 0% of tests passing
 - Clear failure messages
 
-### Phase 2: Core Build (Green)
+### Activity 2: Core Build (Green)
 **Goal**: Make tests pass incrementally
 
 Deliverables:
@@ -154,7 +154,7 @@ Deliverables:
 - 100% integration tests passing
 - No implementation without test
 
-### Phase 3: Quality (Refactor)
+### Activity 3: Quality (Refactor)
 **Goal**: Improve code without breaking tests
 
 Deliverables:
@@ -289,7 +289,7 @@ Every commit should:
 
 ## Success Criteria
 
-The Build phase is complete when:
+The Build activity is complete when:
 
 1. **All Tests Pass**: 100% of specified tests green
 2. **Coverage Met**: Contract coverage 100%, critical paths covered
@@ -298,9 +298,9 @@ The Build phase is complete when:
 5. **Documentation Complete**: Code and API documented
 6. **Code Review Done**: Approved by team
 
-## Next Phase: Deploy
+## Next Activity: Deploy
 
-Once Build is complete, proceed to Deploy phase for:
+Once Build is complete, proceed to Deploy activity for:
 - Production deployment
 - Environment configuration
 - Release management
@@ -346,7 +346,7 @@ pytest  # STILL PASS
 
 ## Build Artifacts
 
-By the end of Build phase, you should have:
+By the end of Build activity, you should have:
 
 1. **Source Code**: All production code
 2. **Test Suite**: Comprehensive test coverage
@@ -366,8 +366,8 @@ By the end of Build phase, you should have:
 ## Using AI Assistance
 
 Build execution is driven by the **build** action following the bounded loop
-defined in `actions/implementation.md`. Use the phase artifacts under
-`phases/04-build/artifacts/` when you need supporting build documentation or
+defined in `actions/implementation.md`. Use the activity artifacts under
+`activities/04-build/artifacts/` when you need supporting build documentation or
 work-item guidance.
 
 Common entry points:
@@ -396,4 +396,4 @@ contract.
 
 *"The only way to go fast is to go well." - Robert C. Martin*
 
-*Build phase is where disciplined engineering practices pay off. Trust the process.*
+*Build activity is where disciplined engineering practices pay off. Trust the process.*

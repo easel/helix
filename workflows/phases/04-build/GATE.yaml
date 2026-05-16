@@ -1,22 +1,22 @@
-phase: build
+activity: build
 number: "04"
 
 entry_requirements:
   automated:
     - check: previous_phase_complete
-      phase: 03-test
+      activity: 03-test
 
     - check: file_exists
       path: docs/helix/03-test/test-plan.md
-      description: "Test plan from Test phase must exist"
+      description: "Test plan from Test activity must exist"
 
     - check: tests_exist
       path: tests
-      description: "Test suites from Test phase must exist"
+      description: "Test suites from Test activity must exist"
 
     - check: tests_failing
       command: "npm test || go test ./... || pytest"
-      description: "Tests must be failing (Red phase ready for implementation)"
+      description: "Tests must be failing (Red activity ready for implementation)"
 
     - check: file_exists
       path: .github/.ddx/plugins/helix/workflows/test.yml
@@ -89,4 +89,4 @@ exit_requirements:
     - "Code review completed and approved"
     - "Performance benchmarks validated"
 
-next_phase: deploy
+next_activity: deploy

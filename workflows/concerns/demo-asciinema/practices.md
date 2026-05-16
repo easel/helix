@@ -1,6 +1,6 @@
 # Practices: demo-asciinema
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 - Identify which workflows need demo reels — prioritize the "first 5 minutes" experience
 - Define the narrative arc: what story should the viewer walk away understanding?
 - Determine target audience: new users evaluating the tool, or existing users learning a feature?

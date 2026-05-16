@@ -1,24 +1,24 @@
-# Phase 01: Frame
+# Activity 01: Frame
 
-The foundation phase where we define WHAT to build and WHY before considering HOW.
+The foundation activity where we define WHAT to build and WHY before considering HOW.
 
 ## Purpose
 
-The Frame phase establishes the project's foundation by understanding the
+The Frame activity establishes the project's foundation by understanding the
 problem, defining business value, and aligning stakeholders on objectives.
-Technical solutions are intentionally deferred to the Design phase.
+Technical solutions are intentionally deferred to the Design activity.
 
 **Key Principle**: Problem First, Solution Later.
 
 ## Input Gates
 
-Prerequisites to enter this phase (defined in `GATE.yaml`):
+Prerequisites to enter this activity (defined in `GATE.yaml`):
 - **Problem or opportunity identified**: A clear business need or challenge
 - **Time allocated for analysis**: Dedicated time for thorough framing
 
 ## Exit Gates
 
-Criteria to proceed to Design phase (defined in `GATE.yaml`):
+Criteria to proceed to Design activity (defined in `GATE.yaml`):
 - **PRD approved**: Problem quantified, P0s testable, metrics measurable, non-goals specific, personas validatable
 - **P0 requirements specified**: Critical features have detailed, testable specifications
 - **Success metrics measurable**: Metrics have numeric targets and named measurement methods
@@ -29,7 +29,7 @@ Criteria to proceed to Design phase (defined in `GATE.yaml`):
 
 ## Core Artifacts
 
-The Frame phase produces four core artifacts. Each artifact directory under
+The Frame activity produces four core artifacts. Each artifact directory under
 `artifacts/` includes `template.md` (structure), `prompt.md` (section-by-section
 guidance and quality checklist), and `dependencies.yaml` (validation rules).
 
@@ -106,7 +106,7 @@ graph TD
     E --> F[Iterative refinement]
     F --> G{Quality gates pass?}
     G -->|No| F
-    G -->|Yes| H[Gate to Design phase]
+    G -->|Yes| H[Gate to Design activity]
 ```
 
 ## Human vs AI Responsibilities

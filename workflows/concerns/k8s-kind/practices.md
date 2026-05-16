@@ -1,6 +1,6 @@
 # Practices: k8s-kind
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 - Identify all services that need to run locally together
 - Confirm production target is Kubernetes (not serverless/PaaS)
 - Plan for secrets management strategy before first deployment

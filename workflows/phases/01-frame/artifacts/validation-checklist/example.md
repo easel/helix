@@ -12,7 +12,7 @@ ddx:
     - example.stakeholder-map.depositmatch
 ---
 
-# Frame Phase Validation Checklist
+# Frame Activity Validation Checklist
 
 **Status**: [ ] Not Started | [ ] In Progress | [x] Complete
 **Validated By**: Product Lead
@@ -33,7 +33,7 @@ ddx:
 
 ## Result
 
-- [ ] **PASS**: Ready for Design phase
+- [ ] **PASS**: Ready for Design activity
 - [x] **CONDITIONAL PASS**: Proceed with noted conditions
 - [ ] **FAIL**: Address blocking issues first
 

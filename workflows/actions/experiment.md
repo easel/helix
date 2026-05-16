@@ -23,7 +23,7 @@ You may receive:
 - no argument (auto-select a ready `phase:iterate` work item)
 - an explicit work item ID
 - a goal description such as `optimize test-suite-runtime`
-- a `--close` flag directing you to skip iteration and execute Phase 3
+- a `--close` flag directing you to skip iteration and execute Step 3
 
 ## Authority Order
 
@@ -57,7 +57,7 @@ review items and build/deploy items by default.
 The experiment action claims one item at session setup, may create follow-on
 items during execution, and closes the item at session close.
 
-## PHASE 0 - Bootstrap
+## STEP 0 - Bootstrap
 
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
@@ -71,22 +71,22 @@ items during execution, and closes the item at session close.
    experiment.
 1. Verify the runtime tracker is available. Stop immediately if unavailable.
 2. Load ratchet floor fixtures if the project has adopted quality ratchets.
-   Note the current floors so Phase 3 can compare against them for auto-bump
+   Note the current floors so Step 3 can compare against them for auto-bump
    decisions.
 3. Determine the invocation mode:
-   - If `--close` directive: skip directly to Phase 3.
+   - If `--close` directive: skip directly to Step 3.
    - If resuming (session files exist — `autoresearch.md` is present in the
      worktree): read `autoresearch.md`, `autoresearch.jsonl`, and
-     `experiments/worklog.md` to recover session state. Skip to Phase 2.
-   - If fresh start (no session files, no `--close`): proceed to Phase 1.
+     `experiments/worklog.md` to recover session state. Skip to Step 2.
+   - If fresh start (no session files, no `--close`): proceed to Step 1.
 
 Resume detection is file-based, not flag-based. The presence of
 `autoresearch.md` in the worktree root is the authoritative signal that a
 session is in progress. This survives context compaction and agent restarts.
 
-## PHASE 1 - Session Setup
+## STEP 1 - Session Setup
 
-This phase runs on the first invocation only. If resuming, Phase 0 skips here.
+This activity runs on the first invocation only. If resuming, Step 0 skips here.
 
 ### 1.1 Issue Selection
 
@@ -206,7 +206,7 @@ Log the baseline as run #1:
 The baseline is the reference point for all future keep/discard decisions and
 delta calculations.
 
-## PHASE 2 - Single Experiment Iteration
+## STEP 2 - Single Experiment Iteration
 
 This is the core loop body. Each invocation executes exactly one iteration.
 
@@ -343,9 +343,9 @@ iteration count is a multiple of 5, update the "What's Been Tried" section in
 This keeps the session doc useful for hypothesis formation in future iterations,
 especially after context compaction.
 
-## PHASE 3 - Session Close
+## STEP 3 - Session Close
 
-This phase is invoked explicitly via a `--close` flag or by the skill when
+This activity is invoked explicitly via a `--close` flag or by the skill when
 iteration is complete. It does NOT run during normal iteration.
 
 ### 3.1 Authority Check
@@ -369,7 +369,7 @@ If no iterations were kept (best equals baseline):
 
 ### 3.3 Ratchet Floor Update
 
-If the project has performance ratchets (loaded in Phase 0) and the best
+If the project has performance ratchets (loaded in Step 0) and the best
 result exceeds the current ratchet floor + auto-bump threshold:
 
 - Update the ratchet floor fixture file with the new floor value.
@@ -487,7 +487,7 @@ ITEM_ID: <id>
 - `NO_IMPROVEMENT` — no improvement in the last 5 consecutive iterations.
   The experiment has stalled. The operator should consider closing the session
   or changing strategy.
-- `CLOSED` — session close completed (Phase 3 executed). The experiment
+- `CLOSED` — session close completed (Step 3 executed). The experiment
   branch has been squash-merged (or skipped if zero improvement), the issue
   has been closed, and session files have been cleaned up.
 
@@ -524,7 +524,7 @@ Report these sections in order:
 
 This appendix applies when DDx is the active HELIX runtime.
 
-### PHASE 0 — DDx references
+### STEP 0 — DDx references
 
 - Principles: `.ddx/plugins/helix/workflows/references/principles-resolution.md`
 - Concerns: `.ddx/plugins/helix/workflows/references/concern-resolution.md`
@@ -533,13 +533,13 @@ This appendix applies when DDx is the active HELIX runtime.
 - Autoresearch-session template: `.ddx/plugins/helix/workflows/phases/06-iterate/artifacts/autoresearch-session/template.md`
 - Autoresearch-worklog template: `.ddx/plugins/helix/workflows/phases/06-iterate/artifacts/autoresearch-worklog/template.md`
 
-### PHASE 1.2 — DDx claim
+### STEP 1.2 — DDx claim
 
 ```bash
 ddx bead update <id> --claim
 ```
 
-### PHASE 3.6 — DDx measure
+### STEP 3.6 — DDx measure
 
 ```bash
 ddx bead update <id> --notes "<measure-results>
@@ -551,7 +551,7 @@ ddx bead update <id> --notes "<measure-results>
 </measure-results>"
 ```
 
-### PHASE 3.7 — DDx close
+### STEP 3.7 — DDx close
 
 ```bash
 ddx bead close <id> --comment "Experiment closed. <summary>"

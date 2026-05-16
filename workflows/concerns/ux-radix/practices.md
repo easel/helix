@@ -1,6 +1,6 @@
 # Practices: UX Interaction Patterns (Radix)
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 
 - User stories involving interactive UI must specify which interaction
   patterns apply (search, edit, navigate, select, disclose)

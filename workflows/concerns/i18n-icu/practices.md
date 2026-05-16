@@ -1,6 +1,6 @@
 # Practices: Internationalization (ICU MessageFormat)
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 
 - All user stories involving user-facing text must specify i18n handling
 - Target locales must be declared in the project config

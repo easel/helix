@@ -1,7 +1,7 @@
-# Reference: Measure Phase
+# Reference: Measure Activity
 
-The measure phase verifies results against a bead's acceptance criteria and
-records evidence on the bead. It runs as an embedded phase within every action
+The measure activity verifies results against a bead's acceptance criteria and
+records evidence on the bead. It runs as an embedded activity within every action
 and is also available as a standalone command.
 
 ## What Measure Checks
@@ -93,12 +93,12 @@ Standalone `helix measure` is useful for:
 
 ## Embedded Usage
 
-When measure runs as an embedded phase within an action, it follows the same
+When measure runs as an embedded activity within an action, it follows the same
 steps but uses the action's already-loaded context (concerns, principles,
 ratchet fixtures) rather than re-loading from scratch.
 
-The embedded measure phase is typically Phase N+1, immediately after the
-action's main execution phases and before the report phase.
+The embedded measure activity is typically Activity N+1, immediately after the
+action's main execution activities and before the report activity.
 
 ## Measure Status
 

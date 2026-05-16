@@ -1,10 +1,10 @@
-# Phase 05: Deploy
+# Activity 05: Deploy
 
-The release phase where tested and validated code is deployed to production with proper monitoring, documentation, and rollback procedures.
+The release activity where tested and validated code is deployed to production with proper monitoring, documentation, and rollback procedures.
 
 ## Purpose
 
-The Deploy phase takes the thoroughly tested application from the Build phase and releases it to production environments. This phase emphasizes automation, observability, and reliability, ensuring smooth deployments with minimal downtime and quick recovery options.
+The Deploy activity takes the thoroughly tested application from the Build activity and releases it to production environments. This activity emphasizes automation, observability, and reliability, ensuring smooth deployments with minimal downtime and quick recovery options.
 
 ## Key Principle
 
@@ -12,7 +12,7 @@ The Deploy phase takes the thoroughly tested application from the Build phase an
 
 ## Workflow Principles
 
-This phase operates under the HELIX workflow principles, emphasizing:
+This activity operates under the HELIX workflow principles, emphasizing:
 
 - **Automated Deployment**: Infrastructure as code, CI/CD pipelines, zero-downtime deployments
 - **Progressive Rollout**: Canary deployments, feature flags, gradual traffic shifting
@@ -24,27 +24,27 @@ Deployment is not just about moving code to production—it's about doing so saf
 
 ## Input Gates
 
-Prerequisites to enter this phase (defined in `input-gates.yml`):
+Prerequisites to enter this activity (defined in `input-gates.yml`):
 
 1. **All tests passing**
    - Requirement: Unit, integration, and E2E tests all green
    - Validation: `npm test` or `go test ./...` shows 100% pass rate
-   - Source: 04-build phase
+   - Source: 04-build activity
 
 2. **Performance validated**
    - Requirement: Performance tests meet defined thresholds
    - Validation: Load test results within SLA requirements
-   - Source: 04-build phase
+   - Source: 04-build activity
 
 3. **Security scan completed**
    - Requirement: No critical or high vulnerabilities
    - Validation: Security audit passes (`npm audit`, SAST tools)
-   - Source: 04-build phase
+   - Source: 04-build activity
 
 4. **Documentation updated**
    - Requirement: API docs, README, and changelog current
    - Validation: Documentation review completed
-   - Source: 04-build phase
+   - Source: 04-build activity
 
 These gates ensure only production-ready code proceeds to deployment.
 
@@ -276,7 +276,7 @@ Before marking deployment complete:
 
 ## Exit Criteria
 
-The Deploy phase is complete and Iterate phase can begin when:
+The Deploy activity is complete and Iterate activity can begin when:
 
 1. **Application Deployed**: Code running in production
    - Validation: Health checks passing
@@ -291,9 +291,9 @@ The Deploy phase is complete and Iterate phase can begin when:
 6. **Stakeholders Notified**: Release communicated
    - Validation: Release notes published
 
-## Next Phase: Iterate
+## Next Activity: Iterate
 
-Once Deploy phase completes, proceed to Iterate where you'll:
+Once Deploy activity completes, proceed to Iterate where you'll:
 - Collect user feedback
 - Analyze production metrics
 - Identify improvements

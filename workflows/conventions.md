@@ -44,14 +44,14 @@ the runtime integration appendix; the requirements above apply to every layout.
 
 ## Documentation Structure
 
-### Phase-Based Organization
+### Activity-Based Organization
 
 Projects using HELIX should organize their documentation using the `docs/helix/` convention:
 
 ```
 project-root/
 ├── docs/
-│   ├── helix/                  # HELIX phase artifacts
+│   ├── helix/                  # HELIX activity artifacts
 │   │   ├── 00-discover/        # Optional opportunity validation
 │   │   ├── parking-lot.md       # Deferred and future work registry
 │   │   ├── 01-frame/          # Problem definition & requirements
@@ -71,18 +71,18 @@ integration appendix for the layout your runtime uses.
 
 ### Why This Structure?
 
-1. **Clear Separation**: Phase artifacts are distinct from operational/reference docs
-2. **Workflow Alignment**: Numbered directories match HELIX phase order
+1. **Clear Separation**: Activity artifacts are distinct from operational/reference docs
+2. **Workflow Alignment**: Numbered directories match HELIX activity order
 3. **Execution Separation**: Ephemeral task execution lives in the runtime's
    work-item tracker, not in canonical planning docs
 4. **Tool Support**: Consistent structure enables validation and automation
-5. **Flexibility**: Non-phase documentation has dedicated locations
+5. **Flexibility**: Non-activity documentation has dedicated locations
 6. **Shared skill resources**: The HELIX content package keeps shared workflow
    resources together with the skills that depend on them
 
-### Phase Directory Contents
+### Activity Directory Contents
 
-Each phase directory contains artifacts directly (no `artifacts/` subdirectory):
+Each activity directory contains artifacts directly (no `artifacts/` subdirectory):
 
 ```
 00-discover/
@@ -194,7 +194,7 @@ Labels are organizational conventions for triage and traceability. They are
 recommended for runtimes that support labels:
 
 - A `helix` label for discoverability
-- A phase label when applicable: `phase:frame`, `phase:design`, `phase:test`,
+- A activity label when applicable: `phase:frame`, `phase:design`, `phase:test`,
   `phase:build`, `phase:deploy`, `phase:iterate`, or `phase:review`
 - `kind:build`, `kind:deploy`, `kind:backlog`, or `kind:review` when helpful
 - Traceability labels such as `story:US-XXX`, `feature:FEAT-XXX`,
@@ -216,15 +216,15 @@ runtime integration appendix.
 
 ### File Names
 
-1. **README.md**: Each phase directory must have a README explaining its purpose and current status
+1. **README.md**: Each activity directory must have a README explaining its purpose and current status
 2. **Artifact Names**: Use descriptive, lowercase names with hyphens (e.g., `threat-model.md`, `api-design.md`)
 3. **Numbered Items**: When multiple versions exist, use semantic versioning (e.g., `prd-v1.0.md`, `prd-v1.1.md`)
 
 ### Directory Names
 
-1. **Phase Directories**: Always use two-digit numbering (01-frame, not 1-frame)
+1. **Activity Directories**: Always use two-digit numbering (01-frame, not 1-frame)
 2. **Artifact Directories**: Use lowercase with hyphens, typically plural (e.g., `user-stories`, `contracts`)
-3. **No Nesting**: Avoid deep nesting; keep artifacts at most one level deep within phase directories
+3. **No Nesting**: Avoid deep nesting; keep artifacts at most one level deep within activity directories
 
 ### Design Artifact Naming
 
@@ -245,9 +245,9 @@ runtime integration appendix.
 
 ## Cross-References
 
-### Linking Between Phases
+### Linking Between Activities
 
-Use relative paths to reference artifacts across phases:
+Use relative paths to reference artifacts across activities:
 
 ```markdown
 # In 02-design/architecture.md
@@ -265,7 +265,7 @@ Maintain clear traceability by:
 3. Connecting test results to implementation decisions
 4. Tracking deployment issues back to design choices
 
-## Non-Phase Documentation
+## Non-Activity Documentation
 
 ### Reference Documentation
 
@@ -297,10 +297,10 @@ the canonical authority stack.
 
 When migrating existing documentation to HELIX structure:
 
-1. **Analyze Current State**: Map existing docs to HELIX phases
+1. **Analyze Current State**: Map existing docs to HELIX activities
 2. **Extract Requirements**: Pull requirements from various sources into 01-frame
 3. **Consolidate Design**: Gather architecture docs into 02-design
-4. **Identify Gaps**: Note missing artifacts for each phase
+4. **Identify Gaps**: Note missing artifacts for each activity
 5. **Create Placeholders**: Add README files marking TODOs for missing content
 6. **Maintain References**: Update all cross-references after migration
 
@@ -309,14 +309,14 @@ When migrating existing documentation to HELIX structure:
 Projects should validate their documentation structure:
 
 ```bash
-# Check required phase directories exist
-test -d docs/helix/01-frame || echo "Missing frame phase"
-test -d docs/helix/02-design || echo "Missing design phase"
+# Check required activity directories exist
+test -d docs/helix/01-frame || echo "Missing frame activity"
+test -d docs/helix/02-design || echo "Missing design activity"
 # ... etc
 
-# Verify README files in each phase
-for phase in docs/helix/*/; do
-  test -f "$phase/README.md" || echo "Missing README in $phase"
+# Verify README files in each activity
+for activity in docs/helix/*/; do
+  test -f "$activity/README.md" || echo "Missing README in $activity"
 done
 
 # Check for orphaned references
@@ -326,9 +326,9 @@ grep -r "\.\./" docs/helix/ | grep -v "helix"
 ## Templates
 
 Use HELIX workflow templates to create consistent artifacts. Each artifact
-type under `phases/<phase>/artifacts/<type>/` ships a `prompt.md` (authoring
+type under `activities/<activity>/artifacts/<type>/` ships a `prompt.md` (authoring
 guidance) and `template.md` (skeleton document). Read the prompt, copy the
-template into the corresponding location under `docs/helix/<phase>/`, and fill
+template into the corresponding location under `docs/helix/<activity>/`, and fill
 it in. Runtime-specific installation paths to those template roots are listed
 in the integration appendix.
 
@@ -336,7 +336,7 @@ in the integration appendix.
 
 1. **Start Early**: Create the structure at project inception
 2. **Keep Current**: Update documentation as the project evolves
-3. **Review Regularly**: Include doc reviews in phase transitions
+3. **Review Regularly**: Include doc reviews in activity transitions
 4. **Automate Checks**: Add structure validation to CI/CD
 5. **Version Control**: Track all documentation changes in git
 6. **Link Liberally**: Cross-reference related artifacts
@@ -345,26 +345,26 @@ in the integration appendix.
 
 ## FAQ
 
-### Q: Can I add custom directories to phases?
-A: Yes, phases can have project-specific subdirectories. Document them in the phase README.
+### Q: Can I add custom directories to activities?
+A: Yes, activities can have project-specific subdirectories. Document them in the activity README.
 
 ### Q: Should code live in helix/?
 A: No, code belongs in the project's source directories. Documentation only in helix.
 
 ### Q: How do I handle multiple features in parallel?
-A: Keep the shared project docs stable and add separate feature/story files in the canonical phase directories, for example `docs/helix/01-frame/features/FEAT-001-*.md`, `docs/helix/02-design/solution-designs/SD-001-*.md`, and `docs/helix/01-frame/user-stories/US-001-*.md`.
+A: Keep the shared project docs stable and add separate feature/story files in the canonical activity directories, for example `docs/helix/01-frame/features/FEAT-001-*.md`, `docs/helix/02-design/solution-designs/SD-001-*.md`, and `docs/helix/01-frame/user-stories/US-001-*.md`.
 
 ### Q: What about diagrams and images?
-A: Store them alongside the documents that reference them, or in a phase-level `images/` directory.
+A: Store them alongside the documents that reference them, or in a activity-level `images/` directory.
 
-### Q: Can I skip phases?
-A: While not recommended, if skipping phases, document why in the project root README.
+### Q: Can I skip activities?
+A: While not recommended, if skipping activities, document why in the project root README.
 
 ## Story Refinement Conventions
 
 ### Refinement Documentation Structure
 
-Story refinements are tracked in the iterate phase to maintain learning and traceability:
+Story refinements are tracked in the iterate activity to maintain learning and traceability:
 
 ```
 docs/helix/06-iterate/refinements/
@@ -394,7 +394,7 @@ Examples:
 - [Refinement 002](../06-iterate/refinements/US-001-refinement-002.md) - Scope expansion for mobile support
 ```
 
-**Cross-Phase References**: Refinement logs link to all affected documents:
+**Cross-Activity References**: Refinement logs link to all affected documents:
 ```markdown
 ### Updated Documents
 - [User Story](../01-frame/user-stories/US-001.md) - Updated acceptance criteria
@@ -426,7 +426,7 @@ refine(US-001): fix error handling specification gaps
 - Add regression test requirements
 - Update error handling design patterns
 
-Addresses bugs discovered during implementation phase.
+Addresses bugs discovered during implementation activity.
 ```
 
 ### Quality Gates for Refinements
@@ -438,7 +438,7 @@ Addresses bugs discovered during implementation phase.
 - [ ] Current implementation status captured
 
 **Post-Refinement Validation**:
-- [ ] All affected phase documents updated
+- [ ] All affected activity documents updated
 - [ ] Cross-references verified and functional
 - [ ] Traceability maintained from issue to resolution
 - [ ] No conflicts introduced between requirements
@@ -499,7 +499,7 @@ project-root/
 │   └── plugins/helix/       # Installed HELIX content
 ├── .agents/skills/          # Published HELIX skills (project-level)
 ├── skills/                  # Skill sources for the HELIX package
-└── docs/helix/              # Canonical HELIX phase artifacts
+└── docs/helix/              # Canonical HELIX activity artifacts
 ```
 
 ### DDx shared workflow root
@@ -522,7 +522,7 @@ surface. Common tracker introspection:
 
 DDx-installed templates live at:
 
-- artifact templates: `.ddx/plugins/helix/workflows/phases/<phase>/artifacts/<type>/template.md`
+- artifact templates: `.ddx/plugins/helix/workflows/phases/<activity>/artifacts/<type>/template.md`
 - refinement template: `.ddx/plugins/helix/workflows/templates/refinement-log.md`
 
 Example artifact bootstrap:

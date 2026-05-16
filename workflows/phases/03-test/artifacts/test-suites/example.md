@@ -20,7 +20,7 @@ ddx:
 | Integration | `tests/integration/` | CSV import to normalized records, match suggestions, review decisions, audit writes | under 3m | Yes |
 | Contract | `tests/contract/` | import, match queue, review decision, export, and problem-details API behavior | under 2m | Yes |
 | Security | `tests/security/` | tenant isolation, malicious CSV, telemetry, support access, audit-log controls | under 3m | Yes |
-| E2E | `tests/e2e/` | one reviewer import-to-decision smoke journey | under 5m | No for pilot red phase |
+| E2E | `tests/e2e/` | one reviewer import-to-decision smoke journey | under 5m | No for pilot red activity |
 
 ## Coverage Mapping
 
@@ -98,7 +98,7 @@ npx playwright test tests/e2e/reviewer-smoke.spec.ts
 | Integration | `test-results/integration.xml` | Yes |
 | Contract | `test-results/contract.xml` | Yes |
 | Security | `test-results/security/` | Yes |
-| E2E | Playwright trace on failure | No for pilot red phase |
+| E2E | Playwright trace on failure | No for pilot red activity |
 
 ## Readiness
 - [x] Suite boundaries are defined

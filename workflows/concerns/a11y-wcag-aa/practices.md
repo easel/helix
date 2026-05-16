@@ -1,6 +1,6 @@
 # Practices: Accessibility (WCAG 2.1 AA)
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 
 - All user stories involving UI must include a11y acceptance criteria
 - WCAG 2.1 AA is the minimum compliance target

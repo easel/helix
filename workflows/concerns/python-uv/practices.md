@@ -1,6 +1,6 @@
 # Practices: python-uv
 
-## Requirements (Frame phase)
+## Requirements (Frame activity)
 - Specify minimum Python version (3.12+ preferred)
 - Identify whether the project is a library (published) or an application (not published)
 - If ML/GPU dependencies exist, plan for `[tool.uv.sources]` with custom package indexes

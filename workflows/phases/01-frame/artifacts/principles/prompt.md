@@ -1,7 +1,7 @@
 # Principles Generation Prompt
 
 Help the user create a project principles document that guides judgment calls
-across all HELIX phases.
+across all HELIX activities.
 
 ## Purpose
 

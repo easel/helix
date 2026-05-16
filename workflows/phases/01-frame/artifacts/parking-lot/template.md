@@ -22,7 +22,7 @@ ddx:
 - **Impact if Omitted**: [Risk/impact]
 - **Dependencies**: [Blocked by / prerequisites]
 - **Revisit Trigger**: [What must happen before reconsidering]
-- **Target Phase/Milestone**: [Phase or release]
+- **Target Activity/Milestone**: [Activity or release]
 - **Owner**: [Person/team responsible for review]
 - **Last Reviewed**: [Date]
 

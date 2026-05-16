@@ -137,7 +137,7 @@ visible in the tracker.
 
 See `.ddx/plugins/helix/workflows/references/bead-first.md` for the full bead acquisition pattern,
 `.ddx/plugins/helix/workflows/references/measure.md` for measurement recording, and
-`.ddx/plugins/helix/workflows/references/report.md` for the report phase.
+`.ddx/plugins/helix/workflows/references/report.md` for the report activity.
 
 ## Core Actions
 
@@ -177,7 +177,7 @@ HELIX supervision is built from bounded actions with distinct roles:
 - `helix measure [bead-id|scope]`
   Runs acceptance criteria, concern-declared quality gates, and ratchet
   enforcement against a bead or scope. Records results on the bead. Can be
-  invoked standalone or runs as an embedded phase within other actions.
+  invoked standalone or runs as an embedded activity within other actions.
 - `helix report [bead-id|scope]`
   Analyzes measurement results, creates follow-on beads for identified work,
   and closes the governing bead with evidence. Per-bead by default; batch mode
@@ -640,7 +640,7 @@ items and attempt ad-hoc decomposition during build.
 
 **Measure and report close each cycle.** After execution, every action measures
 results against its bead's acceptance criteria and records evidence on the bead.
-The report phase creates follow-on beads for any new work identified and closes
+The report activity creates follow-on beads for any new work identified and closes
 the governing bead. These follow-on beads re-enter the planning helix.
 
 The public command names for this sequence are `helix design`, `helix polish`,

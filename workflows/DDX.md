@@ -113,12 +113,12 @@ This model ensures that a scope reduction (dropping a subsystem) receives
 the same rigor as a scope expansion (adding a feature). Nothing is removed
 by simply deleting code.
 
-## Phases
+## Activities
 
-DDx organizes work into phases that correspond to the authority hierarchy.
-Each phase produces artifacts at its level before the next phase begins:
+DDx organizes work into activities that correspond to the authority hierarchy.
+Each activity produces artifacts at its level before the next activity begins:
 
-| Phase | Purpose | Artifacts Produced |
+| Activity | Purpose | Artifacts Produced |
 |-------|---------|-------------------|
 | **Discover** | Validate the opportunity | Vision, business case, competitive analysis |
 | **Frame** | Define the problem | Requirements, feature specs, user stories, principles |
@@ -128,9 +128,9 @@ Each phase produces artifacts at its level before the next phase begins:
 | **Deploy** | Release and operate | Deployment checklists, monitoring setup, runbooks, release notes |
 | **Iterate** | Learn and improve | Alignment reviews, retrospectives, metrics |
 
-Phases are not strictly sequential — iteration sends realized artifacts
-back through evolution, and early phases may be revisited when assumptions
-prove wrong. But the authority order holds regardless of which phase you
+Activities are not strictly sequential — iteration sends realized artifacts
+back through evolution, and early activities may be revisited when assumptions
+prove wrong. But the authority order holds regardless of which activity you
 are in: vision still governs code even during iteration.
 
 ## Agent Context Model
@@ -239,9 +239,9 @@ other workflows may implement a subset.
 HELIX is the reference implementation of DDx. It layers workflow-specific
 semantics on top of DDx tools:
 
-- **Phase labels** (`phase:build`, `phase:design`, etc.) on beads
+- **Activity labels** (`phase:build`, `phase:design`, etc.) on beads
 - **Spec-id enforcement** linking every bead to its governing artifact
-- **Execution-eligible** derivation from phase labels
+- **Execution-eligible** derivation from activity labels
 - **Supervisory run loop** that sequences build/check/design/review
 - **Agent orchestration** dispatching to Claude, Codex, virtual (recorded replay), or other agents
 - **Quality ratchets** preventing metric regression

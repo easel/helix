@@ -58,7 +58,7 @@ This action works only on execution work items. Exclude review items by default.
 Eligible items are ready (no unresolved blockers) and represent execution work
 rather than review work.
 
-Do not claim or implement review-phase items with this action.
+Do not claim or implement review-activity items with this action.
 
 ## Core Principle
 
@@ -83,7 +83,7 @@ resolve, or an intractable technical problem after real effort.
 conclusion is usually: do the part that IS safe, create follow-on issues for the
 rest, and close the issue.
 
-## PHASE 0 - Bootstrap
+## STEP 0 - Bootstrap
 
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
@@ -94,10 +94,10 @@ rest, and close the issue.
    - If unrelated changes create commit risk, isolate your work item changes
      rather than cleaning the tree destructively.
 3. Load project quality and completeness gates.
-   - Read the build-phase enforcer and any repo-specific CI, lint, test,
+   - Read the build-activity enforcer and any repo-specific CI, lint, test,
      security, or release rules.
    - Load ratchet floor fixtures if the project has adopted quality ratchets.
-     Note the current floors so Phase 7 can compare against them.
+     Note the current floors so Step 7 can compare against them.
 4. Load active design principles.
    - Follow the runtime's principles-resolution pattern.
    - If `docs/helix/01-frame/principles.md` exists and has content, load it.
@@ -117,7 +117,7 @@ rest, and close the issue.
    - If no digest exists (legacy item), rely on steps 4-5 above plus the
      item's `spec-id` to reconstruct context.
 
-## PHASE 1 - Candidate Discovery
+## STEP 1 - Candidate Discovery
 
 Determine the candidate set:
 
@@ -126,12 +126,12 @@ Determine the candidate set:
 2. If the input is a scope selector:
    - search ready HELIX execution items matching the selector
 3. If no input is given:
-   - inspect ready HELIX execution items, excluding review-phase items
+   - inspect ready HELIX execution items, excluding review-activity items
 
 Use tracker commands to list ready items, show item details, and inspect
 dependency trees.
 
-## PHASE 2 - Candidate Ranking
+## STEP 2 - Candidate Ranking
 
 Rank candidates deterministically.
 
@@ -169,7 +169,7 @@ If genuinely no candidate can make forward progress, report what is blocked and
 why with specific artifact references. Exit cleanly so the supervisor can run
 the queue-health check.
 
-## PHASE 3 - Claim And Context Load
+## STEP 3 - Claim And Context Load
 
 For the selected work item:
 
@@ -192,12 +192,12 @@ For the selected work item:
    - item description
    - parent item or epic
    - linked user story, feature, design, or test artifacts
-5. Determine the work phase from labels:
+5. Determine the work activity from labels:
    - `phase:build`
    - `phase:deploy`
    - `phase:iterate`
 
-## PHASE 4 - Pre-Execution Validation
+## STEP 4 - Pre-Execution Validation
 
 Before editing code or docs, validate:
 
@@ -223,11 +223,11 @@ Only stop implementation when:
 "Underspecified" is not a reason to stop. Underspecified means: scope down to
 what IS specified, implement that, and create follow-on issues for the rest.
 
-## PHASE 5 - Phase-Appropriate Execution
+## STEP 5 - Activity-Appropriate Execution
 
 ### `phase:build`
 
-Follow Build-phase discipline strictly:
+Follow Build-activity discipline strictly:
 
 - implement only what is needed to satisfy the governing tests and artifacts
 - do not change test expectations just to make the issue pass
@@ -237,7 +237,7 @@ Follow Build-phase discipline strictly:
 
 ### `phase:deploy`
 
-Follow Deploy-phase discipline strictly:
+Follow Deploy-activity discipline strictly:
 
 - execute rollout, release, monitoring, and runbook work only within the issue scope
 - do not expand product behavior or sneak in implementation changes unrelated to deployment safety
@@ -245,13 +245,13 @@ Follow Deploy-phase discipline strictly:
 
 ### `phase:iterate`
 
-Follow Iterate-phase discipline strictly:
+Follow Iterate-activity discipline strictly:
 
 - limit changes to documented cleanup, lessons, backlog, or metrics work
 - do not turn iterate work into hidden feature implementation
 - capture concrete follow-on execution issues when new work is discovered
 
-## PHASE 6 - Follow-On Issue Capture
+## STEP 6 - Follow-On Issue Capture
 
 If execution reveals additional work, decide whether to absorb or split:
 
@@ -282,7 +282,7 @@ When creating follow-on issues:
 - add the correct HELIX labels
 - encode blockers via the runtime tracker's dependency mechanism
 
-## PHASE 7 - Verification
+## STEP 7 - Verification
 
 Run verification scoped to what you changed, not the full workspace.
 
@@ -330,7 +330,7 @@ leave that item green. Reopen it immediately or create a linked regression item
 that records the exact contradictory command, date, exit status, and reviewed
 artifacts.
 
-## PHASE 7.5 - Measure
+## STEP 7.5 - Measure
 
 Record verification results on the work item via the runtime tracker. See the
 measure action for the full pattern.
@@ -341,7 +341,7 @@ pass/fail with evidence, per-gate pass/fail, per-ratchet measured vs. floor).
 If verification failed and cannot be fixed within scope, record the failure on
 the work item and do not proceed to commit.
 
-## PHASE 7.6 - Self-Review
+## STEP 7.6 - Self-Review
 
 Before committing, perform one quick fresh-eyes review:
 
@@ -353,9 +353,9 @@ Before committing, perform one quick fresh-eyes review:
    that should be configuration, TODO comments that should be follow-on items,
    test assertions that are too loose or tautological.
 
-If issues are found, fix them before proceeding to Phase 8.
+If issues are found, fix them before proceeding to Step 8.
 
-## PHASE 8 - Commit, Gate, Push, And Close
+## STEP 8 - Commit, Gate, Push, And Close
 
 If the work item is complete:
 
@@ -386,7 +386,7 @@ If the work item is complete:
      --workspace`, `npm test`, or whatever AGENTS.md defines as the gate)
    - If the gate fails: fix the issue, amend the commit, and re-run the gate.
      Do NOT push broken code. Do NOT skip this step.
-   - The scoped verification in Phase 7 catches most issues, but this
+   - The scoped verification in Step 7 catches most issues, but this
      full-workspace gate catches cross-crate and cross-module breakage
      that scoped checks miss (e.g., trait/impl mismatches across files).
 7. Push to remote: `git pull --rebase && git push`
@@ -395,20 +395,20 @@ If the work item is complete:
 If the worktree contains unrelated changes, commit only the files that belong
 to the work item. Never revert unrelated work just to simplify the commit.
 
-## PHASE 9 - Report
+## STEP 9 - Report
 
 Close the execution cycle and feed back into the planning cycle. See the
 report action for the full pattern.
 
-1. The work item was already closed in Phase 8. Verify the close comment
+1. The work item was already closed in Step 8. Verify the close comment
    includes measurement evidence.
-2. Follow-on items created in Phase 6 re-enter the planning cycle for polish
+2. Follow-on items created in Step 6 re-enter the planning cycle for polish
    and subsequent build.
 3. If the work item could not be closed (verification failed, acceptance
    unmet), it remains open with measurement results recorded — the next check
    action will route it appropriately.
 
-## PHASE 10 - Output
+## STEP 10 - Output
 
 Report:
 
@@ -435,20 +435,20 @@ Be precise and deterministic.
 
 This appendix applies when DDx is the active HELIX runtime.
 
-### PHASE 0 — DDx bootstrap
+### STEP 0 — DDx bootstrap
 
 ```bash
 ddx bead status  # stop immediately if this fails
 ```
 
-- Build-phase enforcer: `.ddx/plugins/helix/workflows/phases/04-build/enforcer.md`
+- Build-activity enforcer: `.ddx/plugins/helix/workflows/phases/04-build/enforcer.md`
 - Ratchets: `.ddx/plugins/helix/workflows/ratchets.md`
 - Principles: `.ddx/plugins/helix/workflows/references/principles-resolution.md`
   (default: `.ddx/plugins/helix/workflows/principles.md`)
 - Concerns: `.ddx/plugins/helix/workflows/references/concern-resolution.md`
 - Context-digest: `.ddx/plugins/helix/workflows/references/context-digest.md`
 
-### PHASE 1-2 — DDx candidate discovery
+### STEP 1-2 — DDx candidate discovery
 
 ```bash
 ddx bead ready
@@ -456,14 +456,14 @@ ddx bead show <id>
 ddx bead dep tree <id>
 ```
 
-### PHASE 3 — DDx claim and load
+### STEP 3 — DDx claim and load
 
 ```bash
 ddx bead show <id> --json        # re-read before claiming
 ddx bead update <id> --claim
 ```
 
-### PHASE 7.5 — DDx measure
+### STEP 7.5 — DDx measure
 
 ```bash
 ddx bead update <id> --notes "<measure-results>
@@ -481,7 +481,7 @@ ddx bead update <id> --notes "<measure-results>
 </measure-results>"
 ```
 
-### PHASE 8 — DDx close
+### STEP 8 — DDx close
 
 ```bash
 ddx bead show <id> --json   # re-read before closing

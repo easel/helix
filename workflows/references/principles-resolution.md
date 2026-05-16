@@ -43,21 +43,21 @@ action prompts:
 - **Context Digest** (`.ddx/plugins/helix/workflows/references/context-digest.md`) — compact
   summary assembled into beads at triage/polish time
 
-All three are loaded at Phase 0 of judgment-making actions.
+All three are loaded at Activity 0 of judgment-making actions.
 
 ## When to Apply
 
 Action prompts that involve judgment — design choices, prioritization,
 scope decisions, quality trade-offs — must resolve and inject principles
-at their Phase 0 or Bootstrap step.
+at their Activity 0 or Bootstrap step.
 
 | Action | Injection Point |
 |--------|----------------|
-| `implementation.md` | Phase 0 (Bootstrap) — alongside quality gates |
-| `fresh-eyes-review.md` | Phase 0 (Identify Review Target) — as review criteria |
+| `implementation.md` | Activity 0 (Bootstrap) — alongside quality gates |
+| `fresh-eyes-review.md` | Activity 0 (Identify Review Target) — as review criteria |
 | `plan.md` | Before first refinement round — as design guidance |
-| `evolve.md` | Phase 1 (Requirement Analysis) — as scoping guidance |
-| `reconcile-alignment.md` | Phase 0 — as alignment criteria |
+| `evolve.md` | Activity 1 (Requirement Analysis) — as scoping guidance |
+| `reconcile-alignment.md` | Activity 0 — as alignment criteria |
 | `polish.md` | Bootstrap — as refinement guidance |
 | `frame.md` | Bootstrap — to shape requirements priorities |
 | `experiment.md` | Bootstrap — to inform metric selection and experiment design |

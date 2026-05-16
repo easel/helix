@@ -15,7 +15,7 @@ You may receive:
 
 ## Authority
 
-Frame-phase artifacts sit at authority levels 1-3:
+Frame-activity artifacts sit at authority levels 1-3:
 
 1. Product Vision (level 1)
 2. Product Requirements / PRD (level 2)
@@ -24,7 +24,7 @@ Frame-phase artifacts sit at authority levels 1-3:
 These govern all downstream work. Do not contradict existing higher-level
 artifacts unless the scope explicitly asks you to revise them.
 
-## PHASE 0 — Bootstrap
+## STEP 0 — Bootstrap
 
 0. **Load active design principles** following the principles-resolution
    reference for this runtime. Use them to shape requirements priorities. If no
@@ -37,19 +37,19 @@ artifacts unless the scope explicitly asks you to revise them.
    alongside other Frame artifacts. Concern selections inform feasibility,
    constraints, and deployment sections of the PRD and feature specs.
 
-## PHASE 1 — Discovery
+## STEP 1 — Discovery
 
-1. Read existing Frame-phase artifacts:
+1. Read existing Frame-activity artifacts:
    - `docs/helix/00-discover/product-vision.md`
    - `docs/helix/01-frame/prd.md`
    - `docs/helix/01-frame/features/FEAT-*.md`
    - `docs/helix/01-frame/concerns.md` (if it exists)
 2. Read the artifact templates for product vision, PRD, feature specifications,
    and concerns from the runtime's artifact catalog under
-   `phases/00-discover/artifacts/product-vision/`,
-   `phases/01-frame/artifacts/prd/`,
-   `phases/01-frame/artifacts/feature-specification/`, and
-   `phases/01-frame/artifacts/concerns/`.
+   `activities/00-discover/artifacts/product-vision/`,
+   `activities/01-frame/artifacts/prd/`,
+   `activities/01-frame/artifacts/feature-specification/`, and
+   `activities/01-frame/artifacts/concerns/`.
 3. Load numbering rules and determine the next artifact ID:
    - Read the feature-specification meta.yml to understand the ID format
      (`FEAT-{number}`), naming pattern, and reuse policy.
@@ -61,13 +61,13 @@ artifacts unless the scope explicitly asks you to revise them.
 4. Identify what exists, what's missing, and what needs updating for the
    requested scope.
 
-## PHASE 0.5 — Work Item Acquisition
+## STEP 0.5 — Work Item Acquisition
 
 Before creating or modifying any artifacts, acquire a governing work item for
 this frame pass to record progress and govern changes. See the runtime's
 work-item acquisition reference for the full pattern.
 
-## PHASE 2 — Draft
+## STEP 2 — Draft
 
 For each missing or outdated artifact:
 
@@ -104,7 +104,7 @@ open questions, success criteria.
 
 For each major capability, create
 `docs/helix/01-frame/features/FEAT-NNN-<name>.md` using the **next FEAT ID**
-determined in Phase 1 (incrementing by one for each additional spec created
+determined in Step 1 (incrementing by one for each additional spec created
 in the same session). Do not pick an ID by guessing — only use the scanned
 value.
 
@@ -136,7 +136,7 @@ concrete values, dependencies, out of scope.
 User stories are stable design artifacts — tracker issues reference them, not
 the other way around. Write them to last across multiple implementation cycles.
 
-## PHASE 3 — Iterative Refinement
+## STEP 3 — Iterative Refinement
 
 For each drafted artifact, perform 3-5 rounds of self-critique:
 
@@ -228,16 +228,16 @@ If you drafted or updated user stories, also check:
 6. **Test Scenarios**: Do they include concrete values, not placeholders? Could
    an implementer copy them into a test file?
 7. **Stability**: Is this story written to last? It will be referenced by
-   multiple tracker issues across design, build, and test phases.
+   multiple tracker issues across design, build, and test activities.
 
 ### Validation gate
 
 After refinement, read `dependencies.yaml` and `prompt.md` from each artifact
 directory you touched. Verify all **blocking** quality checks pass. If any
-fail, revise the artifact before proceeding to Phase 4. Do not commit an
+fail, revise the artifact before proceeding to Step 4. Do not commit an
 artifact that fails a blocking check.
 
-## PHASE 3.5 — Principles Bootstrap (if needed)
+## STEP 3.5 — Principles Bootstrap (if needed)
 
 If no `docs/helix/01-frame/principles.md` exists for this project:
 
@@ -251,22 +251,22 @@ If no `docs/helix/01-frame/principles.md` exists for this project:
    reference for this runtime.
 5. Write `docs/helix/01-frame/principles.md`.
 
-Skip this phase if the principles file already exists.
+Skip this activity if the principles file already exists.
 
-## PHASE 4 — Work Item Creation
+## STEP 4 — Work Item Creation
 
-Create work items for Design-phase work implied by the framing:
+Create work items for Design-activity work implied by the framing:
 
 - One work item per feature spec that needs a solution design
 - Label with `helix,phase:design`
 - Set `spec-id` to the feature spec ID
 - Set acceptance criteria to "solution design exists and covers feature requirements"
 
-## PHASE 5 — Output
+## STEP 5 — Output
 
 Write all artifacts to their canonical locations and commit.
 
-## PHASE 6 — Measure
+## STEP 6 — Measure
 
 Verify the frame pass against the governing work item's acceptance criteria.
 See the measure action for the full pattern.
@@ -281,14 +281,14 @@ See the measure action for the full pattern.
    consistency with artifact content.
 5. **Record results** on the governing work item via the runtime tracker.
 
-## PHASE 7 — Report
+## STEP 7 — Report
 
 Close the frame cycle and feed back into the planning cycle. See the report
 action for the full pattern.
 
 1. If measurement passed, close the governing work item with evidence summary.
 2. If validation gates failed or guidance is needed, create follow-on items.
-3. The design work items created in Phase 4 are the primary downstream output —
+3. The design work items created in Step 4 are the primary downstream output —
    they enter the planning cycle for design and polish.
 
 Report:
@@ -312,7 +312,7 @@ FOLLOW_ON_CREATED: N
 
 This appendix applies when DDx is the active HELIX runtime.
 
-### PHASE 0 — DDx references
+### STEP 0 — DDx references
 
 - Principles: `.ddx/plugins/helix/workflows/references/principles-resolution.md`
 - Concerns: `.ddx/plugins/helix/workflows/references/concern-resolution.md`
@@ -323,7 +323,7 @@ This appendix applies when DDx is the active HELIX runtime.
 - User-stories template: `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/user-stories/`
 - Concerns template: `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/concerns/`
 
-### PHASE 0.5 — DDx bead acquisition
+### STEP 0.5 — DDx bead acquisition
 
 ```bash
 ddx bead list --status open --label kind:planning,action:frame --json
@@ -335,8 +335,8 @@ ddx bead create "frame: <scope description>" \
   --type task \
   --labels helix,kind:planning,action:frame \
   --description "<context-digest>...</context-digest>
-Create or refine frame-phase artifacts for <scope>.
-Existing artifacts: <summary from Phase 1 discovery>" \
+Create or refine frame-activity artifacts for <scope>.
+Existing artifacts: <summary from Step 1 discovery>" \
   --acceptance "Artifacts created/updated per type requirements; downstream design issues filed; validation gates pass"
 ```
 

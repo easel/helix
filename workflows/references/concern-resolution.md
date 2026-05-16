@@ -94,20 +94,20 @@ follow it rather than choosing an alternative.
 ## When to Apply
 
 Action prompts that involve technology or quality choices must resolve and
-inject concerns at their Phase 0 or Bootstrap step, alongside principles.
+inject concerns at their Activity 0 or Bootstrap step, alongside principles.
 
 | Action | Injection Point |
 |--------|----------------|
-| `implementation.md` | Phase 0 (Bootstrap) — alongside principles and quality gates; Phase 7 runs concern-declared quality gates |
-| `fresh-eyes-review.md` | Phase 0 — verify implementation follows concern conventions; Pass 3 checks concern-specific practices |
+| `implementation.md` | Activity 0 (Bootstrap) — alongside principles and quality gates; Activity 7 runs concern-declared quality gates |
+| `fresh-eyes-review.md` | Activity 0 — verify implementation follows concern conventions; Pass 3 checks concern-specific practices |
 | `plan.md` | Before first refinement round — concerns constrain architecture |
-| `evolve.md` | Phase 0 — concerns affect scope; Phase 3 detects concern conflicts from new requirements |
-| `reconcile-alignment.md` | Phase 0 — concern drift across all layers (code, docs, ADRs); Phase 3 detects per-concern tooling drift |
+| `evolve.md` | Activity 0 — concerns affect scope; Activity 3 detects concern conflicts from new requirements |
+| `reconcile-alignment.md` | Activity 0 — concern drift across all layers (code, docs, ADRs); Activity 3 detects per-concern tooling drift |
 | `polish.md` | Bootstrap — verify beads reference correct concern context; area label enforcement for concern matching; acceptance criteria tool consistency |
 | `frame.md` | Bootstrap — concern selection happens during framing |
 | `experiment.md` | Bootstrap — experiments must use declared concerns |
-| `check.md` | Phase 0 — load concerns for queue health; Phase 2 checks area label coverage, digest freshness, missing concerns.md |
-| `backfill-helix-docs.md` | Phase 0 — discover active concerns or propose them from evidence; Phase 4 may create concerns.md |
+| `check.md` | Activity 0 — load concerns for queue health; Activity 2 checks area label coverage, digest freshness, missing concerns.md |
+| `backfill-helix-docs.md` | Activity 0 — discover active concerns or propose them from evidence; Activity 4 may create concerns.md |
 
 ## Concern Selection in helix frame
 
@@ -172,7 +172,7 @@ matches the changed concern's scope:
    concern-appropriate tool or practice (e.g., `bun:test` for `typescript-bun`,
    `cargo clippy` for `rust-cargo`).
 3. **Quality gates**: The bead's governing action must run the concern's
-   declared quality gates during the measure phase.
+   declared quality gates during the measure activity.
 
 ### How to Check
 
@@ -192,8 +192,8 @@ Use these steps to verify propagation completeness for a scope:
 
 | Trigger | Action |
 |---------|--------|
-| `helix check` Phase 2 | Concern Health — detect propagation gaps, recommend POLISH |
-| `helix polish` Phase 2-N | Concern Propagation Verification — fix gaps during refinement |
+| `helix check` Activity 2 | Concern Health — detect propagation gaps, recommend POLISH |
+| `helix polish` Activity 2-N | Concern Propagation Verification — fix gaps during refinement |
 | `helix measure` | Verify concern gates were run and recorded |
 | `helix report` batch mode | Aggregate concern coverage across scope |
 

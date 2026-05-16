@@ -36,14 +36,14 @@ When artifacts disagree, use this precedence:
 7. Implementation Plans
 8. Source Code / Build Artifacts
 
-## PHASE 0 — Bootstrap
+## STEP 0 — Bootstrap
 
 1. Read AGENTS.md so project instructions are fresh in working memory.
 2. Verify the runtime tracker is available.
 3. Read `docs/helix/01-frame/` if it exists to load project vision and
    declared concerns.
 
-## PHASE 1 — Intent Parsing
+## STEP 1 — Intent Parsing
 
 Parse the request:
 
@@ -55,7 +55,7 @@ Parse the request:
    continuing. If autonomy=medium or high, proceed with best-effort
    interpretation and document it.
 
-## PHASE 2 — Artifact Graph Traversal
+## STEP 2 — Artifact Graph Traversal
 
 Traverse the artifact stack to find affected artifacts:
 
@@ -65,7 +65,7 @@ Traverse the artifact stack to find affected artifacts:
 3. If a matching work item already exists (same scope, same intent), prefer
    updating it over creating a duplicate.
 
-## PHASE 3 — Work Item Creation / Update
+## STEP 3 — Work Item Creation / Update
 
 Create or update work items for the identified work:
 
@@ -90,7 +90,7 @@ Create or update work items for the identified work:
 - `high`: Create speculative work items for reasonable downstream assumptions;
   label them `kind:speculative` to mark them as assumed, not confirmed.
 
-## PHASE 4 — Conflict Detection
+## STEP 4 — Conflict Detection
 
 Before finishing, check for conflicts:
 
@@ -102,7 +102,7 @@ If a conflict exists:
 - `high`: Create an escalation work item labeled `kind:escalation` and proceed
   with the non-conflicting portions of the request.
 
-## PHASE 5 — Output
+## STEP 5 — Output
 
 Report what was done:
 
@@ -126,15 +126,15 @@ This appendix applies when DDx is the active HELIX runtime.
 
 Verify the tracker with `ddx bead status`. If it fails, stop immediately.
 
-### PHASE 1 reference
+### STEP 1 reference
 
 Explicit constraints or references include bead IDs.
 
-### PHASE 2 reference
+### STEP 2 reference
 
 Search for existing governing beads via the tracker.
 
-### PHASE 3 — DDx work item operations
+### STEP 3 — DDx work item operations
 
 ```bash
 # Create new work item
@@ -164,7 +164,7 @@ and set `digest-omission-path=helix-input:legacy-migration`.
 speculative beads labeled `kind:speculative` and escalation beads labeled
 `kind:escalation`.
 
-### PHASE 5 — DDx output trailer
+### STEP 5 — DDx output trailer
 
 ```
 INPUT_STATUS: COMPLETE | NEEDS_CLARIFICATION | BLOCKED
