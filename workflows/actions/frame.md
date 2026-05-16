@@ -317,11 +317,11 @@ This appendix applies when DDx is the active HELIX runtime.
 - Principles: `.ddx/plugins/helix/workflows/references/principles-resolution.md`
 - Concerns: `.ddx/plugins/helix/workflows/references/concern-resolution.md`
 - Defaults principles file: `.ddx/plugins/helix/workflows/principles.md`
-- Feature-specification meta: `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/feature-specification/meta.yml`
-- Product-vision template: `.ddx/plugins/helix/workflows/phases/00-discover/artifacts/product-vision/`
-- PRD template: `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/prd/`
-- User-stories template: `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/user-stories/`
-- Concerns template: `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/concerns/`
+- Feature-specification meta: `.ddx/plugins/helix/workflows/activities/01-frame/artifacts/feature-specification/meta.yml`
+- Product-vision template: `.ddx/plugins/helix/workflows/activities/00-discover/artifacts/product-vision/`
+- PRD template: `.ddx/plugins/helix/workflows/activities/01-frame/artifacts/prd/`
+- User-stories template: `.ddx/plugins/helix/workflows/activities/01-frame/artifacts/user-stories/`
+- Concerns template: `.ddx/plugins/helix/workflows/activities/01-frame/artifacts/concerns/`
 
 ### STEP 0.5 — DDx bead acquisition
 

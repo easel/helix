@@ -23,7 +23,7 @@ declarations that allow the artifact graph to be constructed automatically.
 ## Problem Statement
 
 - **Current situation**: Templates exist under
-  `.ddx/plugins/helix/workflows/phases/*/artifacts/*/template.md` but vary
+  `.ddx/plugins/helix/workflows/activities/*/artifacts/*/template.md` but vary
   in completeness. Some include generation prompts, others don't. Review
   checklists are absent. Relationship declarations are embedded in meta.yml
   but not surfaced to agents or reviewers.
@@ -86,7 +86,7 @@ Existing artifacts must remain valid. New template features are additive.
 
 ## Acceptance Criteria
 
-1. Every artifact template under `workflows/phases/*/artifacts/*/template.md`
+1. Every artifact template under `workflows/activities/*/artifacts/*/template.md`
    includes section instructions, a generation prompt reference, and a review
    checklist.
 2. Every artifact template declares `depends_on` and `enables` relationships

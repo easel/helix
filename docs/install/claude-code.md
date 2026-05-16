@@ -2,7 +2,7 @@
 
 This guide installs HELIX into Claude Code and shows how to invoke it. HELIX
 ships as a single routing skill plus an artifact catalog (templates, prompts,
-and metadata under `workflows/phases/`). Claude Code is one of HELIX's target
+and metadata under `workflows/activities/`). Claude Code is one of HELIX's target
 runtimes, alongside DDx and Databricks Genie. The content is the same; only
 the packaging differs.
 
@@ -17,7 +17,7 @@ Two pieces of content move into a location Claude Code can see:
    intent (align, frame, design, evolve, review, build, release, etc.) to a
    workflow contract. There are no separate public `helix-*` skills; the
    router is the only entry point.
-2. **The artifact catalog** — `workflows/phases/00-discover` through
+2. **The artifact catalog** — `workflows/activities/00-discover` through
    `06-iterate`. Each phase contains artifact-type directories (`prd`,
    `feature-specification`, `adr`, `test-plan`, and so on). Each artifact-type
    directory has `template.md`, `prompt.md`, `meta.yml`, and an example. The
@@ -63,7 +63,7 @@ Place the artifact catalog somewhere stable and discoverable. The conventional
 location for user-global HELIX content is:
 
 ```text
-~/.helix/workflows/phases/...
+~/.helix/workflows/activities/...
 ~/.helix/docs/helix/...
 ```
 
@@ -94,13 +94,13 @@ directory so collaborators get the same skill.
 Vendor the artifact catalog into the repo at the conventional layout:
 
 ```text
-workflows/phases/00-discover/...
-workflows/phases/01-frame/...
-workflows/phases/02-design/...
-workflows/phases/03-test/...
-workflows/phases/04-build/...
-workflows/phases/05-deploy/...
-workflows/phases/06-iterate/...
+workflows/activities/00-discover/...
+workflows/activities/01-frame/...
+workflows/activities/02-design/...
+workflows/activities/03-test/...
+workflows/activities/04-build/...
+workflows/activities/05-deploy/...
+workflows/activities/06-iterate/...
 workflows/artifact-schema.md
 workflows/principles.md
 ```
@@ -119,7 +119,7 @@ docs/helix/01-frame/prd.md
 docs/helix/02-design/...
 ```
 
-The skill expects to find templates under `workflows/phases/` and project
+The skill expects to find templates under `workflows/activities/` and project
 artifacts under `docs/helix/` when those defaults apply. If your repo uses a
 different artifact root, tell the skill in the prompt — it will resolve from
 there.
@@ -150,9 +150,9 @@ worker. Each mode has a workflow contract in the same file that the skill
 follows for the rest of the session.
 
 When the routed workflow needs a template, prompt, or quality rubric, it opens
-the matching file under `workflows/phases/<phase>/artifacts/<type>/`. For
+the matching file under `workflows/activities/<phase>/artifacts/<type>/`. For
 example, framing a PRD reads
-`workflows/phases/01-frame/artifacts/prd/template.md` and `prompt.md`. The
+`workflows/activities/01-frame/artifacts/prd/template.md` and `prompt.md`. The
 skill never invents these paths; they come from the catalog directory layout.
 
 ## Verify the install
@@ -178,7 +178,7 @@ or an apology that no `helix` skill is installed.
 
 A second verification confirms the catalog is reachable. Ask:
 
-> Open `workflows/phases/01-frame/artifacts/prd/template.md` and summarize
+> Open `workflows/activities/01-frame/artifacts/prd/template.md` and summarize
 > the section headings.
 
 A correct install returns the PRD template's actual section list. A broken

@@ -116,7 +116,7 @@ After relocation, `workflows/ratchets.md` must update its references from
 
 ### Component: Principles artifact scaffolding
 
-**Files**: `workflows/phases/01-frame/artifacts/principles/`
+**Files**: `workflows/activities/01-frame/artifacts/principles/`
 
 - **meta.yml**: Remove the broken `"Article \\d+:"` validation pattern.
   Update `required_sections` to match the new template. Remove the
@@ -452,13 +452,13 @@ tension_detection:
 - Relocate the six workflow rules to enforcers and ratchets
 - Update `workflows/ratchets.md` references
 - **Files**: `workflows/principles.md`, `workflows/ratchets.md`,
-  `workflows/phases/*/enforcer.md`
+  `workflows/activities/*/enforcer.md`
 - **Tests**: Grep for orphaned old-principle references
 
 ### Slice 2: Update artifact scaffolding
 - Rewrite meta.yml, template.md, prompt.md under
-  `workflows/phases/01-frame/artifacts/principles/`
-- **Files**: `workflows/phases/01-frame/artifacts/principles/*`
+  `workflows/activities/01-frame/artifacts/principles/`
+- **Files**: `workflows/activities/01-frame/artifacts/principles/*`
 - **Tests**: Validation checks against updated meta.yml
 
 ### Slice 3: Create resolution reference and inject into action prompts

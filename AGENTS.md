@@ -7,7 +7,7 @@ Claude Code in progress).
 
 The governing artifacts of HELIX-the-project live under `docs/helix/`.
 Methodology specifications and shared templates live under `workflows/`. Both
-are authoritative; the artifact-type catalog (`workflows/phases/*/artifacts/`)
+are authoritative; the artifact-type catalog (`workflows/activities/*/artifacts/`)
 is the canonical shape, and `docs/helix/` is the worked example of HELIX
 applied to itself.
 

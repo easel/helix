@@ -96,7 +96,7 @@ open. The minimum useful entry:
 This repo uses HELIX (methodology + artifact catalog + one routing skill).
 
 - Routing skill: `skills/helix/SKILL.md`
-- Artifact catalog: `workflows/phases/` (00-discover through 06-iterate)
+- Artifact catalog: `workflows/activities/` (00-discover through 06-iterate)
 - Methodology spec: `workflows/README.md`, `workflows/principles.md`
 
 When the user asks to use HELIX, align documents, frame requirements,
@@ -167,7 +167,7 @@ This repository uses HELIX for methodology and artifact governance.
 
 When a request touches HELIX work (alignment, framing, design, evolve,
 review, routing), use `skills/helix/SKILL.md` as the routing reference
-and `workflows/phases/*` as the artifact-type catalog. Do not propose
+and `workflows/activities/*` as the artifact-type catalog. Do not propose
 new helix-prefixed skills; route inside the existing skill.
 
 The methodology requires only the ability to read, write, and search
@@ -240,11 +240,11 @@ same content; it is not a fork.
 
 ### 4.2 Workflows catalog discovery
 
-`workflows/phases/` is the artifact-type catalog. Each phase directory
+`workflows/activities/` is the artifact-type catalog. Each phase directory
 follows the same layout:
 
 ```
-workflows/phases/<NN>-<phase>/
+workflows/activities/<NN>-<phase>/
   artifacts/
     <artifact-type>/
       template.md   # markdown skeleton
@@ -324,7 +324,7 @@ access is available from the web-based task-planning surface.
 - Read `skills/helix/SKILL.md` for the full routing table and per-mode
   contracts.
 - Read `workflows/README.md` for the methodology overview.
-- Browse `workflows/phases/` to see the artifact-type catalog you will
+- Browse `workflows/activities/` to see the artifact-type catalog you will
   be authoring against.
 - If your project also adopts a runtime (DDx, Claude Code, Genie),
   install that runtime's HELIX package alongside — they share this same

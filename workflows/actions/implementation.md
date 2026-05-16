@@ -441,7 +441,7 @@ This appendix applies when DDx is the active HELIX runtime.
 ddx bead status  # stop immediately if this fails
 ```
 
-- Build-activity enforcer: `.ddx/plugins/helix/workflows/phases/04-build/enforcer.md`
+- Build-activity enforcer: `.ddx/plugins/helix/workflows/activities/04-build/enforcer.md`
 - Ratchets: `.ddx/plugins/helix/workflows/ratchets.md`
 - Principles: `.ddx/plugins/helix/workflows/references/principles-resolution.md`
   (default: `.ddx/plugins/helix/workflows/principles.md`)

@@ -43,7 +43,7 @@ Source content (unchanged across runtimes):
 - `skills/helix/SKILL.md` — the routing skill. This is the single normative
   entry point for HELIX's planning, alignment, design, review, evolution,
   and execution routes.
-- `workflows/phases/00-discover` through `workflows/phases/06-iterate` —
+- `workflows/activities/00-discover` through `workflows/activities/06-iterate` —
   the artifact catalog. Each phase directory holds artifact types with
   `template.md`, `prompt.md`, `meta.yml`, and examples.
 
@@ -56,7 +56,7 @@ helix-genie-bundle/
     SKILL.md                    # copy of skills/helix/SKILL.md
   catalog/
     phases/
-      00-discover/              # copy of workflows/phases/00-discover
+      00-discover/              # copy of workflows/activities/00-discover
       01-frame/
       02-design/
       03-test/
@@ -103,7 +103,7 @@ These steps assume a Databricks workspace with Code Genie enabled and
 permission to register workspace skills.
 
 1. **Assemble the bundle.** Copy `skills/helix/SKILL.md` into
-   `helix-genie-bundle/skill/SKILL.md`. Copy the `workflows/phases/` tree
+   `helix-genie-bundle/skill/SKILL.md`. Copy the `workflows/activities/` tree
    into `helix-genie-bundle/catalog/phases/`. Author `manifest.yaml`.
 2. **Upload the bundle to the workspace filesystem.** Per the
    [Genie Code skills documentation](https://docs.databricks.com/aws/en/genie-code/skills),
@@ -186,7 +186,7 @@ show the path of each artifact-type directory in the catalog.
 ```
 
 Expected: Genie returns the artifact-type directories under
-`workflows/phases/01-frame/artifacts/` (as packaged into
+`workflows/activities/01-frame/artifacts/` (as packaged into
 `catalog/phases/01-frame/artifacts/`), with paths anchored at the catalog
 root. If Genie returns generic descriptions without paths, the catalog
 resources are not visible to the skill.
@@ -253,7 +253,7 @@ in the runtime surface around it.
 ## See also
 
 - `skills/helix/SKILL.md` — the routing skill (single source of truth)
-- `workflows/phases/` — the artifact catalog
+- `workflows/activities/` — the artifact catalog
 - `docs/helix/01-frame/prd.md` — PRD, including R-7 (per-runtime packages)
   and the minimal runtime contract (read file, write file, search files)
 - [Install README index](README.md)

@@ -386,7 +386,7 @@ approval remain human-owned.
 ## File Organization
 
 ### Structure Overview
-- **Deployment Definitions**: `.ddx/plugins/helix/workflows/phases/05-deploy/`
+- **Deployment Definitions**: `.ddx/plugins/helix/workflows/activities/05-deploy/`
   - Templates and prompts for deployment artifacts
   - Action definitions for deployment tasks
 

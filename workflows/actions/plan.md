@@ -229,8 +229,8 @@ This appendix applies when DDx is the active HELIX runtime.
 
 - Principles: `.ddx/plugins/helix/workflows/references/principles-resolution.md`
 - Concerns: `.ddx/plugins/helix/workflows/references/concern-resolution.md`
-- Solution-design meta: `.ddx/plugins/helix/workflows/phases/02-design/artifacts/solution-design/meta.yml`
-- Technical-design meta: `.ddx/plugins/helix/workflows/phases/02-design/artifacts/technical-design/meta.yml`
+- Solution-design meta: `.ddx/plugins/helix/workflows/activities/02-design/artifacts/solution-design/meta.yml`
+- Technical-design meta: `.ddx/plugins/helix/workflows/activities/02-design/artifacts/technical-design/meta.yml`
 
 Validate `depends_on` entries in each artifact's ddx frontmatter before writing.
 

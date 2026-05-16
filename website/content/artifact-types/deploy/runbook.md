@@ -229,7 +229,7 @@ release coordination plan.
 - [ ] Routine operational procedures are explicit or the document says none exist
 - [ ] Escalation and communication paths are explicit
 
-Use the template at `.ddx/plugins/helix/workflows/phases/05-deploy/artifacts/runbook/template.md`.</code></pre></details></td></tr>
+Use the template at `.ddx/plugins/helix/workflows/activities/05-deploy/artifacts/runbook/template.md`.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
   id: &quot;[artifact-id]&quot;

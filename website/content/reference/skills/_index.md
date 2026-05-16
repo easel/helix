@@ -36,7 +36,7 @@ Use it to answer questions such as:
 The skill expects access to:
 
 - A scope, question, repository path, artifact path, or work-item reference.
-- The HELIX artifact-type catalog from `workflows/phases/*/artifacts/`.
+- The HELIX artifact-type catalog from `workflows/activities/*/artifacts/`.
 - The project's concrete governing artifacts, commonly under `docs/helix/`.
 - Any project tracker metadata that links work items to specs, parents, or
   context digests.

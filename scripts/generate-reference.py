@@ -8,7 +8,7 @@ Generate website reference pages for HELIX artifacts and cross-cutting
 concerns from the upstream source-of-truth in `workflows/`.
 
 Reads:
-  workflows/phases/<activity>/artifacts/<slug>/   -> meta.yml, dependencies.yaml,
+  workflows/activities/<activity>/artifacts/<slug>/   -> meta.yml, dependencies.yaml,
                                                   prompt.md, template.md,
                                                   example.md (sometimes)
   workflows/concerns/<slug>/                   -> concern.md, practices.md

@@ -172,7 +172,7 @@ Use these local resource summaries as grounding:
 - oversized code examples
 - repeated explanations of why tests come first
 
-Use template at `.ddx/plugins/helix/workflows/phases/03-test/artifacts/test-suites/template.md`.</code></pre></details></td></tr>
+Use template at `.ddx/plugins/helix/workflows/activities/03-test/artifacts/test-suites/template.md`.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
   id: &quot;[artifact-id]&quot;

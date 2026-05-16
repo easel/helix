@@ -34,13 +34,13 @@ not a specific project artifact instance.
 Canonical location:
 
 ```text
-workflows/phases/<activity-number>-<activity-name>/artifacts/<artifact-type>/meta.yml
+workflows/activities/<activity-number>-<activity-name>/artifacts/<artifact-type>/meta.yml
 ```
 
 Example path:
 
 ```text
-workflows/phases/02-design/artifacts/adr/meta.yml
+workflows/activities/02-design/artifacts/adr/meta.yml
 ```
 
 ### Required fields

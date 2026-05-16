@@ -25,7 +25,7 @@ generated: true
 | `site` | website/, microsite content and deployment |
 | `demo` | docs/demos/, demo scripts and recordings |
 | `testing` | tests/, deterministic harnesses, and verification-only slices |
-| `artifacts` | workflows/phases/*/artifacts metadata, prompts, and templates |
+| `artifacts` | workflows/activities/*/artifacts metadata, prompts, and templates |
 
 Use combined labels when the work spans more than one concern surface.
 Examples:

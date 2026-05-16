@@ -237,8 +237,8 @@ Do not collapse all three concerns into one file.
 ## Relationship to Phase Gates and Existing Workflow Docs
 
 HELIX already contains workflow-gate YAML files such as:
-- `workflows/phases/*/input-gates.yml`
-- `workflows/phases/*/exit-gates.yml`
+- `workflows/activities/*/input-gates.yml`
+- `workflows/activities/*/exit-gates.yml`
 
 These remain the source of truth for generic phase gate requirements.
 
@@ -306,6 +306,6 @@ Before an execution document is considered ready, verify:
 - [FEAT-011: Slider Autonomy Control](../../01-frame/features/FEAT-011-slider-autonomy.md)
 - [TD-011: Slider Autonomy Implementation](../technical-designs/TD-011-slider-autonomy-implementation.md)
 - [Quality Ratchets](../../../workflows/ratchets.md)
-- `workflows/phases/*/input-gates.yml`
-- `workflows/phases/*/exit-gates.yml`
+- `workflows/activities/*/input-gates.yml`
+- `workflows/activities/*/exit-gates.yml`
 - `docs/helix/06-iterate/metrics/*.yaml`

@@ -220,7 +220,7 @@ Use these local resource summaries as grounding:
 | Product behavior or acceptance criteria | User Story / Feature Specification |
 | Implementation file changes | Technical Design / Implementation Plan |
 
-Use template at `.ddx/plugins/helix/workflows/phases/03-test/artifacts/story-test-plan/template.md`.</code></pre></details></td></tr>
+Use template at `.ddx/plugins/helix/workflows/activities/03-test/artifacts/story-test-plan/template.md`.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
   id: &quot;[artifact-id]&quot;

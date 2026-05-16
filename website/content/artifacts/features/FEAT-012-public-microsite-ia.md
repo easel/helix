@@ -284,7 +284,7 @@ scroll-to-top treatment.
 - HELIX continues to use Hugo and Hextra under the `hugo-hextra` concern.
 - Product microsite IA is governed by the reusable `product-microsite-ia`
   concern.
-- Artifact Type pages continue to be generated from `workflows/phases/`.
+- Artifact Type pages continue to be generated from `workflows/activities/`.
 - The Artifact Types section must serve active users first; marketing-style
   explanation belongs in Home and Why.
 - The Artifacts section publishes HELIX's own document stack and is allowed to

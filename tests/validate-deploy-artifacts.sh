@@ -4,7 +4,7 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 validator="$repo_root/scripts/validate_deploy_artifact_graph.py"
 docs_validator="$repo_root/scripts/validate_deploy_contract_docs.py"
-artifacts_dir="$repo_root/workflows/phases/05-deploy/artifacts"
+artifacts_dir="$repo_root/workflows/activities/05-deploy/artifacts"
 
 fail() {
   printf 'deploy artifact validation failed: %s\n' "$*" >&2
@@ -121,8 +121,8 @@ assert_contains "$cycle_output" "deploy artifact dependency cycle detected" \
 
 docs_dir="$tmpdir/docs-contract"
 mkdir -p "$docs_dir"
-cp -f "$repo_root/workflows/phases/05-deploy/README.md" "$docs_dir/README.md"
-cp -f "$repo_root/workflows/phases/05-deploy/enforcer.md" "$docs_dir/enforcer.md"
+cp -f "$repo_root/workflows/activities/05-deploy/README.md" "$docs_dir/README.md"
+cp -f "$repo_root/workflows/activities/05-deploy/enforcer.md" "$docs_dir/enforcer.md"
 cp -f "$repo_root/website/content/artifact-types/deploy/_index.md" "$docs_dir/artifacts.md"
 python3 - "$docs_dir/README.md" <<'PYEOF'
 from pathlib import Path
@@ -158,8 +158,8 @@ assert_contains "$docs_fail_output" "deploy README: missing canonical four-artif
 
 docs_coexist_dir="$tmpdir/docs-coexist"
 mkdir -p "$docs_coexist_dir"
-cp -f "$repo_root/workflows/phases/05-deploy/README.md" "$docs_coexist_dir/README.md"
-cp -f "$repo_root/workflows/phases/05-deploy/enforcer.md" "$docs_coexist_dir/enforcer.md"
+cp -f "$repo_root/workflows/activities/05-deploy/README.md" "$docs_coexist_dir/README.md"
+cp -f "$repo_root/workflows/activities/05-deploy/enforcer.md" "$docs_coexist_dir/enforcer.md"
 cp -f "$repo_root/website/content/artifact-types/deploy/_index.md" "$docs_coexist_dir/artifacts.md"
 python3 - "$docs_coexist_dir/README.md" <<'PYEOF'
 from pathlib import Path

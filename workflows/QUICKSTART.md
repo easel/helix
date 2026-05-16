@@ -33,7 +33,7 @@ Use the bounded action prompts only when you are doing the corresponding work:
 ## Build The Canonical Planning Stack
 
 Prompts and templates live under
-`.ddx/plugins/helix/workflows/phases/<activity>/artifacts/` when HELIX is installed
+`.ddx/plugins/helix/workflows/activities/<activity>/artifacts/` when HELIX is installed
 as a DDx plugin. Other runtimes may resolve the same content from their own
 package layout. Use them to draft or refine the canonical docs under
 `docs/helix/`.

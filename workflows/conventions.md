@@ -522,14 +522,14 @@ surface. Common tracker introspection:
 
 DDx-installed templates live at:
 
-- artifact templates: `.ddx/plugins/helix/workflows/phases/<activity>/artifacts/<type>/template.md`
+- artifact templates: `.ddx/plugins/helix/workflows/activities/<activity>/artifacts/<type>/template.md`
 - refinement template: `.ddx/plugins/helix/workflows/templates/refinement-log.md`
 
 Example artifact bootstrap:
 
 ```bash
-sed -n '1,120p' .ddx/plugins/helix/workflows/phases/01-frame/artifacts/prd/prompt.md
-cp -f .ddx/plugins/helix/workflows/phases/01-frame/artifacts/prd/template.md \
+sed -n '1,120p' .ddx/plugins/helix/workflows/activities/01-frame/artifacts/prd/prompt.md
+cp -f .ddx/plugins/helix/workflows/activities/01-frame/artifacts/prd/template.md \
       docs/helix/01-frame/prd.md
 ```
 

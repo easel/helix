@@ -273,9 +273,9 @@ This appendix applies when DDx is the active HELIX runtime.
 - Principles: `.ddx/plugins/helix/workflows/references/principles-resolution.md`
 - Concerns: `.ddx/plugins/helix/workflows/references/concern-resolution.md`
 - Context-digest: `.ddx/plugins/helix/workflows/references/context-digest.md`
-- Feature-specification meta: `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/feature-specification/meta.yml`
-- Solution-design meta: `.ddx/plugins/helix/workflows/phases/02-design/artifacts/solution-design/meta.yml`
-- Technical-design meta: `.ddx/plugins/helix/workflows/phases/02-design/artifacts/technical-design/meta.yml`
+- Feature-specification meta: `.ddx/plugins/helix/workflows/activities/01-frame/artifacts/feature-specification/meta.yml`
+- Solution-design meta: `.ddx/plugins/helix/workflows/activities/02-design/artifacts/solution-design/meta.yml`
+- Technical-design meta: `.ddx/plugins/helix/workflows/activities/02-design/artifacts/technical-design/meta.yml`
 
 The `<concerns>` element in a context digest must contain matched concern
 names, never `area:*` labels.

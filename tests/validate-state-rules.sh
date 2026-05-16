@@ -4,7 +4,7 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 state_rules="$repo_root/workflows/state-rules.yml"
 state_machine="$repo_root/workflows/state-machine.yaml"
-iterate_readme="$repo_root/workflows/phases/06-iterate/README.md"
+iterate_readme="$repo_root/workflows/activities/06-iterate/README.md"
 
 fail() {
   printf 'state rule validation failed: %s\n' "$*" >&2

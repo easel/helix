@@ -47,7 +47,7 @@ DDx consumes three portable content artifacts from HELIX:
 
 The canonical location is `workflows/` in the HELIX repo. When installed via
 `ddx install helix`, the catalog lands under
-`.ddx/plugins/helix/workflows/phases/<phase>/artifacts/<type>/`.
+`.ddx/plugins/helix/workflows/activities/<phase>/artifacts/<type>/`.
 
 Each artifact type exposes:
 

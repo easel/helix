@@ -40,8 +40,8 @@ lives in two places in this repo:
   skill. One public entry point (`helix`), one routing table, one set of
   per-mode workflow contracts. There are no separate public `helix-*` skills.
 - [`workflows/`](../../workflows/) — the artifact-type catalog and
-  methodology specification. `workflows/phases/00-discover` through
-  `workflows/phases/06-iterate` carry the artifact templates, prompts,
+  methodology specification. `workflows/activities/00-discover` through
+  `workflows/activities/06-iterate` carry the artifact templates, prompts,
   quality criteria, and examples. `workflows/principles.md`,
   `workflows/ratchets.md`, and `workflows/artifact-schema.md` carry the
   methodology invariants.

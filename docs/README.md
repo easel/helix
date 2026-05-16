@@ -207,7 +207,7 @@ The structure enables clear traceability across phases:
 
 When applying the HELIX workflow to your project, organize governed workflow
 artifacts under `docs/helix/` and keep the reusable workflow library under
-`workflows/phases/`.
+`workflows/activities/`.
 
 The tree below is a generic project example, not a literal map of this
 repository:
@@ -234,7 +234,7 @@ This convention:
 - Keeps governed HELIX artifacts separate from operational docs
 - Uses numbered prefixes for clear ordering
 - Stores project outputs under `docs/helix/`, while shared library assets live
-  under `workflows/phases/`
+  under `workflows/activities/`
 - Allows for project-specific documentation outside the phases
 
 ### Why `docs/helix/`?
@@ -244,7 +244,7 @@ The `docs/helix/` layout:
 2. Separates phase artifacts from other documentation
 3. Maintains consistency across projects using HELIX
 4. Keeps the project artifact tree distinct from the shared workflow library in
-   `workflows/phases/`
+   `workflows/activities/`
 
 ## Tools and Automation
 
@@ -262,7 +262,7 @@ ddx bead ready --execution
 ```
 
 ### Templates
-The reusable artifact library lives under `workflows/phases/.../artifacts/`.
+The reusable artifact library lives under `workflows/activities/.../artifacts/`.
 Use the HELIX commands to create or refine project artifacts, and reference the
 library paths directly when you need the underlying template assets:
 ```bash
@@ -273,8 +273,8 @@ helix frame auth
 helix design auth
 
 # Reference the shared artifact template directories directly
-workflows/phases/01-frame/artifacts/feature-specification/
-workflows/phases/02-design/artifacts/solution-design/
+workflows/activities/01-frame/artifacts/feature-specification/
+workflows/activities/02-design/artifacts/solution-design/
 ```
 
 ## Migration Notes

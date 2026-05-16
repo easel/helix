@@ -51,4 +51,4 @@ Use these local resource summaries as grounding:
 | Feature behavior or acceptance criteria | Feature Specification or User Story |
 | Implementation sequencing for code changes | Implementation Plan |
 
-Use template at `.ddx/plugins/helix/workflows/phases/03-test/artifacts/test-plan/template.md`.
+Use template at `.ddx/plugins/helix/workflows/activities/03-test/artifacts/test-plan/template.md`.

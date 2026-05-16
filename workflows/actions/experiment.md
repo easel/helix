@@ -529,9 +529,9 @@ This appendix applies when DDx is the active HELIX runtime.
 - Principles: `.ddx/plugins/helix/workflows/references/principles-resolution.md`
 - Concerns: `.ddx/plugins/helix/workflows/references/concern-resolution.md`
 - Ratchets: `.ddx/plugins/helix/workflows/ratchets.md`
-- Metric-definition template: `.ddx/plugins/helix/workflows/phases/06-iterate/artifacts/metric-definition/template.yaml`
-- Autoresearch-session template: `.ddx/plugins/helix/workflows/phases/06-iterate/artifacts/autoresearch-session/template.md`
-- Autoresearch-worklog template: `.ddx/plugins/helix/workflows/phases/06-iterate/artifacts/autoresearch-worklog/template.md`
+- Metric-definition template: `.ddx/plugins/helix/workflows/activities/06-iterate/artifacts/metric-definition/template.yaml`
+- Autoresearch-session template: `.ddx/plugins/helix/workflows/activities/06-iterate/artifacts/autoresearch-session/template.md`
+- Autoresearch-worklog template: `.ddx/plugins/helix/workflows/activities/06-iterate/artifacts/autoresearch-worklog/template.md`
 
 ### STEP 1.2 — DDx claim
 

@@ -141,7 +141,7 @@ graph TB
 
 | Component | Purpose | Implementation Notes |
 |-----------|---------|---------------------|
-| Command dispatch | Route operator verbs to phase modules | Bash `case` over arg-1; each verb in `workflows/phases/<phase>/` |
+| Command dispatch | Route operator verbs to phase modules | Bash `case` over arg-1; each verb in `workflows/activities/<phase>/` |
 | Bead selection | Pick highest-leverage least-power next move | Reads `ddx bead ready --json`; applies HELIX-side priority and least-power filters |
 | Bounded execution | Delegate one bead to DDx | Calls `ddx agent execute-loop --once`; HELIX does not own the inner loop mechanics |
 | Stop conditions | Detect ungovernable next moves | Checks for missing upstream authority, unresolvable artifact contradiction, P0 product questions |
@@ -258,7 +258,7 @@ execution evidence (`.ddx/executions/`).
 | Bounded autonomy | `helix run` has explicit stop conditions: missing authority, unresolvable ambiguity, human-judgment gate. | [ADR-001](adr/ADR-001-supervisory-control-model.md) |
 | Tracker write safety | Local single-writer per project with malformed-state surfacing; no transactional multi-writer pretense. | [ADR-002](adr/ADR-002-tracker-write-safety-model.md) |
 | Cross-model verification | Adversarial review via DDx tier escalation (cheap → standard → smart) and alternating harnesses on review beads. | DDx routing config per project |
-| Authority-order coherence | `helix align` audits consistency across the artifact graph; produces alignment-review artifacts. | `workflows/phases/06-iterate/` |
+| Authority-order coherence | `helix align` audits consistency across the artifact graph; produces alignment-review artifacts. | `workflows/activities/06-iterate/` |
 | Local-first | All state on disk; ddx-server is a local user service; AI providers are pluggable, including fully local. | systemd user service, no inbound network |
 | Observability | Per-bead execution evidence in `.ddx/executions/`; alignment reviews and metrics in `docs/helix/06-iterate/`. | bead event-log model |
 | Concurrency safety | Per-project `helix run` advisory lock; second invocation exits 2 with the lock-holder PID. | parallel-run mutex (in TD-026) |

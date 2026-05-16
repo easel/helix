@@ -32,7 +32,7 @@ specific runtime is defined in
 graph TB
     team["Software team<br/>(engineer, PM, tech lead)"]
     skill["HELIX routing skill<br/>skills/helix/SKILL.md"]
-    catalog["Artifact catalog<br/>workflows/phases/…"]
+    catalog["Artifact catalog<br/>workflows/activities/…"]
     artifacts["Project artifact graph<br/>docs/&lt;project&gt;/helix/"]
     runtime["Runtime<br/>(DDx / Claude Code / Genie / …)"]
 
@@ -60,7 +60,7 @@ their agent runtime, and the runtime invokes the HELIX routing skill.
 graph TB
     subgraph helix["HELIX (this system)"]
         skill["skills/helix/SKILL.md<br/>Routing skill"]
-        catalog["workflows/phases/…<br/>Artifact catalog<br/>templates · prompts · meta.yml"]
+        catalog["workflows/activities/…<br/>Artifact catalog<br/>templates · prompts · meta.yml"]
         schema["workflows/artifact-schema.md<br/>Instance schema"]
         wfdocs["workflows/<br/>Methodology spec<br/>principles · concerns · phases"]
     end
@@ -86,7 +86,7 @@ graph TB
 | Container | Technology | Responsibilities |
 |-----------|------------|-----------------|
 | `skills/helix/SKILL.md` | Markdown (skill frontmatter + body) | Single agent-facing surface; all routing modes; reads/writes artifact instances |
-| `workflows/phases/` | Markdown + YAML | Artifact type definitions: template, prompt, meta.yml, example per type |
+| `workflows/activities/` | Markdown + YAML | Artifact type definitions: template, prompt, meta.yml, example per type |
 | `workflows/artifact-schema.md` | Markdown spec | Normative schema for `meta.yml` and `ddx:` instance frontmatter |
 | `workflows/` (non-phase dirs) | Markdown | Methodology spec: principles, concerns, phase contracts, alignment guidance |
 | `docs/helix/` | Markdown + YAML | Project artifact instances; authored from catalog templates |
@@ -171,7 +171,7 @@ loads the skill exposes the same capability set.
 
 | Reads | Writes |
 |-------|--------|
-| Artifact catalog (`workflows/phases/…`) — type definitions, templates, prompts | Project artifact instances (`docs/helix/…`) — new or updated content |
+| Artifact catalog (`workflows/activities/…`) — type definitions, templates, prompts | Project artifact instances (`docs/helix/…`) — new or updated content |
 | Project artifact instances — current state of the dependency graph | Alignment reports, work-item descriptions, design documents |
 | Methodology docs (`workflows/`) — principles, concerns, phase contracts | Follow-up work descriptions (runtime surfaces these as tracker items, GitHub issues, or markdown stubs) |
 

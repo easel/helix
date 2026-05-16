@@ -36,7 +36,7 @@ navigation.
 
 ## Technical Approach
 
-**Strategy**: Generate an activity-first content tree from `workflows/phases/`.
+**Strategy**: Generate an activity-first content tree from `workflows/activities/`.
 Each activity gets a section page. Each artifact page lives under its activity
 route and carries role metadata. Core artifacts render as visible first-level
 activity children. Supporting artifacts stay under the same activity with
@@ -125,7 +125,7 @@ generated: true
 activity: "Frame"
 activitySlug: "frame"
 artifactRole: "core"
-source: "workflows/phases/01-frame/artifacts/prd"
+source: "workflows/activities/01-frame/artifacts/prd"
 prev: "/artifact-types/frame/feature-specification/"
 next: "/artifact-types/frame/principles/"
 ```
@@ -161,7 +161,7 @@ weight: 120
 
 | From | To | Method | Data |
 |------|----|--------|------|
-| `workflows/phases/*/artifacts/*` | `scripts/generate-reference.py` | filesystem read | metadata, prompt, template, example |
+| `workflows/activities/*/artifacts/*` | `scripts/generate-reference.py` | filesystem read | metadata, prompt, template, example |
 | `scripts/generate-reference.py` | `website/content/artifact-types/` | generated markdown | frontmatter and page body |
 | Hextra | generated content | Hugo render | sidebar, breadcrumbs, right nav |
 | Playwright | local Hugo server | browser tests | screenshots and nav assertions |

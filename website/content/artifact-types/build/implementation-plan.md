@@ -190,7 +190,7 @@ Use this local resource summary as grounding:
 
 ## Template
 
-`.ddx/plugins/helix/workflows/phases/04-build/artifacts/implementation-plan/template.md`
+`.ddx/plugins/helix/workflows/activities/04-build/artifacts/implementation-plan/template.md`
 For tracker conventions see `ddx bead --help`.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
