@@ -2,7 +2,7 @@ artifact:
   name: Contract
   id: contract
   type: document
-  phase: design
+  activity: design
   level: interface
 
 description: |

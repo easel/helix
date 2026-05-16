@@ -2,7 +2,7 @@ artifact:
   name: Security Architecture
   id: security-architecture
   type: document
-  phase: design
+  activity: design
 
 description: |
   Design-level security architecture that maps trust boundaries, controls,

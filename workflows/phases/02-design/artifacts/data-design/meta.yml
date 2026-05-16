@@ -2,7 +2,7 @@ artifact:
   name: Data Design
   id: data-design
   type: document
-  phase: design
+  activity: design
 
 description: |
   Design-level data architecture covering entities, stores, access patterns,

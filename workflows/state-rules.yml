@@ -3,7 +3,7 @@
 
 name: helix
 version: 1.0.0
-description: Test-driven development workflow with optional discovery and phase-based progression
+description: Test-driven development workflow with optional discovery and activity-based progression
 
 # Artifact patterns for state detection
 # Note: build/deploy execution is managed in the built-in tracker. Static file
@@ -15,39 +15,39 @@ artifact_patterns:
     frame:
       pattern: "docs/helix/01-frame/user-stories/US-{id}-*.md"
       type: user-story
-      phase: frame
+      activity: frame
 
     design:
       pattern: "docs/helix/02-design/technical-designs/TD-{id}-*.md"
       type: technical-design
-      phase: design
+      activity: design
 
     test:
       pattern: "docs/helix/03-test/test-plans/STP-{id}-*.md"
       type: story-test-plan
-      phase: test
+      activity: test
 
     build:
-      # No filesystem artifact: build-phase state is detected via tracker queries.
+      # No filesystem artifact: build-activity state is detected via tracker queries.
       # The old ".helix/" pattern is removed — that path does not exist in the repo.
       # DDx integration: tracker issues correspond to ddx bead issues labeled phase:build.
       type: build-issue
-      phase: build
+      activity: build
       query_only: true
       query_command: "Inspect open tracker issues labeled helix, phase:build, story:US-{id}"
 
     deploy:
-      # No filesystem artifact: deploy-phase state is detected via tracker queries.
+      # No filesystem artifact: deploy-activity state is detected via tracker queries.
       # The old ".helix/" pattern is removed — that path does not exist in the repo.
       # DDx integration: tracker issues correspond to ddx bead issues labeled phase:deploy.
       type: deploy-issue
-      phase: deploy
+      activity: deploy
       query_only: true
       query_command: "Inspect tracker issues labeled helix, phase:deploy, story:US-{id}. Treat the story as DEPLOY while any matching deploy issue is not closed, including `status: in_progress`."
 
     iterate:
       type: iterate-evidence
-      phase: iterate
+      activity: iterate
       query_only: true
       query_command: "Inspect tracker issues labeled helix, phase:deploy, story:US-{id}. Treat the story as ITERATE only when all matching deploy issues are complete and no matching deploy issue remains not closed. If any matching deploy issue is not closed, including `status: in_progress`, the story remains in DEPLOY. Linked tracker follow-on work is supporting evidence when present; canonical iterate outputs remain shared iteration context and are not queried by story ID."
 
@@ -56,24 +56,24 @@ artifact_patterns:
     frame:
       pattern: "docs/helix/01-frame/features/FEAT-{id}-*.md"
       type: feature-specification
-      phase: frame
+      activity: frame
 
     design:
       pattern: "docs/helix/02-design/solution-designs/SD-{id}-*.md"
       type: solution-design
-      phase: design
+      activity: design
 
     test:
       pattern: "docs/helix/03-test/test-plan-FEAT-{id}.md"
       type: feature-test-plan
-      phase: test
+      activity: test
 
     build:
       pattern: "docs/helix/04-build/implementation-plan-FEAT-{id}.md"
       type: feature-implementation
-      phase: build
+      activity: build
 
-  # Phase-level artifacts (project-wide)
+  # Activity-level artifacts (project-wide)
   project:
     discover:
       - pattern: "docs/helix/00-discover/product-vision.md"
@@ -105,24 +105,24 @@ artifact_patterns:
       - pattern: "docs/helix/04-build/implementation-plan.md"
         type: master-implementation
 
-# Phase detection strategy
-phase_detection:
-  strategy: highest-artifact  # Use the highest phase artifact found
+# Activity detection strategy
+activity_detection:
+  strategy: highest-artifact  # Use the highest activity artifact found
   order: [discover, frame, design, test, build, deploy, iterate]
 
-  # Additional checks for phase determination
+  # Additional checks for activity determination
   additional_checks:
     - type: test-status
-      description: Check if tests are passing to determine build vs test phase
+      description: Check if tests are passing to determine build vs test activity
       test_command: "make test"
-      passing_phase: build
-      failing_phase: test
+      passing_activity: build
+      failing_activity: test
 
     - type: deployment-status
-      description: Check if deployed to determine deploy vs build phase
+      description: Check if deployed to determine deploy vs build activity
       check_file: "docs/helix/05-deploy/deployment-record.md"
-      exists_phase: deploy
-      missing_phase: build
+      exists_activity: deploy
+      missing_activity: build
 
 # Artifact naming conventions
 naming_conventions:
@@ -194,7 +194,7 @@ validation:
 metadata:
   supports_vertical_slices: true
   supports_parallel_stories: true
-  enforces_phase_gates: true
+  enforces_activity_gates: true
   test_driven: true
   documentation_first: true
 

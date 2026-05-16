@@ -4,7 +4,7 @@ artifact:
   name: Security Requirements
   id: security-requirements
   type: document
-  phase: frame
+  activity: frame
 
 description: |
   Testable security requirements for authentication, authorization, data

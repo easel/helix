@@ -4,7 +4,7 @@ artifact:
   name: Proof of Concept
   id: proof-of-concept
   type: implementation
-  phase: design
+  activity: design
   optional: true
 
 description: |

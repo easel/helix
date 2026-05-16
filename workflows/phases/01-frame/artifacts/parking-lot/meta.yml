@@ -4,7 +4,7 @@ artifact:
   name: Parking Lot
   id: parking-lot
   type: registry
-  phase: frame
+  activity: frame
 
 description: |
   Registry for deferred or future work that should remain visible but outside

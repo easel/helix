@@ -4,7 +4,7 @@ artifact:
   name: Stakeholder Map
   id: stakeholder-map
   type: document
-  phase: frame
+  activity: frame
 
 description: |
   Stakeholder and decision-rights map for roles, interests, influence,
@@ -134,7 +134,7 @@ monitoring:
     - issue_resolution_time
 
   review_triggers:
-    - phase_transitions
+    - activity_transitions
     - major_decisions
     - stakeholder_changes
     - monthly_review

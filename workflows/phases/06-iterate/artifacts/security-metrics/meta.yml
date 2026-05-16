@@ -2,7 +2,7 @@ artifact:
   name: Security Metrics
   id: security-metrics
   type: document
-  phase: iterate
+  activity: iterate
 
 description: |
   Iteration-level security posture report that turns incidents, vulnerabilities,

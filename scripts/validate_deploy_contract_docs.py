@@ -107,13 +107,13 @@ def parse_args() -> argparse.Namespace:
         "--deploy-readme",
         type=Path,
         default=Path("workflows/phases/05-deploy/README.md"),
-        help="Path to the deploy phase README surface.",
+        help="Path to the deploy activity README surface.",
     )
     parser.add_argument(
         "--deploy-enforcer",
         type=Path,
         default=Path("workflows/phases/05-deploy/enforcer.md"),
-        help="Path to the deploy phase enforcer surface.",
+        help="Path to the deploy activity enforcer surface.",
     )
     parser.add_argument(
         "--glossary",

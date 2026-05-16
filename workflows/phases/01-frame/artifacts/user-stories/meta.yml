@@ -4,7 +4,7 @@ artifact:
   name: User Stories
   id: user-stories
   type: collection
-  phase: frame
+  activity: frame
 
 description: |
   Stable design artifacts defining vertical user journeys through feature

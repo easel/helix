@@ -2,7 +2,7 @@ artifact:
   name: Metrics Dashboard
   id: metrics-dashboard
   type: document
-  phase: iterate
+  activity: iterate
 
 description: |
   Iteration-level metrics summary that compares current values to a prior

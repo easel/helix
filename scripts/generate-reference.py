@@ -8,7 +8,7 @@ Generate website reference pages for HELIX artifacts and cross-cutting
 concerns from the upstream source-of-truth in `workflows/`.
 
 Reads:
-  workflows/phases/<phase>/artifacts/<slug>/   -> meta.yml, dependencies.yaml,
+  workflows/phases/<activity>/artifacts/<slug>/   -> meta.yml, dependencies.yaml,
                                                   prompt.md, template.md,
                                                   example.md (sometimes)
   workflows/concerns/<slug>/                   -> concern.md, practices.md
@@ -42,7 +42,7 @@ ARTIFACTS_DEST = CONTENT_ROOT / "artifact-types"
 CONCERNS_DEST = CONTENT_ROOT / "concerns"
 LEGACY_GLOSSARY = CONTENT_ROOT / "reference" / "glossary"
 
-PHASES = {
+ACTIVITIES = {
     "00-discover": {
         "num": 0,
         "slug": "discover",
@@ -125,18 +125,18 @@ SUPPORTING_ARTIFACTS = {
 }
 
 ARTIFACT_WEIGHTS = {
-    slug: phase["num"] * 100 + idx
-    for phase_key, phase in PHASES.items()
+    slug: activity["num"] * 100 + idx
+    for activity_key, activity in ACTIVITIES.items()
     for idx, slug in enumerate(
-        CORE_ARTIFACTS.get(phase_key, []) + SUPPORTING_ARTIFACTS.get(phase_key, []),
+        CORE_ARTIFACTS.get(activity_key, []) + SUPPORTING_ARTIFACTS.get(activity_key, []),
         start=10,
     )
 }
 
 CORE_NAV_ORDER = [
     slug
-    for phase_key in PHASES
-    for slug in CORE_ARTIFACTS.get(phase_key, [])
+    for activity_key in ACTIVITIES
+    for slug in CORE_ARTIFACTS.get(activity_key, [])
 ]
 
 CORE_NAV_WEIGHTS = {
@@ -164,13 +164,13 @@ SIDEBAR_TITLES = {
 # generator if any path is missing — drift in docs/helix/ surfaces loudly.
 
 HELIX_REAL_EXAMPLES = {
-    # Phase 0 — Discover
+    # Activity 0 — Discover
     "product-vision":        "docs/helix/00-discover/product-vision.md",
-    # Phase 1 — Frame
+    # Activity 1 — Frame
     "prd":                   "docs/helix/01-frame/prd.md",
     "concerns":              "docs/helix/01-frame/concerns.md",
     "feature-specification": "docs/helix/01-frame/features/FEAT-002-helix-cli.md",
-    # Phase 2 — Design
+    # Activity 2 — Design
     "architecture":          "docs/helix/02-design/architecture.md",
     "data-design":           "docs/helix/02-design/data-design.md",
     "security-architecture": "docs/helix/02-design/security-architecture.md",
@@ -180,16 +180,16 @@ HELIX_REAL_EXAMPLES = {
     "contract":              "docs/helix/02-design/contracts/CONTRACT-001-ddx-helix-boundary.md",
     "solution-design":       "docs/helix/02-design/solution-designs/SD-001-helix-supervisory-control.md",
     "technical-design":      "docs/helix/02-design/technical-designs/TD-002-helix-cli.md",
-    # Phase 3 — Test
+    # Activity 3 — Test
     "test-plan":             "docs/helix/03-test/test-plans/TP-002-helix-cli.md",
-    # Phase 4 — Build
+    # Activity 4 — Build
     "implementation-plan":   "docs/helix/04-build/implementation-plan.md",
-    # Phase 5 — Deploy
+    # Activity 5 — Deploy
     "runbook":               "docs/helix/05-deploy/runbook.md",
     "deployment-checklist":  "docs/helix/05-deploy/deployment-checklist.md",
     "release-notes":         "docs/helix/05-deploy/release-notes.md",
     "monitoring-setup":      "docs/helix/05-deploy/monitoring-setup.md",
-    # Phase 6 — Iterate
+    # Activity 6 — Iterate
     "improvement-backlog":   "docs/helix/06-iterate/improvement-backlog.md",
     "metrics-dashboard":     "docs/helix/06-iterate/metrics-dashboard.md",
     "security-metrics":      "docs/helix/06-iterate/security-metrics.md",
@@ -374,11 +374,11 @@ def sidebar_title(name: str, slug: str) -> str:
 
 
 def is_core_artifact(art: dict) -> bool:
-    return art["slug"] in CORE_ARTIFACTS.get(art["phase_key"], [])
+    return art["slug"] in CORE_ARTIFACTS.get(art["activity_key"], [])
 
 
 def is_supporting_artifact(art: dict) -> bool:
-    return art["slug"] in SUPPORTING_ARTIFACTS.get(art["phase_key"], [])
+    return art["slug"] in SUPPORTING_ARTIFACTS.get(art["activity_key"], [])
 
 
 def artifact_url(slug: str, slug_to_url: dict[str, str]) -> str:
@@ -386,15 +386,15 @@ def artifact_url(slug: str, slug_to_url: dict[str, str]) -> str:
 
 
 def artifact_output_path(art: dict) -> Path:
-    return Path(art["phase"]["slug"]) / f"{art['slug']}.md"
+    return Path(art["activity"]["slug"]) / f"{art['slug']}.md"
 
 
 def artifact_page_weight(art: dict) -> int:
     slug = art["slug"]
-    phase = art["phase"]
+    activity = art["activity"]
     if is_core_artifact(art):
-        return ARTIFACT_WEIGHTS.get(slug, phase["num"] * 100 + 10) - phase["num"] * 100
-    return ARTIFACT_WEIGHTS.get(slug, phase["num"] * 100 + 90) - phase["num"] * 100
+        return ARTIFACT_WEIGHTS.get(slug, activity["num"] * 100 + 10) - activity["num"] * 100
+    return ARTIFACT_WEIGHTS.get(slug, activity["num"] * 100 + 90) - activity["num"] * 100
 
 
 def yaml_quote(value: str) -> str:
@@ -492,7 +492,7 @@ def render_helix_document_links(slug: str) -> str:
 
 def render_artifact_reference_section(
     art: dict,
-    phase: dict,
+    activity: dict,
     output: str,
     rels: dict,
     all_slugs: set,
@@ -506,8 +506,8 @@ def render_artifact_reference_section(
     out.append(render_reference_row(
         "Activity",
         (
-            f'<a href="/reference/glossary/activities/"><strong>{html.escape(phase["label"])}</strong></a>'
-            f" — {html.escape(phase['summary'])}"
+            f'<a href="/reference/glossary/activities/"><strong>{html.escape(activity["label"])}</strong></a>'
+            f" — {html.escape(activity['summary'])}"
         ),
     ))
     if output:
@@ -543,16 +543,16 @@ def render_artifact_reference_section(
 
 def collect_artifacts():
     artifacts = []
-    for phase_key, phase in PHASES.items():
-        phase_dir = ARTIFACTS_SRC / phase_key / "artifacts"
-        if not phase_dir.exists():
+    for activity_key, activity in ACTIVITIES.items():
+        activity_dir = ARTIFACTS_SRC / activity_key / "artifacts"
+        if not activity_dir.exists():
             continue
-        for art_dir in sorted(p for p in phase_dir.iterdir() if p.is_dir()):
+        for art_dir in sorted(p for p in activity_dir.iterdir() if p.is_dir()):
             slug = art_dir.name
             artifacts.append({
                 "slug": slug,
-                "phase_key": phase_key,
-                "phase": phase,
+                "activity_key": activity_key,
+                "activity": activity,
                 "src_dir": art_dir,
                 "meta": load_yaml(art_dir / "meta.yml"),
                 "deps": load_yaml(art_dir / "dependencies.yaml"),
@@ -602,7 +602,7 @@ def get_relationships(meta: dict, deps: dict) -> dict:
                 "name": d.get(name_field) or humanize(slug),
                 "relationship": d.get("relationship", "") or "",
                 "required": d.get("required", True),
-                "phase": d.get("phase", ""),
+                "activity": d.get("activity", ""),
             })
         return items
 
@@ -647,7 +647,7 @@ def render_relationship_list(items: list, all_slugs: set, slug_to_url: dict[str,
 
 def render_artifact_page(art: dict, all_slugs: set, slug_to_url: dict[str, str]) -> str:
     slug = art["slug"]
-    phase = art["phase"]
+    activity = art["activity"]
     name = get_artifact_name(art["meta"], art["deps"], slug)
     desc = get_artifact_description(art["meta"], art["deps"])
     rels = get_relationships(art["meta"], art["deps"])
@@ -664,7 +664,7 @@ def render_artifact_page(art: dict, all_slugs: set, slug_to_url: dict[str, str])
     out.append(f"title: {yaml_quote(name)}")
     out.append(f"linkTitle: {yaml_quote(sidebar_title(name, slug))}")
     out.append(f"slug: {slug}")
-    out.append(f"phase: {yaml_quote(phase['label'])}")
+    out.append(f"activity: {yaml_quote(activity['label'])}")
     out.append(f"artifactRole: {yaml_quote('core' if is_core_artifact(art) else 'supporting')}")
     out.append(f"weight: {weight}")
     out.append("generated: true")
@@ -717,7 +717,7 @@ def render_artifact_page(art: dict, all_slugs: set, slug_to_url: dict[str, str])
         out.append("</details>")
         out.append("")
 
-    out.extend(render_artifact_reference_section(art, phase, output, rels, all_slugs, slug_to_url))
+    out.extend(render_artifact_reference_section(art, activity, output, rels, all_slugs, slug_to_url))
 
     return "\n".join(out)
 
@@ -787,10 +787,10 @@ def render_artifacts_index(artifacts: list, slug_to_url: dict[str, str]) -> str:
     out.append("")
 
     out.append("{{< cards >}}")
-    for phase in PHASES.values():
+    for activity in ACTIVITIES.values():
         out.append(
-            f'  {{{{< card link="{phase["slug"]}" title="{phase["label"]}" '
-            f'subtitle="{card_subtitle(phase["summary"], 140)}" >}}}}'
+            f'  {{{{< card link="{activity["slug"]}" title="{activity["label"]}" '
+            f'subtitle="{card_subtitle(activity["summary"], 140)}" >}}}}'
         )
     out.append("{{< /cards >}}")
     out.append("")
@@ -814,24 +814,24 @@ def render_activity_index(artifacts: list, slug_to_url: dict[str, str]) -> str:
     )
     out.append("")
 
-    by_phase: dict[str, list[dict]] = {}
+    by_activity: dict[str, list[dict]] = {}
     for a in artifacts:
-        by_phase.setdefault(a["phase_key"], []).append(a)
+        by_activity.setdefault(a["activity_key"], []).append(a)
 
-    for phase_key, phase in PHASES.items():
-        if phase_key not in by_phase:
+    for activity_key, activity in ACTIVITIES.items():
+        if activity_key not in by_activity:
             continue
-        out.append(f"## {phase['label']}")
+        out.append(f"## {activity['label']}")
         out.append("")
-        out.append(f"_{phase['summary']}_")
+        out.append(f"_{activity['summary']}_")
         out.append("")
 
-        phase_artifacts = {a["slug"]: a for a in by_phase[phase_key]}
-        core = [phase_artifacts[s] for s in CORE_ARTIFACTS.get(phase_key, []) if s in phase_artifacts]
-        supporting = [phase_artifacts[s] for s in SUPPORTING_ARTIFACTS.get(phase_key, []) if s in phase_artifacts]
+        activity_artifacts = {a["slug"]: a for a in by_activity[activity_key]}
+        core = [activity_artifacts[s] for s in CORE_ARTIFACTS.get(activity_key, []) if s in activity_artifacts]
+        supporting = [activity_artifacts[s] for s in SUPPORTING_ARTIFACTS.get(activity_key, []) if s in activity_artifacts]
         supporting.extend(
-            a for a in by_phase[phase_key]
-            if a["slug"] not in set(CORE_ARTIFACTS.get(phase_key, []) + SUPPORTING_ARTIFACTS.get(phase_key, []))
+            a for a in by_activity[activity_key]
+            if a["slug"] not in set(CORE_ARTIFACTS.get(activity_key, []) + SUPPORTING_ARTIFACTS.get(activity_key, []))
         )
 
         if core:
@@ -847,28 +847,28 @@ def render_activity_index(artifacts: list, slug_to_url: dict[str, str]) -> str:
     return "\n".join(out)
 
 
-def render_activity_phase_index(phase_key: str, phase: dict, artifacts: list, slug_to_url: dict[str, str]) -> str:
-    phase_artifacts = {a["slug"]: a for a in artifacts if a["phase_key"] == phase_key}
-    core = [phase_artifacts[s] for s in CORE_ARTIFACTS.get(phase_key, []) if s in phase_artifacts]
-    supporting = [phase_artifacts[s] for s in SUPPORTING_ARTIFACTS.get(phase_key, []) if s in phase_artifacts]
+def render_activity_index(activity_key: str, activity: dict, artifacts: list, slug_to_url: dict[str, str]) -> str:
+    activity_artifacts = {a["slug"]: a for a in artifacts if a["activity_key"] == activity_key}
+    core = [activity_artifacts[s] for s in CORE_ARTIFACTS.get(activity_key, []) if s in activity_artifacts]
+    supporting = [activity_artifacts[s] for s in SUPPORTING_ARTIFACTS.get(activity_key, []) if s in activity_artifacts]
     supporting.extend(
-        a for a in phase_artifacts.values()
-        if a["slug"] not in set(CORE_ARTIFACTS.get(phase_key, []) + SUPPORTING_ARTIFACTS.get(phase_key, []))
+        a for a in activity_artifacts.values()
+        if a["slug"] not in set(CORE_ARTIFACTS.get(activity_key, []) + SUPPORTING_ARTIFACTS.get(activity_key, []))
     )
 
     out: list[str] = []
     out.append("---")
-    out.append(f"title: {yaml_quote(phase['label'])}")
-    out.append(f"linkTitle: {yaml_quote(phase['label'])}")
-    out.append(f"weight: {phase['num'] * 10 + 10}")
+    out.append(f"title: {yaml_quote(activity['label'])}")
+    out.append(f"linkTitle: {yaml_quote(activity['label'])}")
+    out.append(f"weight: {activity['num'] * 10 + 10}")
     out.append("generated: true")
     out.append("---")
     out.append("")
-    out.append(phase["summary"])
+    out.append(activity["summary"])
     out.append("")
 
-    if phase.get("contract"):
-        out.append(phase["contract"])
+    if activity.get("contract"):
+        out.append(activity["contract"])
         out.append("")
 
     if core:
@@ -993,10 +993,10 @@ def render_concern_page(c: dict) -> str:
         out.append("")
 
     if c["practices_md"]:
-        out.append("## Practices by phase")
+        out.append("## Practices by activity")
         out.append("")
         out.append(
-            "Agents working in any of these phases inherit the practices below "
+            "Agents working in any of these activities inherit the practices below "
             "via the bead's context digest."
         )
         out.append("")
@@ -1035,7 +1035,7 @@ def render_concerns_index(concerns: list) -> str:
     out.append("")
     out.append(
         "A concern bundles a description, components, constraints, and "
-        "drift signals with per-phase practices. When an agent claims a "
+        "drift signals with per-activity practices. When an agent claims a "
         "bead, HELIX synthesizes a *context digest* that includes the "
         "active concerns — so the agent makes consistent technology "
         "choices, follows the project's conventions, and respects "
@@ -1102,11 +1102,11 @@ def main() -> None:
     # Activity section pages must live at the same route parent as their leaf
     # artifact pages. Hextra derives open/sidebar state from the content tree;
     # if activity indexes live elsewhere, leaf pages become dead ends.
-    for phase_key, phase in PHASES.items():
-        phase_dest = ARTIFACTS_DEST / phase["slug"]
-        phase_dest.mkdir(parents=True, exist_ok=True)
-        (phase_dest / "_index.md").write_text(
-            render_activity_phase_index(phase_key, phase, artifacts, slug_to_url)
+    for activity_key, activity in ACTIVITIES.items():
+        activity_dest = ARTIFACTS_DEST / activity["slug"]
+        activity_dest.mkdir(parents=True, exist_ok=True)
+        (activity_dest / "_index.md").write_text(
+            render_activity_index(activity_key, activity, artifacts, slug_to_url)
         )
 
     for a in artifacts:

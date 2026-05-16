@@ -2,7 +2,7 @@ artifact:
   name: Runbook
   id: runbook
   type: document
-  phase: deploy
+  activity: deploy
 
 description: |
   Service-specific operational procedures for on-call response, rollback,

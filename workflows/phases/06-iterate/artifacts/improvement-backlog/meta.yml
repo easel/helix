@@ -2,7 +2,7 @@ artifact:
   name: Improvement Backlog
   id: improvement-backlog
   type: document
-  phase: iterate
+  activity: iterate
 
 description: |
   Prioritized improvement inventory derived from iteration learnings and

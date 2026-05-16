@@ -4,7 +4,7 @@ artifact:
   name: Feature Specification
   id: feature-specification
   type: collection
-  phase: frame
+  activity: frame
 
 description: |
   Feature-level authority document that translates PRD requirements into

@@ -4,7 +4,7 @@ artifact:
   name: Threat Model
   id: threat-model
   type: document
-  phase: frame
+  activity: frame
 
 description: |
   Structured analysis of assets, data flows, trust boundaries, STRIDE threats,

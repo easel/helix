@@ -4,7 +4,7 @@ artifact:
   name: Opportunity Canvas
   id: opportunity-canvas
   type: document
-  phase: discover
+  activity: discover
 
 description: |
   Discover synthesis gate for problem, customer, value, solution concept,

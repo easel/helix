@@ -2,7 +2,7 @@ artifact:
   name: Release Notes
   id: release-notes
   type: document
-  phase: deploy
+  activity: deploy
 
 description: |
   Release-scoped communication artifact that summarizes shipped user-visible

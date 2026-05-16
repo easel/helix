@@ -4,7 +4,7 @@ artifact:
   name: PR-FAQ
   id: pr-faq
   type: document
-  phase: frame
+  activity: frame
 
 description: |
   Working-backwards launch narrative and internal FAQ that test customer

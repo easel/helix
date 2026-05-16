@@ -4,12 +4,12 @@ artifact:
   name: Product Vision
   id: product-vision
   type: document
-  phase: discover
+  activity: discover
 
 description: |
   North star document defining the product's target customer, current
   alternative, desired future state, and strategic success measures. First
-  artifact in Discover phase.
+  artifact in Discover activity.
 
 output:
   location: docs/helix/00-discover/product-vision.md

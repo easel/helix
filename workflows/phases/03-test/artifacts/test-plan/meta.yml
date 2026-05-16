@@ -4,7 +4,7 @@ artifact:
   name: Test Plan
   id: test-plan
   type: document
-  phase: test
+  activity: test
   level: project
 
 id_format:

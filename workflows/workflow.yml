@@ -4,7 +4,7 @@
 # the normative workflow contract inside its plugin tree.
 #
 # Runtime-neutral state definitions live in:
-#   workflows/state-machine.yaml  — phase graph and gate conditions
+#   workflows/state-machine.yaml  — activity graph and gate conditions
 #   workflows/state-rules.yml     — artifact patterns and state-detection rules
 #
 # DDx plugin normative contract lives in:
@@ -23,7 +23,7 @@ tags:
   - tracker
   - bounded-execution
 
-phases:
+activities:
   - id: discover
     order: 0
     name: Discover

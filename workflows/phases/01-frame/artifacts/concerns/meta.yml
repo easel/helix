@@ -4,7 +4,7 @@ artifact:
   name: Project Concerns
   id: concerns
   type: singleton
-  phase: frame
+  activity: frame
 
 description: |
   Declares the project's active cross-cutting concerns: technology stacks,

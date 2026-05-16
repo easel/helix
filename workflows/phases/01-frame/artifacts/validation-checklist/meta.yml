@@ -4,7 +4,7 @@ artifact:
   name: Validation Checklist
   id: validation-checklist
   type: checklist
-  phase: frame
+  activity: frame
 
 description: |
   Frame exit gate that verifies completeness, consistency, traceability,
@@ -14,7 +14,7 @@ output:
   location: docs/helix/01-frame/validation-checklist.md
   format: markdown
   naming: validation-checklist.md
-  timing: end_of_phase
+  timing: end_of_activity
 
 validation:
   required_sections:
@@ -51,7 +51,7 @@ variables:
     description: Date of validation
     required: true
 
-  - name: phase_gate_decision
+  - name: activity_gate_decision
     description: Pass/Conditional/Fail
     required: true
 
@@ -83,7 +83,7 @@ references:
 
 workflow:
   creation_order: last
-  timing: before_phase_gate
+  timing: before_activity_gate
   execution:
     - self_assessment
     - formal_validation
@@ -111,7 +111,7 @@ relationships:
     - input-gates.yml
 
   enables:
-    - design-phase-start
+    - design-activity-start
 
 validation_criteria:
   must_pass:
@@ -135,7 +135,7 @@ validation_criteria:
 outcomes:
   pass:
     description: All criteria met, proceed to Design
-    next_action: kickoff_design_phase
+    next_action: kickoff_design_activity
 
   conditional_pass:
     description: Proceed with specific conditions
@@ -164,12 +164,12 @@ monitoring:
     - validation_pass_rate
     - common_issues
     - remediation_time
-    - phase_gate_delays
+    - activity_gate_delays
 
 tags:
   - validation
   - quality
-  - phase-gate
+  - activity-gate
   - checklist
   - approval
 

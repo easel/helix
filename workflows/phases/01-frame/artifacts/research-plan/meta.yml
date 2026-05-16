@@ -4,7 +4,7 @@ artifact:
   name: Research Plan
   id: research-plan
   type: document
-  phase: frame
+  activity: frame
   optional: true
 
 description: |
@@ -90,7 +90,7 @@ examples:
 references:
   - title: "NN/g UX Research Methods"
     file: docs/resources/nng-ux-research-methods.md
-    relationship: "Grounds matching research methods to questions, evidence types, and product phase"
+    relationship: "Grounds matching research methods to questions, evidence types, and product activity"
   - title: "SBA Market Research and Competitive Analysis"
     file: docs/resources/sba-market-research-competitive-analysis.md
     relationship: "Grounds demand, pricing, customer, and market evidence expectations"

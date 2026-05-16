@@ -2,7 +2,7 @@ artifact:
   name: Test Procedures
   id: test-procedures
   type: document
-  phase: test
+  activity: test
 
 description: |
   Repeatable operator procedures for running planned tests, capturing evidence,

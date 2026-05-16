@@ -18,7 +18,7 @@ This specification covers four layers:
 
 1. Artifact-type metadata in `meta.yml` files.
 2. Instance metadata in Markdown frontmatter under the `ddx:` key.
-3. Naming, directory, ID, and phase progression conventions.
+3. Naming, directory, ID, and activity progression conventions.
 4. Known consumers and the parts of the schema they read.
 
 The schema is open. Consumers must ignore fields they do not understand unless a
@@ -34,7 +34,7 @@ not a specific project artifact instance.
 Canonical location:
 
 ```text
-workflows/phases/<phase-number>-<phase-name>/artifacts/<artifact-type>/meta.yml
+workflows/phases/<activity-number>-<activity-name>/artifacts/<artifact-type>/meta.yml
 ```
 
 Example path:
@@ -50,7 +50,7 @@ workflows/phases/02-design/artifacts/adr/meta.yml
 | `artifact.name` | string | Human-readable artifact type name, such as `Product Vision` or `ADR`. |
 | `artifact.id` | string | Stable artifact-type identifier. Use kebab-case unless the type has a widely used acronym convention. |
 | `artifact.type` | string | Broad artifact class, such as `document`, `registry`, `checklist`, `plan`, `report`, or `implementation`. |
-| `artifact.phase` | string | HELIX phase that owns this type. Use the phase slug, such as `discover`, `frame`, `design`, `test`, `build`, `deploy`, or `iterate`. |
+| `artifact.activity` | string | HELIX activity that owns this type. Use the activity slug, such as `discover`, `frame`, `design`, `test`, `build`, `deploy`, or `iterate`. |
 | `description` | string | Practical description of what the artifact is for and when a team should create it. |
 | `output.location` | string | Conventional location for instances of this type in a HELIX project. |
 | `output.format` | string | Expected output format. Markdown is the default catalog format. |
@@ -60,13 +60,13 @@ workflows/phases/02-design/artifacts/adr/meta.yml
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `artifact.level` | string | Granularity tier the artifact targets, such as `project`, `feature`, `story`, or `interface`. Use when the type can exist at multiple levels of the artifact hierarchy. |
-| `artifact.optional` | boolean | Whether the artifact type is conditional rather than generally expected in its phase. Omit or set `false` for normal phase artifacts. |
+| `artifact.optional` | boolean | Whether the artifact type is conditional rather than generally expected in its activity. Omit or set `false` for normal activity artifacts. |
 | `output.naming` | string | Naming pattern for an instance, such as `prd.md`, `FEAT-{number}-{title}.md`, or `ADR-{number}-{title}.md`. |
 | `output.examples` | list | Example filenames demonstrating the naming pattern. |
 | `id_format` | mapping | Identifier shape for instances of this type. See [Instance ID format](#instance-id-format-id_format) below. |
 | `reuse_policy` | string | Human-readable rule explaining whether instances are write-once, updated in place, superseded, or replaced. |
 | `dependencies.requires` | list | Inputs needed before this artifact can be authored responsibly. These are planning dependencies, not necessarily runtime blockers. |
-| `dependencies.enables` | list | Artifacts, decisions, or phase work this artifact unlocks. |
+| `dependencies.enables` | list | Artifacts, decisions, or activity work this artifact unlocks. |
 | `dependencies.relates_to` | list | Peer or adjacent artifacts that should be considered together. |
 | `validation.required_sections` | list | Sections an instance should contain. |
 | `validation.required_fields` | list | Structured fields or table columns an instance should contain. |
@@ -81,7 +81,7 @@ workflows/phases/02-design/artifacts/adr/meta.yml
 | `template.sections` | list or mapping | Named sections the template contains, optionally with section-specific guidance. |
 | `example.file` | string | Single canonical example filename relative to the artifact-type directory. |
 | `examples` | list | Example files for the artifact type. Examples are illustrative, not governing unless explicitly marked. |
-| `workflow.creation_order` | number or string | Relative order inside a phase. Lower values generally come earlier. |
+| `workflow.creation_order` | number or string | Relative order inside an activity. Lower values generally come earlier. |
 | `workflow.review_cycles` | number or string | Expected review depth before the artifact becomes dependable. |
 | `workflow.approval_required` | boolean | Whether explicit approval is expected before downstream artifacts depend on this artifact. |
 | `workflow.approvers` | list | Roles that should approve the artifact when approval is required. |
@@ -117,7 +117,7 @@ open shape:
 | `input` | string | Name of an input required by this artifact. Used in `requires`. |
 | `output` | string | Name of an output this artifact enables. Used in `enables`. |
 | `type` | string | Kind of dependency, such as `artifact`, `external`, `decision`, `validation`, or `insight`. |
-| `phase` | string | Phase slug or phase directory name when the dependency crosses phases. |
+| `activity` | string | Activity slug or activity directory name when the dependency crosses activities. |
 | `path` | string | Artifact-type id, conventional instance path fragment, or other project-relative locator. |
 | `required` | boolean | Whether the dependency is required for normal use. |
 | `relationship` | string | Human-readable explanation of why the dependency matters. |
@@ -186,7 +186,7 @@ Instance with graph metadata:
 ddx:
   id: TD-014
   type: technical-design
-  phase: design
+  activity: design
   depends_on:
     - US-009
     - ADR-003
@@ -204,7 +204,7 @@ ddx:
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `ddx.type` | string | Artifact-type id from `artifact.id`, such as `prd`, `adr`, or `technical-design`. Recommended when `id` alone does not identify the type. |
-| `ddx.phase` | string | Phase slug that owns this instance. Recommended for generated or moved artifacts. |
+| `ddx.activity` | string | Activity slug that owns this instance. Recommended for generated or moved artifacts. |
 | `ddx.depends_on` | list of strings | Artifact instance IDs that must be considered before this artifact is complete or dependable. |
 | `ddx.status` | string | Artifact lifecycle state, such as `draft`, `review`, `approved`, `deprecated`, or `superseded`. |
 | `ddx.supersedes` | list of strings | Prior artifact IDs replaced by this artifact. |
@@ -242,8 +242,8 @@ Consumers should interpret this graph as follows:
 | Direction | Dependencies point upstream toward the artifact being relied on. |
 | Blocking | A dependency is blocking for artifact completion when the downstream artifact cannot be responsibly approved without the upstream artifact. |
 | Traceability | A dependency also creates traceability even when no automation blocks on it. |
-| Phase order | Dependencies usually point to the same or earlier HELIX phase. Later-phase dependencies are allowed only for explicit feedback loops, reviews, reports, or supersession. |
-| DAG preference | The graph should be acyclic for normal phase progression. Cycles indicate either an iterative review loop that should be modeled explicitly or an artifact split that needs refinement. |
+| Activity order | Dependencies usually point to the same or earlier HELIX activity. Later-activity dependencies are allowed only for explicit feedback loops, reviews, reports, or supersession. |
+| DAG preference | The graph should be acyclic for normal activity progression. Cycles indicate either an iterative review loop that should be modeled explicitly or an artifact split that needs refinement. |
 | Missing IDs | A missing dependency target is a warning while drafting and blocking before publishing or depending on the artifact. |
 | External inputs | External systems, services, people, and research inputs should appear in artifact content or `meta.yml` dependencies, not in `ddx.depends_on`, unless they have their own HELIX artifact instance ID. |
 
@@ -281,7 +281,7 @@ Project instances conventionally live under `docs/helix/`.
 Catalog layout (example — DDx runtime):
 
 ```text
-<runtime-catalog-root>/phases/
+<runtime-catalog-root>/activities/
   00-discover/artifacts/<artifact-type>/
     meta.yml
     prompt.md
@@ -310,9 +310,9 @@ docs/helix/
 
 Conventions:
 
-1. Phase directory numbers define reading order and publication order.
-2. Phase slugs define semantic ownership.
-3. Singleton artifacts usually live directly in the phase directory.
+1. Activity directory numbers define reading order and publication order.
+2. Activity slugs define semantic ownership.
+3. Singleton artifacts usually live directly in the activity directory.
 4. Multi-instance artifact families may live in plural subdirectories, such as
    `features/`, `adrs/`, `solution-designs/`, or `technical-designs/`.
 5. Generated projections, such as a website or reference export, must preserve
@@ -321,11 +321,11 @@ Conventions:
 6. Runtime state directories, such as tracker files or worker logs, are not part
    of the artifact schema.
 
-## Phase progression conventions
+## Activity progression conventions
 
-HELIX phases form a directional artifact progression:
+HELIX activities form a directional artifact progression:
 
-| Phase | Purpose | Typical artifact dependency direction |
+| Activity | Purpose | Typical artifact dependency direction |
 | --- | --- | --- |
 | `00-discover` | Establish opportunity, vision, business context, and constraints. | Root inputs. |
 | `01-frame` | Convert opportunity into product scope, requirements, features, stories, risks, and policy. | Depends on discover artifacts. |
@@ -333,9 +333,9 @@ HELIX phases form a directional artifact progression:
 | `03-test` | Define verification strategy and concrete test expectations. | Depends on frame and design artifacts. |
 | `04-build` | Plan and execute implementation slices. | Depends on test, design, and frame artifacts. |
 | `05-deploy` | Prepare release, operations, rollout, and support. | Depends on build and design artifacts. |
-| `06-iterate` | Measure outcomes and feed changes back into discovery, framing, design, or build. | May depend on any prior phase and may create follow-up work. |
+| `06-iterate` | Measure outcomes and feed changes back into discovery, framing, design, or build. | May depend on any prior activity and may create follow-up work. |
 
-Progression is not a waterfall rule. Feedback is expected. When a later phase
+Progression is not a waterfall rule. Feedback is expected. When a later activity
 changes an earlier assumption, update or supersede the earlier artifact and let
 the dependency graph show the new source of truth.
 
@@ -358,9 +358,9 @@ Consumers should be conservative readers and careful writers:
 | --- | --- | --- | --- | --- |
 | Manual operation | Human or agent reads catalog files and maintains artifacts directly. | `meta.yml`, `template.md`, `prompt.md`, `ddx.id`, `ddx.depends_on`, source paths. | Artifact content and optional frontmatter. | Can use the schema without DDx. Human judgment decides workflow state. |
 | DDx reference consumer | Current reference runtime for tracking, artifact loading, and queue execution in HELIX development. | Artifact-type metadata, `ddx:` frontmatter, IDs, dependencies, labels, and project paths. | Tracker state, generated artifacts, and runtime-specific records outside the artifact schema. | DDx validates and consumes the schema but does not own it. HELIX owns this specification. |
-| Hugo microsite projection | Documentation projection for readers. | Catalog metadata, examples, instance paths, titles, descriptions, and phase layout. | Generated website content. | Must present projected docs as a view of canonical artifacts, not as the source of truth. |
+| Hugo microsite projection | Documentation projection for readers. | Catalog metadata, examples, instance paths, titles, descriptions, and activity layout. | Generated website content. | Must present projected docs as a view of canonical artifacts, not as the source of truth. |
 | Claude Code plugin / skill packaging | Runtime integration for invoking HELIX skills and shared resources. | Prompts, templates, workflow docs, and portable artifact schema. | Skill/package metadata and generated artifacts when directed by the user. | Should not require DDx-specific tracker state to understand artifacts. |
-| Future runtime integrations | Databricks Genie, other agent runtimes, CI jobs, or custom tools. | Required common fields, `ddx:` frontmatter, dependency graph, phase layout. | Runtime-specific state in their own stores; artifacts only through the open schema. | Must treat DDx as a reference implementation, not as the schema authority. |
+| Future runtime integrations | Databricks Genie, other agent runtimes, CI jobs, or custom tools. | Required common fields, `ddx:` frontmatter, dependency graph, activity layout. | Runtime-specific state in their own stores; artifacts only through the open schema. | Must treat DDx as a reference implementation, not as the schema authority. |
 
 ## Compatibility rules
 

@@ -4,7 +4,7 @@ artifact:
   name: Feasibility Study
   id: feasibility-study
   type: document
-  phase: frame
+  activity: frame
   optional: true
 
 description: |

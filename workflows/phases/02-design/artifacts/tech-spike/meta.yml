@@ -4,7 +4,7 @@ artifact:
   name: Technical Spike
   id: tech-spike
   type: investigation
-  phase: design
+  activity: design
   optional: true
 
 description: |

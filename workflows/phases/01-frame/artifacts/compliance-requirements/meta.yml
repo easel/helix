@@ -4,7 +4,7 @@ artifact:
   name: Compliance Requirements
   id: compliance-requirements
   type: document
-  phase: frame
+  activity: frame
 
 description: |
   Obligation-to-control map for applicable regulations, standards,

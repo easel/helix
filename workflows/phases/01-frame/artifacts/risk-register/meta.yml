@@ -4,7 +4,7 @@ artifact:
   name: Risk Register
   id: risk-register
   type: register
-  phase: frame
+  activity: frame
 
 description: |
   Action register for uncertain events that could change project outcome,

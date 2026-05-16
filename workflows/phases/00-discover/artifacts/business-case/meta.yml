@@ -4,7 +4,7 @@ artifact:
   name: Business Case
   id: business-case
   type: document
-  phase: discover
+  activity: discover
 
 description: |
   Investment case for go/no-go decisions: market sizing, cost, return,

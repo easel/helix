@@ -2,7 +2,7 @@ artifact:
   name: Security Tests
   id: security-tests
   type: document
-  phase: test
+  activity: test
 
 description: |
   Security verification matrix that maps material threats and controls to

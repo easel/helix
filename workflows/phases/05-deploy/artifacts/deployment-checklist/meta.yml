@@ -2,7 +2,7 @@ artifact:
   name: Deployment Checklist
   id: deployment-checklist
   type: document
-  phase: deploy
+  activity: deploy
 
 description: |
   Short, execution-ready release readiness checklist that captures the

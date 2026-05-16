@@ -4,7 +4,7 @@ artifact:
   name: Product Requirements Document
   id: prd
   type: document
-  phase: frame
+  activity: frame
 
 description: |
   Product-scope authority document that translates vision into prioritized,

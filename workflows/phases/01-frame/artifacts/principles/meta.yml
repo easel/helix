@@ -4,11 +4,11 @@ artifact:
   name: Project Principles
   id: principles
   type: document
-  phase: frame
+  activity: frame
 
 description: |
   Cross-cutting design principles that guide judgment calls across all HELIX
-  phases. They are not requirements, concerns, ADRs, workflow rules, or process
+  activities. They are not requirements, concerns, ADRs, workflow rules, or process
   enforcement. They are stable lenses for choosing between two plausible
   options when the artifacts do not prescribe an exact answer.
 

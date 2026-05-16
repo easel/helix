@@ -4,7 +4,7 @@ artifact:
   name: Competitive Analysis
   id: competitive-analysis
   type: document
-  phase: discover
+  activity: discover
 
 description: |
   Market landscape and positioning analysis. Identifies direct rivals,

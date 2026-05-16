@@ -2,7 +2,7 @@ artifact:
   name: Metric Definition
   id: metric-definition
   type: document
-  phase: iterate
+  activity: iterate
 
 description: |
   Reusable metric contract that defines what is measured, how it is measured,

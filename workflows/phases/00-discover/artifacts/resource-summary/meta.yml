@@ -4,7 +4,7 @@ artifact:
   name: Resource Summary
   id: resource-summary
   type: document
-  phase: discover
+  activity: discover
   optional: true
 
 description: |

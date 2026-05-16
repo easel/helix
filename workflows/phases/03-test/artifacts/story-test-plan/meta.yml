@@ -4,7 +4,7 @@ artifact:
   name: Story Test Plan
   id: story-test-plan
   type: document
-  phase: test
+  activity: test
   level: story
 
 id_format:

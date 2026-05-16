@@ -4,7 +4,7 @@ artifact:
   name: Architecture Decision Record
   id: adr
   type: document
-  phase: design
+  activity: design
   level: project
 
 id_format:
@@ -28,7 +28,7 @@ output:
   naming: ADR-{number}-{decision-name}.md
   examples:
     - ADR-001-use-jsonl-for-tracker.md
-    - ADR-002-helix-phase-structure.md
+    - ADR-002-helix-activity-structure.md
 
 reuse_policy: |
   ADRs are write-once. Once an ADR status is Accepted or Rejected it must not

@@ -4,14 +4,14 @@ artifact:
   name: Architecture
   id: architecture
   type: document
-  phase: design
+  activity: design
 
 description: |
   Captures the C4 views the team needs to build and review the system —
   System Context, Container, Component (where helpful), Deployment, and
   Data Flow — plus the quality attributes that constrain the design and
   the architectural decisions that bind it. The architecture document is
-  the highest-authority structural artifact in the Design phase: solution
+  the highest-authority structural artifact in the Design activity: solution
   designs reference it, technical designs follow it, and operational
   artifacts (runbook, monitoring, deployment) trace back to its quality
   attributes.

@@ -4,7 +4,7 @@ artifact:
   name: Technical Design
   id: technical-design
   type: document
-  phase: design
+  activity: design
   level: story  # This is a story-level artifact
 
 description: |
@@ -123,7 +123,7 @@ references:
     relationship: "Grounds acceptance-criteria-to-test mapping"
 
 workflow:
-  creation_order: 1  # First artifact in design phase for a story
+  creation_order: 1  # First artifact in design activity for a story
   review_cycles: 1-2
   approval_required: true
   approvers:

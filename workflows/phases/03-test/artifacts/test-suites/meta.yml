@@ -2,7 +2,7 @@ artifact:
   name: Test Suites
   id: test-suites
   type: document
-  phase: test
+  activity: test
 
 description: |
   Inventory of executable test suites with boundaries, coverage ownership,

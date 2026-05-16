@@ -251,7 +251,7 @@ def validate_artifacts(artifacts: list[ArtifactMeta]) -> list[str]:
 
     if not errors:
         print(
-            f"validated deploy artifact graph: {len(artifacts)} artifacts, {checked_edges} intra-phase requires edges"
+            f"validated deploy artifact graph: {len(artifacts)} artifacts, {checked_edges} intra-activity requires edges"
         )
 
     return errors
